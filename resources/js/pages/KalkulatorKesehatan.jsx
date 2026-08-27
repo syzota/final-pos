@@ -394,7 +394,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </div>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', fontSize: '11.5px', fontWeight: 600 }}>
                   <span className="badge badge-green">Menjaga BB: {kalResult.tdee} kcal</span>
-                  <span className="badge badge-cyan">Turun BB: {kalResult.turun} kcal</span>
+                  <span className="badge badge-orange">Turun BB: {kalResult.turun} kcal</span>
                   <span className="badge badge-orange">Naik BB: {kalResult.naik} kcal</span>
                 </div>
               </div>
