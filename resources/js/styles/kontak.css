@@ -1,0 +1,1654 @@
+/* ===================================
+   KONTAK DARURAT PAGE STYLES
+   =================================== */
+
+.kontak-page {
+  min-height: 100vh;
+  background-color: #f9f9ff;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.kontak-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ===================================
+   KONTAK HEADER
+   =================================== */
+.kontak-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.kontak-main-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  color: #111c2c;
+  line-height: 40px;
+}
+
+.kontak-main-subtitle {
+  font-size: 18px;
+  font-weight: 400;
+  color: #42474e;
+  line-height: 28px;
+  max-width: 560px;
+  text-align: center;
+}
+
+/* ===================================
+   EMERGENCY NUMBER CARD
+   =================================== */
+.kontak-emergency-card {
+  border-radius: 12px;
+  background-color: #ba1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 32px;
+  box-shadow: 0 10px 30px rgba(186,26,26,0.3), 0 4px 6px -4px rgba(0,0,0,0.1);
+  animation: kontak-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes kontak-pulse {
+  0%, 100% { box-shadow: 0 10px 30px rgba(186,26,26,0.3); }
+  50% { box-shadow: 0 10px 48px rgba(186,26,26,0.55); }
+}
+
+.kontak-phone-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kontak-phone-icon svg {
+  width: 80px;
+  height: 70px;
+}
+
+.kontak-emergency-number {
+  font-size: 60px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  color: #fff;
+  line-height: 60px;
+  text-align: center;
+}
+
+.kontak-emergency-desc {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.9);
+  line-height: 28px;
+  text-align: center;
+}
+
+/* ===================================
+   CONTACT CARDS GRID (3 columns)
+   =================================== */
+.kontak-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.kontak-service-card {
+  border: 1px solid #c2c7cf;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.kontak-service-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+}
+
+.kontak-service-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 36px;
+}
+
+.kontak-service-icon.ambulans { background-color: #ffdad6; }
+.kontak-service-icon.rumahsakit { background-color: #99c2f1; }
+.kontak-service-icon.bidan { background-color: #f0abc4; }
+
+.kontak-service-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  flex: 1;
+}
+
+.kontak-service-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111c2c;
+  line-height: 32px;
+}
+
+.kontak-service-desc {
+  font-size: 16px;
+  font-weight: 400;
+  color: #42474e;
+  line-height: 24px;
+}
+
+.kontak-service-btn {
+  border-radius: 8px;
+  padding: 16px 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.kontak-service-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.kontak-service-btn.ambulans { background-color: #37618b; }
+.kontak-service-btn.rumahsakit { background-color: #37618b; }
+.kontak-service-btn.bidan { background-color: #854d63; }
+
+/* ===================================
+   BOTTOM SECTION: PROSEDUR + GPS
+   =================================== */
+.kontak-bottom-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+}
+
+.kontak-prosedur-card {
+  border-radius: 12px;
+  background-color: #f0f3ff;
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.kontak-prosedur-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.kontak-prosedur-badge {
+  font-size: 14px;
+  font-weight: 400;
+  color: #37618b;
+}
+
+.kontak-prosedur-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #37618b;
+  line-height: 20px;
+}
+
+.kontak-prosedur-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kontak-step {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.kontak-step-check {
+  font-size: 18px;
+  color: #37618b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.kontak-step-text {
+  font-size: 16px;
+  font-weight: 400;
+  color: #42474e;
+  line-height: 24px;
+  margin: 0;
+}
+
+.kontak-step-text strong {
+  font-weight: 700;
+}
+
+/* GPS Share Card */
+.kontak-gps-card {
+  border: 1px solid #c2c7cf;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 40px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+.kontak-gps-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 54.7% 123.7% at 50% 50%, #37618b 0%, rgba(55,97,139,0) 100%);
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.kontak-gps-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background-color: rgba(153,194,241,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #37618b;
+  position: relative;
+}
+
+.kontak-gps-badge {
+  font-size: 14px;
+  font-weight: 600;
+  color: #42474e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kontak-gps-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #37618b;
+  line-height: 28px;
+}
+
+.kontak-gps-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: #42474e;
+  max-width: 320px;
+  margin: 0;
+}
+
+/* ===================================
+   MAP SECTION
+   =================================== */
+.kontak-map-section {
+  border: 1px solid #c2c7cf;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 400px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+.kontak-map-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kontak-map-badge {
+  position: absolute;
+  top: 17px;
+  left: 17px;
+  border: 1px solid #c2c7cf;
+  border-radius: 8px;
+  background-color: rgba(249,249,255,0.9);
+  backdrop-filter: blur(6px);
+  padding: 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #111c2c;
+}
+
+.kontak-map-badge-icon {
+  color: #37618b;
+  font-size: 16px;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+@media (max-width: 768px) {
+  .kontak-main {
+    padding: 16px 16px 40px;
+  }
+
+  .kontak-emergency-number {
+    font-size: 40px;
+    letter-spacing: 3px;
+  }
+
+  .kontak-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kontak-bottom-grid {
+    flex-direction: column;
+  }
+
+  .kontak-main-title {
+    font-size: 24px;
+  }
+}
+
+/* =========================================================
+   CONTACT INFORMATION PAGE V2
+   ========================================================= */
+
+.kontak-info-main {
+  width: 100%;
+  max-width: 1280px;
+
+  margin: 0 auto;
+
+  padding: 36px 24px 80px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 64px;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.kontak-info-hero {
+  position: relative;
+
+  overflow: hidden;
+
+  min-height: 300px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(280px, 0.75fr);
+
+  align-items: center;
+
+  gap: 40px;
+
+  padding: 48px;
+
+  border-radius: 28px;
+
+  background:
+    radial-gradient(
+      circle at 95% 10%,
+      rgba(153, 194, 241, 0.32),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      #315d89,
+      #4276a7
+    );
+
+  box-shadow:
+    0 18px 50px rgba(43, 79, 115, 0.15);
+}
+
+
+.kontak-info-hero::before {
+  content: '';
+
+  position: absolute;
+
+  width: 280px;
+  height: 280px;
+
+  right: -100px;
+  bottom: -140px;
+
+  border-radius: 50%;
+
+  border:
+    45px solid
+    rgba(255, 255, 255, 0.06);
+}
+
+
+.kontak-info-hero__content {
+  position: relative;
+
+  z-index: 2;
+}
+
+
+.kontak-info-eyebrow {
+  width: fit-content;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 14px;
+
+  margin-bottom: 20px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(255, 255, 255, 0.14);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.20);
+
+  color: #ffffff;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+.kontak-info-hero h1 {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size:
+    clamp(
+      2.3rem,
+      4vw,
+      4rem
+    );
+
+  line-height: 1.05;
+
+  letter-spacing: -0.045em;
+
+  font-weight: 800;
+}
+
+
+.kontak-info-hero h1 span {
+  color: #cce6ff;
+}
+
+
+.kontak-info-hero__content > p {
+  max-width: 620px;
+
+  margin:
+    22px
+    0
+    0;
+
+  color:
+    rgba(255, 255, 255, 0.82);
+
+  font-size: 14px;
+
+  line-height: 1.8;
+}
+
+
+/* safety notice */
+
+.kontak-info-hero__notice {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 16px;
+
+  padding: 22px;
+
+  border-radius: 20px;
+
+  background:
+    rgba(255, 255, 255, 0.94);
+
+  box-shadow:
+    0 14px 32px rgba(23, 58, 92, 0.14);
+}
+
+
+.kontak-info-notice-icon {
+  width: 46px;
+  height: 46px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #e6f1fc;
+
+  color: #37618b;
+
+  font-size: 20px;
+}
+
+
+.kontak-info-hero__notice strong {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #1f3b57;
+
+  font-size: 14px;
+}
+
+
+.kontak-info-hero__notice p {
+  margin: 0;
+
+  color: #65788c;
+
+  font-size: 12.5px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   SECTION HEADING
+   ========================================================= */
+
+.kontak-info-section,
+.kontak-location-section {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 26px;
+}
+
+
+.kontak-info-heading {
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 24px;
+}
+
+
+.kontak-section-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #37618b;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.10em;
+}
+
+
+.kontak-info-heading h2,
+.kontak-guide-header h2,
+.kontak-area-content h2 {
+  margin: 0;
+
+  color: var(--ink);
+
+  font-size:
+    clamp(
+      1.55rem,
+      2.4vw,
+      2.1rem
+    );
+
+  font-weight: 800;
+
+  letter-spacing: -0.025em;
+}
+
+
+.kontak-info-heading p {
+  max-width: 620px;
+
+  margin: 8px 0 0;
+
+  color: var(--ink-soft);
+
+  font-size: 13.5px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   INFORMATION CARDS
+   ========================================================= */
+
+.kontak-info-cards {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+
+.kontak-info-card {
+  min-height: 260px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  padding: 26px;
+
+  border-radius: 22px;
+
+  border:
+    1px solid
+    #e0e9f2;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 30px
+    rgba(33, 62, 91, 0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.kontak-info-card:hover {
+  transform:
+    translateY(-3px);
+
+  box-shadow:
+    0 14px 36px
+    rgba(33, 62, 91, 0.10);
+}
+
+
+.kontak-info-card-icon {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #e8f2fd;
+
+  color: #37618b;
+
+  font-size: 22px;
+
+  margin-bottom: 28px;
+}
+
+
+.kontak-info-card--emergency
+.kontak-info-card-icon {
+  background: #fff0f0;
+
+  color: #b42318;
+}
+
+
+.kontak-info-card-content h3 {
+  margin:
+    0
+    0
+    10px;
+
+  color: #203b55;
+
+  font-size: 17px;
+
+  font-weight: 800;
+}
+
+
+.kontak-info-card-content > p {
+  min-height: 66px;
+
+  margin: 0;
+
+  color: #708295;
+
+  font-size: 12.5px;
+
+  line-height: 1.7;
+}
+
+
+.kontak-info-card-value {
+  margin-top: 22px;
+
+  padding-top: 18px;
+
+  border-top:
+    1px solid
+    #edf1f5;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.kontak-info-card-value strong {
+  color: #37618b;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+
+.kontak-info-card--emergency
+.kontak-info-card-value strong {
+  color: #b42318;
+}
+
+
+.kontak-info-card-value span {
+  color: #8998a8;
+
+  font-size: 10.5px;
+}
+
+
+/* =========================================================
+   PREPARATION GUIDE
+   ========================================================= */
+
+.kontak-guide-section {
+  padding: 34px;
+
+  border-radius: 26px;
+
+  background: #eff6fd;
+
+  border:
+    1px solid
+    #dce9f6;
+}
+
+
+.kontak-guide-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 28px;
+}
+
+
+.kontak-guide-header-icon {
+  width: 50px;
+  height: 50px;
+
+  flex-shrink: 0;
+
+  border-radius: 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #37618b;
+
+  color: white;
+
+  font-size: 20px;
+}
+
+
+.kontak-guide-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 16px;
+}
+
+
+.kontak-guide-item {
+  display: flex;
+
+  gap: 16px;
+
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255, 255, 255, 0.82);
+
+  border:
+    1px solid
+    rgba(214, 227, 240, 0.9);
+}
+
+
+.kontak-guide-number {
+  color: #8eabc8;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+}
+
+
+.kontak-guide-item h3 {
+  margin:
+    0
+    0
+    7px;
+
+  color: #263f59;
+
+  font-size: 14px;
+
+  font-weight: 800;
+}
+
+
+.kontak-guide-item p {
+  margin: 0;
+
+  color: #708195;
+
+  font-size: 11.5px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   LOCATION COUNT
+   ========================================================= */
+
+.kontak-location-heading {
+  align-items: center;
+}
+
+
+.kontak-location-count {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 12px 18px;
+
+  border-radius: 16px;
+
+  background: #e8f2fc;
+
+  color: #37618b;
+}
+
+
+.kontak-location-count strong {
+  font-size: 28px;
+
+  line-height: 1;
+
+  font-weight: 800;
+}
+
+
+.kontak-location-count span {
+  color: #637d96;
+
+  font-size: 9.5px;
+
+  line-height: 1.25;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   LOCATION CARDS
+   ========================================================= */
+
+.kontak-location-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+
+.kontak-location-card {
+  position: relative;
+
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    auto
+    1fr;
+
+  gap:
+    15px
+    14px;
+
+  padding: 20px;
+
+  border:
+    1px solid
+    #e0e8f0;
+
+  border-radius: 20px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 24px
+    rgba(33, 62, 91, 0.05);
+}
+
+
+.kontak-location-number {
+  position: absolute;
+
+  top: 14px;
+  right: 15px;
+
+  color: #d8e3ed;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+
+.kontak-location-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background: #e7f1fc;
+
+  color: #37618b;
+
+  font-size: 18px;
+}
+
+
+.kontak-location-content {
+  min-width: 0;
+
+  padding-right: 20px;
+}
+
+
+.kontak-location-content h3 {
+  margin:
+    1px
+    0
+    10px;
+
+  color: #203b56;
+
+  font-size: 14px;
+
+  line-height: 1.4;
+
+  font-weight: 800;
+}
+
+
+.kontak-location-address {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 7px;
+
+  color: #667b8f;
+
+  font-size: 11.5px;
+
+  line-height: 1.45;
+}
+
+
+.kontak-location-address i {
+  margin-top: 1px;
+
+  color: #8aa4bd;
+}
+
+
+.kontak-location-coords {
+  margin-top: 7px;
+
+  color: #98a6b4;
+
+  font-size: 9.5px;
+
+  letter-spacing: 0.02em;
+}
+
+
+.kontak-location-map {
+  grid-column:
+    1 / -1;
+
+  min-height: 40px;
+
+  margin-top: 4px;
+
+  padding:
+    0
+    14px;
+
+  border-radius: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  background: #f3f7fb;
+
+  color: #37618b;
+
+  text-decoration: none;
+
+  font-size: 11.5px;
+
+  font-weight: 800;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.kontak-location-map:hover {
+  background: #37618b;
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   AREA / MAP SECTION
+   ========================================================= */
+
+.kontak-area-section {
+  display: grid;
+
+  grid-template-columns:
+    1.1fr
+    0.9fr;
+
+  gap: 34px;
+
+  align-items: stretch;
+
+  padding: 22px;
+
+  border-radius: 26px;
+
+  border:
+    1px solid
+    #e0e9f1;
+
+  background: #ffffff;
+}
+
+
+.kontak-area-image {
+  position: relative;
+
+  min-height: 350px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background: #e6eef5;
+}
+
+
+.kontak-area-image > img {
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+
+  inset: 0;
+
+  object-fit: cover;
+}
+
+
+.kontak-area-overlay {
+  position: absolute;
+
+  left: 18px;
+  bottom: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding:
+    11px
+    15px;
+
+  border-radius: 15px;
+
+  background:
+    rgba(255, 255, 255, 0.92);
+
+  backdrop-filter: blur(8px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(26, 54, 81, 0.12);
+}
+
+
+.kontak-area-pin {
+  width: 37px;
+  height: 37px;
+
+  border-radius: 11px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #37618b;
+
+  color: white;
+}
+
+
+.kontak-area-overlay span {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: #8999a8;
+
+  font-size: 8.5px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+
+.kontak-area-overlay strong {
+  color: #263f57;
+
+  font-size: 12px;
+}
+
+
+.kontak-area-content {
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding:
+    25px
+    18px;
+}
+
+
+.kontak-area-content h2 {
+  margin-bottom: 17px;
+
+  line-height: 1.25;
+}
+
+
+.kontak-area-content > p {
+  margin: 0;
+
+  color: #708195;
+
+  font-size: 13px;
+
+  line-height: 1.8;
+}
+
+
+.kontak-area-note {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 11px;
+
+  margin-top: 24px;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background: #eff6fc;
+
+  color: #4d6780;
+}
+
+
+.kontak-area-note i {
+  margin-top: 2px;
+
+  color: #37618b;
+}
+
+
+.kontak-area-note p {
+  margin: 0;
+
+  font-size: 11.5px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1024px) {
+
+  .kontak-info-hero {
+    grid-template-columns:
+      1fr;
+
+    min-height: auto;
+
+    padding: 40px;
+  }
+
+
+  .kontak-info-hero__notice {
+    max-width: 650px;
+  }
+
+
+  .kontak-info-cards {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .kontak-info-card:last-child {
+    grid-column:
+      1 / -1;
+  }
+
+
+  .kontak-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .kontak-location-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .kontak-area-section {
+    grid-template-columns: 1fr;
+  }
+
+
+  .kontak-area-image {
+    min-height: 300px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+  .kontak-info-main {
+    padding:
+      20px
+      16px
+      60px;
+
+    gap: 42px;
+  }
+
+
+  /* HERO */
+
+  .kontak-info-hero {
+    padding:
+      30px
+      20px;
+
+    gap: 28px;
+
+    border-radius: 22px;
+  }
+
+
+  .kontak-info-eyebrow {
+    font-size: 10px;
+
+    margin-bottom: 16px;
+  }
+
+
+  .kontak-info-hero h1 {
+    font-size:
+      clamp(
+        2rem,
+        9vw,
+        2.8rem
+      );
+
+    line-height: 1.04;
+  }
+
+
+  .kontak-info-hero__content > p {
+    margin-top: 17px;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+  }
+
+
+  .kontak-info-hero__notice {
+    padding: 16px;
+
+    border-radius: 16px;
+  }
+
+
+  .kontak-info-notice-icon {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 12px;
+  }
+
+
+  /* TITLE */
+
+  .kontak-info-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  /* INFO CARDS */
+
+  .kontak-info-cards {
+    grid-template-columns: 1fr;
+  }
+
+
+  .kontak-info-card,
+  .kontak-info-card:last-child {
+    grid-column: auto;
+
+    min-height: auto;
+
+    padding: 20px;
+
+    border-radius: 18px;
+  }
+
+
+  .kontak-info-card-icon {
+    margin-bottom: 20px;
+  }
+
+
+  .kontak-info-card-content > p {
+    min-height: auto;
+  }
+
+
+  /* GUIDE */
+
+  .kontak-guide-section {
+    padding: 22px 18px;
+
+    border-radius: 20px;
+  }
+
+
+  .kontak-guide-header {
+    align-items: flex-start;
+  }
+
+
+  .kontak-guide-grid {
+    gap: 10px;
+  }
+
+
+  .kontak-guide-item {
+    padding: 16px;
+
+    border-radius: 15px;
+  }
+
+
+  /* LOCATIONS */
+
+  .kontak-location-heading {
+    flex-direction: row;
+
+    align-items: center;
+  }
+
+
+  .kontak-location-count {
+    flex-shrink: 0;
+
+    padding: 10px 13px;
+  }
+
+
+  .kontak-location-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .kontak-location-card {
+    border-radius: 17px;
+  }
+
+
+  /* MAP */
+
+  .kontak-area-section {
+    gap: 12px;
+
+    padding: 12px;
+
+    border-radius: 20px;
+  }
+
+
+  .kontak-area-image {
+    min-height: 240px;
+
+    border-radius: 15px;
+  }
+
+
+  .kontak-area-content {
+    padding:
+      18px
+      8px
+      10px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .kontak-info-main {
+    padding-left: 12px;
+
+    padding-right: 12px;
+  }
+
+
+  .kontak-info-hero {
+    padding:
+      26px
+      17px;
+
+    border-radius: 18px;
+  }
+
+
+  .kontak-info-hero h1 {
+    font-size: 2rem;
+  }
+
+
+  .kontak-location-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+
+  .kontak-location-count {
+    width: fit-content;
+  }
+
+
+  .kontak-area-image {
+    min-height: 210px;
+  }
+
+}

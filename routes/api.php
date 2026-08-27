@@ -43,6 +43,11 @@ Route::middleware('auth:sanctum')->group(function () {
             'data' => $request->user()->load('posyandu')
         ]);
     });
+    Route::put(
+        '/akun/ganti-password',
+        [AuthController::class, 'updatePassword']
+    );
+
     // Rute untuk warga/user mengupdate username & password mereka sendiri
     Route::put('/warga/update-akun', [\App\Http\Controllers\Api\AuthController::class, 'updateAkunWarga']);
 
@@ -58,8 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/warga', [\App\Http\Controllers\Api\WargaController::class, 'store']);
         // Mengambil daftar warga
         Route::get('/warga', [\App\Http\Controllers\Api\WargaController::class, 'index']);
-// Reset password warga
+        // Reset password warga
         Route::put('/warga/{id}/reset-password', [\App\Http\Controllers\Api\WargaController::class, 'resetPassword']);
+
         // Pencatatan Kesehatan - Balita
         Route::post('/pemeriksaan-balita', [\App\Http\Controllers\Api\PemeriksaanBalitaController::class, 'store']);
         // Mengambil daftar nama anak untuk Dropdown form pemeriksaan
@@ -83,9 +89,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/pemeriksaan-lansia', [\App\Http\Controllers\Api\PemeriksaanLansiaController::class, 'store']);
         // Mengambil daftar draf berdasarkan kelompok sasaran
         Route::get('/draf-pemeriksaan/{kelompok}', [\App\Http\Controllers\Api\DraftController::class, 'getDrafts']);
+
         Route::post('/makanan', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'store']);
         Route::put('/makanan/{id}', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'update']);
         Route::delete('/makanan/{id}', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'destroy']);
+
         Route::get('/rekap-kegiatan', [\App\Http\Controllers\Api\RekapKegiatanController::class, 'index']);
         Route::post('/rekap-kegiatan', [\App\Http\Controllers\Api\RekapKegiatanController::class, 'store']);
         Route::delete('/rekap-kegiatan/{id}', [\App\Http\Controllers\Api\RekapKegiatanController::class, 'destroy']);
@@ -98,6 +106,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/data-umum', [\App\Http\Controllers\Api\DataUmumController::class, 'store']);
         Route::delete('/data-umum/{id}', [\App\Http\Controllers\Api\DataUmumController::class, 'destroy']);
 
+        // Data Tambahan: Ibu Hamil, Nifas, Kematian Ibu, Diare
+        Route::get('/data-tambahan-individu', [\App\Http\Controllers\Api\DataTambahanIndividuController::class, 'index']);
+        Route::post('/data-tambahan-individu', [\App\Http\Controllers\Api\DataTambahanIndividuController::class, 'store']);
+        Route::delete('/data-tambahan-individu/{id}', [\App\Http\Controllers\Api\DataTambahanIndividuController::class, 'destroy']);
         Route::get('/dashboard/stats', [\App\Http\Controllers\Api\DashboardController::class, 'getStats']);
     });
 

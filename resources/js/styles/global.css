@@ -1,0 +1,90 @@
+:root {
+  --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-secondary: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Theme variables from new HTML */
+  --bg: #F8F9FF;
+  --surface: #FFFFFF;
+  --surface-dim: #CBDBF5;
+  --surface-container-low: #EFF4FF;
+  --surface-container: #E5EEFF;
+  --surface-container-high: #DCE9FF;
+  --ink: #0B1C30;
+  --ink-soft: #414751;
+  --ink-faint: #717783;
+  --line: #C1C7D3;
+
+  --cyan: #5FC4DB;      --cyan-deep: #0E7C93;   --cyan-bg: #E3F7FB;
+  --orange: #F2A65A;    --orange-deep: #B5650C; --orange-bg: #FFF1DF;
+  --magenta: #D98AD1;   --magenta-deep: #93348A;--magenta-bg: #FBEAF8;
+  --green: #7FCB93;     --green-deep: #2E7D46;  --green-bg: #E7F7EC;
+  --violet: #2976C7;    --violet-deep: #005DA7; --violet-bg: #D4E3FF;
+  --rose: #BA1A1A;      --rose-deep: #93000A;   --rose-bg: #FFDAD6;
+
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 20px rgba(11,28,48,0.08);
+
+  /* Legacy mappings to preserve existing components */
+  --color-primary: var(--violet-deep);
+  --color-primary-light: var(--violet);
+  --color-primary-bg: var(--violet-bg);
+  --color-dark: var(--ink);
+  --color-text-subtle: var(--ink-soft);
+  --color-text-muted: var(--ink-faint);
+  --color-danger: var(--rose-deep);
+  --color-pink-accent: var(--magenta-deep);
+  --color-pink-bg: var(--magenta-bg);
+  --color-card-dark: #263142;
+  --color-bg: var(--bg);
+  --color-card-bg: var(--surface);
+  --color-border: var(--line);
+  --color-success: var(--green-deep);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-bg);
+  color: var(--color-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+button {
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  border: none;
+  font: inherit;
+  outline: none;
+  background: transparent;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.text {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}

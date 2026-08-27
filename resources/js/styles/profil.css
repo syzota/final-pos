@@ -1,0 +1,960 @@
+/* Profil Posyandu Styles */
+
+.profil-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+}
+
+.profil-container {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.profil-section {
+  width: 100%;
+}
+
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .grid-2-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Common Section Badges */
+.section-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  background-color: var(--color-primary-bg);
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.section-badge.pink {
+  color: var(--color-pink-accent);
+  background-color: var(--color-pink-bg);
+}
+
+/* 1. Hero Banner */
+.profil-hero-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(153, 194, 241, 0.25) 0%, rgba(222, 232, 255, 0.4) 100%);
+  border: 1px solid rgba(153, 194, 241, 0.4);
+  border-radius: 16px;
+  padding: 48px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(55, 97, 139, 0.06);
+}
+
+.hero-bg-wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  opacity: 0.25;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero-title-main {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+}
+
+.hero-badge {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff !important;
+  background-color: var(--color-primary, #37618b);
+  padding: 4px 16px;
+  border-radius: 8px;
+}
+
+.hero-quote {
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--color-primary);
+}
+
+.hero-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-subtle);
+}
+
+/* 2. Chairman Card */
+.chairman-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.chairman-avatar-wrapper {
+  margin-bottom: 16px;
+}
+
+.avatar-ring {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 4px solid var(--color-primary-light);
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(55, 97, 139, 0.15);
+  background-color: #ffffff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chairman-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.chairman-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 4px;
+}
+
+.chairman-role {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.chairman-subtext {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  margin-bottom: 20px;
+}
+
+.chairman-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.action-circle-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--color-primary-light);
+  color: #235078;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.action-circle-btn:hover {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* 3. Basic Contact Card */
+.basic-contact-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 24px;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+
+@media (max-width: 640px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.contact-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background-color: var(--color-primary-bg);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contact-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+}
+
+.contact-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-dark);
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* 4 & 5. Tasks Cards */
+.tasks-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border-left: 5px solid var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tasks-card.strategic-functions {
+  border-left-color: var(--color-pink-accent);
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-icon-badge.blue {
+  background-color: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.header-icon-badge.pink {
+  background-color: var(--color-pink-bg);
+  color: var(--color-pink-accent);
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.section-title.blue {
+  color: var(--color-primary);
+}
+
+.section-title.pink {
+  color: var(--color-pink-accent);
+}
+
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-subtle);
+}
+
+.check-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.check-icon.blue {
+  color: var(--color-primary);
+}
+
+.check-icon.pink {
+  color: var(--color-pink-accent);
+}
+
+/* 6. Struktur Kepengurusan Section */
+.struktur-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.struktur-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.btn-outline-sm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  transition: background-color 0.15s ease;
+}
+
+.btn-outline-sm:hover {
+  background-color: var(--color-primary-bg);
+}
+
+.struktur-members-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .struktur-members-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.struktur-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.struktur-avatar-wrapper {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 3px solid var(--color-primary-bg);
+}
+
+.struktur-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.struktur-member-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.struktur-member-role {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.struktur-chart-placeholder {
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  background-color: var(--color-bg);
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  color: var(--color-primary);
+}
+
+.struktur-chart-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-top: 4px;
+}
+
+.struktur-chart-desc {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  max-width: 420px;
+  line-height: 1.6;
+}
+
+/* 6-legacy. Vision & Mission Section (unused, kept for reference) */
+.vision-mission-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .vision-mission-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vision-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vision-banner-img-container {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.vision-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vision-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vision-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--color-dark);
+  font-style: italic;
+}
+
+.mission-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mission-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.mission-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.mission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.mission-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-pink-bg);
+  color: var(--color-pink-accent);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mission-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-subtle);
+  padding-top: 4px;
+}
+
+/* 7. SPM Services Section */
+.spm-services-section {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.spm-header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 36px;
+}
+
+.spm-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.spm-subtitle {
+  font-size: 15px;
+  color: var(--color-text-subtle);
+  line-height: 1.5;
+}
+
+.spm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .spm-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .spm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.spm-card {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spm-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 24px rgba(55, 97, 139, 0.1);
+  background-color: #ffffff;
+}
+
+.spm-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spm-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-primary-light);
+}
+
+.spm-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background-color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--color-primary-light);
+}
+
+.spm-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.spm-card-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-subtle);
+}
+
+/* 8. Posyandu Locations Section */
+.posyandu-locations-section {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.locations-header {
+  text-align: left;
+  max-width: none;
+  margin: 0 0 24px;
+}
+
+.locations-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.locations-subtitle {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.locations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1100px) {
+  .locations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .locations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.location-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(194, 199, 207, 0.6);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.location-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-primary);
+}
+
+.loc-img-wrapper {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+.loc-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.location-card:hover .loc-img {
+  transform: scale(1.05);
+}
+
+.loc-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+}
+
+.loc-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.loc-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-dark);
+}
+
+.loc-info-row.coords {
+  color: var(--color-text-subtle);
+  font-size: 12px;
+}
+
+.loc-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-primary);
+}
+
+.maps-btn {
+  margin-top: 8px;
+  background-color: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.maps-btn:hover {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+/* Mobile Responsiveness Enhancements for Profil Posyandu */
+@media (max-width: 768px) {
+  .profil-container {
+    padding: 20px 14px 48px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .profil-container {
+    padding: 16px 12px 36px;
+    gap: 16px;
+  }
+
+  .profil-hero-card {
+    padding: 24px 16px;
+    border-radius: 14px;
+  }
+
+  .hero-bg-wrapper {
+    width: 60%;
+    opacity: 0.12;
+  }
+
+  .hero-title-main {
+    font-size: 22px;
+  }
+
+  .hero-badge {
+    font-size: 18px;
+    padding: 3px 10px;
+  }
+
+  .hero-quote {
+    font-size: 14.5px;
+  }
+
+  .hero-desc {
+    font-size: 13px;
+  }
+
+  .chairman-card {
+    padding: 24px 16px;
+  }
+
+  .avatar-ring {
+    width: 90px;
+    height: 90px;
+  }
+
+  .chairman-name {
+    font-size: 20px;
+  }
+
+  .basic-contact-card {
+    padding: 24px 16px;
+  }
+
+  .card-title {
+    font-size: 19px;
+    margin-bottom: 18px;
+  }
+
+  .tasks-card {
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  .section-title {
+    font-size: 19px;
+  }
+
+  .task-item {
+    font-size: 13.5px;
+    gap: 10px;
+  }
+
+  .struktur-card {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+
+  .struktur-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .btn-outline-sm {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .struktur-member {
+    padding: 16px;
+  }
+
+  .spm-services-section {
+    padding: 24px 16px;
+  }
+
+  .spm-header {
+    margin-bottom: 24px;
+  }
+
+  .spm-title {
+    font-size: 20px;
+  }
+
+  .posyandu-locations-section {
+    padding: 24px 16px;
+  }
+
+  .locations-title {
+    font-size: 20px;
+  }
+
+  .loc-body {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .maps-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title-main {
+    font-size: 20px;
+  }
+
+  .hero-badge {
+    font-size: 16px;
+  }
+
+  .chairman-actions {
+    gap: 12px;
+  }
+
+  .action-circle-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
+

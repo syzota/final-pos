@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Posyandu; // PENTING: Gunakan Model agar bisa pakai relasi jadwal
 use App\Models\Jadwal;   // PENTING: Import model Jadwal
-use Illuminate\Support\Facades\Storage;
 
 class PosyanduController extends Controller
 {
@@ -69,13 +68,28 @@ class PosyanduController extends Controller
         // 1. Update ke tabel posyandus
         Posyandu::where('id', $posyanduId)->update($updateData);
 
-        // 2. Update atau Buat data Jadwal di tabel 'jadwal'
-        // (Hanya jalan jika form yang disubmit mengirim parameter keterangan_waktu)
+        // 2. Update / hapus jadwal Posyandu
         if ($request->has('keterangan_waktu')) {
-            Jadwal::updateOrCreate(
-                ['posyandu_id' => $posyanduId], // Cari berdasarkan ID Posyandu
-                ['keterangan_waktu' => $request->keterangan_waktu] // Update waktu
-            );
+
+            // Kalau jadwal diisi
+            if ($request->filled('keterangan_waktu')) {
+
+                Jadwal::updateOrCreate(
+                    ['posyandu_id' => $posyanduId],
+                    [
+                        'keterangan_waktu' => trim($request->keterangan_waktu)
+                    ]
+                );
+
+            } else {
+
+                // Kalau dikosongkan, hapus jadwal lama
+                // supaya tidak mencoba menyimpan NULL ke kolom NOT NULL.
+                Jadwal::where(
+                    'posyandu_id',
+                    $posyanduId
+                )->delete();
+            }
         }
 
         return response()->json([

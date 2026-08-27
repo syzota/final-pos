@@ -1,0 +1,513 @@
+.jadwal-page {
+  background-color: var(--color-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.jadwal-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 32px 24px 64px;
+  flex: 1;
+}
+
+.jadwal-header-block {
+  margin-bottom: 32px;
+}
+
+.jadwal-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 8px;
+}
+
+.jadwal-subtitle {
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+.jadwal-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .jadwal-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .jadwal-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.jadwal-location-card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.jadwal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.jadwal-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #99c2f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.jadwal-card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jadwal-loc-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.jadwal-wilayah-badge {
+  align-self: flex-start;
+  background-color: #d0e4ff;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 1.5px 8px;
+}
+
+.jadwal-card-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jadwal-card-info-block.bordered {
+  border-top: 1px solid var(--color-bg);
+  padding-top: 12px;
+}
+
+.jadwal-info-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #72777f;
+}
+
+.jadwal-info-value {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.jadwal-note-card {
+  position: relative;
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.jadwal-note-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background-color: #fce7f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.jadwal-note-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.jadwal-note-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.jadwal-download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #db2777;
+  width: fit-content;
+}
+
+.jadwal-download-link:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   PERSIAPAN SEBELUM POSYANDU
+   ========================================================= */
+
+.jadwal-prep-section {
+  margin-top: 48px;
+
+  padding: 32px;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef6ff 0%,
+      #f7fbff 100%
+    );
+
+  border: 1px solid #dce9f6;
+}
+
+
+/* =========================
+   INTRO
+   ========================= */
+
+.jadwal-prep-intro {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 16px;
+
+  max-width: 680px;
+
+  margin-bottom: 28px;
+}
+
+
+.jadwal-prep-icon {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #37618b;
+
+  color: #ffffff;
+
+  font-size: 21px;
+}
+
+
+.jadwal-prep-eyebrow {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #37618b;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.1em;
+}
+
+
+.jadwal-prep-title {
+  margin: 0;
+
+  color: #1f3b56;
+
+  font-size: 24px;
+
+  font-weight: 800;
+
+  letter-spacing: -0.025em;
+}
+
+
+.jadwal-prep-subtitle {
+  margin: 9px 0 0;
+
+  color: #6d8093;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================
+   ITEMS
+   ========================= */
+
+.jadwal-prep-list {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 14px;
+}
+
+
+.jadwal-prep-item {
+  position: relative;
+
+  min-width: 0;
+
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255, 255, 255, 0.90);
+
+  border: 1px solid #dfeaf4;
+}
+
+
+.jadwal-prep-number {
+  position: absolute;
+
+  top: 16px;
+  right: 17px;
+
+  color: #d2e1ef;
+
+  font-size: 18px;
+
+  font-weight: 800;
+}
+
+
+.jadwal-prep-item-icon {
+  width: 42px;
+  height: 42px;
+
+  margin-bottom: 20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #e4f0fb;
+
+  color: #37618b;
+
+  font-size: 18px;
+}
+
+
+.jadwal-prep-item-content h3 {
+  margin: 0 0 8px;
+
+  color: #263f58;
+
+  font-size: 14px;
+
+  font-weight: 800;
+}
+
+
+.jadwal-prep-item-content p {
+  margin: 0;
+
+  color: #718396;
+
+  font-size: 11.5px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================
+   BOTTOM NOTE
+   ========================= */
+
+.jadwal-prep-note {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin-top: 18px;
+
+  padding: 13px 15px;
+
+  border-radius: 13px;
+
+  background: rgba(55, 97, 139, 0.08);
+
+  color: #546d85;
+}
+
+
+.jadwal-prep-note i {
+  margin-top: 2px;
+
+  color: #37618b;
+}
+
+
+.jadwal-prep-note p {
+  margin: 0;
+
+  font-size: 11.5px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .jadwal-prep-list {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  .jadwal-main {
+    padding:
+      24px
+      16px
+      56px;
+  }
+
+
+  .jadwal-prep-section {
+    margin-top: 32px;
+
+    padding: 20px;
+
+    border-radius: 20px;
+  }
+
+
+  .jadwal-prep-intro {
+    gap: 12px;
+
+    margin-bottom: 22px;
+  }
+
+
+  .jadwal-prep-icon {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 13px;
+
+    font-size: 18px;
+  }
+
+
+  .jadwal-prep-title {
+    font-size: 20px;
+
+    line-height: 1.25;
+  }
+
+
+  .jadwal-prep-subtitle {
+    font-size: 12px;
+  }
+
+
+  .jadwal-prep-list {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+  }
+
+
+  .jadwal-prep-item {
+    display: grid;
+
+    grid-template-columns:
+      42px
+      1fr;
+
+    align-items: start;
+
+    gap: 12px;
+
+    padding: 16px;
+  }
+
+
+  .jadwal-prep-number {
+    top: 11px;
+    right: 13px;
+
+    font-size: 14px;
+  }
+
+
+  .jadwal-prep-item-icon {
+    width: 40px;
+    height: 40px;
+
+    margin: 0;
+  }
+
+
+  .jadwal-prep-item-content {
+    padding-right: 16px;
+  }
+
+
+  .jadwal-prep-item-content h3 {
+    margin-bottom: 5px;
+  }
+
+}

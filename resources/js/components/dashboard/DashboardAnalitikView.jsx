@@ -1,0 +1,122 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import AdminDashboardView from './AdminDashboardView';
+
+export default function DashboardAnalitikView() {
+    const [stats, setStats] = useState({ pengaduan: [], formulir: [] });
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStatistik = async () => {
+            try {
+                const token = localStorage.getItem('auth_token');
+                const response = await axios.get('/api/admin/statistik', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                setStats(response.data.data);
+            } catch (err) {
+                console.error("Gagal memuat statistik", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchStatistik();
+    }, []);
+
+    // Mencari nilai tertinggi agar grafik batangnya proporsional
+    const maxPengaduan = stats.pengaduan.length > 0 ? Math.max(...stats.pengaduan.map(item => item.total)) : 1;
+    const maxFormulir = stats.formulir.length > 0 ? Math.max(...stats.formulir.map(item => item.total)) : 1;
+
+    // Fungsi untuk memformat nama bidang agar rapi (misal: pekerjaan_umum -> Pekerjaan Umum)
+    const formatNama = (text) => {
+        if (!text) return '-';
+        return text.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    };
+
+    return (
+        <>
+            <div className="section-head" style={{ marginBottom: '24px' }}>
+                <h2><i className="bi bi-bar-chart-fill me-2" style={{ color: 'var(--violet-deep)' }}></i>Dashboard Analitik Kinerja</h2>
+                <p style={{ color: '#666' }}>Ringkasan bidang dan sub-bidang dengan laporan terbanyak dari seluruh Posyandu.</p>
+            </div>
+
+            {isLoading ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
+                    <i className="bi bi-hourglass-split me-2"></i>Sedang memuat data analitik...
+                </div>
+            ) : (
+                <div className="grid grid-2">
+
+                    {/* ==============================================
+              GRAFIK 1: TOP BIDANG PENGADUAN
+              ============================================== */}
+                    <div className="card">
+                        <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
+                            <h3 style={{ color: 'var(--magenta-deep)' }}><i className="bi bi-megaphone-fill me-2"></i>Top Pengaduan Warga</h3>
+                            <span style={{ fontSize: '12px', color: '#888' }}>Berdasarkan Bidang</span>
+                        </div>
+
+                        {stats.pengaduan.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {stats.pengaduan.map((item, index) => {
+                                    const percent = (item.total / maxPengaduan) * 100;
+                                    return (
+                                        <div key={index}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '14px', fontWeight: 'bold', color: '#444' }}>
+                                                <span>{formatNama(item.bidang)}</span>
+                                                <span style={{ color: 'var(--magenta-deep)' }}>{item.total} Laporan</span>
+                                            </div>
+                                            {/* Latar Belakang Bar */}
+                                            <div style={{ width: '100%', height: '12px', backgroundColor: '#f0f0f0', borderRadius: '10px', overflow: 'hidden' }}>
+                                                {/* Bar Pengisi */}
+                                                <div style={{ width: `${percent}%`, height: '100%', backgroundColor: 'var(--magenta-deep)', borderRadius: '10px', transition: 'width 1s ease-in-out' }}></div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', color: '#888', padding: '20px' }}>Belum ada data pengaduan.</div>
+                        )}
+                    </div>
+
+                    {/* ==============================================
+              GRAFIK 2: TOP SUB-BIDANG FORMULIR IDENTIFIKASI
+              ============================================== */}
+                    <div className="card">
+                        <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
+                            <h3 style={{ color: 'var(--violet-deep)' }}><i className="bi bi-journal-text me-2"></i>Top Pemetaan Identifikasi</h3>
+                            <span style={{ fontSize: '12px', color: '#888' }}>Berdasarkan Sub-Bidang</span>
+                        </div>
+
+                        {stats.formulir.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {stats.formulir.map((item, index) => {
+                                    const percent = (item.total / maxFormulir) * 100;
+                                    return (
+                                        <div key={index}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '14px', fontWeight: 'bold', color: '#444' }}>
+                                                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '75%' }} title={item.sub_bidang}>
+                                                    {item.sub_bidang} <span style={{ fontSize: '11px', color: '#888', fontWeight: 'normal' }}>({formatNama(item.bidang)})</span>
+                                                </span>
+                                                <span style={{ color: 'var(--violet-deep)' }}>{item.total} Data</span>
+                                            </div>
+                                            {/* Latar Belakang Bar */}
+                                            <div style={{ width: '100%', height: '12px', backgroundColor: '#f0f0f0', borderRadius: '10px', overflow: 'hidden' }}>
+                                                {/* Bar Pengisi */}
+                                                <div style={{ width: `${percent}%`, height: '100%', backgroundColor: 'var(--violet-deep)', borderRadius: '10px', transition: 'width 1s ease-in-out' }}></div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', color: '#888', padding: '20px' }}>Belum ada data formulir identifikasi.</div>
+                        )}
+                    </div>
+
+                </div>
+            )}
+        </>
+    );
+}

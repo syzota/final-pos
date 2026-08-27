@@ -1,0 +1,201 @@
+/* =====================================
+   FOOTER
+===================================== */
+
+.footer-wrapper {
+  width: 100%;
+  margin-top: 40px;
+  background: #f0f3ff;
+  border-top: 1px solid var(--color-border);
+}
+
+.footer-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.footer-brand {
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-brand-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.footer-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.footer-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-subtle);
+}
+
+.footer-links-group {
+  display: flex;
+  gap: 48px;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 140px;
+}
+
+.footer-col-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.footer-link {
+  font-size: 14px;
+  color: var(--color-text-subtle);
+  text-decoration: none;
+  transition: .2s;
+}
+
+.footer-link:hover {
+  color: var(--color-primary);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--color-border);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copyright {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+.social-icons {
+  display: flex;
+  gap: 14px;
+}
+
+.social-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e7eeff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition: .25s;
+}
+
+.social-icon-btn:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* =====================================
+   TABLET
+===================================== */
+
+@media (max-width:1024px){
+
+.footer-top{
+    flex-direction:column;
+}
+
+.footer-links-group{
+    width:100%;
+    justify-content:space-between;
+}
+
+}
+
+/* =====================================
+   MOBILE
+===================================== */
+
+@media (max-width:640px){
+
+.footer-wrapper{
+    display:block;
+    margin-top:28px;
+}
+
+.footer-content{
+    padding:24px 18px;
+    gap:28px;
+}
+
+.footer-top{
+    flex-direction:column;
+    gap:28px;
+}
+
+.footer-brand{
+    max-width:100%;
+}
+
+.footer-brand-title{
+    font-size:17px;
+}
+
+.footer-desc{
+    font-size:13px;
+}
+
+.footer-links-group{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.footer-col:last-child{
+    grid-column:1/-1;
+}
+
+.footer-bottom{
+    flex-direction:column;
+    gap:18px;
+    text-align:center;
+}
+
+.social-icons{
+    justify-content:center;
+}
+
+}
+
+/* Ensure no trailing white space below footer on mobile or desktop */
+body {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.footer-wrapper {
+  margin-bottom: 0 !important;
+}
