@@ -13,4 +13,12 @@ export default defineConfig({
 
         react(),
     ],
+
+    server: {
+        host: true,
+        hmr: {
+            host: '192.168.18.12',
+        },
+        cors: true,
+    },
 });

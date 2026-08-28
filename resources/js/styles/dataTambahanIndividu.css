@@ -465,6 +465,9 @@
     margin: 12mm;
   }
 
+  body * {
+    visibility: hidden !important;
+  }
 
   .dti-print,
   .dti-print * {
