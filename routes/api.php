@@ -66,6 +66,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Reset password warga
         Route::put('/warga/{id}/reset-password', [\App\Http\Controllers\Api\WargaController::class, 'resetPassword']);
 
+        Route::delete(
+            '/warga/{id}',
+            [\App\Http\Controllers\Api\WargaController::class, 'destroy']
+        );
+
         // Pencatatan Kesehatan - Balita
         Route::post('/pemeriksaan-balita', [\App\Http\Controllers\Api\PemeriksaanBalitaController::class, 'store']);
         // Mengambil daftar nama anak untuk Dropdown form pemeriksaan

@@ -6,7 +6,13 @@ export default function KelolaWargaView({ posyandu }) {
 
   // STATE BARU: Tambahan status_pernikahan dan nama_istri
   const [formData, setFormData] = useState({
-    nama_lengkap: '', nik: '', no_kk: '', no_hp: '', status_pernikahan: 'Menikah', nama_istri: ''
+    nama_lengkap: '',
+    jenis_kelamin: 'L',
+    nik: '',
+    no_kk: '',
+    no_hp: '',
+    status_pernikahan: 'Menikah',
+    nama_istri: ''
   });
 
   const [anakList, setAnakList] = useState([
@@ -33,7 +39,22 @@ export default function KelolaWargaView({ posyandu }) {
   }, []);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'jenis_kelamin') {
+      setFormData({
+        ...formData,
+        jenis_kelamin: value,
+        status_pernikahan: 'Menikah',
+        nama_istri: ''
+      });
+      return;
+    }
+
+    setFormData({
+      ...formData,
+      [name]: value
+    });
   };
 
   const handleAnakChange = (index, field, value) => {
@@ -52,19 +73,69 @@ export default function KelolaWargaView({ posyandu }) {
     setAnakList(newList);
   };
 
-  const handleResetPassword = async (id, nik) => {
-    const isConfirm = window.confirm(`Yakin ingin mereset password warga ini kembali ke NIK awal (${nik})?`);
+  const handleResetPassword = async (id) => {
+      const isConfirm = window.confirm(
+          'Yakin ingin mereset PIN warga ini ke PIN default?'
+      );
+
+      if (!isConfirm) return;
+
+      try {
+          const token = localStorage.getItem('auth_token');
+
+          const response = await axios.put(
+              `/api/warga/${id}/reset-password`,
+              {},
+              {
+                  headers: {
+                      'Authorization': `Bearer ${token}`,
+                      'Accept': 'application/json'
+                  }
+              }
+          );
+
+          alert('Berhasil: ' + response.data.pesan);
+      } catch (err) {
+          console.error('Gagal reset PIN:', err);
+          alert('Terjadi kesalahan saat mereset PIN.');
+      }
+  };
+
+  const handleDeleteWarga = async (id, nama) => {
+    const isConfirm = window.confirm(
+      `Yakin ingin menghapus keluarga ${nama}?\n\n` +
+      `Akun warga dan seluruh data anggota keluarga yang terhubung akan dihapus.`
+    );
+
     if (!isConfirm) return;
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await axios.put(`/api/warga/${id}/reset-password`, {}, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-      });
+
+      const response = await axios.delete(
+        `/api/warga/${id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
+
       alert('Berhasil: ' + response.data.pesan);
+
+      // Refresh tabel warga
+      fetchWarga();
+
     } catch (err) {
-      console.error('Gagal reset password:', err);
-      alert('Terjadi kesalahan saat mereset password.');
+      console.error('Gagal menghapus warga:', err);
+
+      const pesan =
+        err.response?.data?.pesan ||
+        err.response?.data?.message ||
+        'Terjadi kesalahan saat menghapus warga.';
+
+      alert(pesan);
     }
   };
 
@@ -76,8 +147,14 @@ export default function KelolaWargaView({ posyandu }) {
     }
 
     // VALIDASI BARU: Istri wajib diisi jika Menikah
-    if (formData.status_pernikahan === 'Menikah' && !formData.nama_istri.trim()) {
-      setMessage({ type: 'error', text: 'Nama istri wajib diisi jika status Menikah!' });
+    if (
+      formData.status_pernikahan === 'Menikah' &&
+      !formData.nama_istri.trim()
+    ) {
+      setMessage({
+        type: 'error',
+        text: 'Nama pasangan wajib diisi jika status Menikah!'
+      });
       return;
     }
 
@@ -100,7 +177,15 @@ export default function KelolaWargaView({ posyandu }) {
       setMessage({ type: 'success', text: response.data.pesan || 'Akun warga berhasil dibuat!' });
 
       // Reset Form
-      setFormData({ nama_lengkap: '', nik: '', no_kk: '', no_hp: '', status_pernikahan: 'Menikah', nama_istri: '' });
+      setFormData({
+        nama_lengkap: '',
+        jenis_kelamin: 'L',
+        nik: '',
+        no_kk: '',
+        no_hp: '',
+        status_pernikahan: 'Menikah',
+        nama_istri: ''
+      });
       setAnakList([{ nama: '', tanggal_lahir: '', jenis_kelamin: 'L' }]);
       fetchWarga();
 
@@ -140,9 +225,41 @@ export default function KelolaWargaView({ posyandu }) {
                     <td>{warga.no_kk}</td>
                     <td>{warga.anak_count}</td>
                     <td>
-                      <button className="btn btn-sm btn-outline" onClick={() => handleResetPassword(warga.id, warga.nik_kepala_keluarga)}>
-                        Reset Password
-                      </button>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '6px',
+                          flexWrap: 'wrap'
+                        }}
+                      >
+                        <button
+                          className="btn btn-sm btn-outline"
+                          onClick={() => handleResetPassword(warga.id)}
+                        >
+                          Reset PIN
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDeleteWarga(
+                              warga.id,
+                              warga.nama_kepala_keluarga
+                            )
+                          }
+                          style={{
+                            padding: '6px 10px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            background: '#fee2e2',
+                            color: '#dc2626',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Hapus
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -154,8 +271,22 @@ export default function KelolaWargaView({ posyandu }) {
             </tbody>
           </table>
         </div>
-        <p style={{ fontSize: '11px', color: 'var(--ink-soft)', fontWeight: 600, marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <svg className="ic ic-sm"><use href="#i-alert" /></svg>Reset password dilakukan langsung oleh Kader/Ketua; sampaikan password baru ke warga secara tatap muka.
+        <p
+          style={{
+            fontSize: '11px',
+            color: 'var(--ink-soft)',
+            fontWeight: 600,
+            marginTop: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <svg className="ic ic-sm">
+            <use href="#i-alert" />
+          </svg>
+          Reset PIN dilakukan langsung oleh Kader/Ketua;
+          sampaikan PIN default kepada warga secara tatap muka.
         </p>
       </div>
 
@@ -173,7 +304,24 @@ export default function KelolaWargaView({ posyandu }) {
           <label>Nama Lengkap Kepala Keluarga</label>
           <input name="nama_lengkap" value={formData.nama_lengkap} onChange={handleInputChange} placeholder="mis. Bapak Herman" />
         </div>
-
+        <div className="form-field" style={{ marginBottom: '12px' }}>
+          <label>Jenis Kelamin Kepala Keluarga</label>
+          <select
+            name="jenis_kelamin"
+            value={formData.jenis_kelamin}
+            onChange={handleInputChange}
+            style={{
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              width: '100%',
+              outline: 'none'
+            }}
+          >
+            <option value="L">Laki-laki</option>
+            <option value="P">Perempuan</option>
+          </select>
+        </div>
         {/* DROPDOWN STATUS PERNIKAHAN */}
         <div className="form-field" style={{ marginBottom: '12px' }}>
           <label>Status Pernikahan</label>
@@ -184,21 +332,39 @@ export default function KelolaWargaView({ posyandu }) {
             style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '100%', outline: 'none' }}
           >
             <option value="Menikah">Menikah</option>
-            <option value="Duda">Duda (Tidak ada istri)</option>
+            {formData.jenis_kelamin === 'L' ? (
+              <option value="Duda">Duda</option>
+            ) : (
+              <option value="Janda">Janda</option>
+            )}
           </select>
         </div>
 
         {/* INPUT NAMA ISTRI (Hanya muncul jika Menikah) */}
         {formData.status_pernikahan === 'Menikah' && (
           <div className="form-field" style={{ marginBottom: '12px' }}>
-            <label>Nama Istri</label>
-            <input name="nama_istri" value={formData.nama_istri} onChange={handleInputChange} placeholder="mis. Ibu Siti" />
+            <label>
+              {formData.jenis_kelamin === 'L'
+                ? 'Nama Istri'
+                : 'Nama Suami'}
+            </label>
+
+            <input
+              name="nama_istri"
+              value={formData.nama_istri}
+              onChange={handleInputChange}
+              placeholder={
+                formData.jenis_kelamin === 'L'
+                  ? 'mis. Ibu Siti'
+                  : 'mis. Bapak Herman'
+              }
+            />
           </div>
         )}
 
         <div className="form-field" style={{ marginBottom: '12px' }}>
           <label>NIK Kepala Keluarga</label>
-          <input name="nik" value={formData.nik} onChange={handleInputChange} placeholder="16 digit NIK (jadi password awal)" maxLength={16} />
+          <input name="nik" value={formData.nik} onChange={handleInputChange} placeholder="16 digit NIK (digunakan sebagai username)" maxLength={16} />
         </div>
         <div className="form-field" style={{ marginBottom: '12px' }}>
           <label>No. KK</label>

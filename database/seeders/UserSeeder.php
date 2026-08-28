@@ -90,7 +90,7 @@ class UserSeeder extends Seeder
                 'name'        => 'Budi Santoso',
                 'role'        => 'warga',
                 'posyandu_id' => $posyanduData['Melati'], // Mengambil ID Melati dari array
-                'password'    => '6472010101900001',
+                'password'    => '000000',
             ]
         );
     }

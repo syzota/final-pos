@@ -8,8 +8,7 @@ use App\Models\User;
 use App\Models\WargaKeluarga;
 use App\Models\WargaAnak;
 use App\Models\WargaRemaja;
-use App\Models\WargaDewasa; // PENTING UNTUK IBU & LANSIA
-use App\Models\Posyandu;
+use App\Models\WargaDewasa;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -29,10 +28,11 @@ class WargaController extends Controller
         // 1. VALIDASI DIPERBARUI: Tangkap status pernikahan dan istri
         $request->validate([
             'nama_lengkap'      => 'required|string',
+            'jenis_kelamin'     => 'required|in:L,P',
             'nik'               => 'required|string|size:16|unique:warga_keluarga,nik_kepala_keluarga',
             'no_kk'             => 'required|string|size:16',
             'no_hp'             => 'nullable|string',
-            'status_pernikahan' => 'required|in:Menikah,Duda',
+            'status_pernikahan' => 'required|in:Menikah,Duda,Janda',
             'nama_istri'        => 'required_if:status_pernikahan,Menikah|string|nullable',
             'anak'              => 'nullable|array',
         ]);
@@ -50,7 +50,7 @@ class WargaController extends Controller
             $user = User::create([
                 'name'        => $request->nama_lengkap,
                 'username'    => $request->nik,
-                'password'    => $request->nik,
+                'password'    => '000000',
                 'role'        => 'warga',
                 'posyandu_id' => $posyanduId
             ]);
@@ -66,19 +66,27 @@ class WargaController extends Controller
             ]);
 
             // 4. OTOMATIS: Masukkan Suami ke Daftar Dewasa (Untuk Lansia)
+            // 4. Masukkan Kepala Keluarga ke daftar dewasa
             WargaDewasa::create([
                 'nama_lengkap'  => $request->nama_lengkap,
-                'jenis_kelamin' => 'L',
-                'tanggal_lahir' => date('Y-m-d', strtotime('-30 years')), // Perkiraan Umur 30
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'tanggal_lahir' => date('Y-m-d', strtotime('-30 years')),
                 'keluarga_id'   => $keluarga->id,
             ]);
 
-            // 5. OTOMATIS: Jika Menikah, Masukkan Istri ke Daftar Dewasa (Untuk Hamil & Lansia)
-            if ($request->status_pernikahan === 'Menikah' && !empty($request->nama_istri)) {
+            // 5. Jika Menikah, masukkan pasangan ke daftar dewasa
+            if (
+                $request->status_pernikahan === 'Menikah' &&
+                !empty($request->nama_istri)
+            ) {
                 WargaDewasa::create([
-                    'nama_lengkap'  => $request->nama_istri,
-                    'jenis_kelamin' => 'P',
-                    'tanggal_lahir' => date('Y-m-d', strtotime('-25 years')), // Perkiraan Umur 25
+                    'nama_lengkap' => $request->nama_istri,
+
+                    // Jika kepala keluarga L, pasangannya P.
+                    // Jika kepala keluarga P, pasangannya L.
+                    'jenis_kelamin' => $request->jenis_kelamin === 'L' ? 'P' : 'L',
+
+                    'tanggal_lahir' => date('Y-m-d', strtotime('-30 years')),
                     'keluarga_id'   => $keluarga->id,
                 ]);
             }
@@ -136,11 +144,75 @@ class WargaController extends Controller
 
         $user = User::find($keluarga->user_id);
         if ($user) {
-            $user->password = Hash::make($keluarga->nik_kepala_keluarga);
+            $user->password = Hash::make('000000');
             $user->save();
-            return response()->json(['status' => 'sukses', 'pesan' => 'Password kembali ke NIK asli.']);
+
+            return response()->json([
+                'status' => 'sukses',
+                'pesan' => 'PIN berhasil direset ke PIN default.'
+            ]);
         }
         return response()->json(['status' => 'gagal', 'pesan' => 'Akun tidak ditemukan.'], 404);
+    }
+
+    public function destroy($id)
+    {
+        $keluarga = WargaKeluarga::find($id);
+
+        if (!$keluarga) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Data keluarga tidak ditemukan.'
+            ], 404);
+        }
+
+        // Pastikan kader/ketua hanya bisa hapus warga
+        // dari Posyandunya sendiri
+        $posyanduId = $this->getPosyanduId();
+
+        if ($posyanduId && $keluarga->posyandu_id != $posyanduId) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Akses ditolak.'
+            ], 403);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Simpan ID user sebelum keluarga dihapus
+            $userId = $keluarga->user_id;
+
+            /*
+            * Hapus keluarga.
+            *
+            * Data anak dan dewasa yang terikat keluarga
+            * akan ikut terhapus melalui ON DELETE CASCADE.
+            */
+            $keluarga->delete();
+
+            // Hapus juga akun login warga
+            if ($userId) {
+                User::where('id', $userId)
+                    ->where('role', 'warga')
+                    ->delete();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'sukses',
+                'pesan' => 'Data keluarga dan akun warga berhasil dihapus.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Gagal menghapus data keluarga: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getListAnak()

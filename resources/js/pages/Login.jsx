@@ -116,7 +116,7 @@ export default function Login({ onNavigate, onLogin }) {
 
         {/* Form Field: Password (Dengan fitur Show/Hide) */}
         <div className="field">
-          <label id="passwordLabel">{loginType === 'warga' ? 'Kata Sandi (default: NIK)' : 'Kata Sandi'}</label>
+          <label id="passwordLabel">{loginType === 'warga' ? 'Kata Sandi (default: PIN Dari Kader)' : 'Kata Sandi'}</label>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <input
               type={showPassword ? 'text' : 'password'}
