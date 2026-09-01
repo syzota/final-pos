@@ -2,6 +2,26 @@
   --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-secondary: 'Inter', system-ui, -apple-system, sans-serif;
 
+  /* Typography - Golden Ratio (1.618) Scale */
+  --font-xs: 0.618rem;   /* ~10px */
+  --font-base: 1rem;     /* 16px */
+  --font-lg: 1.618rem;   /* ~26px */
+  --font-xl: 2.618rem;   /* ~42px */
+  --font-xxl: 4.236rem;  /* ~68px */
+
+  /* Spatial System (8pt / 4pt Grid) */
+  --space-05: 4px;
+  --space-1: 8px;
+  --space-1-5: 12px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-12: 96px;
+  --space-16: 128px;
+
   /* Theme variables from new HTML */
   --bg: #F8F9FF;
   --surface: #FFFFFF;
@@ -51,13 +71,30 @@
   padding: 0;
 }
 
+html {
+  font-size: 16px; /* Base 16px */
+}
+
 body {
   font-family: var(--font-primary);
+  font-size: var(--font-base);
+  font-weight: 400; /* Regular untuk teks yang lebih panjang dan nyaman dibaca */
   background-color: var(--color-bg);
   color: var(--color-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700; /* Bold untuk hierarki yang kuat */
+  line-height: 1.2;
+}
+
+h1 { font-size: var(--font-xxl); }
+h2 { font-size: var(--font-xl); }
+h3, h4 { font-size: var(--font-lg); }
+h5, h6 { font-size: var(--font-base); }
+
 
 a {
   color: inherit;

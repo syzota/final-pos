@@ -250,24 +250,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
 
             </div>
 
-            <div className="kalkulator-cover-hero__features">
 
-              <div className="kalkulator-cover-hero__feature">
-                <i className="bi bi-calculator"></i>
-                <span>IMT &amp; BB Ideal</span>
-              </div>
-
-              <div className="kalkulator-cover-hero__feature">
-                <i className="bi bi-fire"></i>
-                <span>Kebutuhan Kalori</span>
-              </div>
-
-              <div className="kalkulator-cover-hero__feature">
-                <i className="bi bi-journal-check"></i>
-                <span>Log Makanan</span>
-              </div>
-
-            </div>
 
           </div>
 

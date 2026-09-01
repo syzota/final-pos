@@ -11,10 +11,10 @@
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: var(--space-4) var(--space-3) var(--space-8);
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: var(--space-4);
 }
 
 .profil-section {
@@ -24,7 +24,7 @@
 .grid-2-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 @media (max-width: 992px) {
@@ -36,15 +36,15 @@
 /* Common Section Badges */
 .section-badge {
   display: inline-block;
-  font-size: 12px;
+  font-size: var(--font-xs);
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: var(--color-primary);
   background-color: var(--color-primary-bg);
-  padding: 6px 14px;
+  padding: var(--space-1) var(--space-2);
   border-radius: 20px;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-1-5);
 }
 
 .section-badge.pink {
@@ -58,9 +58,9 @@
   background: linear-gradient(135deg, rgba(153, 194, 241, 0.25) 0%, rgba(222, 232, 255, 0.4) 100%);
   border: 1px solid rgba(153, 194, 241, 0.4);
   border-radius: 16px;
-  padding: 48px;
+  padding: var(--space-6);
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(55, 97, 139, 0.06);
+  box-shadow: 0 4px 24px rgba(41, 118, 199, 0.06);
 }
 
 .hero-bg-wrapper {
@@ -86,34 +86,34 @@
   max-width: 860px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .hero-title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-1-5);
   flex-wrap: wrap;
 }
 
 .hero-title-main {
-  font-size: 32px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: var(--color-primary);
   letter-spacing: -0.5px;
 }
 
 .hero-badge {
-  font-size: 28px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: #ffffff !important;
-  background-color: var(--color-primary, #37618b);
-  padding: 4px 16px;
+  background-color: var(--color-primary, var(--color-primary));
+  padding: var(--space-05) var(--space-2);
   border-radius: 8px;
 }
 
 .hero-quote {
-  font-size: 17px;
+  font-size: var(--font-base);
   line-height: 1.6;
   font-weight: 600;
   font-style: italic;
@@ -121,7 +121,7 @@
 }
 
 .hero-desc {
-  font-size: 15px;
+  font-size: var(--font-base);
   line-height: 1.6;
   color: var(--color-text-subtle);
 }
@@ -130,7 +130,7 @@
 .chairman-card {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 32px 24px;
+  padding: var(--space-4) var(--space-3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -139,16 +139,16 @@
 }
 
 .chairman-avatar-wrapper {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-2);
 }
 
 .avatar-ring {
   width: 110px;
-  height: 110px;
+  height: 112px;
   border-radius: 50%;
   border: 4px solid var(--color-primary-light);
-  padding: 4px;
-  box-shadow: 0 4px 12px rgba(55, 97, 139, 0.15);
+  padding: var(--space-05);
+  box-shadow: 0 4px 12px rgba(41, 118, 199, 0.15);
   background-color: #ffffff;
   overflow: hidden;
   display: flex;
@@ -164,33 +164,33 @@
 }
 
 .chairman-name {
-  font-size: 24px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: var(--color-dark);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-05);
 }
 
 .chairman-role {
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-primary);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-05);
 }
 
 .chairman-subtext {
-  font-size: 13px;
+  font-size: var(--font-base);
   color: var(--color-text-subtle);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-3);
 }
 
 .chairman-actions {
   display: flex;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .action-circle-btn {
   width: 44px;
-  height: 44px;
+  height: var(--space-6);
   border-radius: 12px;
   background-color: var(--color-primary-light);
   color: #235078;
@@ -211,7 +211,7 @@
 .basic-contact-card {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 32px;
+  padding: var(--space-4);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
@@ -219,16 +219,16 @@
 }
 
 .card-title {
-  font-size: 22px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: var(--color-dark);
-  margin-bottom: 24px;
+  margin-bottom: var(--space-3);
 }
 
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 24px;
+  gap: var(--space-3) var(--space-3);
 }
 
 @media (max-width: 640px) {
@@ -240,12 +240,12 @@
 .contact-item {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: var(--space-2);
 }
 
 .contact-icon-box {
   width: 42px;
-  height: 42px;
+  height: var(--space-5);
   border-radius: 10px;
   background-color: var(--color-primary-bg);
   color: var(--color-primary);
@@ -262,7 +262,7 @@
 }
 
 .contact-label {
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 700;
   letter-spacing: 0.6px;
   color: var(--color-text-subtle);
@@ -270,7 +270,7 @@
 }
 
 .contact-value {
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 500;
   color: var(--color-dark);
   line-height: 1.4;
@@ -282,12 +282,12 @@
 .tasks-card {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 32px;
+  padding: var(--space-4);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  border-left: 5px solid var(--color-primary);
+  border-left: var(--space-05) solid var(--color-primary);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-3);
 }
 
 .tasks-card.strategic-functions {
@@ -297,12 +297,12 @@
 .card-header-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-1-5);
 }
 
 .header-icon-badge {
   width: 38px;
-  height: 38px;
+  height: var(--space-5);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -321,7 +321,7 @@
 }
 
 .section-title {
-  font-size: 22px;
+  font-size: var(--font-lg);
   font-weight: 700;
 }
 
@@ -337,14 +337,14 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--space-2);
 }
 
 .task-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  font-size: 15px;
+  gap: var(--space-1-5);
+  font-size: var(--font-base);
   line-height: 1.5;
   color: var(--color-text-subtle);
 }
@@ -366,11 +366,11 @@
 .struktur-card {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 32px;
+  padding: var(--space-4);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--space-4);
 }
 
 .struktur-header-row {
@@ -378,17 +378,17 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .btn-outline-sm {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-1);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 14px;
+  padding: var(--space-1-5) var(--space-2);
+  font-size: var(--font-base);
   font-weight: 600;
   color: var(--color-primary);
   transition: background-color 0.15s ease;
@@ -401,7 +401,7 @@
 .struktur-members-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 @media (max-width: 768px) {
@@ -415,8 +415,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 4px;
-  padding: 20px;
+  gap: var(--space-05);
+  padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: 12px;
 }
@@ -426,7 +426,7 @@
   height: 88px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-1-5);
   border: 3px solid var(--color-primary-bg);
 }
 
@@ -437,13 +437,13 @@
 }
 
 .struktur-member-name {
-  font-size: 16px;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-dark);
 }
 
 .struktur-member-role {
-  font-size: 13px;
+  font-size: var(--font-base);
   font-weight: 600;
   color: var(--color-primary);
 }
@@ -452,24 +452,24 @@
   border: 1px dashed var(--color-border);
   border-radius: 12px;
   background-color: var(--color-bg);
-  padding: 40px 24px;
+  padding: var(--space-5) var(--space-3);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: var(--space-1);
   color: var(--color-primary);
 }
 
 .struktur-chart-title {
-  font-size: 16px;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-dark);
-  margin-top: 4px;
+  margin-top: var(--space-05);
 }
 
 .struktur-chart-desc {
-  font-size: 13px;
+  font-size: var(--font-base);
   color: var(--color-text-subtle);
   max-width: 420px;
   line-height: 1.6;
@@ -479,7 +479,7 @@
 .vision-mission-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 @media (max-width: 992px) {
@@ -491,11 +491,11 @@
 .vision-card {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 36px;
+  padding: var(--space-5);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-3);
   position: relative;
   overflow: hidden;
 }
@@ -505,7 +505,7 @@
   height: 160px;
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-1);
 }
 
 .vision-banner-img {
@@ -517,11 +517,11 @@
 .vision-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-1-5);
 }
 
 .vision-title {
-  font-size: 18px;
+  font-size: var(--font-base);
   font-weight: 600;
   line-height: 1.6;
   color: var(--color-dark);
@@ -531,15 +531,15 @@
 .mission-card {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 36px;
+  padding: var(--space-5);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .mission-title {
-  font-size: 22px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: var(--color-dark);
 }
@@ -548,24 +548,24 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 8px;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
 }
 
 .mission-item {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: var(--space-2);
 }
 
 .mission-number {
   width: 32px;
-  height: 32px;
+  height: var(--space-4);
   border-radius: 50%;
   background-color: var(--color-pink-bg);
   color: var(--color-pink-accent);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--font-base);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -573,36 +573,36 @@
 }
 
 .mission-text {
-  font-size: 15px;
+  font-size: var(--font-base);
   line-height: 1.5;
   color: var(--color-text-subtle);
-  padding-top: 4px;
+  padding-top: var(--space-05);
 }
 
 /* 7. SPM Services Section */
 .spm-services-section {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 40px;
+  padding: var(--space-5);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .spm-header {
   text-align: center;
   max-width: 700px;
-  margin: 0 auto 36px;
+  margin: 0 auto var(--space-5);
 }
 
 .spm-title {
-  font-size: 26px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: var(--color-dark);
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-1);
 }
 
 .spm-subtitle {
-  font-size: 15px;
+  font-size: var(--font-base);
   color: var(--color-text-subtle);
   line-height: 1.5;
 }
@@ -610,7 +610,7 @@
 .spm-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 @media (max-width: 992px) {
@@ -629,17 +629,17 @@
   background-color: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  padding: 24px;
+  padding: var(--space-3);
   transition: all 0.25s ease;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-1-5);
 }
 
 .spm-card:hover {
   transform: translateY(-4px);
   border-color: var(--color-primary);
-  box-shadow: 0 8px 24px rgba(55, 97, 139, 0.1);
+  box-shadow: 0 8px 24px rgba(41, 118, 199, 0.1);
   background-color: #ffffff;
 }
 
@@ -650,29 +650,29 @@
 }
 
 .spm-number {
-  font-size: 28px;
+  font-size: var(--font-lg);
   font-weight: 800;
   color: var(--color-primary-light);
 }
 
 .spm-badge {
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 700;
   color: var(--color-primary);
   background-color: #ffffff;
-  padding: 4px 10px;
+  padding: var(--space-05) var(--space-1-5);
   border-radius: 12px;
   border: 1px solid var(--color-primary-light);
 }
 
 .spm-card-title {
-  font-size: 18px;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-primary);
 }
 
 .spm-card-desc {
-  font-size: 14px;
+  font-size: var(--font-base);
   line-height: 1.5;
   color: var(--color-text-subtle);
 }
@@ -681,26 +681,26 @@
 .posyandu-locations-section {
   background-color: #ffffff;
   border-radius: 16px;
-  padding: 40px;
+  padding: var(--space-5);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .locations-header {
   text-align: left;
   max-width: none;
-  margin: 0 0 24px;
+  margin: 0 0 var(--space-3);
 }
 
 .locations-title {
-  font-size: 24px;
+  font-size: var(--font-lg);
   font-weight: 600;
   color: var(--color-dark);
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-1);
 }
 
 .locations-subtitle {
-  font-size: 16px;
+  font-size: var(--font-base);
   color: var(--color-text-muted);
   line-height: 1.5;
 }
@@ -708,7 +708,7 @@
 .locations-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 @media (max-width: 1100px) {
@@ -758,15 +758,15 @@
 }
 
 .loc-body {
-  padding: 20px;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-1-5);
   flex-grow: 1;
 }
 
 .loc-name {
-  font-size: 18px;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-primary);
 }
@@ -774,14 +774,14 @@
 .loc-info-row {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  font-size: 13px;
+  gap: var(--space-1-5);
+  font-size: var(--font-base);
   color: var(--color-dark);
 }
 
 .loc-info-row.coords {
   color: var(--color-text-subtle);
-  font-size: 12px;
+  font-size: var(--font-xs);
 }
 
 .loc-icon {
@@ -791,17 +791,17 @@
 }
 
 .maps-btn {
-  margin-top: 8px;
+  margin-top: var(--space-1);
   background-color: var(--color-primary-bg);
   color: var(--color-primary);
-  font-size: 13px;
+  font-size: var(--font-base);
   font-weight: 600;
-  padding: 10px 14px;
+  padding: var(--space-1-5) var(--space-2);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-1);
   text-decoration: none;
   transition: all 0.2s ease;
 }
@@ -814,19 +814,19 @@
 /* Mobile Responsiveness Enhancements for Profil Posyandu */
 @media (max-width: 768px) {
   .profil-container {
-    padding: 20px 14px 48px;
-    gap: 20px;
+    padding: var(--space-3) var(--space-2) var(--space-6);
+    gap: var(--space-3);
   }
 }
 
 @media (max-width: 640px) {
   .profil-container {
-    padding: 16px 12px 36px;
-    gap: 16px;
+    padding: var(--space-2) var(--space-1-5) var(--space-5);
+    gap: var(--space-2);
   }
 
   .profil-hero-card {
-    padding: 24px 16px;
+    padding: var(--space-3) var(--space-2);
     border-radius: 14px;
   }
 
@@ -836,67 +836,67 @@
   }
 
   .hero-title-main {
-    font-size: 22px;
+    font-size: var(--font-lg);
   }
 
   .hero-badge {
-    font-size: 18px;
-    padding: 3px 10px;
+    font-size: var(--font-base);
+    padding: 3px var(--space-1-5);
   }
 
   .hero-quote {
-    font-size: 14.5px;
+    font-size: var(--font-base);
   }
 
   .hero-desc {
-    font-size: 13px;
+    font-size: var(--font-base);
   }
 
   .chairman-card {
-    padding: 24px 16px;
+    padding: var(--space-3) var(--space-2);
   }
 
   .avatar-ring {
     width: 90px;
-    height: 90px;
+    height: 88px;
   }
 
   .chairman-name {
-    font-size: 20px;
+    font-size: var(--font-lg);
   }
 
   .basic-contact-card {
-    padding: 24px 16px;
+    padding: var(--space-3) var(--space-2);
   }
 
   .card-title {
-    font-size: 19px;
-    margin-bottom: 18px;
+    font-size: var(--font-lg);
+    margin-bottom: var(--space-2);
   }
 
   .tasks-card {
-    padding: 24px 16px;
-    gap: 16px;
+    padding: var(--space-3) var(--space-2);
+    gap: var(--space-2);
   }
 
   .section-title {
-    font-size: 19px;
+    font-size: var(--font-lg);
   }
 
   .task-item {
-    font-size: 13.5px;
-    gap: 10px;
+    font-size: var(--font-base);
+    gap: var(--space-1-5);
   }
 
   .struktur-card {
-    padding: 24px 16px;
-    gap: 20px;
+    padding: var(--space-3) var(--space-2);
+    gap: var(--space-3);
   }
 
   .struktur-header-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--space-1-5);
   }
 
   .btn-outline-sm {
@@ -905,56 +905,56 @@
   }
 
   .struktur-member {
-    padding: 16px;
+    padding: var(--space-2);
   }
 
   .spm-services-section {
-    padding: 24px 16px;
+    padding: var(--space-3) var(--space-2);
   }
 
   .spm-header {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-3);
   }
 
   .spm-title {
-    font-size: 20px;
+    font-size: var(--font-lg);
   }
 
   .posyandu-locations-section {
-    padding: 24px 16px;
+    padding: var(--space-3) var(--space-2);
   }
 
   .locations-title {
-    font-size: 20px;
+    font-size: var(--font-lg);
   }
 
   .loc-body {
-    padding: 16px;
-    gap: 10px;
+    padding: var(--space-2);
+    gap: var(--space-1-5);
   }
 
   .maps-btn {
     width: 100%;
-    padding: 12px;
+    padding: var(--space-1-5);
   }
 }
 
 @media (max-width: 480px) {
   .hero-title-main {
-    font-size: 20px;
+    font-size: var(--font-lg);
   }
 
   .hero-badge {
-    font-size: 16px;
+    font-size: var(--font-base);
   }
 
   .chairman-actions {
-    gap: 12px;
+    gap: var(--space-1-5);
   }
 
   .action-circle-btn {
     width: 40px;
-    height: 40px;
+    height: var(--space-5);
   }
 }
 

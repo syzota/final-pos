@@ -31,7 +31,7 @@ export default function ProfilPosyandu({ onNavigate }) {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', marginTop: '100px', minHeight: '60vh' }}>
-        <h2>Memuat data dari server... ⏳</h2>
+        <p style={{ color: 'var(--ink-soft)' }}>Memuat...</p>
       </div>
     );
   }

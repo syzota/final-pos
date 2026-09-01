@@ -9,30 +9,30 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  padding: 32px 24px 64px;
+  padding: var(--space-4) var(--space-3) var(--space-8);
   flex: 1;
 }
 
 .jadwal-header-block {
-  margin-bottom: 32px;
+  margin-bottom: var(--space-4);
 }
 
 .jadwal-title {
-  font-size: 28px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: var(--color-dark);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-1);
 }
 
 .jadwal-subtitle {
-  font-size: 16px;
+  font-size: var(--font-base);
   color: var(--color-text-muted);
 }
 
 .jadwal-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 @media (max-width: 992px) {
@@ -51,22 +51,22 @@
   background-color: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  padding: 24px;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-2);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .jadwal-card-header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--space-2);
 }
 
 .jadwal-icon-box {
   width: 48px;
-  height: 48px;
+  height: var(--space-6);
   border-radius: 12px;
   background-color: #99c2f1;
   display: flex;
@@ -78,11 +78,11 @@
 .jadwal-card-heading {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-05);
 }
 
 .jadwal-loc-name {
-  font-size: 18px;
+  font-size: var(--font-base);
   font-weight: 700;
   color: var(--color-dark);
 }
@@ -91,25 +91,25 @@
   align-self: flex-start;
   background-color: #d0e4ff;
   color: var(--color-primary);
-  font-size: 12px;
+  font-size: var(--font-xs);
   font-weight: 600;
   border-radius: 4px;
-  padding: 1.5px 8px;
+  padding: 1.var(--space-05) var(--space-1);
 }
 
 .jadwal-card-info-block {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-05);
 }
 
 .jadwal-card-info-block.bordered {
   border-top: 1px solid var(--color-bg);
-  padding-top: 12px;
+  padding-top: var(--space-1-5);
 }
 
 .jadwal-info-label {
-  font-size: 12px;
+  font-size: var(--font-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
@@ -117,7 +117,7 @@
 }
 
 .jadwal-info-value {
-  font-size: 14px;
+  font-size: var(--font-base);
   color: var(--color-text-muted);
 }
 
@@ -126,32 +126,32 @@
   background-color: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  padding: 24px;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-05);
   overflow: hidden;
 }
 
 .jadwal-note-icon-box {
   width: 40px;
-  height: 40px;
+  height: var(--space-5);
   border-radius: 12px;
   background-color: #fce7f3;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-1);
 }
 
 .jadwal-note-title {
-  font-size: 16px;
+  font-size: var(--font-base);
   font-weight: 700;
   color: #111827;
 }
 
 .jadwal-note-desc {
-  font-size: 14px;
+  font-size: var(--font-base);
   line-height: 1.5;
   color: #4b5563;
 }
@@ -159,9 +159,9 @@
 .jadwal-download-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 10px;
-  font-size: 14px;
+  gap: var(--space-05);
+  margin-top: var(--space-1-5);
+  font-size: var(--font-base);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -178,9 +178,9 @@
    ========================================================= */
 
 .jadwal-prep-section {
-  margin-top: 48px;
+  margin-top: var(--space-6);
 
-  padding: 32px;
+  padding: var(--space-4);
 
   border-radius: 24px;
 
@@ -204,17 +204,17 @@
 
   align-items: flex-start;
 
-  gap: 16px;
+  gap: var(--space-2);
 
   max-width: 680px;
 
-  margin-bottom: 28px;
+  margin-bottom: var(--space-4);
 }
 
 
 .jadwal-prep-icon {
   width: 52px;
-  height: 52px;
+  height: 56px;
 
   flex-shrink: 0;
 
@@ -225,22 +225,22 @@
 
   border-radius: 15px;
 
-  background: #37618b;
+  background: var(--color-primary);
 
   color: #ffffff;
 
-  font-size: 21px;
+  font-size: var(--font-lg);
 }
 
 
 .jadwal-prep-eyebrow {
   display: block;
 
-  margin-bottom: 7px;
+  margin-bottom: var(--space-1);
 
-  color: #37618b;
+  color: var(--color-primary);
 
-  font-size: 10px;
+  font-size: var(--font-xs);
 
   font-weight: 800;
 
@@ -253,7 +253,7 @@
 
   color: #1f3b56;
 
-  font-size: 24px;
+  font-size: var(--font-lg);
 
   font-weight: 800;
 
@@ -262,11 +262,11 @@
 
 
 .jadwal-prep-subtitle {
-  margin: 9px 0 0;
+  margin: var(--space-1) 0 0;
 
   color: #6d8093;
 
-  font-size: 13px;
+  font-size: var(--font-base);
 
   line-height: 1.7;
 }
@@ -282,7 +282,7 @@
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 14px;
+  gap: var(--space-2);
 }
 
 
@@ -291,7 +291,7 @@
 
   min-width: 0;
 
-  padding: 20px;
+  padding: var(--space-3);
 
   border-radius: 18px;
 
@@ -305,12 +305,12 @@
 .jadwal-prep-number {
   position: absolute;
 
-  top: 16px;
-  right: 17px;
+  top: var(--space-2);
+  right: var(--space-2);
 
   color: #d2e1ef;
 
-  font-size: 18px;
+  font-size: var(--font-base);
 
   font-weight: 800;
 }
@@ -318,9 +318,9 @@
 
 .jadwal-prep-item-icon {
   width: 42px;
-  height: 42px;
+  height: var(--space-5);
 
-  margin-bottom: 20px;
+  margin-bottom: var(--space-3);
 
   display: flex;
 
@@ -331,18 +331,18 @@
 
   background: #e4f0fb;
 
-  color: #37618b;
+  color: var(--color-primary);
 
-  font-size: 18px;
+  font-size: var(--font-base);
 }
 
 
 .jadwal-prep-item-content h3 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-1);
 
   color: #263f58;
 
-  font-size: 14px;
+  font-size: var(--font-base);
 
   font-weight: 800;
 }
@@ -353,7 +353,7 @@
 
   color: #718396;
 
-  font-size: 11.5px;
+  font-size: var(--font-xs);
 
   line-height: 1.7;
 }
@@ -368,15 +368,15 @@
 
   align-items: flex-start;
 
-  gap: 10px;
+  gap: var(--space-1-5);
 
-  margin-top: 18px;
+  margin-top: var(--space-2);
 
-  padding: 13px 15px;
+  padding: var(--space-2) var(--space-2);
 
   border-radius: 13px;
 
-  background: rgba(55, 97, 139, 0.08);
+  background: rgba(41, 118, 199, 0.08);
 
   color: #546d85;
 }
@@ -385,14 +385,14 @@
 .jadwal-prep-note i {
   margin-top: 2px;
 
-  color: #37618b;
+  color: var(--color-primary);
 }
 
 
 .jadwal-prep-note p {
   margin: 0;
 
-  font-size: 11.5px;
+  font-size: var(--font-xs);
 
   line-height: 1.6;
 }
@@ -418,55 +418,54 @@
 @media (max-width: 640px) {
 
   .jadwal-main {
-    padding:
-      24px
-      16px
+    padding: var(--space-3)
+      var(--space-2)
       56px;
   }
 
 
   .jadwal-prep-section {
-    margin-top: 32px;
+    margin-top: var(--space-4);
 
-    padding: 20px;
+    padding: var(--space-3);
 
     border-radius: 20px;
   }
 
 
   .jadwal-prep-intro {
-    gap: 12px;
+    gap: var(--space-1-5);
 
-    margin-bottom: 22px;
+    margin-bottom: var(--space-3);
   }
 
 
   .jadwal-prep-icon {
     width: 44px;
-    height: 44px;
+    height: var(--space-6);
 
     border-radius: 13px;
 
-    font-size: 18px;
+    font-size: var(--font-base);
   }
 
 
   .jadwal-prep-title {
-    font-size: 20px;
+    font-size: var(--font-lg);
 
     line-height: 1.25;
   }
 
 
   .jadwal-prep-subtitle {
-    font-size: 12px;
+    font-size: var(--font-xs);
   }
 
 
   .jadwal-prep-list {
     grid-template-columns: 1fr;
 
-    gap: 10px;
+    gap: var(--space-1-5);
   }
 
 
@@ -479,35 +478,35 @@
 
     align-items: start;
 
-    gap: 12px;
+    gap: var(--space-1-5);
 
-    padding: 16px;
+    padding: var(--space-2);
   }
 
 
   .jadwal-prep-number {
-    top: 11px;
-    right: 13px;
+    top: var(--space-1-5);
+    right: var(--space-2);
 
-    font-size: 14px;
+    font-size: var(--font-base);
   }
 
 
   .jadwal-prep-item-icon {
     width: 40px;
-    height: 40px;
+    height: var(--space-5);
 
     margin: 0;
   }
 
 
   .jadwal-prep-item-content {
-    padding-right: 16px;
+    padding-right: var(--space-2);
   }
 
 
   .jadwal-prep-item-content h3 {
-    margin-bottom: 5px;
+    margin-bottom: var(--space-05);
   }
 
 }

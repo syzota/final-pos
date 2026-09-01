@@ -172,18 +172,12 @@ export default function Login({ onNavigate, onLogin }) {
           {isLoading ? 'Mencocokkan Data... ⏳' : 'Masuk'}
         </button>
 
-        <p className="login-foot" id="loginFootNote">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="10" width="16" height="10" rx="2" /><path d="M7 10V7a5 5 0 0 1 10 0v3" />
-          </svg>
-          Sistem mengenali Posyandu & peran Anda otomatis dari username.
-        </p>
 
         <button className="public-link" onClick={() => onNavigate && onNavigate('beranda')}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 21s7-6.7 7-12a7 7 0 0 0-14 0c0 5.3 7 12 7 12Z" /><circle cx="12" cy="9" r="2.5" />
+            <line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline>
           </svg>
-          Lihat Halaman Publik (Tanpa Login)
+          Kembali ke Beranda
         </button>
       </div>
     </div>

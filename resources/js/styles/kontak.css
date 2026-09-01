@@ -11,10 +11,10 @@
 .kontak-main {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 24px 24px 48px;
+  padding: var(--space-3) var(--space-3) var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 /* ===================================
@@ -25,23 +25,23 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 8px;
+  gap: var(--space-1);
+  padding-bottom: var(--space-1);
 }
 
 .kontak-main-title {
-  font-size: 32px;
+  font-size: var(--font-lg);
   font-weight: 700;
   letter-spacing: -0.6px;
   color: #111c2c;
-  line-height: 40px;
+  line-height: var(--space-5);
 }
 
 .kontak-main-subtitle {
-  font-size: 18px;
+  font-size: var(--font-base);
   font-weight: 400;
   color: #42474e;
-  line-height: 28px;
+  line-height: var(--space-4);
   max-width: 560px;
   text-align: center;
 }
@@ -56,8 +56,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 40px 32px;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
   box-shadow: 0 10px 30px rgba(186,26,26,0.3), 0 4px 6px -4px rgba(0,0,0,0.1);
   animation: kontak-pulse 2.5s ease-in-out infinite;
 }
@@ -75,24 +75,24 @@
 
 .kontak-phone-icon svg {
   width: 80px;
-  height: 70px;
+  height: 72px;
 }
 
 .kontak-emergency-number {
-  font-size: 60px;
+  font-size: var(--font-xxl);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 6px;
   color: #fff;
-  line-height: 60px;
+  line-height: var(--space-8);
   text-align: center;
 }
 
 .kontak-emergency-desc {
-  font-size: 18px;
+  font-size: var(--font-base);
   font-weight: 500;
   color: rgba(255,255,255,0.9);
-  line-height: 28px;
+  line-height: var(--space-4);
   text-align: center;
 }
 
@@ -102,18 +102,18 @@
 .kontak-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 .kontak-service-card {
   border: 1px solid #c2c7cf;
   border-radius: 12px;
   background-color: #fff;
-  padding: 24px;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: var(--space-3);
   box-shadow: 0 4px 20px rgba(0,0,0,0.04);
   transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -131,7 +131,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 36px;
+  font-size: var(--font-xl);
 }
 
 .kontak-service-icon.ambulans { background-color: #ffdad6; }
@@ -142,32 +142,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-05);
   text-align: center;
   flex: 1;
 }
 
 .kontak-service-name {
-  font-size: 24px;
+  font-size: var(--font-lg);
   font-weight: 700;
   color: #111c2c;
-  line-height: 32px;
+  line-height: var(--space-4);
 }
 
 .kontak-service-desc {
-  font-size: 16px;
+  font-size: var(--font-base);
   font-weight: 400;
   color: #42474e;
-  line-height: 24px;
+  line-height: var(--space-3);
 }
 
 .kontak-service-btn {
   border-radius: 8px;
-  padding: 16px 0;
+  padding: var(--space-2) 0;
   color: #fff;
-  font-size: 16px;
+  font-size: var(--font-base);
   font-weight: 400;
-  line-height: 24px;
+  line-height: var(--space-3);
   border: none;
   cursor: pointer;
   width: 100%;
@@ -180,8 +180,8 @@
   transform: translateY(-1px);
 }
 
-.kontak-service-btn.ambulans { background-color: #37618b; }
-.kontak-service-btn.rumahsakit { background-color: #37618b; }
+.kontak-service-btn.ambulans { background-color: var(--color-primary); }
+.kontak-service-btn.rumahsakit { background-color: var(--color-primary); }
 .kontak-service-btn.bidan { background-color: #854d63; }
 
 /* ===================================
@@ -190,64 +190,64 @@
 .kontak-bottom-grid {
   display: flex;
   flex-direction: row;
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 .kontak-prosedur-card {
   border-radius: 12px;
   background-color: #f0f3ff;
-  padding: 24px;
+  padding: var(--space-3);
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 .kontak-prosedur-header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-1);
 }
 
 .kontak-prosedur-badge {
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 400;
-  color: #37618b;
+  color: var(--color-primary);
 }
 
 .kontak-prosedur-title {
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 700;
-  color: #37618b;
-  line-height: 20px;
+  color: var(--color-primary);
+  line-height: var(--space-3);
 }
 
 .kontak-prosedur-steps {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .kontak-step {
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  gap: var(--space-2);
   align-items: flex-start;
 }
 
 .kontak-step-check {
-  font-size: 18px;
-  color: #37618b;
+  font-size: var(--font-base);
+  color: var(--color-primary);
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .kontak-step-text {
-  font-size: 16px;
+  font-size: var(--font-base);
   font-weight: 400;
   color: #42474e;
-  line-height: 24px;
+  line-height: var(--space-3);
   margin: 0;
 }
 
@@ -260,12 +260,12 @@
   border: 1px solid #c2c7cf;
   border-radius: 12px;
   background-color: #fff;
-  padding: 40px 24px;
+  padding: var(--space-5) var(--space-3);
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-2);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -275,26 +275,26 @@
 .kontak-gps-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 54.7% 123.7% at 50% 50%, #37618b 0%, rgba(55,97,139,0) 100%);
+  background: radial-gradient(ellipse 54.7% 123.7% at 50% 50%, var(--color-primary) 0%, rgba(55,97,139,0) 100%);
   opacity: 0.05;
   pointer-events: none;
 }
 
 .kontak-gps-icon {
   width: 64px;
-  height: 64px;
+  height: var(--space-8);
   border-radius: 9999px;
   background-color: rgba(153,194,241,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  color: #37618b;
+  font-size: var(--font-lg);
+  color: var(--color-primary);
   position: relative;
 }
 
 .kontak-gps-badge {
-  font-size: 14px;
+  font-size: var(--font-base);
   font-weight: 600;
   color: #42474e;
   text-transform: uppercase;
@@ -302,14 +302,14 @@
 }
 
 .kontak-gps-title {
-  font-size: 18px;
+  font-size: var(--font-base);
   font-weight: 700;
-  color: #37618b;
-  line-height: 28px;
+  color: var(--color-primary);
+  line-height: var(--space-4);
 }
 
 .kontak-gps-desc {
-  font-size: 12px;
+  font-size: var(--font-xs);
   font-weight: 400;
   color: #42474e;
   max-width: 320px;
@@ -336,25 +336,25 @@
 
 .kontak-map-badge {
   position: absolute;
-  top: 17px;
-  left: 17px;
+  top: var(--space-2);
+  left: var(--space-2);
   border: 1px solid #c2c7cf;
   border-radius: 8px;
   background-color: rgba(249,249,255,0.9);
   backdrop-filter: blur(6px);
-  padding: 12px;
+  padding: var(--space-1-5);
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--space-1);
+  font-size: var(--font-xs);
   font-weight: 500;
   color: #111c2c;
 }
 
 .kontak-map-badge-icon {
-  color: #37618b;
-  font-size: 16px;
+  color: var(--color-primary);
+  font-size: var(--font-base);
 }
 
 /* ===================================
@@ -362,11 +362,11 @@
    =================================== */
 @media (max-width: 768px) {
   .kontak-main {
-    padding: 16px 16px 40px;
+    padding: var(--space-2) var(--space-2) var(--space-5);
   }
 
   .kontak-emergency-number {
-    font-size: 40px;
+    font-size: var(--font-xl);
     letter-spacing: 3px;
   }
 
@@ -379,7 +379,7 @@
   }
 
   .kontak-main-title {
-    font-size: 24px;
+    font-size: var(--font-lg);
   }
 }
 
@@ -393,12 +393,12 @@
 
   margin: 0 auto;
 
-  padding: 36px 24px 80px;
+  padding: var(--space-5) var(--space-3) 80px;
 
   display: flex;
   flex-direction: column;
 
-  gap: 64px;
+  gap: var(--space-8);
 }
 
 
@@ -411,7 +411,7 @@
 
   overflow: hidden;
 
-  min-height: 300px;
+  min-height: 304px;
 
   display: grid;
 
@@ -421,9 +421,9 @@
 
   align-items: center;
 
-  gap: 40px;
+  gap: var(--space-5);
 
-  padding: 48px;
+  padding: var(--space-6);
 
   border-radius: 28px;
 
@@ -452,8 +452,8 @@
   width: 280px;
   height: 280px;
 
-  right: -100px;
-  bottom: -140px;
+  right: -104px;
+  bottom: -144px;
 
   border-radius: 50%;
 
@@ -477,11 +477,11 @@
 
   align-items: center;
 
-  gap: 8px;
+  gap: var(--space-1);
 
-  padding: 8px 14px;
+  padding: var(--space-1) var(--space-2);
 
-  margin-bottom: 20px;
+  margin-bottom: var(--space-3);
 
   border-radius: 999px;
 
@@ -494,7 +494,7 @@
 
   color: #ffffff;
 
-  font-size: 12px;
+  font-size: var(--font-xs);
 
   font-weight: 700;
 }
@@ -530,15 +530,14 @@
 .kontak-info-hero__content > p {
   max-width: 620px;
 
-  margin:
-    22px
+  margin: var(--space-3)
     0
     0;
 
   color:
     rgba(255, 255, 255, 0.82);
 
-  font-size: 14px;
+  font-size: var(--font-base);
 
   line-height: 1.8;
 }
@@ -555,9 +554,9 @@
 
   align-items: flex-start;
 
-  gap: 16px;
+  gap: var(--space-2);
 
-  padding: 22px;
+  padding: var(--space-3);
 
   border-radius: 20px;
 
@@ -571,7 +570,7 @@
 
 .kontak-info-notice-icon {
   width: 46px;
-  height: 46px;
+  height: var(--space-6);
 
   flex-shrink: 0;
 
@@ -583,22 +582,22 @@
 
   border-radius: 14px;
 
-  background: #e6f1fc;
+  background: var(--color-primary-bg);
 
-  color: #37618b;
+  color: var(--color-primary);
 
-  font-size: 20px;
+  font-size: var(--font-lg);
 }
 
 
 .kontak-info-hero__notice strong {
   display: block;
 
-  margin-bottom: 7px;
+  margin-bottom: var(--space-1);
 
   color: #1f3b57;
 
-  font-size: 14px;
+  font-size: var(--font-base);
 }
 
 
@@ -607,7 +606,7 @@
 
   color: #65788c;
 
-  font-size: 12.5px;
+  font-size: var(--font-base);
 
   line-height: 1.7;
 }
@@ -623,7 +622,7 @@
 
   flex-direction: column;
 
-  gap: 26px;
+  gap: var(--space-3);
 }
 
 
@@ -634,18 +633,18 @@
 
   justify-content: space-between;
 
-  gap: 24px;
+  gap: var(--space-3);
 }
 
 
 .kontak-section-label {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: var(--space-1);
 
-  color: #37618b;
+  color: var(--color-primary);
 
-  font-size: 11px;
+  font-size: var(--font-xs);
 
   font-weight: 800;
 
@@ -676,11 +675,11 @@
 .kontak-info-heading p {
   max-width: 620px;
 
-  margin: 8px 0 0;
+  margin: var(--space-1) 0 0;
 
   color: var(--ink-soft);
 
-  font-size: 13.5px;
+  font-size: var(--font-base);
 
   line-height: 1.7;
 }
@@ -696,12 +695,12 @@
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 18px;
+  gap: var(--space-2);
 }
 
 
 .kontak-info-card {
-  min-height: 260px;
+  min-height: 264px;
 
   display: flex;
 
@@ -709,7 +708,7 @@
 
   justify-content: space-between;
 
-  padding: 26px;
+  padding: var(--space-3);
 
   border-radius: 22px;
 
@@ -741,7 +740,7 @@
 
 .kontak-info-card-icon {
   width: 52px;
-  height: 52px;
+  height: 56px;
 
   display: flex;
 
@@ -753,11 +752,11 @@
 
   background: #e8f2fd;
 
-  color: #37618b;
+  color: var(--color-primary);
 
-  font-size: 22px;
+  font-size: var(--font-lg);
 
-  margin-bottom: 28px;
+  margin-bottom: var(--space-4);
 }
 
 
@@ -770,39 +769,37 @@
 
 
 .kontak-info-card-content h3 {
-  margin:
+  margin: 0
     0
-    0
-    10px;
+    var(--space-1-5);
 
   color: #203b55;
 
-  font-size: 17px;
+  font-size: var(--font-base);
 
   font-weight: 800;
 }
 
 
 .kontak-info-card-content > p {
-  min-height: 66px;
+  min-height: var(--space-8);
 
   margin: 0;
 
   color: #708295;
 
-  font-size: 12.5px;
+  font-size: var(--font-base);
 
   line-height: 1.7;
 }
 
 
 .kontak-info-card-value {
-  margin-top: 22px;
+  margin-top: var(--space-3);
 
-  padding-top: 18px;
+  padding-top: var(--space-2);
 
-  border-top:
-    1px solid
+  border-top: 1px solid
     #edf1f5;
 
   display: flex;
@@ -814,9 +811,9 @@
 
 
 .kontak-info-card-value strong {
-  color: #37618b;
+  color: var(--color-primary);
 
-  font-size: 20px;
+  font-size: var(--font-lg);
 
   font-weight: 800;
 }
@@ -831,7 +828,7 @@
 .kontak-info-card-value span {
   color: #8998a8;
 
-  font-size: 10.5px;
+  font-size: var(--font-xs);
 }
 
 
@@ -840,7 +837,7 @@
    ========================================================= */
 
 .kontak-guide-section {
-  padding: 34px;
+  padding: var(--space-4);
 
   border-radius: 26px;
 
@@ -857,15 +854,15 @@
 
   align-items: center;
 
-  gap: 15px;
+  gap: var(--space-2);
 
-  margin-bottom: 28px;
+  margin-bottom: var(--space-4);
 }
 
 
 .kontak-guide-header-icon {
   width: 50px;
-  height: 50px;
+  height: var(--space-6);
 
   flex-shrink: 0;
 
@@ -877,11 +874,11 @@
 
   justify-content: center;
 
-  background: #37618b;
+  background: var(--color-primary);
 
   color: white;
 
-  font-size: 20px;
+  font-size: var(--font-lg);
 }
 
 
@@ -891,16 +888,16 @@
   grid-template-columns:
     repeat(3, 1fr);
 
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 
 .kontak-guide-item {
   display: flex;
 
-  gap: 16px;
+  gap: var(--space-2);
 
-  padding: 20px;
+  padding: var(--space-3);
 
   border-radius: 18px;
 
@@ -916,7 +913,7 @@
 .kontak-guide-number {
   color: #8eabc8;
 
-  font-size: 12px;
+  font-size: var(--font-xs);
 
   font-weight: 800;
 
@@ -925,14 +922,13 @@
 
 
 .kontak-guide-item h3 {
-  margin:
+  margin: 0
     0
-    0
-    7px;
+    var(--space-1);
 
   color: #263f59;
 
-  font-size: 14px;
+  font-size: var(--font-base);
 
   font-weight: 800;
 }
@@ -943,7 +939,7 @@
 
   color: #708195;
 
-  font-size: 11.5px;
+  font-size: var(--font-xs);
 
   line-height: 1.65;
 }
@@ -963,20 +959,20 @@
 
   align-items: center;
 
-  gap: 10px;
+  gap: var(--space-1-5);
 
-  padding: 12px 18px;
+  padding: var(--space-1-5) var(--space-2);
 
   border-radius: 16px;
 
   background: #e8f2fc;
 
-  color: #37618b;
+  color: var(--color-primary);
 }
 
 
 .kontak-location-count strong {
-  font-size: 28px;
+  font-size: var(--font-lg);
 
   line-height: 1;
 
@@ -987,7 +983,7 @@
 .kontak-location-count span {
   color: #637d96;
 
-  font-size: 9.5px;
+  font-size: var(--font-xs);
 
   line-height: 1.25;
 
@@ -1007,7 +1003,7 @@
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 
@@ -1022,11 +1018,10 @@
     auto
     1fr;
 
-  gap:
-    15px
-    14px;
+  gap: var(--space-2)
+    var(--space-2);
 
-  padding: 20px;
+  padding: var(--space-3);
 
   border:
     1px solid
@@ -1045,12 +1040,12 @@
 .kontak-location-number {
   position: absolute;
 
-  top: 14px;
-  right: 15px;
+  top: var(--space-2);
+  right: var(--space-2);
 
   color: #d8e3ed;
 
-  font-size: 20px;
+  font-size: var(--font-lg);
 
   font-weight: 800;
 }
@@ -1058,7 +1053,7 @@
 
 .kontak-location-icon {
   width: 44px;
-  height: 44px;
+  height: var(--space-6);
 
   display: flex;
 
@@ -1070,28 +1065,27 @@
 
   background: #e7f1fc;
 
-  color: #37618b;
+  color: var(--color-primary);
 
-  font-size: 18px;
+  font-size: var(--font-base);
 }
 
 
 .kontak-location-content {
   min-width: 0;
 
-  padding-right: 20px;
+  padding-right: var(--space-3);
 }
 
 
 .kontak-location-content h3 {
-  margin:
-    1px
+  margin: 1px
     0
-    10px;
+    var(--space-1-5);
 
   color: #203b56;
 
-  font-size: 14px;
+  font-size: var(--font-base);
 
   line-height: 1.4;
 
@@ -1104,11 +1098,11 @@
 
   align-items: flex-start;
 
-  gap: 7px;
+  gap: var(--space-1);
 
   color: #667b8f;
 
-  font-size: 11.5px;
+  font-size: var(--font-xs);
 
   line-height: 1.45;
 }
@@ -1122,11 +1116,11 @@
 
 
 .kontak-location-coords {
-  margin-top: 7px;
+  margin-top: var(--space-1);
 
   color: #98a6b4;
 
-  font-size: 9.5px;
+  font-size: var(--font-xs);
 
   letter-spacing: 0.02em;
 }
@@ -1136,13 +1130,12 @@
   grid-column:
     1 / -1;
 
-  min-height: 40px;
+  min-height: var(--space-5);
 
-  margin-top: 4px;
+  margin-top: var(--space-05);
 
-  padding:
-    0
-    14px;
+  padding: 0
+    var(--space-2);
 
   border-radius: 12px;
 
@@ -1154,11 +1147,11 @@
 
   background: #f3f7fb;
 
-  color: #37618b;
+  color: var(--color-primary);
 
   text-decoration: none;
 
-  font-size: 11.5px;
+  font-size: var(--font-xs);
 
   font-weight: 800;
 
@@ -1169,7 +1162,7 @@
 
 
 .kontak-location-map:hover {
-  background: #37618b;
+  background: var(--color-primary);
 
   color: #ffffff;
 }
@@ -1186,11 +1179,11 @@
     1.1fr
     0.9fr;
 
-  gap: 34px;
+  gap: var(--space-4);
 
   align-items: stretch;
 
-  padding: 22px;
+  padding: var(--space-3);
 
   border-radius: 26px;
 
@@ -1205,7 +1198,7 @@
 .kontak-area-image {
   position: relative;
 
-  min-height: 350px;
+  min-height: 352px;
 
   overflow: hidden;
 
@@ -1230,18 +1223,17 @@
 .kontak-area-overlay {
   position: absolute;
 
-  left: 18px;
-  bottom: 18px;
+  left: var(--space-2);
+  bottom: var(--space-2);
 
   display: flex;
 
   align-items: center;
 
-  gap: 12px;
+  gap: var(--space-1-5);
 
-  padding:
-    11px
-    15px;
+  padding: var(--space-1-5)
+    var(--space-2);
 
   border-radius: 15px;
 
@@ -1258,7 +1250,7 @@
 
 .kontak-area-pin {
   width: 37px;
-  height: 37px;
+  height: var(--space-5);
 
   border-radius: 11px;
 
@@ -1268,7 +1260,7 @@
 
   justify-content: center;
 
-  background: #37618b;
+  background: var(--color-primary);
 
   color: white;
 }
@@ -1281,7 +1273,7 @@
 
   color: #8999a8;
 
-  font-size: 8.5px;
+  font-size: var(--font-xs);
 
   font-weight: 800;
 
@@ -1292,7 +1284,7 @@
 .kontak-area-overlay strong {
   color: #263f57;
 
-  font-size: 12px;
+  font-size: var(--font-xs);
 }
 
 
@@ -1303,14 +1295,13 @@
 
   justify-content: center;
 
-  padding:
-    25px
-    18px;
+  padding: var(--space-3)
+    var(--space-2);
 }
 
 
 .kontak-area-content h2 {
-  margin-bottom: 17px;
+  margin-bottom: var(--space-2);
 
   line-height: 1.25;
 }
@@ -1321,7 +1312,7 @@
 
   color: #708195;
 
-  font-size: 13px;
+  font-size: var(--font-base);
 
   line-height: 1.8;
 }
@@ -1332,11 +1323,11 @@
 
   align-items: flex-start;
 
-  gap: 11px;
+  gap: var(--space-1-5);
 
-  margin-top: 24px;
+  margin-top: var(--space-3);
 
-  padding: 14px;
+  padding: var(--space-2);
 
   border-radius: 14px;
 
@@ -1349,14 +1340,14 @@
 .kontak-area-note i {
   margin-top: 2px;
 
-  color: #37618b;
+  color: var(--color-primary);
 }
 
 
 .kontak-area-note p {
   margin: 0;
 
-  font-size: 11.5px;
+  font-size: var(--font-xs);
 
   line-height: 1.65;
 }
@@ -1374,7 +1365,7 @@
 
     min-height: auto;
 
-    padding: 40px;
+    padding: var(--space-5);
   }
 
 
@@ -1412,7 +1403,7 @@
 
 
   .kontak-area-image {
-    min-height: 300px;
+    min-height: 304px;
   }
 
 }
@@ -1425,32 +1416,30 @@
 @media (max-width: 767px) {
 
   .kontak-info-main {
-    padding:
-      20px
-      16px
-      60px;
+    padding: var(--space-3)
+      var(--space-2)
+      var(--space-8);
 
-    gap: 42px;
+    gap: var(--space-5);
   }
 
 
   /* HERO */
 
   .kontak-info-hero {
-    padding:
-      30px
-      20px;
+    padding: var(--space-4)
+      var(--space-3);
 
-    gap: 28px;
+    gap: var(--space-4);
 
     border-radius: 22px;
   }
 
 
   .kontak-info-eyebrow {
-    font-size: 10px;
+    font-size: var(--font-xs);
 
-    margin-bottom: 16px;
+    margin-bottom: var(--space-2);
   }
 
 
@@ -1467,16 +1456,16 @@
 
 
   .kontak-info-hero__content > p {
-    margin-top: 17px;
+    margin-top: var(--space-2);
 
-    font-size: 13px;
+    font-size: var(--font-base);
 
     line-height: 1.7;
   }
 
 
   .kontak-info-hero__notice {
-    padding: 16px;
+    padding: var(--space-2);
 
     border-radius: 16px;
   }
@@ -1484,7 +1473,7 @@
 
   .kontak-info-notice-icon {
     width: 40px;
-    height: 40px;
+    height: var(--space-5);
 
     border-radius: 12px;
   }
@@ -1512,14 +1501,14 @@
 
     min-height: auto;
 
-    padding: 20px;
+    padding: var(--space-3);
 
     border-radius: 18px;
   }
 
 
   .kontak-info-card-icon {
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3);
   }
 
 
@@ -1531,7 +1520,7 @@
   /* GUIDE */
 
   .kontak-guide-section {
-    padding: 22px 18px;
+    padding: var(--space-3) var(--space-2);
 
     border-radius: 20px;
   }
@@ -1543,12 +1532,12 @@
 
 
   .kontak-guide-grid {
-    gap: 10px;
+    gap: var(--space-1-5);
   }
 
 
   .kontak-guide-item {
-    padding: 16px;
+    padding: var(--space-2);
 
     border-radius: 15px;
   }
@@ -1566,7 +1555,7 @@
   .kontak-location-count {
     flex-shrink: 0;
 
-    padding: 10px 13px;
+    padding: var(--space-1-5) var(--space-2);
   }
 
 
@@ -1583,9 +1572,9 @@
   /* MAP */
 
   .kontak-area-section {
-    gap: 12px;
+    gap: var(--space-1-5);
 
-    padding: 12px;
+    padding: var(--space-1-5);
 
     border-radius: 20px;
   }
@@ -1599,10 +1588,9 @@
 
 
   .kontak-area-content {
-    padding:
-      18px
-      8px
-      10px;
+    padding: var(--space-2)
+      var(--space-1)
+      var(--space-1-5);
   }
 
 }
@@ -1615,16 +1603,15 @@
 @media (max-width: 420px) {
 
   .kontak-info-main {
-    padding-left: 12px;
+    padding-left: var(--space-1-5);
 
-    padding-right: 12px;
+    padding-right: var(--space-1-5);
   }
 
 
   .kontak-info-hero {
-    padding:
-      26px
-      17px;
+    padding: var(--space-3)
+      var(--space-2);
 
     border-radius: 18px;
   }
@@ -1648,7 +1635,7 @@
 
 
   .kontak-area-image {
-    min-height: 210px;
+    min-height: 208px;
   }
 
 }

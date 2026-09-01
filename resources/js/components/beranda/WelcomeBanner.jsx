@@ -31,10 +31,10 @@ export default function WelcomeBanner({ onNavigate }) {
         </div>
 
         <h1 className="medical-hero__title">
-          Tempat Nyaman untuk
-          <br />
-          Menjaga Kesehatan
-          <br />
+          Tempat Nyaman untuk{' '}
+          <br className="d-none d-md-block" />
+          Menjaga Kesehatan{' '}
+          <br className="d-none d-md-block" />
           <span>Keluarga Anda</span>
         </h1>
 

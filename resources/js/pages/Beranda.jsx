@@ -23,8 +23,8 @@ export default function Beranda({ activePage = 'beranda', onNavigate, onDarurat 
 
         {/* Artikel Kesehatan Terbaru */}
         <section className="content-grid" style={{ marginTop: '40px', marginBottom: '60px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '24px', color: 'var(--ink)', margin: 0 }}>Artikel Kesehatan Terbaru</h2>
+          <div className="article-section-header">
+            <h2 className="article-section-title">Artikel Kesehatan Terbaru</h2>
             <button className="btn btn-outline" onClick={() => onNavigate && onNavigate('artikel')}>
               Lihat Semua Artikel
             </button>
