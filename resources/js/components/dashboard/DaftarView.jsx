@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Skeleton from '../common/Skeleton';
 
 export default function DaftarView() {
   const [posyanduList, setPosyanduList] = useState([]);
@@ -102,7 +103,7 @@ export default function DaftarView() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>Memuat data...</td></tr>
+              <Skeleton type="table-row" rows={3} cols={4} />
             ) : (
               posyanduList.map((posyandu) => {
                 const isMine = posyandu.id === myPosyanduId;

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { Info, TriangleAlert, CheckCircle2, Plus, User } from 'lucide-react';
+
 export default function WargaAnakView() {
   const [currentAnakIdx, setCurrentAnakIdx] = useState(0);
 
@@ -89,19 +91,19 @@ export default function WargaAnakView() {
 
       {/* NOTIFIKASI INFO / ERROR */}
       <div className="callout" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <i className="bi bi-info-circle-fill" style={{ fontSize: '16px' }}></i>
+        <Info />
         <span>Data Rapor Kesehatan bersifat read-only. Data ini direkap langsung oleh Kader Posyandu Anda.</span>
       </div>
 
       {errorMsg && (
         <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: '#fde8e8', color: '#c81e1e', fontSize: '14px', fontWeight: '500' }}>
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>{errorMsg}
+          <TriangleAlert className="me-2" />{errorMsg}
         </div>
       )}
 
       {successMsg && (
         <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: '#e1fce8', color: '#036c2a', fontSize: '14px', fontWeight: '500' }}>
-          <i className="bi bi-check-circle-fill me-2"></i>{successMsg}
+          <CheckCircle2 className="me-2" />{successMsg}
         </div>
       )}
 
@@ -112,7 +114,7 @@ export default function WargaAnakView() {
           <div className="section-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ margin: 0 }}>Rapor Bayi & Balita</h3>
             <button className="btn btn-sm btn-outline" style={{ color: 'var(--cyan-deep)', borderColor: 'var(--cyan-deep)' }} onClick={() => setShowAddModal(true)}>
-              <i className="bi bi-plus-lg"></i> Tambah Anak
+              <Plus /> Tambah Anak
             </button>
           </div>
 
@@ -129,7 +131,7 @@ export default function WargaAnakView() {
                     onClick={() => setCurrentAnakIdx(i)}
                   >
                     <div className="bidang-icon-tile" style={{ background: c[0], color: c[1] }}>
-                      <i className="bi bi-person-fill" style={{ fontSize: '18px' }}></i>
+                      <User />
                     </div>
                     <div>
                       <p style={{ fontWeight: 700, fontSize: '13px', margin: 0, color: '#334155' }}>{a.nama}</p>

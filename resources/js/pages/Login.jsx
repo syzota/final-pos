@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axiosClient from '../api/axiosClient';
 import logo from '../assets/images/common/logo-header.jpeg';
+import { Loader2 } from 'lucide-react';
 
 export default function Login({ onNavigate, onLogin }) {
   const [loginType, setLoginType] = useState('pengelola');
@@ -103,7 +104,7 @@ export default function Login({ onNavigate, onLogin }) {
         {/* Form Field: Username (Sekarang dinamis) */}
         <div className="field">
           <label id="usernameLabel">
-            Username {loginType === 'warga' && '(Gunakan NIK)'}
+            Username
           </label>
           <input
             type="text"
@@ -116,7 +117,7 @@ export default function Login({ onNavigate, onLogin }) {
 
         {/* Form Field: Password (Dengan fitur Show/Hide) */}
         <div className="field">
-          <label id="passwordLabel">{loginType === 'warga' ? 'Kata Sandi (default: PIN Dari Kader)' : 'Kata Sandi'}</label>
+          <label id="passwordLabel">Kata Sandi</label>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <input
               type={showPassword ? 'text' : 'password'}
@@ -168,8 +169,8 @@ export default function Login({ onNavigate, onLogin }) {
           </p>
         )}
 
-        <button className="btn-primary" onClick={handleLogin} disabled={isLoading}>
-          {isLoading ? 'Mencocokkan Data... ⏳' : 'Masuk'}
+        <button className="btn-primary" onClick={handleLogin} disabled={isLoading} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          {isLoading ? <><Loader2 size={16} className="lucide-spin" /> Mencocokkan Data...</> : 'Masuk'}
         </button>
 
 

@@ -1,0 +1,72 @@
+/* =========================================================
+   SKELETON LOADING
+   ========================================================= */
+
+.skeleton {
+  background-color: #f1f5f9;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.6) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Skeleton variants */
+.skeleton-text {
+  height: 14px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+.skeleton-title {
+  height: 24px;
+  width: 60%;
+  margin-bottom: 16px;
+}
+.skeleton-circle {
+  border-radius: 50%;
+}
+.skeleton-button {
+  height: 40px;
+  width: 120px;
+  border-radius: 8px;
+}
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #eaeaea;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.skeleton-card-image {
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+/* Table Skeletons */
+.skeleton-table-row td {
+  padding: 16px !important;
+}
+.skeleton-table-cell {
+  height: 16px;
+  width: 100%;
+}

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom'; // <-- PERBAIKAN (titik 1): import ReactDOM untuk createPortal
 import axios from 'axios';
 
+import { Camera, Printer, HeartPulse, Building, FileText, Eye, Trash, Download, Filter, CheckCircle, Search } from 'lucide-react';
+import Skeleton from '../common/Skeleton';
+
 export default function AdminEksporView() {
     const [selectedPosyandu, setSelectedPosyandu] = useState(null);
     const [tab, setTab] = useState(0); // 0: Balita, 1: Remaja, 2: Ibu Hamil, 3: Lansia
@@ -143,7 +146,7 @@ export default function AdminEksporView() {
                     </table>
 
                     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
-                        <h4 style={{ color: '#555', marginBottom: '12px' }}><i className="bi bi-camera-fill me-2"></i>Bukti Foto Pemeriksaan</h4>
+                        <h4 style={{ color: '#555', marginBottom: '12px' }}><Camera className="me-2" />Bukti Foto Pemeriksaan</h4>
                         {fotoArray.length > 0 ? (
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                 {fotoArray.map((path, idx) => (
@@ -163,7 +166,7 @@ export default function AdminEksporView() {
 
                     <div style={{ marginTop: '24px', textAlign: 'right' }}>
                         <button className="btn btn-outline me-2" onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
-                            <i className="bi bi-printer me-2"></i>Cetak Laporan Ini
+                            <Printer className="me-2" />Cetak Laporan Ini
                         </button>
                         <button className="btn btn-cyan" onClick={() => setSelectedDetail(null)}>Tutup</button>
                     </div>
@@ -222,7 +225,7 @@ export default function AdminEksporView() {
           ========================================= */}
             <div className="no-print">
                 <div className="section-head" style={{ marginBottom: '24px' }}>
-                    <h2><i className="bi bi-heart-pulse-fill me-2" style={{ color: 'var(--cyan-deep)' }}></i>Pemantauan Pencatatan Kesehatan</h2>
+                    <h2><HeartPulse className="me-2" />Pemantauan Pencatatan Kesehatan</h2>
                     <p style={{ color: '#666' }}>Pilih Posyandu untuk meninjau, menghapus, atau mengekspor riwayat pemeriksaan dari 4 sasaran kesehatan.</p>
                 </div>
 
@@ -246,10 +249,10 @@ export default function AdminEksporView() {
                 {selectedPosyandu && (
                     <div className="card">
                         <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                            <h3 style={{ margin: 0 }}><i className="bi bi-building me-2"></i>Data Kesehatan — Posyandu {selectedPosyandu.nama}</h3>
+                            <h3 style={{ margin: 0 }}><Building className="me-2" />Data Kesehatan — Posyandu {selectedPosyandu.nama}</h3>
                             {/* TOMBOL CETAK SEMUA */}
                             <button className="btn btn-violet" onClick={() => window.print()}>
-                                <i className="bi bi-file-earmark-pdf-fill me-2"></i>Cetak Semua Halaman Ini
+                                <FileText className="me-2" />Cetak Semua Halaman Ini
                             </button>
                         </div>
 
@@ -276,7 +279,7 @@ export default function AdminEksporView() {
                                 </thead>
                                 <tbody>
                                 {isLoading ? (
-                                    <tr><td colSpan="4" style={{ textAlign: 'center', padding: '30px' }}>Memuat data pemeriksaan...</td></tr>
+                                    <Skeleton type="table-row" rows={3} cols={4} />
                                 ) : dataKesehatan.length > 0 ? (
                                     dataKesehatan.map((item) => (
                                         <tr key={item.id}>
@@ -285,10 +288,10 @@ export default function AdminEksporView() {
                                             <td><span className={`badge ${item.status_form === 'draft' ? 'badge-orange' : 'badge-green'}`}>{item.status_form.toUpperCase()}</span></td>
                                             <td>
                                                 <div style={{ display: 'flex', gap: '4px' }}>
-                                                    <button className="btn btn-sm btn-outline" onClick={() => setSelectedDetail(item)} title="Lihat Detail"><i className="bi bi-eye"></i></button>
+                                                    <button className="btn btn-sm btn-outline" onClick={() => setSelectedDetail(item)} title="Lihat Detail"><Eye /></button>
                                                     {/* TOMBOL CETAK PER INDIVIDU */}
-                                                    <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => cetakIndividu(item)} title="Cetak Laporan Pasien Ini"><i className="bi bi-printer"></i></button>
-                                                    <button className="btn btn-sm btn-outline" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleHapusData(item.id)} title="Hapus Data"><i className="bi bi-trash"></i></button>
+                                                    <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => cetakIndividu(item)} title="Cetak Laporan Pasien Ini"><Printer /></button>
+                                                    <button className="btn btn-sm btn-outline" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleHapusData(item.id)} title="Hapus Data"><Trash /></button>
                                                 </div>
                                             </td>
                                         </tr>

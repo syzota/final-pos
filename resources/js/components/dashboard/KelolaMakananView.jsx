@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { Info, Search, Plus, FileEdit, Pencil, Trash } from 'lucide-react';
+
 // === DATABASE PINTAR (MINI API MAKANAN INDONESIA) ===
 // Bertindak sebagai "API Luar" agar Kader tidak perlu menebak kalori
 const EXTERNAL_API_MOCK = [
@@ -156,7 +158,7 @@ export default function KelolaMakananView() {
   return (
     <div style={{ animation: 'fadein 0.4s ease' }}>
       <div className="callout" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <i className="bi bi-info-circle-fill" style={{ fontSize: '16px' }}></i>
+        <Info />
         <span>Pilih makanan dari Database Pintar atau ketik manual. Makanan yang ditambahkan di sini akan muncul di Kalkulator Warga.</span>
       </div>
 
@@ -171,7 +173,7 @@ export default function KelolaMakananView() {
         {/* KIRI: PENCARIAN CERDAS (API MOCK) */}
         <div className="card" style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', border: 'none' }}>
           <div className="section-head" style={{ marginBottom: '16px' }}>
-            <h3 style={{ color: 'var(--cyan-deep)', margin: 0 }}><i className="bi bi-search me-2"></i>Cari dari Database Pintar</h3>
+            <h3 style={{ color: 'var(--cyan-deep)', margin: 0 }}><Search className="me-2" />Cari dari Database Pintar</h3>
             <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#0369a1' }}>Ketik nama makanan (misal: Nasi, Soto, Ayam), kalorinya sudah otomatis tersedia!</p>
           </div>
 
@@ -193,7 +195,7 @@ export default function KelolaMakananView() {
                     <div style={{ fontSize: '12px', color: 'var(--orange-deep)', fontWeight: '600' }}>{food.kalori_per_porsi} kkal</div>
                   </div>
                   <button className="btn btn-sm btn-outline" style={{ color: 'var(--cyan-deep)', borderColor: 'var(--cyan-deep)' }} onClick={() => handleSaveFromApi(food)} disabled={isLoading}>
-                    <i className="bi bi-plus-lg"></i> Tambah
+                    <Plus /> Tambah
                   </button>
                 </div>
               ))}
@@ -208,7 +210,7 @@ export default function KelolaMakananView() {
         <div className="card">
           <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ margin: 0 }}>Daftar Menu Posyandu</h3>
-            <button className="btn btn-violet btn-sm" onClick={() => showForm()}><i className="bi bi-pencil-square me-1"></i>Input Manual</button>
+            <button className="btn btn-violet btn-sm" onClick={() => showForm()}><FileEdit className="me-1" />Input Manual</button>
           </div>
 
           {editingId && (
@@ -245,8 +247,8 @@ export default function KelolaMakananView() {
                       <td style={{ color: 'var(--orange-deep)', fontWeight: 'bold' }}>{f.kalori_per_porsi} kkal</td>
                       <td style={{ textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                          <button className="btn btn-sm btn-outline" onClick={() => showForm(f.id)}><i className="bi bi-pencil"></i></button>
-                          <button className="btn btn-sm btn-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }} onClick={() => handleDelete(f.id)}><i className="bi bi-trash"></i></button>
+                          <button className="btn btn-sm btn-outline" onClick={() => showForm(f.id)}><Pencil /></button>
+                          <button className="btn btn-sm btn-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }} onClick={() => handleDelete(f.id)}><Trash /></button>
                         </div>
                       </td>
                     </tr>

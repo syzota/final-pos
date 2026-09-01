@@ -1056,7 +1056,7 @@
   font-weight: 700;
 }
 
-.kalkulator-cover-hero__badge i {
+.kalkulator-cover-hero__badge svg {
   color: #c8e4ff;
 }
 
@@ -1171,7 +1171,7 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-.kalkulator-cover-hero__feature i {
+.kalkulator-cover-hero__feature svg {
   color: #cce6ff;
 }
 
@@ -1193,7 +1193,7 @@
   box-shadow: 0 12px 30px rgba(16, 48, 78, 0.14);
 }
 
-.kalkulator-cover-hero__note i {
+.kalkulator-cover-hero__note svg {
   flex-shrink: 0;
   margin-top: 2px;
   color: var(--color-primary);

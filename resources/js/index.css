@@ -3,3 +3,9 @@
 @import './styles/profil.css';
 @import './styles/admin.css';
 
+
+
+/* Fix alignment for Lucide icons */
+.lucide {
+  vertical-align: text-bottom;
+}

@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
+import { Printer, Save, Pen, Trash } from 'lucide-react';
+
 export default function PencatatanKegiatanView() {
     const [formData, setFormData] = useState({
         nama_posyandu: '', ketua_pelaksana: '',
@@ -220,10 +222,10 @@ export default function PencatatanKegiatanView() {
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}>
-                            <i className="bi bi-printer me-2"></i> Ekspor PDF Kertas
+                            <Printer className="me-2" /> Ekspor PDF Kertas
                         </button>
                         <button className="btn btn-violet" onClick={handleSave} disabled={isLoading}>
-                            <i className="bi bi-save me-2"></i> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                            <Save className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
                         </button>
                     </div>
                 </div>
@@ -328,7 +330,7 @@ export default function PencatatanKegiatanView() {
 
                         <div className="card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
                             <div className="section-head" style={{ marginBottom: '12px' }}>
-                                <h3 style={{ color: '#334155' }}><i className="bi bi-pen me-2"></i>Tanda Tangan Digital</h3>
+                                <h3 style={{ color: '#334155' }}><Pen className="me-2" />Tanda Tangan Digital</h3>
                                 <button className="btn btn-sm btn-outline" onClick={clearSignature} style={{ color: '#ef4444', borderColor: '#ef4444' }}>Hapus</button>
                             </div>
                             <div className="form-field full"><label>Nama Ketua Pelaksana</label><input name="ketua_pelaksana" value={formData.ketua_pelaksana} onChange={handleChange} placeholder="Ketik nama lengkap untuk di bawah TTD" /></div>
@@ -393,14 +395,14 @@ export default function PencatatanKegiatanView() {
                                                         style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}
                                                         onClick={() => handlePrint(item)}
                                                     >
-                                                        <i className="bi bi-printer"></i> Cetak
+                                                        <Printer /> Cetak
                                                     </button>
                                                     <button
                                                         className="btn btn-sm btn-outline"
                                                         style={{ color: '#dc3545', borderColor: '#dc3545' }}
                                                         onClick={() => handleDelete(item.id)}
                                                     >
-                                                        <i className="bi bi-trash"></i> Hapus
+                                                        <Trash /> Hapus
                                                     </button>
                                                 </div>
                                             </td>

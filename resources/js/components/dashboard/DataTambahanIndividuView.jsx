@@ -2,28 +2,30 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import '../../styles/dataTambahanIndividu.css';
 
+import { Contact, Save, Printer, FolderOpen, Trash2, UserCheck, HeartPulse, TriangleAlert, Droplet, CheckCircle2, CircleAlert } from 'lucide-react';
+
 const today = () => new Date().toISOString().slice(0, 10);
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 
 const TYPES = {
   ibu_hamil: {
     label: 'Data Ibu Hamil',
-    icon: 'bi bi-person-hearts',
+    icon: UserCheck,
     description: 'Data individu ibu hamil yang dicatat oleh kader.',
   },
   nifas: {
     label: 'Data Nifas',
-    icon: 'bi bi-heart-pulse-fill',
+    icon: HeartPulse,
     description: 'Data ibu setelah melahirkan selama masa nifas.',
   },
   kematian_nifas: {
     label: 'Kematian Ibu Nifas',
-    icon: 'bi bi-exclamation-triangle-fill',
+    icon: TriangleAlert,
     description: 'Pencatatan kasus kematian ibu pada masa nifas.',
   },
   diare: {
     label: 'Data Diare',
-    icon: 'bi bi-droplet-half',
+    icon: Droplet,
     description: 'Data individu warga yang mengalami diare.',
   },
 };
@@ -492,7 +494,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
           </div>
 
           <div className="dti-hero-icon">
-            <i className="bi bi-person-vcard-fill"></i>
+            <Contact />
           </div>
         </section>
 
@@ -628,7 +630,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               className="btn btn-violet"
               disabled={saving}
             >
-              <i className="bi bi-floppy-fill me-2"></i>
+              <Save className="me-2" />
               {saving ? 'Menyimpan...' : 'Simpan Data'}
             </button>
           </div>
@@ -664,7 +666,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                 className="btn btn-outline"
                 onClick={generateReport}
               >
-                <i className="bi bi-printer-fill me-2"></i>
+                <Printer className="me-2" />
                 Generate Laporan
               </button>
 
@@ -678,7 +680,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
             </div>
           ) : rows.length === 0 ? (
             <div className="dti-empty">
-              <i className="bi bi-folder2-open"></i>
+              <FolderOpen />
               <h4>Belum ada data</h4>
               <p>
                 Belum ada pencatatan pada {formatMonth(filterMonth)}.
@@ -725,7 +727,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                           className="dti-delete"
                           onClick={() => handleDelete(row.id)}
                         >
-                          <i className="bi bi-trash3-fill"></i>
+                          <Trash2 />
                           Hapus
                         </button>
                       </td>

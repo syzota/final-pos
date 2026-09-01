@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
+import { Megaphone, BookText, Search, ArrowLeft, FileText, Building, Book, Droplet, Home, ShieldCheck, Heart, Eye, Printer, Trash, Image, Users, CheckCircle, Clock, MapPin, Loader2, PlaySquare, AlertCircle } from 'lucide-react';
+import Skeleton from '../common/Skeleton';
+
 export default function AdminDashboardView() {
     // === STATE NAVIGASI & DATA ===
     const [viewMode, setViewMode] = useState('list');
@@ -234,7 +237,7 @@ export default function AdminDashboardView() {
                     <div className="grid grid-2" style={{ marginBottom: '24px' }}>
                         <div className="card">
                             <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
-                                <h3 style={{ color: 'var(--magenta-deep)', margin: 0 }}><i className="bi bi-megaphone-fill me-2"></i>Top Laporan Pengaduan</h3>
+                                <h3 style={{ color: 'var(--magenta-deep)', margin: 0 }}><Megaphone className="me-2" />Top Laporan Pengaduan</h3>
                             </div>
                             {statPengaduan.length > 0 ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -260,7 +263,7 @@ export default function AdminDashboardView() {
 
                         <div className="card">
                             <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
-                                <h3 style={{ color: 'var(--violet-deep)', margin: 0 }}><i className="bi bi-journal-text me-2"></i>Top Pemetaan Identifikasi</h3>
+                                <h3 style={{ color: 'var(--violet-deep)', margin: 0 }}><BookText className="me-2" />Top Pemetaan Identifikasi</h3>
                             </div>
                             {statFormulir.length > 0 ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -305,7 +308,7 @@ export default function AdminDashboardView() {
                                         <td>{formatWaktu((waktuUpdates || {})[posyandu.id])}</td>
                                         <td style={{ textAlign: 'center' }}>
                                             <button className="btn btn-sm btn-outline" onClick={() => openDetail(posyandu)}>
-                                                <i className="bi bi-search me-1"></i>Cek Laporan Warga
+                                                <Search className="me-1" />Cek Laporan Warga
                                             </button>
                                         </td>
                                     </tr>
@@ -321,7 +324,7 @@ export default function AdminDashboardView() {
                 <div className="no-print">
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                         <button className="btn btn-outline" onClick={closeDetail}>
-                            <i className="bi bi-arrow-left me-2"></i>Kembali ke Daftar
+                            <ArrowLeft className="me-2" />Kembali ke Daftar
                         </button>
                         <button className="btn btn-violet" onClick={() => {
                             setPrintTarget({ type: 'all', data: null });
@@ -331,40 +334,40 @@ export default function AdminDashboardView() {
                                 setTimeout(() => setIsPrinting(false), 500);
                             }, 150);
                         }}>
-                            <i className="bi bi-file-earmark-pdf-fill me-2"></i>Ekspor PDF Lengkap
+                            <FileText className="me-2" />Ekspor PDF Lengkap
                         </button>
                     </div>
 
                     <div className="card" style={{ backgroundColor: '#f8f9fa' }}>
                         <div className="section-head">
-                            <h3><i className="bi bi-building me-2"></i>Laporan Posyandu {selectedPosyandu.nama} - Bidang {BIDANG_NAMA[tab]}</h3>
+                            <h3><Building className="me-2" />Laporan Posyandu {selectedPosyandu.nama} - Bidang {BIDANG_NAMA[tab]}</h3>
                         </div>
 
                         <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '16px' }}>
-                            <button className={`tab-btn ${tab === 0 ? 'active' : ''}`} onClick={() => setTab(0)}><i className="bi bi-book-fill me-1"></i>Pendidikan</button>
-                            <button className={`tab-btn ${tab === 1 ? 'active' : ''}`} onClick={() => setTab(1)}><i className="bi bi-droplet-fill me-1"></i>Pekerjaan Umum</button>
-                            <button className={`tab-btn ${tab === 2 ? 'active' : ''}`} onClick={() => setTab(2)}><i className="bi bi-house-door-fill me-1"></i>Perumahan Rakyat</button>
-                            <button className={`tab-btn ${tab === 3 ? 'active' : ''}`} onClick={() => setTab(3)}><i className="bi bi-shield-fill-check me-1"></i>Trantibumlinmas</button>
-                            <button className={`tab-btn ${tab === 4 ? 'active' : ''}`} onClick={() => setTab(4)}><i className="bi bi-heart-fill me-1"></i>Sosial</button>
+                            <button className={`tab-btn ${tab === 0 ? 'active' : ''}`} onClick={() => setTab(0)}><Book className="me-1" />Pendidikan</button>
+                            <button className={`tab-btn ${tab === 1 ? 'active' : ''}`} onClick={() => setTab(1)}><Droplet className="me-1" />Pekerjaan Umum</button>
+                            <button className={`tab-btn ${tab === 2 ? 'active' : ''}`} onClick={() => setTab(2)}><Home className="me-1" />Perumahan Rakyat</button>
+                            <button className={`tab-btn ${tab === 3 ? 'active' : ''}`} onClick={() => setTab(3)}><ShieldCheck className="me-1" />Trantibumlinmas</button>
+                            <button className={`tab-btn ${tab === 4 ? 'active' : ''}`} onClick={() => setTab(4)}><Heart className="me-1" />Sosial</button>
                         </div>
 
                         <div className="grid grid-2">
                             <div className="card">
-                                <div className="section-head"><h3 style={{ color: 'var(--violet-deep)' }}><i className="bi bi-journal-text me-2"></i>Data Identifikasi</h3></div>
+                                <div className="section-head"><h3 style={{ color: 'var(--violet-deep)' }}><BookText className="me-2" />Data Identifikasi</h3></div>
                                 <div className="table-responsive">
                                     <table className="table">
                                         <thead><tr><th>Tgl</th><th>Sub-Bidang</th><th>Aksi</th></tr></thead>
                                         <tbody>
-                                        {isLoading ? <tr><td colSpan="3" style={{ textAlign: 'center' }}>Memuat...</td></tr> : dataFormulirAktif.length > 0 ? (
+                                        {isLoading ? <Skeleton type="table-row" rows={3} cols={3} /> : dataFormulirAktif.length > 0 ? (
                                             dataFormulirAktif.map((item, idx) => (
                                                 <tr key={idx}>
                                                     <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
                                                     <td><span style={{ fontWeight: '600', color: '#333' }}>{item.sub_bidang || '-'}</span></td>
                                                     <td>
                                                         <div style={{ display: 'flex', gap: '4px' }}>
-                                                            <button className="btn btn-sm btn-outline" title="Lihat Detail" onClick={() => setSelectedForm(item)}><i className="bi bi-eye"></i></button>
-                                                            <button className="btn btn-sm btn-outline" title="Cetak Data Ini" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handleCetakIndividu('form', item)}><i className="bi bi-printer"></i></button>
-                                                            <button className="btn btn-sm btn-outline" title="Hapus" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleHapusFormulir(item.id)}><i className="bi bi-trash"></i></button>
+                                                            <button className="btn btn-sm btn-outline" title="Lihat Detail" onClick={() => setSelectedForm(item)}><Eye /></button>
+                                                            <button className="btn btn-sm btn-outline" title="Cetak Data Ini" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handleCetakIndividu('form', item)}><Printer /></button>
+                                                            <button className="btn btn-sm btn-outline" title="Hapus" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleHapusFormulir(item.id)}><Trash /></button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -376,12 +379,12 @@ export default function AdminDashboardView() {
                             </div>
 
                             <div className="card">
-                                <div className="section-head"><h3 style={{ color: 'var(--magenta-deep)' }}><i className="bi bi-megaphone-fill me-2"></i>Pengaduan Warga</h3></div>
+                                <div className="section-head"><h3 style={{ color: 'var(--magenta-deep)' }}><Megaphone className="me-2" />Pengaduan Warga</h3></div>
                                 <div className="table-responsive">
                                     <table className="table">
                                         <thead><tr><th>Pelapor / Isi</th><th>Status</th><th>Aksi</th></tr></thead>
                                         <tbody>
-                                        {isLoading ? <tr><td colSpan="3" style={{ textAlign: 'center' }}>Memuat...</td></tr> : dataPengaduanAktif.length > 0 ? (
+                                        {isLoading ? <Skeleton type="table-row" rows={3} cols={3} /> : dataPengaduanAktif.length > 0 ? (
                                             dataPengaduanAktif.map((item) => (
                                                 <tr key={item.id}>
                                                     <td>
@@ -396,10 +399,10 @@ export default function AdminDashboardView() {
                                                     </td>
                                                     <td>
                                                         <div style={{ display: 'flex', gap: '4px' }}>
-                                                            <button className="btn btn-sm btn-outline" title="Lihat Detail" onClick={() => setSelectedPengaduan(item)}><i className="bi bi-eye"></i></button>
-                                                            <button className="btn btn-sm btn-outline" title="Cetak Pengaduan Ini" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handleCetakIndividu('pengaduan', item)}><i className="bi bi-printer"></i></button>
+                                                            <button className="btn btn-sm btn-outline" title="Lihat Detail" onClick={() => setSelectedPengaduan(item)}><Eye /></button>
+                                                            <button className="btn btn-sm btn-outline" title="Cetak Pengaduan Ini" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handleCetakIndividu('pengaduan', item)}><Printer /></button>
                                                             {item.status === 'selesai' && (
-                                                                <button className="btn btn-sm btn-outline" title="Hapus" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleHapusPengaduan(item.id)}><i className="bi bi-trash"></i></button>
+                                                                <button className="btn btn-sm btn-outline" title="Hapus" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleHapusPengaduan(item.id)}><Trash /></button>
                                                             )}
                                                         </div>
                                                     </td>
@@ -441,7 +444,7 @@ export default function AdminDashboardView() {
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             {fotoArr.map((file_path, idx) => (
                                                 <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                                                    <i className="bi bi-image me-1"></i>Lihat File {idx + 1}
+                                                    <Image className="me-1" />Lihat File {idx + 1}
                                                 </a>
                                             ))}
                                         </div>
@@ -452,7 +455,7 @@ export default function AdminDashboardView() {
 
                         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                             <button className="btn btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => { setSelectedForm(null); handleCetakIndividu('form', selectedForm); }}>
-                                <i className="bi bi-printer me-2"></i>Cetak Ini
+                                <Printer className="me-2" />Cetak Ini
                             </button>
                             <button className="btn btn-violet" onClick={() => setSelectedForm(null)}>Tutup Rincian</button>
                         </div>
@@ -489,7 +492,7 @@ export default function AdminDashboardView() {
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             {lampiranArr.map((file_path, idx) => (
                                                 <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                                                    <i className="bi bi-image me-1"></i>Lihat File {idx + 1}
+                                                    <Image className="me-1" />Lihat File {idx + 1}
                                                 </a>
                                             ))}
                                         </div>
@@ -500,7 +503,7 @@ export default function AdminDashboardView() {
 
                         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                             <button className="btn btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => { setSelectedPengaduan(null); handleCetakIndividu('pengaduan', selectedPengaduan); }}>
-                                <i className="bi bi-printer me-2"></i>Cetak Ini
+                                <Printer className="me-2" />Cetak Ini
                             </button>
                             <button className="btn btn-violet" onClick={() => setSelectedPengaduan(null)}>Tutup Rincian</button>
                         </div>

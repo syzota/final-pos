@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { Book, Droplet, Home, ShieldCheck, Heart, MessageSquareQuote, Lock, Megaphone, Eye, Image } from 'lucide-react';
+
 export default function PengaduanView() {
   const [tab, setTab] = useState(0);
 
@@ -241,19 +243,19 @@ export default function PengaduanView() {
       {/* Bidang Main Tabs */}
       <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '16px' }}>
         <button className={`tab-btn ${tab === 0 ? 'active' : ''}`} onClick={() => { setTab(0); resetFormIden(); }}>
-          <i className="bi bi-book-fill me-1"></i>Pendidikan
+          <Book className="me-1" />Pendidikan
         </button>
         <button className={`tab-btn ${tab === 1 ? 'active' : ''}`} onClick={() => { setTab(1); resetFormIden(); }}>
-          <i className="bi bi-droplet-fill me-1"></i>Pekerjaan Umum
+          <Droplet className="me-1" />Pekerjaan Umum
         </button>
         <button className={`tab-btn ${tab === 2 ? 'active' : ''}`} onClick={() => { setTab(2); resetFormIden(); }}>
-          <i className="bi bi-house-door-fill me-1"></i>Perumahan Rakyat
+          <Home className="me-1" />Perumahan Rakyat
         </button>
         <button className={`tab-btn ${tab === 3 ? 'active' : ''}`} onClick={() => { setTab(3); resetFormIden(); }}>
-          <i className="bi bi-shield-fill-check me-1"></i>Trantibumlinmas
+          <ShieldCheck className="me-1" />Trantibumlinmas
         </button>
         <button className={`tab-btn ${tab === 4 ? 'active' : ''}`} onClick={() => { setTab(4); resetFormIden(); }}>
-          <i className="bi bi-heart-fill me-1"></i>Sosial
+          <Heart className="me-1" />Sosial
         </button>
       </div>
 
@@ -269,7 +271,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-book-fill me-2" style={{ color: 'var(--orange-deep)' }}></i>Formulir Identifikasi — Pendidikan</h3>
+                <h3><Book className="me-2" />Formulir Identifikasi — Pendidikan</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab0 === 0 ? 'active' : ''}`} onClick={() => { setSubTab0(0); resetFormIden(); }}>Anak Usia Dini (0–6 th)</div>
@@ -383,7 +385,7 @@ export default function PengaduanView() {
             {/* LAMPIRAN 6: ASPIRASI MASYARAKAT BIDANG PENDIDIKAN */}
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-chat-right-quote-fill me-2" style={{ color: 'var(--magenta-deep)' }}></i>Aspirasi Masyarakat — Pendidikan</h3>
+                <h3><MessageSquareQuote className="me-2" />Aspirasi Masyarakat — Pendidikan</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Catat aspirasi, usulan, dan kebutuhan warga terkait pendidikan sesuai format standar desa.
@@ -415,7 +417,7 @@ export default function PengaduanView() {
                 <div className="form-field">
                   <label>No. KTP (NIK)</label>
                   <input name="nik" value={formPengaduan.nik || ''} onChange={handlePengaduanChange} placeholder="Wajib 16 digit" />
-                  <span className="field-note"><i className="bi bi-lock-fill me-1"></i>Hanya terlihat Kader</span>
+                  <span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span>
                 </div>
                 <div className="form-field">
                   <label>No. HP (Opsional)</label>
@@ -478,7 +480,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-droplet-fill me-2" style={{ color: 'var(--cyan-deep)' }}></i>Formulir Identifikasi — Pekerjaan Umum</h3>
+                <h3><Droplet className="me-2" />Formulir Identifikasi — Pekerjaan Umum</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab1 === 0 ? 'active' : ''}`} onClick={() => { setSubTab1(0); resetFormIden(); }}>Edukasi Air &amp; Limbah</div>
@@ -555,7 +557,7 @@ export default function PengaduanView() {
 
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-megaphone-fill me-2" style={{ color: 'var(--magenta-deep)' }}></i>Pengaduan Masyarakat — Pekerjaan Umum</h3>
+                <h3><Megaphone className="me-2" />Pengaduan Masyarakat — Pekerjaan Umum</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan formulir ini untuk menampung keluhan masyarakat terkait infrastruktur desa dan sanitasi.
@@ -564,7 +566,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><i className="bi bi-lock-fill me-1"></i>Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
@@ -603,7 +605,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-house-door-fill me-2" style={{ color: 'var(--green-deep)' }}></i>Formulir Identifikasi — Perumahan Rakyat</h3>
+                <h3><Home className="me-2" />Formulir Identifikasi — Perumahan Rakyat</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab2 === 0 ? 'active' : ''}`} onClick={() => { setSubTab2(0); resetFormIden(); }}>Rumah Layak Huni (RHLH)</div>
@@ -670,7 +672,7 @@ export default function PengaduanView() {
 
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-megaphone-fill me-2" style={{ color: 'var(--magenta-deep)' }}></i>Pengaduan Masyarakat — Perumahan Rakyat</h3>
+                <h3><Megaphone className="me-2" />Pengaduan Masyarakat — Perumahan Rakyat</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan formulir ini untuk menampung usulan bantuan rumah, bibit pekarangan, dan keluhan perumahan.
@@ -679,7 +681,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><i className="bi bi-lock-fill me-1"></i>Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
@@ -723,7 +725,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-shield-fill-check me-2" style={{ color: 'var(--violet-deep)' }}></i>Form Identifikasi & Laporan — Trantibumlinmas</h3>
+                <h3><ShieldCheck className="me-2" />Form Identifikasi & Laporan — Trantibumlinmas</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab3 === 0 ? 'active' : ''}`} onClick={() => { setSubTab3(0); resetFormIden(); }}>Identifikasi Trauma</div>
@@ -827,7 +829,7 @@ export default function PengaduanView() {
 
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-chat-right-quote-fill me-2" style={{ color: 'var(--magenta-deep)' }}></i>Pengaduan — Trantibumlinmas</h3>
+                <h3><MessageSquareQuote className="me-2" />Pengaduan — Trantibumlinmas</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan form ini untuk mencatat laporan warga terkait gangguan ketertiban umum dan perlindungan masyarakat.
@@ -836,7 +838,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><i className="bi bi-lock-fill me-1"></i>Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat / RT Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat pelapor" /></div>
 
@@ -881,7 +883,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-heart-fill me-2" style={{ color: 'var(--rose-deep)' }}></i>Form Identifikasi — Sosial</h3>
+                <h3><Heart className="me-2" />Form Identifikasi — Sosial</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab4 === 0 ? 'active' : ''}`} onClick={() => { setSubTab4(0); resetFormIden(); }}>KIE Gender & Inklusi</div>
@@ -948,7 +950,7 @@ export default function PengaduanView() {
 
             <div className="card">
               <div className="section-head">
-                <h3><i className="bi bi-chat-right-quote-fill me-2" style={{ color: 'var(--magenta-deep)' }}></i>Pengaduan Masyarakat — Sosial</h3>
+                <h3><MessageSquareQuote className="me-2" />Pengaduan Masyarakat — Sosial</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan form ini untuk mencatat laporan kebutuhan bansos, inklusi, maupun identifikasi fakir miskin.
@@ -957,7 +959,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><i className="bi bi-lock-fill me-1"></i>Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat / RT Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat pelapor" /></div>
 
@@ -1025,7 +1027,7 @@ export default function PengaduanView() {
                           <td><span style={{ fontWeight: '600', color: '#333' }}>{item.sub_bidang || '-'}</span></td>
                           <td>
                             <button className="btn btn-sm btn-outline" onClick={() => setSelectedForm(item)}>
-                              <i className="bi bi-eye me-1"></i>Detail
+                              <Eye className="me-1" />Detail
                             </button>
                           </td>
                         </tr>
@@ -1062,7 +1064,7 @@ export default function PengaduanView() {
                           </td>
                           <td>
                             <button className="btn btn-sm btn-outline" onClick={() => setSelectedPengaduan(item)}>
-                              <i className="bi bi-eye"></i> Detail
+                              <Eye /> Detail
                             </button>
                           </td>
                         </tr>
@@ -1130,7 +1132,7 @@ export default function PengaduanView() {
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {fotoArr.map((file_path, idx) => (
                         <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                          <i className="bi bi-image me-1"></i>Lihat File {idx + 1}
+                          <Image className="me-1" />Lihat File {idx + 1}
                         </a>
                       ))}
                     </div>
@@ -1204,7 +1206,7 @@ export default function PengaduanView() {
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {lampiranArr.map((file_path, idx) => (
                         <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                          <i className="bi bi-image me-1"></i>Lihat File {idx + 1}
+                          <Image className="me-1" />Lihat File {idx + 1}
                         </a>
                       ))}
                     </div>

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { BarChart3, PieChart, Trophy, Award } from 'lucide-react';
+import Skeleton from '../common/Skeleton';
+
 export default function AdminAnalitikView() {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,10 +27,17 @@ export default function AdminAnalitikView() {
 
   if (isLoading || !data) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
-        <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem', marginBottom: '16px', color: 'var(--cyan-deep)' }}></div>
-        <h4>Memuat Big Data Analitik... ⏳</h4>
-        <p style={{ fontSize: '13px' }}>Sedang menghimpun data dari seluruh Posyandu.</p>
+      <div style={{ padding: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+          <Skeleton type="box" height="140px" />
+          <Skeleton type="box" height="140px" />
+          <Skeleton type="box" height="140px" />
+          <Skeleton type="box" height="140px" />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+           <Skeleton type="box" height="400px" />
+           <Skeleton type="box" height="400px" />
+        </div>
       </div>
     );
   }
@@ -54,7 +64,7 @@ export default function AdminAnalitikView() {
           ========================================= */}
       <div className="card" style={{ marginBottom: '24px' }}>
         <div className="section-head" style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
-          <h3 style={{ margin: 0, color: 'var(--cyan-deep)' }}><i className="bi bi-bar-chart-line-fill me-2"></i>Tren Pemeriksaan Kesehatan (Lintas 9 Posyandu)</h3>
+          <h3 style={{ margin: 0, color: 'var(--cyan-deep)' }}><BarChart3 className="me-2" />Tren Pemeriksaan Kesehatan (Lintas 9 Posyandu)</h3>
           <span className="badge badge-violet">{rentangBulan}</span>
         </div>
 
@@ -94,7 +104,7 @@ export default function AdminAnalitikView() {
             ========================================= */}
         <div className="card">
           <div className="section-head" style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0 }}><i className="bi bi-pie-chart-fill me-2" style={{ color: 'var(--violet-deep)' }}></i>Capaian Intervensi per Bidang</h3>
+            <h3 style={{ margin: 0 }}><PieChart className="me-2" />Capaian Intervensi per Bidang</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {bidangConfig.map((bidang, index) => {
@@ -130,7 +140,7 @@ export default function AdminAnalitikView() {
             ========================================= */}
         <div className="card">
           <div className="section-head" style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0 }}><i className="bi bi-trophy-fill me-2" style={{ color: 'var(--orange-deep)' }}></i>Ranking Keaktifan Posyandu</h3>
+            <h3 style={{ margin: 0 }}><Trophy className="me-2" />Ranking Keaktifan Posyandu</h3>
           </div>
           <div className="table-responsive">
             <table className="table" style={{ fontSize: '13.5px' }}>
@@ -150,7 +160,7 @@ export default function AdminAnalitikView() {
                   return (
                     <tr key={index}>
                       <td>
-                        {index === 0 && <i className="bi bi-award-fill me-2" style={{ color: '#eab308', fontSize: '16px' }}></i>}
+                        {index === 0 && <Award className="me-2" />}
                         <b style={{ color: '#334155' }}>{pos.nama}</b>
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 800, color: textColor }}>

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../../styles/gantiPassword.css';
 
+import { ShieldAlert, Info, CheckCircle2, Key, CircleAlert, EyeOff, Eye } from 'lucide-react';
+
 const ROLE_LABELS = {
   warga: 'Warga',
   kader: 'Kader Posyandu',
@@ -204,7 +206,7 @@ export default function GantiPasswordView() {
         </div>
 
         <div className="account-pin-hero-icon">
-          <i className="bi bi-shield-lock-fill"></i>
+          <ShieldAlert />
         </div>
       </section>
 
@@ -270,7 +272,7 @@ export default function GantiPasswordView() {
           )}
 
           <div className="account-pin-security-note">
-            <i className="bi bi-info-circle-fill"></i>
+            <Info />
 
             <p>
               PIN baru akan disimpan sebagai hash di
@@ -380,25 +382,8 @@ export default function GantiPasswordView() {
                   required
                 />
 
-                <button
-                  type="button"
-                  className="account-pin-eye"
-                  onClick={() =>
-                    togglePin('new')
-                  }
-                  aria-label={
-                    showPin.new
-                      ? 'Sembunyikan PIN'
-                      : 'Tampilkan PIN'
-                  }
-                >
-                  <i
-                    className={
-                      showPin.new
-                        ? 'bi bi-eye-slash-fill'
-                        : 'bi bi-eye-fill'
-                    }
-                  ></i>
+                <button type="button" className="toggle-password" onClick={() => togglePin('new')}>
+                    {showPin.new ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
@@ -430,25 +415,8 @@ export default function GantiPasswordView() {
                   required
                 />
 
-                <button
-                  type="button"
-                  className="account-pin-eye"
-                  onClick={() =>
-                    togglePin('confirmation')
-                  }
-                  aria-label={
-                    showPin.confirmation
-                      ? 'Sembunyikan PIN'
-                      : 'Tampilkan PIN'
-                  }
-                >
-                  <i
-                    className={
-                      showPin.confirmation
-                        ? 'bi bi-eye-slash-fill'
-                        : 'bi bi-eye-fill'
-                    }
-                  ></i>
+                <button type="button" className="toggle-password" onClick={() => togglePin('confirmation')}>
+                    {showPin.confirmation ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
@@ -456,17 +424,17 @@ export default function GantiPasswordView() {
 
             <div className="account-pin-rules">
               <div>
-                <i className="bi bi-check2-circle"></i>
+                <CheckCircle2 />
                 Tepat 6 digit angka
               </div>
 
               <div>
-                <i className="bi bi-check2-circle"></i>
+                <CheckCircle2 />
                 Berbeda dari PIN lama
               </div>
 
               <div>
-                <i className="bi bi-check2-circle"></i>
+                <CheckCircle2 />
                 Konfirmasi harus sama
               </div>
             </div>
@@ -477,7 +445,7 @@ export default function GantiPasswordView() {
               className="account-pin-submit"
               disabled={isSaving}
             >
-              <i className="bi bi-key-fill"></i>
+              <Key />
 
               {isSaving
                 ? 'Memperbarui PIN...'

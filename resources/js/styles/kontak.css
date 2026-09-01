@@ -705,9 +705,8 @@
   display: flex;
 
   flex-direction: column;
-
-  justify-content: space-between;
-
+  justify-content: flex-start;
+  gap: var(--space-3);
   padding: var(--space-3);
 
   border-radius: 22px;
@@ -1108,7 +1107,7 @@
 }
 
 
-.kontak-location-address i {
+.kontak-location-address svg {
   margin-top: 1px;
 
   color: #8aa4bd;
@@ -1337,7 +1336,7 @@
 }
 
 
-.kontak-area-note i {
+.kontak-area-note svg {
   margin-top: 2px;
 
   color: var(--color-primary);

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { BookMarked, WifiOff, CalendarDays, ArrowRight } from 'lucide-react';
+
 export default function WargaKieView() {
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +68,7 @@ export default function WargaKieView() {
       {/* HEADER PORTAL */}
       <div className="card" style={{ marginBottom: '24px', background: 'linear-gradient(135deg, var(--cyan-bg) 0%, #e0f2fe 100%)', border: 'none' }}>
         <h2 style={{ color: 'var(--cyan-deep)', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <i className="bi bi-journal-bookmark-fill"></i> Portal KIE Khusus
+          <BookMarked /> Portal KIE Khusus
         </h2>
         <p style={{ color: '#0369a1', margin: 0, fontSize: '14px', fontWeight: '500' }}>
           Pusat Komunikasi, Informasi, dan Edukasi. Temukan artikel, literasi digital, dan berita terbaru seputar kesehatan keluarga secara otomatis.
@@ -76,7 +78,7 @@ export default function WargaKieView() {
       {/* NOTIFIKASI JIKA MENGGUNAKAN DATA CADANGAN */}
       {isFallback && !isLoading && (
         <div style={{ padding: '12px', marginBottom: '20px', borderRadius: '8px', backgroundColor: '#fef3c7', color: '#b45309', fontSize: '13px', fontWeight: '600' }}>
-          <i className="bi bi-wifi-off me-2"></i> Mode Luring / Gangguan Server. Menampilkan artikel edukasi dasar yang tersimpan di sistem.
+          <WifiOff className="me-2" /> Mode Luring / Gangguan Server. Menampilkan artikel edukasi dasar yang tersimpan di sistem.
         </div>
       )}
 
@@ -147,11 +149,11 @@ export default function WargaKieView() {
                 {/* Footer Kartu Berita */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
                   <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>
-                    <i className="bi bi-calendar-event me-1"></i>
+                    <CalendarDays className="me-1" />
                     {new Date(article.pubDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--cyan-deep)', fontWeight: '700' }}>
-                    Baca <i className="bi bi-arrow-right ms-1"></i>
+                    Baca <ArrowRight className="ms-1" />
                   </span>
                 </div>
               </div>

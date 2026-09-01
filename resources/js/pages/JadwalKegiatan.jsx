@@ -7,6 +7,9 @@ import Footer from '../components/common/Footer';
 import '../styles/jadwal.css';
 
 
+import { ClipboardCheck, BookHeart, CalendarCheck, MessageSquareText, Info } from 'lucide-react';
+import Skeleton from '../components/common/Skeleton';
+
 const LocationIcon = () => (
   <svg
     width="24"
@@ -80,21 +83,18 @@ export default function JadwalKegiatan({
             DAFTAR POSYANDU
             ========================================= */}
         <div className="jadwal-cards-grid">
-
           {loading ? (
-
-            <div
-              style={{
-                textAlign: 'center',
-                width: '100%',
-                padding: '40px',
-                gridColumn: '1 / -1'
-              }}
-            >
-              <h3>
-                Memuat jadwal dari server...
-              </h3>
-            </div>
+            <>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div className="jadwal-location-card" key={`skel-${i}`} style={{ padding: '24px' }}>
+                  <Skeleton type="circle" width="48px" height="48px" style={{ marginBottom: '16px' }} />
+                  <Skeleton type="title" width="60%" />
+                  <Skeleton type="text" width="40%" style={{ marginBottom: '24px' }} />
+                  <Skeleton type="text" width="100%" />
+                  <Skeleton type="text" width="80%" />
+                </div>
+              ))}
+            </>
 
           ) : posyanduList.length === 0 ? (
 
@@ -201,7 +201,7 @@ export default function JadwalKegiatan({
           <div className="jadwal-prep-intro">
 
             <div className="jadwal-prep-icon">
-              <i className="bi bi-clipboard2-check-fill"></i>
+              <ClipboardCheck />
             </div>
 
 
@@ -241,7 +241,7 @@ export default function JadwalKegiatan({
 
 
               <div className="jadwal-prep-item-icon">
-                <i className="bi bi-journal-medical"></i>
+                <BookHeart />
               </div>
 
 
@@ -271,7 +271,7 @@ export default function JadwalKegiatan({
 
 
               <div className="jadwal-prep-item-icon">
-                <i className="bi bi-calendar-check"></i>
+                <CalendarCheck />
               </div>
 
 
@@ -301,7 +301,7 @@ export default function JadwalKegiatan({
 
 
               <div className="jadwal-prep-item-icon">
-                <i className="bi bi-chat-left-text"></i>
+                <MessageSquareText />
               </div>
 
 
@@ -329,7 +329,7 @@ export default function JadwalKegiatan({
               ========================================= */}
           <div className="jadwal-prep-note">
 
-            <i className="bi bi-info-circle-fill"></i>
+            <Info />
 
             <p>
               Kebutuhan dokumen dapat berbeda sesuai jenis pelayanan.

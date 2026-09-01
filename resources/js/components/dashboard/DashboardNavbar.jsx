@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Menu, Bell } from 'lucide-react';
+
 const ROLE_AVATARS = {
   kader: 'K',
   ketua: 'KP',
@@ -13,14 +15,14 @@ export default function DashboardNavbar({ title, desc, userAuth, role, onOpenSid
 
   const posyanduName =
     role === 'superadmin'
-      ? 'Admin Loa Duri Ulu'
+      ? 'Admin'
       : role === 'puskesmas'
         ? 'Petugas Puskesmas'
         : role === 'warga'
-          ? `Warga Posyandu ${namaPosyandu}`
+          ? 'Warga'
           : role === 'ketua'
-            ? `Ketua Posyandu ${namaPosyandu}`
-            : `Kader Posyandu ${namaPosyandu}`;
+            ? 'Ketua'
+            : 'Kader';
 
   return (
     <div className="topbar">
@@ -30,7 +32,7 @@ export default function DashboardNavbar({ title, desc, userAuth, role, onOpenSid
           onClick={onOpenSidebar}
           aria-label="Buka menu navigasi"
         >
-          <i className="bi bi-list" style={{ fontSize: '20px' }}></i>
+          <Menu />
         </button>
         <div className="topbar-title-wrapper" style={{ minWidth: 0 }}>
           <h2 id="pageTitle">{title || 'Beranda'}</h2>
@@ -39,18 +41,12 @@ export default function DashboardNavbar({ title, desc, userAuth, role, onOpenSid
       </div>
 
       <div className="topbar-right">
-        <button className="icon-btn" title="Notifikasi">
-          <i className="bi bi-bell" style={{ fontSize: '16px' }}></i>
-        </button>
         <div className="topbar-profile">
           <div className="avatar-mini" id="topbarAvatar">
             {ROLE_AVATARS[role] || 'U'}
           </div>
           <div className="topbar-profile-info">
             <div className="who" id="topbarWho">
-              {userAuth?.nama || 'User'}
-            </div>
-            <div className="role" id="topbarPosyandu">
               {posyanduName}
             </div>
           </div>

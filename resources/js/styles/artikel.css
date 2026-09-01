@@ -115,7 +115,7 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
-.artikel-hero__badge i {
+.artikel-hero__badge svg {
   font-size: var(--font-base);
 }
 
@@ -221,7 +221,7 @@
   font-weight: 650;
 }
 
-.artikel-hero__facts i {
+.artikel-hero__facts svg {
   color: var(--color-primary);
   font-size: var(--font-xs);
 }

@@ -1,3 +1,4 @@
+import { Phone, Calculator, Newspaper, CalendarDays } from 'lucide-react';
 import React from "react";
 
 export default function FeatureCards({ onNavigate, onDarurat }) {
@@ -9,7 +10,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       bg: "var(--rose-bg)",
       iconColor: "var(--rose-deep)",
       onClick: onDarurat,
-      iconClass: "bi-telephone-fill",
+      icon: Phone,
     },
     {
       id: "kalkulator",
@@ -18,7 +19,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       bg: "var(--cyan-bg)",
       iconColor: "var(--cyan-deep)",
       page: "kalkulator",
-      iconClass: "bi-calculator-fill",
+      icon: Calculator,
     },
     {
       id: "artikel",
@@ -27,7 +28,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       bg: "var(--magenta-bg)",
       iconColor: "var(--magenta-deep)",
       page: "artikel",
-      iconClass: "bi-newspaper",
+      icon: Newspaper,
     },
     {
       id: "jadwal",
@@ -36,7 +37,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       bg: "var(--orange-bg)",
       iconColor: "var(--orange-deep)",
       page: "jadwal",
-      iconClass: "bi-calendar-event-fill",
+      icon: CalendarDays,
     },
   ];
 
@@ -64,17 +65,19 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
             onClick={() => handleClick(feature)}
           >
 
-            <div
-              className="feature-icon-bg"
-              style={{
-                backgroundColor: feature.bg,
-              }}
-            >
-              <i 
-                className={`bi ${feature.iconClass}`} 
-                style={{ fontSize: '1.5rem', color: feature.iconColor }}
-              ></i>
-            </div>
+            {(() => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  className="feature-icon-bg"
+                  style={{
+                    backgroundColor: feature.bg,
+                  }}
+                >
+                  <Icon size={24} color={feature.iconColor} />
+                </div>
+              );
+            })()}
 
             <h3 className="feature-title">
               {feature.title}

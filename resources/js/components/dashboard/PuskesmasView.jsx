@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom'; // <-- PERBAIKAN (titik 1): import ReactDOM untuk createPortal
 import axios from 'axios';
 
+import { Camera, Printer, Hospital, BookHeart, FileText, Search } from 'lucide-react';
+
 export default function PuskesmasView() {
     const [selectedPosyandu, setSelectedPosyandu] = useState(null);
     const [tab, setTab] = useState(0); // 0: Balita, 1: Remaja, 2: Ibu Hamil, 3: Lansia
@@ -141,7 +143,7 @@ export default function PuskesmasView() {
                     </table>
 
                     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
-                        <h4 style={{ color: '#555', marginBottom: '12px' }}><i className="bi bi-camera-fill me-2"></i>Bukti Foto Pemeriksaan</h4>
+                        <h4 style={{ color: '#555', marginBottom: '12px' }}><Camera className="me-2" />Bukti Foto Pemeriksaan</h4>
                         {fotoArray.length > 0 ? (
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                 {fotoArray.map((path, idx) => (
@@ -161,7 +163,7 @@ export default function PuskesmasView() {
 
                     <div style={{ marginTop: '24px', textAlign: 'right' }}>
                         <button className="btn btn-outline me-2" onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
-                            <i className="bi bi-printer me-2"></i>Cetak Laporan Ini
+                            <Printer className="me-2" />Cetak Laporan Ini
                         </button>
                         <button className="btn btn-cyan" onClick={() => setSelectedDetail(null)}>Tutup</button>
                     </div>
@@ -219,7 +221,7 @@ export default function PuskesmasView() {
           ========================================= */}
             <div className="no-print">
                 <div className="section-head" style={{ marginBottom: '24px' }}>
-                    <h2><i className="bi bi-hospital me-2" style={{ color: 'var(--cyan-deep)' }}></i>Laporan Kesehatan per Posyandu</h2>
+                    <h2><Hospital className="me-2" />Laporan Kesehatan per Posyandu</h2>
                     <p style={{ color: '#666' }}>Tinjau dan ekspor laporan pemeriksaan secara terperinci untuk diserahkan ke instansi.</p>
                 </div>
 
@@ -243,7 +245,7 @@ export default function PuskesmasView() {
                 {selectedPosyandu && (
                     <div className="card">
                         <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                            <h3 style={{ margin: 0 }}><i className="bi bi-journal-medical me-2"></i>Data Pemeriksaan — Posyandu {selectedPosyandu.nama}</h3>
+                            <h3 style={{ margin: 0 }}><BookHeart className="me-2" />Data Pemeriksaan — Posyandu {selectedPosyandu.nama}</h3>
 
                             {/* AREA PENYARING BULAN & EKSPOR */}
                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -255,7 +257,7 @@ export default function PuskesmasView() {
                                     style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ccc', outline: 'none' }}
                                 />
                                 <button className="btn btn-violet" onClick={() => window.print()}>
-                                    <i className="bi bi-file-earmark-pdf-fill me-2"></i>Ekspor Sesuai Filter
+                                    <FileText className="me-2" />Ekspor Sesuai Filter
                                 </button>
                             </div>
                         </div>
@@ -292,8 +294,8 @@ export default function PuskesmasView() {
                                             <td><span className={`badge ${item.status_form === 'draft' ? 'badge-orange' : 'badge-green'}`}>{item.status_form.toUpperCase()}</span></td>
                                             <td>
                                                 <div style={{ display: 'flex', gap: '4px' }}>
-                                                    <button className="btn btn-sm btn-outline" onClick={() => setSelectedDetail(item)} title="Lihat Rekam Medis"><i className="bi bi-search"></i> Detail</button>
-                                                    <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => cetakIndividu(item)} title="Cetak Rekam Medis Ini"><i className="bi bi-printer"></i></button>
+                                                    <button className="btn btn-sm btn-outline" onClick={() => setSelectedDetail(item)} title="Lihat Rekam Medis"><Search /> Detail</button>
+                                                    <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => cetakIndividu(item)} title="Cetak Rekam Medis Ini"><Printer /></button>
                                                 </div>
                                             </td>
                                         </tr>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { ShieldAlert } from 'lucide-react';
+
 export default function WargaPasswordView() {
   const [formData, setFormData] = useState({
     username: '',
@@ -71,7 +73,7 @@ export default function WargaPasswordView() {
   return (
     <div className="card" style={{ maxWidth: '450px' }}>
       <div className="section-head">
-        <h3><i className="bi bi-shield-lock-fill me-2" style={{ color: 'var(--violet-deep)' }}></i>Pengaturan Akun</h3>
+        <h3><ShieldAlert className="me-2" />Pengaturan Akun</h3>
       </div>
 
       <p style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>

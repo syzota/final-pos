@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { Users, Activity, Megaphone, HeartPulse, ArrowRight, Building2, BookCheck, FolderCheck, FolderX, FileCheck2, FileX2, Book, Cone, Home, ShieldCheck } from 'lucide-react';
+import Skeleton from '../common/Skeleton';
+
 export default function DashboardHome({ role, onViewChange }) {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +26,20 @@ export default function DashboardHome({ role, onViewChange }) {
   }, []);
 
   if (isLoading || !stats) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>Memuat Analitik Posyandu... ⏳</div>;
+    return (
+      <div style={{ padding: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+          <Skeleton type="box" height="120px" />
+          <Skeleton type="box" height="120px" />
+          <Skeleton type="box" height="120px" />
+          <Skeleton type="box" height="120px" />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+           <Skeleton type="box" height="400px" />
+           <Skeleton type="box" height="400px" />
+        </div>
+      </div>
+    );
   }
 
   // Fungsi utilitas memformat tanggal
@@ -47,23 +63,23 @@ export default function DashboardHome({ role, onViewChange }) {
           ========================================= */}
       <div className="grid grid-4" style={{ marginBottom: '24px', gap: '16px' }}>
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', border: 'none', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.1)' }}>
-          <div className="ico" style={{ background: '#0284c7', color: '#fff' }}><i className="bi bi-people-fill" style={{ fontSize: '18px' }}></i></div>
+          <div className="ico" style={{ background: '#0284c7', color: '#fff' }}><Users /></div>
           <div className="num" style={{ color: '#0369a1' }}>{stats.top_stats.total_warga}</div>
           <div className="label" style={{ color: '#075985', fontWeight: 600 }}>Total Warga Sasaran</div>
         </div>
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)', border: 'none', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.1)' }}>
-          <div className="ico" style={{ background: '#ea580c', color: '#fff' }}><i className="bi bi-activity" style={{ fontSize: '18px' }}></i></div>
+          <div className="ico" style={{ background: '#ea580c', color: '#fff' }}><Activity /></div>
           <div className="num" style={{ color: '#c2410c' }}>{stats.top_stats.kehadiran_persen}%</div>
           <div className="label" style={{ color: '#9a3412', fontWeight: 600 }}>Kehadiran Pemeriksaan</div>
         </div>
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)', border: 'none', boxShadow: '0 4px 12px rgba(219, 39, 119, 0.1)' }}>
-          <div className="ico" style={{ background: '#db2777', color: '#fff' }}><i className="bi bi-megaphone-fill" style={{ fontSize: '18px' }}></i></div>
+          <div className="ico" style={{ background: '#db2777', color: '#fff' }}><Megaphone /></div>
           <div className="num" style={{ color: '#be185d' }}>{stats.top_stats.pengaduan_baru}</div>
           <div className="label" style={{ color: '#9d174d', fontWeight: 600 }}>Pengaduan Baru</div>
         </div>
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', border: 'none', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.1)' }}>
           <div className="ico" style={{ background: stats.rekap_bulan_ini ? '#16a34a' : '#ef4444', color: '#fff' }}>
-            <i className={stats.rekap_bulan_ini ? "bi bi-file-earmark-check-fill" : "bi bi-file-earmark-x-fill"} style={{ fontSize: '18px' }}></i>
+            {stats.rekap_bulan_ini ? <FileCheck2 size={18} /> : <FileX2 size={18} />}
           </div>
           <div className="num" style={{ color: stats.rekap_bulan_ini ? '#15803d' : '#b91c1c' }}>{stats.top_stats.status_register}</div>
           <div className="label" style={{ color: stats.rekap_bulan_ini ? '#166534' : '#991b1b', fontWeight: 600 }}>Status Register Bulanan</div>
@@ -79,7 +95,7 @@ export default function DashboardHome({ role, onViewChange }) {
         <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <div className="section-head" style={{ marginBottom: '20px' }}>
-              <h3 style={{ color: 'var(--cyan-deep)' }}><i className="bi bi-heart-pulse-fill me-2"></i>Pencatatan Kesehatan</h3>
+              <h3 style={{ color: 'var(--cyan-deep)' }}><HeartPulse className="me-2" />Pencatatan Kesehatan</h3>
               <span className="badge badge-cyan">Bulan Ini</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -111,7 +127,7 @@ export default function DashboardHome({ role, onViewChange }) {
             </div>
           </div>
           <button className="btn btn-outline" style={{ marginTop: '24px', width: '100%', justifyContent: 'center', borderColor: 'var(--cyan-deep)', color: 'var(--cyan-deep)' }} onClick={() => onViewChange('kesehatan')}>
-            Lanjutkan Pengisian Data Kesehatan <i className="bi bi-arrow-right ms-2"></i>
+            Lanjutkan Pengisian Data Kesehatan <ArrowRight className="ms-2" />
           </button>
         </div>
 
@@ -119,7 +135,7 @@ export default function DashboardHome({ role, onViewChange }) {
         <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
           <div>
             <div className="section-head" style={{ marginBottom: '20px' }}>
-              <h3 style={{ color: 'var(--magenta-deep)' }}><i className="bi bi-buildings-fill me-2"></i>Lingkungan & Pengaduan</h3>
+              <h3 style={{ color: 'var(--magenta-deep)' }}><Building2 className="me-2" />Lingkungan & Pengaduan</h3>
               <span className="badge badge-magenta">5 Bidang Non-Kesehatan</span>
             </div>
 
@@ -128,7 +144,7 @@ export default function DashboardHome({ role, onViewChange }) {
               {/* Loop Data 5 Bidang */}
               {Object.keys(stats.lingkungan).map((bidang, index) => {
                 const dataBidang = stats.lingkungan[bidang];
-                const icons = ['bi-book-fill', 'bi-cone-striped', 'bi-house-heart-fill', 'bi-shield-fill-check', 'bi-people-fill'];
+                const icons = [Book, Cone, Home, ShieldCheck, Users];
                 const colors = ['#d97706', '#0284c7', '#16a34a', '#9333ea', '#db2777'];
                 const bgs = ['#fef3c7', '#e0f2fe', '#dcfce7', '#f3e8ff', '#fce7f3'];
 
@@ -150,7 +166,7 @@ export default function DashboardHome({ role, onViewChange }) {
             </div>
           </div>
           <button className="btn btn-outline" style={{ marginTop: '24px', width: '100%', justifyContent: 'center', borderColor: 'var(--magenta-deep)', color: 'var(--magenta-deep)' }} onClick={() => onViewChange('pengaduan')}>
-            Tinjau Formulir & Pengaduan <i className="bi bi-arrow-right ms-2"></i>
+            Tinjau Formulir & Pengaduan <ArrowRight className="ms-2" />
           </button>
         </div>
       </div>
@@ -163,12 +179,12 @@ export default function DashboardHome({ role, onViewChange }) {
         {/* KIRI: STATUS BUKU REGISTER F1/F2 */}
         <div className="card">
           <div className="section-head">
-            <h3><i className="bi bi-journal-check me-2" style={{ color: 'var(--violet-deep)' }}></i>Status Register Bulanan (F1/F2)</h3>
+            <h3><BookCheck className="me-2" />Status Register Bulanan (F1/F2)</h3>
           </div>
 
           {stats.rekap_bulan_ini ? (
              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', padding: '16px', background: '#f0fdf4', borderRadius: '8px', border: '1px solid #4ade80' }}>
-               <div style={{ fontSize: '40px', color: '#16a34a' }}><i className="bi bi-folder-check"></i></div>
+               <div style={{ fontSize: '40px', color: '#16a34a' }}><FolderCheck /></div>
                <div>
                  <h4 style={{ margin: '0 0 4px 0', color: '#14532d', fontSize: '15px' }}>Register Bulan Ini Selesai</h4>
                  <p style={{ margin: 0, fontSize: '13px', color: '#166534', lineHeight: '1.4' }}>Terima kasih! Rekapitulasi kegiatan dan data umum bulan ini sudah tersimpan di sistem dengan aman.</p>
@@ -176,7 +192,7 @@ export default function DashboardHome({ role, onViewChange }) {
              </div>
           ) : (
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center', padding: '16px', background: '#f5f3ff', borderRadius: '8px', border: '1px solid #e879f9' }}>
-              <div style={{ fontSize: '40px', color: '#c026d3' }}><i className="bi bi-folder-x"></i></div>
+              <div style={{ fontSize: '40px', color: '#c026d3' }}><FolderX /></div>
               <div>
                 <h4 style={{ margin: '0 0 4px 0', color: '#86198f', fontSize: '15px' }}>Buku Register Belum Disimpan</h4>
                 <p style={{ margin: 0, fontSize: '13px', color: '#a21caf', lineHeight: '1.4' }}>Pencatatan harian kesehatan sudah hampir lengkap. Silakan kompilasi data menjadi Laporan 46 Kolom bulan ini.</p>

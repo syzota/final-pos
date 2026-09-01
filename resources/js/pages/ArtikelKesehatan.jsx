@@ -9,6 +9,25 @@ import '../styles/artikel.css';
 import heroBgImg from '../assets/images/common/hero-artikel.png';
 import authorImg from '../assets/images/artikel/author-sarah.jpeg';
 
+import {
+  BookHeart,
+  ArrowDown,
+  HeartPulse,
+  Users,
+  ShieldCheck,
+  ListFilter,
+  ChevronRight,
+  Clock,
+  CircleAlert,
+  Hourglass,
+  BookX,
+  Calendar,
+  ArrowUpRight,
+  ArrowRight
+} from 'lucide-react';
+
+import Skeleton from '../components/common/Skeleton';
+
 const topikList = [
   'Semua Topik',
   'Kesehatan',
@@ -121,7 +140,7 @@ export default function ArtikelKesehatan({
 
           <div className="artikel-hero__content">
             <div className="artikel-hero__badge">
-              <i className="bi bi-journal-medical"></i>
+              <BookHeart />
               <span>Ruang Edukasi Posyandu</span>
             </div>
 
@@ -151,7 +170,7 @@ export default function ArtikelKesehatan({
               >
                 Jelajahi Artikel
                 <span>
-                  <i className="bi bi-arrow-down"></i>
+                  <ArrowDown />
                 </span>
               </button>
 
@@ -166,12 +185,12 @@ export default function ArtikelKesehatan({
 
             <div className="artikel-hero__facts">
               <div>
-                <i className="bi bi-heart-pulse-fill"></i>
+                <HeartPulse />
                 <span>Informasi kesehatan keluarga</span>
               </div>
 
               <div>
-                <i className="bi bi-people-fill"></i>
+                <Users />
                 <span>Untuk masyarakat Loa Duri Ulu</span>
               </div>
             </div>
@@ -179,7 +198,7 @@ export default function ArtikelKesehatan({
 
           <div className="artikel-hero__floating-card">
             <div className="artikel-hero__floating-icon">
-              <i className="bi bi-shield-check"></i>
+              <ShieldCheck />
             </div>
 
             <div>
@@ -215,7 +234,7 @@ export default function ArtikelKesehatan({
               type="button"
               className="sort-btn"
             >
-              <i className="bi bi-filter-left"></i>
+              <ListFilter />
               Terbaru
             </button>
           </div>
@@ -238,20 +257,18 @@ export default function ArtikelKesehatan({
               ))}
             </div>
           </div>
-
           {isLoading && (
-            <div className="artikel-state">
-              <div className="artikel-state__icon">
-                <i className="bi bi-hourglass-split"></i>
-              </div>
-              <p>Memuat artikel dari server...</p>
+            <div className="artikel-grid" style={{ marginTop: '32px' }}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={`skel-art-${i}`} type="card" />
+              ))}
             </div>
           )}
 
           {error && (
             <div className="artikel-state artikel-state--error">
               <div className="artikel-state__icon">
-                <i className="bi bi-exclamation-circle"></i>
+                <CircleAlert />
               </div>
               <p>{error}</p>
             </div>
@@ -262,7 +279,7 @@ export default function ArtikelKesehatan({
             filteredArtikels.length === 0 && (
               <div className="artikel-state">
                 <div className="artikel-state__icon">
-                  <i className="bi bi-journal-x"></i>
+                  <BookX />
                 </div>
                 <p>Belum ada artikel untuk topik ini.</p>
               </div>
@@ -294,7 +311,7 @@ export default function ArtikelKesehatan({
                         </span>
 
                         <div className="artikel-read-time">
-                          <i className="bi bi-calendar3"></i>
+                          <Calendar />
                           {formatDate(featuredArticle.published_at)}
                         </div>
                       </div>
@@ -338,7 +355,7 @@ export default function ArtikelKesehatan({
                         >
                           Baca Artikel
                           <span>
-                            <i className="bi bi-arrow-up-right"></i>
+                            <ArrowUpRight />
                           </span>
                         </button>
                       </div>
@@ -374,7 +391,7 @@ export default function ArtikelKesehatan({
                     <div className="article-card-body">
                       <div className="article-card-meta">
                         <span>
-                          <i className="bi bi-calendar3"></i>
+                          <Calendar />
                           {formatDate(artikel.published_at)}
                         </span>
                       </div>
@@ -399,7 +416,7 @@ export default function ArtikelKesehatan({
                           onClick={() => openArticle(artikel.id)}
                         >
                           Baca
-                          <i className="bi bi-arrow-right"></i>
+                          <ArrowRight />
                         </button>
                       </div>
                     </div>

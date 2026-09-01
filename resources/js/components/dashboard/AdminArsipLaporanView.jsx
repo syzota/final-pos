@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
+import { FolderCheck, FolderOpen, ArrowLeft, Building, FileSpreadsheet, ClipboardList, Printer } from 'lucide-react';
+import Skeleton from '../common/Skeleton';
+
 export default function AdminArsipLaporanView() {
     const [viewMode, setViewMode] = useState('list'); // 'list' atau 'detail'
     const [selectedPosyandu, setSelectedPosyandu] = useState(null);
@@ -183,7 +186,7 @@ export default function AdminArsipLaporanView() {
                 {viewMode === 'list' && (
                     <div className="card">
                         <div className="section-head">
-                            <h3><i className="bi bi-folder-check me-2" style={{ color: 'var(--violet-deep)' }}></i>Arsip Laporan 9 Posyandu</h3>
+                            <h3><FolderCheck className="me-2" />Arsip Laporan 9 Posyandu</h3>
                         </div>
                         <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px' }}>Pantau riwayat lengkap dan ekspor dokumen laporan bulanan (Register 46 Kolom, 13 Poin, dan Data Umum) dari masing-masing Posyandu.</p>
 
@@ -203,7 +206,7 @@ export default function AdminArsipLaporanView() {
                                         <td>{posyandu.jadwal}</td>
                                         <td style={{ textAlign: 'center' }}>
                                             <button className="btn btn-sm btn-violet" onClick={() => openDetailPosyandu(posyandu)}>
-                                                <i className="bi bi-folder2-open me-1"></i>Buka Arsip
+                                                <FolderOpen className="me-1" />Buka Arsip
                                             </button>
                                         </td>
                                     </tr>
@@ -221,13 +224,13 @@ export default function AdminArsipLaporanView() {
                     <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                             <button className="btn btn-outline" onClick={closeDetail}>
-                                <i className="bi bi-arrow-left me-2"></i>Kembali ke Daftar Posyandu
+                                <ArrowLeft className="me-2" />Kembali ke Daftar Posyandu
                             </button>
                         </div>
 
                         <div className="card" style={{ backgroundColor: '#f8f9fa' }}>
                             <div className="section-head">
-                                <h3><i className="bi bi-building me-2"></i>Arsip Lengkap - Posyandu {selectedPosyandu.nama}</h3>
+                                <h3><Building className="me-2" />Arsip Lengkap - Posyandu {selectedPosyandu.nama}</h3>
                             </div>
                             <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px' }}>Pilih kategori laporan untuk melihat riwayat bulan-bulan sebelumnya dan mencetaknya.</p>
 
@@ -237,27 +240,25 @@ export default function AdminArsipLaporanView() {
                                     className={`tab-btn ${activeTab === 0 ? 'active' : ''}`}
                                     onClick={() => setActiveTab(0)}
                                     style={{ borderBottom: activeTab === 0 ? '2px solid var(--violet-deep)' : 'none', color: activeTab === 0 ? 'var(--violet-deep)' : '#666' }}>
-                                    <i className="bi bi-file-earmark-spreadsheet-fill me-2"></i>Register Kegiatan (46 Kolom)
+                                    <FileSpreadsheet className="me-2" />Register Kegiatan (46 Kolom)
                                 </button>
                                 <button
                                     className={`tab-btn ${activeTab === 1 ? 'active' : ''}`}
                                     onClick={() => setActiveTab(1)}
                                     style={{ borderBottom: activeTab === 1 ? '2px solid var(--violet-deep)' : 'none', color: activeTab === 1 ? 'var(--violet-deep)' : '#666' }}>
-                                    <i className="bi bi-card-checklist me-2"></i>Pencatatan 13 Poin (TTD)
+                                    <ClipboardList className="me-2" />Pencatatan 13 Poin (TTD)
                                 </button>
                                 <button
                                     className={`tab-btn ${activeTab === 2 ? 'active' : ''}`}
                                     onClick={() => setActiveTab(2)}
                                     style={{ borderBottom: activeTab === 2 ? '2px solid var(--violet-deep)' : 'none', color: activeTab === 2 ? 'var(--violet-deep)' : '#666' }}>
-                                    <i className="bi bi-clipboard-data-fill me-2"></i>Data Umum Posyandu
+                                    <ClipboardList className="me-2" />Data Umum Posyandu
                                 </button>
                             </div>
 
                             {/* ISI KONTEN TAB */}
                             {isLoadingLaporan ? (
-                                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-                                    <h4>Memuat Arsip Laporan... ⏳</h4>
-                                </div>
+                                <Skeleton type="box" height="600px" style={{ width: '100%', marginBottom: '20px' }} />
                             ) : (
                                 <div className="card" style={{ boxShadow: 'none', border: '1px solid #e2e8f0' }}>
 
@@ -286,7 +287,7 @@ export default function AdminArsipLaporanView() {
                                                                 <td>{item.skdn_d || 0} Anak</td>
                                                                 <td style={{ textAlign: 'center' }}>
                                                                     <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handleCetakLaporan('rekap46', item)}>
-                                                                        <i className="bi bi-printer me-1"></i>Cetak PDF
+                                                                        <Printer className="me-1" />Cetak PDF
                                                                     </button>
                                                                 </td>
                                                             </tr>
@@ -327,7 +328,7 @@ export default function AdminArsipLaporanView() {
                                                                 </td>
                                                                 <td style={{ textAlign: 'center' }}>
                                                                     <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handleCetakLaporan('rekap13', item)}>
-                                                                        <i className="bi bi-printer me-1"></i>Cetak PDF
+                                                                        <Printer className="me-1" />Cetak PDF
                                                                     </button>
                                                                 </td>
                                                             </tr>
@@ -365,7 +366,7 @@ export default function AdminArsipLaporanView() {
                                                                 <td>{item.petugas_kader || 0} Orang</td>
                                                                 <td style={{ textAlign: 'center' }}>
                                                                     <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handleCetakLaporan('dataUmum', item)}>
-                                                                        <i className="bi bi-printer me-1"></i>Cetak PDF
+                                                                        <Printer className="me-1" />Cetak PDF
                                                                     </button>
                                                                 </td>
                                                             </tr>

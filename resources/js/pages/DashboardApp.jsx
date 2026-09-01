@@ -26,28 +26,32 @@ import PencatatanDataUmumView from '../components/dashboard/PencatatanDataUmumVi
 import AdminArsipLaporanView from '../components/dashboard/AdminArsipLaporanView';
 import GantiPasswordView from '../components/dashboard/GantiPasswordView';
 
+import { LogOut } from 'lucide-react';
+
+import { Home, Activity, Megaphone, FileSpreadsheet, ClipboardList, ActivitySquare, Users, Utensils, BookText, Key, Building, MapPin, FileSignature, BarChart3, FolderCheck, UserCheck, Calculator } from 'lucide-react';
+
 const NAV = {
     kader: [
         {
             group: 'Menu Utama', items: [
-                { id: 'dashboard', label: 'Beranda', ico: 'bi bi-house-door-fill' },
-                { id: 'kesehatan', label: 'Pencatatan Kesehatan', ico: 'bi bi-activity' },
-                { id: 'pengaduan', label: 'Formulir & Pengaduan', ico: 'bi bi-megaphone-fill' },
-                { id: 'rekap-kegiatan', label: 'Rekap Kegiatan Bulanan', ico: 'bi bi-file-earmark-spreadsheet-fill' },
-                { id: 'data-umum', label: 'Data Umum Posyandu', ico: 'bi bi-clipboard-data' },
-                { id: 'data-tambahan', label: 'Data Tambahan', ico: 'bi bi-clipboard2-pulse-fill' },
+                { id: 'dashboard', label: 'Beranda', ico: Home },
+                { id: 'kesehatan', label: 'Pencatatan Kesehatan', ico: Activity },
+                { id: 'pengaduan', label: 'Formulir & Pengaduan', ico: Megaphone },
+                { id: 'rekap-kegiatan', label: 'Rekap Kegiatan Bulanan', ico: FileSpreadsheet },
+                { id: 'data-umum', label: 'Data Umum Posyandu', ico: ClipboardList },
+                { id: 'data-tambahan', label: 'Data Tambahan', ico: ActivitySquare },
             ]
         },
         {
             group: 'Lainnya', items: [
-                { id: 'kelolawarga', label: 'Kelola Warga', ico: 'bi bi-people-fill' },
-                { id: 'kelola-makanan', label: 'Kelola Data Makanan', ico: 'bi bi-egg-fried' },
-                { id: 'artikel', label: 'Artikel & Berita', ico: 'bi bi-journal-text' },
+                { id: 'kelolawarga', label: 'Kelola Warga', ico: Users },
+                { id: 'kelola-makanan', label: 'Kelola Data Makanan', ico: Utensils },
+                { id: 'artikel', label: 'Artikel & Berita', ico: BookText },
             ]
         },
         {
             group: 'Akun', items: [
-                { id: 'ganti-password', label: 'Ganti PIN', ico: 'bi bi-key-fill' },
+                { id: 'ganti-password', label: 'Ganti PIN', ico: Key },
             ]
         }
 
@@ -55,67 +59,67 @@ const NAV = {
     ketua: [
         {
             group: 'Menu Utama', items: [
-                { id: 'dashboard', label: 'Beranda', ico: 'bi bi-house-door-fill' },
-                { id: 'kesehatan', label: 'Pencatatan Kesehatan', ico: 'bi bi-activity' },
-                { id: 'pengaduan', label: 'Formulir & Pengaduan', ico: 'bi bi-megaphone-fill' },
-                { id: 'rekap-kegiatan', label: 'Rekap Kegiatan Bulanan', ico: 'bi bi-file-earmark-spreadsheet-fill' },
-                { id: 'pencatatan-kegiatan', label: 'Pencatatan Kegiatan (13 Poin)', ico: 'bi bi-card-checklist' },
-                { id: 'data-umum', label: 'Data Umum Posyandu', ico: 'bi bi-clipboard-data' },
-                { id: 'data-tambahan', label: 'Data Tambahan', ico: 'bi bi-clipboard2-pulse-fill' },
+                { id: 'dashboard', label: 'Beranda', ico: Home },
+                { id: 'kesehatan', label: 'Pencatatan Kesehatan', ico: Activity },
+                { id: 'pengaduan', label: 'Formulir & Pengaduan', ico: Megaphone },
+                { id: 'rekap-kegiatan', label: 'Rekap Kegiatan Bulanan', ico: FileSpreadsheet },
+                { id: 'pencatatan-kegiatan', label: 'Pencatatan Kegiatan (13 Poin)', ico: ClipboardList },
+                { id: 'data-umum', label: 'Data Umum Posyandu', ico: ClipboardList },
+                { id: 'data-tambahan', label: 'Data Tambahan', ico: ActivitySquare },
             ]
         },
         {
             group: 'Kelola Posyandu', items: [
-                { id: 'profil', label: 'Profil & Sarana', ico: 'bi bi-building' },
-                { id: 'daftar', label: 'Daftar 9 Posyandu', ico: 'bi bi-geo-alt-fill' },
-                { id: 'kelolawarga', label: 'Kelola Warga', ico: 'bi bi-people-fill' },
-                { id: 'kelola-makanan', label: 'Kelola Data Makanan', ico: 'bi bi-egg-fried' },
-                { id: 'artikel', label: 'Artikel & Berita', ico: 'bi bi-journal-text' },
+                { id: 'profil', label: 'Profil & Sarana', ico: Building },
+                { id: 'daftar', label: 'Daftar 9 Posyandu', ico: MapPin },
+                { id: 'kelolawarga', label: 'Kelola Warga', ico: Users },
+                { id: 'kelola-makanan', label: 'Kelola Data Makanan', ico: Utensils },
+                { id: 'artikel', label: 'Artikel & Berita', ico: BookText },
             ]
         },
         {
             group: 'Akun', items: [
-                { id: 'ganti-password', label: 'Ganti PIN', ico: 'bi bi-key-fill' },
+                { id: 'ganti-password', label: 'Ganti PIN', ico: Key },
             ]
         }
     ],
     puskesmas: [
         {
             group: 'Menu Utama', items: [
-                { id: 'puskesmas-dashboard', label: 'Laporan per Posyandu', ico: 'bi bi-file-earmark-medical-fill' },
+                { id: 'puskesmas-dashboard', label: 'Laporan per Posyandu', ico: FileSignature },
             ]
         },
         {
             group: 'Akun', items: [
-                { id: 'ganti-password', label: 'Ganti PIN', ico: 'bi bi-key-fill' },
+                { id: 'ganti-password', label: 'Ganti PIN', ico: Key },
             ]
         }
     ],
     superadmin: [
         {
             group: 'Menu Utama', items: [
-                { id: 'superadmin-dashboard', label: 'Transparansi Pelaporan', ico: 'bi bi-house-door-fill' },
-                { id: 'superadmin-analitik', label: 'Dashboard Analitik 6 Bidang', ico: 'bi bi-bar-chart-line-fill' },
-                { id: 'superadmin-ekspor', label: 'Ekspor Gabungan 9 Posyandu', ico: 'bi bi-file-earmark-excel-fill' },
-                { id: 'admin-arsip', label: 'Arsip Laporan Posyandu', ico: 'bi bi-folder-check' }
+                { id: 'superadmin-dashboard', label: 'Transparansi Pelaporan', ico: Home },
+                { id: 'superadmin-analitik', label: 'Dashboard Analitik 6 Bidang', ico: BarChart3 },
+                { id: 'superadmin-ekspor', label: 'Ekspor Gabungan 9 Posyandu', ico: FileSpreadsheet },
+                { id: 'admin-arsip', label: 'Arsip Laporan Posyandu', ico: FolderCheck }
             ]
         },
         {
             group: 'Akun', items: [
-                { id: 'ganti-password', label: 'Ganti PIN', ico: 'bi bi-key-fill' },
+                { id: 'ganti-password', label: 'Ganti PIN', ico: Key },
             ]
         }
     ],
     warga: [
         {
             group: 'Menu Utama', items: [
-                { id: 'warga-anak', label: 'Rapor Kesehatan Keluarga', ico: 'bi bi-person-heart' },
-                { id: 'warga-kalkulator', label: 'Kalkulator Kesehatan', ico: 'bi bi-calculator-fill' },
+                { id: 'warga-anak', label: 'Rapor Kesehatan Keluarga', ico: UserCheck },
+                { id: 'warga-kalkulator', label: 'Kalkulator Kesehatan', ico: Calculator },
             ]
         },
         {
             group: 'Akun', items: [
-                { id: 'ganti-password', label: 'Ganti PIN', ico: 'bi bi-key-fill' },
+                { id: 'ganti-password', label: 'Ganti PIN', ico: Key },
             ]
         }
     ]
@@ -250,7 +254,7 @@ export default function DashboardApp({ userAuth, onLogout }) {
                                         className={`nav-item ${currentView === item.id ? 'active' : ''}`}
                                         onClick={() => handleNavClick(item.id)}
                                     >
-                                        <span className="ico"><i className={item.ico} style={{ fontSize: '14px' }}></i></span>
+                                        <span className="ico">{item.ico && <item.ico size={14} />}</span>
                                         {item.label}
                                     </div>
                                 ))}
@@ -260,7 +264,7 @@ export default function DashboardApp({ userAuth, onLogout }) {
                         {/* Tombol Logout akan ikut turun bersama menu terbawah */}
                         <div className="sidebar-foot" style={{ marginTop: '20px' }}>
                             <button className="logout-btn" onClick={onLogout}>
-                                <i className="bi bi-box-arrow-right" style={{ fontSize: '15px' }}></i>
+                                <LogOut />
                                 <span>Keluar</span>
                             </button>
                         </div>

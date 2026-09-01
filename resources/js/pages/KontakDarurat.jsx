@@ -1,8 +1,9 @@
 import React from 'react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-import mapImg from '../assets/images/kontak/54243392f51f09bbc2ff0fcd22e5e5364ef2c9ac.jpeg';
 import '../styles/kontak.css';
+
+import { Info, ShieldCheck, ClipboardCheck, MapPin, Signpost, ArrowUpRight, Hospital, CalendarCheck2, UserCheck } from 'lucide-react';
 
 export default function KontakDarurat({
   activePage,
@@ -85,7 +86,7 @@ export default function KontakDarurat({
 
   const informationCards = [
     {
-      icon: 'bi-hospital',
+      icon: Hospital,
       title: 'Kondisi Gawat Darurat',
       description:
         'Untuk kondisi yang membutuhkan pertolongan medis segera, gunakan layanan darurat resmi.',
@@ -94,7 +95,7 @@ export default function KontakDarurat({
       type: 'emergency',
     },
     {
-      icon: 'bi-calendar2-check',
+      icon: CalendarCheck2,
       title: 'Pelayanan Posyandu',
       description:
         'Pelayanan dilaksanakan mengikuti jadwal masing-masing Posyandu di wilayah Loa Duri Ulu.',
@@ -103,7 +104,7 @@ export default function KontakDarurat({
       type: 'schedule',
     },
     {
-      icon: 'bi-person-hearts',
+      icon: UserCheck,
       title: 'Ibu, Bayi & Balita',
       description:
         'Informasi pelayanan ibu hamil, bayi dan balita dapat diperoleh melalui Posyandu sesuai wilayah.',
@@ -134,7 +135,7 @@ export default function KontakDarurat({
           <div className="kontak-info-hero__content">
 
             <div className="kontak-info-eyebrow">
-              <i className="bi bi-info-circle-fill"></i>
+              <Info />
               Informasi Layanan Masyarakat
             </div>
 
@@ -155,7 +156,7 @@ export default function KontakDarurat({
           <div className="kontak-info-hero__notice">
 
             <div className="kontak-info-notice-icon">
-              <i className="bi bi-shield-check"></i>
+              <ShieldCheck />
             </div>
 
             <div>
@@ -206,7 +207,7 @@ export default function KontakDarurat({
               >
 
                 <div className="kontak-info-card-icon">
-                  <i className={`bi ${item.icon}`}></i>
+                  <item.icon size={24} />
                 </div>
 
 
@@ -248,7 +249,7 @@ export default function KontakDarurat({
           <div className="kontak-guide-header">
 
             <div className="kontak-guide-header-icon">
-              <i className="bi bi-clipboard2-check"></i>
+              <ClipboardCheck />
             </div>
 
             <div>
@@ -374,7 +375,7 @@ export default function KontakDarurat({
 
 
                 <div className="kontak-location-icon">
-                  <i className="bi bi-geo-alt-fill"></i>
+                  <MapPin />
                 </div>
 
 
@@ -387,7 +388,7 @@ export default function KontakDarurat({
 
                   <div className="kontak-location-address">
 
-                    <i className="bi bi-signpost-2"></i>
+                    <Signpost />
 
                     <span>
                       {location.address}
@@ -414,7 +415,7 @@ export default function KontakDarurat({
                 >
                   <span>Buka Peta</span>
 
-                  <i className="bi bi-arrow-up-right"></i>
+                  <ArrowUpRight />
                 </a>
 
               </article>
@@ -433,16 +434,20 @@ export default function KontakDarurat({
 
           <div className="kontak-area-image">
 
-            <img
-              src={mapImg}
-              alt="Peta wilayah Loa Duri Ulu"
-            />
+            <iframe
+              src="https://maps.google.com/maps?q=-0.587190,117.048890&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              title="Peta Wilayah Loa Duri Ulu"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
 
 
-            <div className="kontak-area-overlay">
+            <div className="kontak-area-overlay" style={{ pointerEvents: 'none' }}>
 
               <div className="kontak-area-pin">
-                <i className="bi bi-geo-alt-fill"></i>
+                <MapPin />
               </div>
 
 
@@ -482,7 +487,7 @@ export default function KontakDarurat({
 
             <div className="kontak-area-note">
 
-              <i className="bi bi-info-circle"></i>
+              <Info />
 
               <p>
                 Gunakan tombol <strong>Buka Peta</strong> pada daftar

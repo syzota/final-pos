@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Phone } from 'lucide-react';
+
 // 1. Tambahkan { data } di dalam kurung untuk menerima lemparan dari ProfilPosyandu.jsx
 export default function BasicContactCard({ data }) {
 
@@ -20,10 +22,7 @@ export default function BasicContactCard({ data }) {
       label: 'TELEPON LAYANAN',
       value: data.no_telepon,
       icon: (
-        <i
-          className="bi bi-telephone-fill"
-          style={{ fontSize: '18px' }}
-        ></i>
+        <Phone />
       )
     },
     {

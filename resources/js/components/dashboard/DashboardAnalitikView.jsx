@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AdminDashboardView from './AdminDashboardView';
+import Skeleton from '../common/Skeleton';
+
+import { BarChart2, Hourglass, Megaphone, BookText } from 'lucide-react';
 
 export default function DashboardAnalitikView() {
     const [stats, setStats] = useState({ pengaduan: [], formulir: [] });
@@ -36,13 +39,20 @@ export default function DashboardAnalitikView() {
     return (
         <>
             <div className="section-head" style={{ marginBottom: '24px' }}>
-                <h2><i className="bi bi-bar-chart-fill me-2" style={{ color: 'var(--violet-deep)' }}></i>Dashboard Analitik Kinerja</h2>
+                <h2><BarChart2 className="me-2" />Dashboard Analitik Kinerja</h2>
                 <p style={{ color: '#666' }}>Ringkasan bidang dan sub-bidang dengan laporan terbanyak dari seluruh Posyandu.</p>
             </div>
 
             {isLoading ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
-                    <i className="bi bi-hourglass-split me-2"></i>Sedang memuat data analitik...
+                <div style={{ padding: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                        <Skeleton type="box" height="150px" />
+                        <Skeleton type="box" height="150px" />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                        <Skeleton type="box" height="350px" />
+                        <Skeleton type="box" height="350px" />
+                    </div>
                 </div>
             ) : (
                 <div className="grid grid-2">
@@ -52,7 +62,7 @@ export default function DashboardAnalitikView() {
               ============================================== */}
                     <div className="card">
                         <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
-                            <h3 style={{ color: 'var(--magenta-deep)' }}><i className="bi bi-megaphone-fill me-2"></i>Top Pengaduan Warga</h3>
+                            <h3 style={{ color: 'var(--magenta-deep)' }}><Megaphone className="me-2" />Top Pengaduan Warga</h3>
                             <span style={{ fontSize: '12px', color: '#888' }}>Berdasarkan Bidang</span>
                         </div>
 
@@ -85,7 +95,7 @@ export default function DashboardAnalitikView() {
               ============================================== */}
                     <div className="card">
                         <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
-                            <h3 style={{ color: 'var(--violet-deep)' }}><i className="bi bi-journal-text me-2"></i>Top Pemetaan Identifikasi</h3>
+                            <h3 style={{ color: 'var(--violet-deep)' }}><BookText className="me-2" />Top Pemetaan Identifikasi</h3>
                             <span style={{ fontSize: '12px', color: '#888' }}>Berdasarkan Sub-Bidang</span>
                         </div>
 

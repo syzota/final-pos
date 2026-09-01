@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
+import { Plus, Pencil, Trash, Image, Activity, BookText, Heart, FileText, CheckCircle2, EyeOff } from 'lucide-react';
+
 export default function ArtikelView() {
   const [articles, setArticles] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -153,7 +155,7 @@ export default function ArtikelView() {
         <div className="section-head">
           <h3>Artikel &amp; Berita Posyandu</h3>
           <button className="btn btn-violet btn-sm" onClick={handleNew}>
-            <i className="bi bi-plus-lg me-1"></i>Tulis Artikel
+            <Plus className="me-1" />Tulis Artikel
           </button>
         </div>
 
@@ -165,7 +167,7 @@ export default function ArtikelView() {
           ) : (
             articles.map(a => {
               const [ico, color] = ARTIKEL_ICON[a.kategori] || ARTIKEL_ICON.Lainnya;
-              const bsIcon = a.kategori === 'Kesehatan' ? 'bi bi-activity' : a.kategori === 'Pendidikan' ? 'bi bi-journal-text' : a.kategori === 'Sosial' ? 'bi bi-heart-fill' : 'bi bi-file-earmark-text';
+              const IconComponent = a.kategori === 'Kesehatan' ? Activity : a.kategori === 'Pendidikan' ? BookText : a.kategori === 'Sosial' ? Heart : FileText;
               const isDraf = a.status === 'draf';
 
               return (
@@ -198,12 +200,12 @@ export default function ArtikelView() {
                     </div>
                   </div>
                   <div className="article-actions">
-                    <button onClick={() => handleEdit(a.id)}><i className="bi bi-pencil me-1"></i>Edit</button>
+                    <button onClick={() => handleEdit(a.id)}><Pencil className="me-1" />Edit</button>
                     <button onClick={() => toggleStatus(a.id, a.status)}>
-                      <i className={isDraf ? 'bi bi-check2-circle me-1' : 'bi bi-eye-slash me-1'}></i>
+                      {isDraf ? <CheckCircle2 size={16} className="me-1" /> : <EyeOff size={16} className="me-1" />}
                       {isDraf ? 'Publikasikan' : 'Jadikan Draf'}
                     </button>
-                    <button className="act-danger" onClick={() => handleDelete(a.id)}><i className="bi bi-trash me-1"></i>Hapus</button>
+                    <button className="act-danger" onClick={() => handleDelete(a.id)}><Trash className="me-1" />Hapus</button>
                   </div>
                 </div>
               );
@@ -218,7 +220,7 @@ export default function ArtikelView() {
 
         {editingId && (
           <div className="article-form-hint active">
-            <i className="bi bi-pencil me-1"></i><span>Mengedit: {formData.judul}</span>
+            <Pencil className="me-1" /><span>Mengedit: {formData.judul}</span>
             <button type="button" onClick={handleNew}>Batal, tulis baru</button>
           </div>
         )}
@@ -268,7 +270,7 @@ export default function ArtikelView() {
           style={{ marginBottom: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', border: '1px dashed #ccc', borderRadius: '6px' }}
           onClick={() => fileInputRef.current.click()}
         >
-          <i className="bi bi-image me-2"></i>
+          <Image className="me-2" />
           <span>
             {formData.foto ? <b>{formData.foto.name}</b> : <span><b>Tambah foto</b> pendukung (opsional)</span>}
           </span>

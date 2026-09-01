@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
+import { Printer } from 'lucide-react';
+
 export default function ProfilView() {
     const [formData, setFormData] = useState({
         nama: '', alamat: '', kontak_darurat: '', link_gmaps: '',
@@ -160,7 +162,7 @@ export default function ProfilView() {
                                 onClick={() => handlePrint('profil')}
                                 style={{ marginLeft: 'auto', color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}
                             >
-                                <i className="bi bi-printer-fill me-1"></i> Cetak Profil
+                                <Printer className="me-1" /> Cetak Profil
                             </button>
                         </div>
 
@@ -215,7 +217,7 @@ export default function ProfilView() {
                                 onClick={() => handlePrint('sarana')}
                                 style={{ marginLeft: 'auto', color: 'var(--magenta-deep)', borderColor: 'var(--magenta-deep)' }}
                             >
-                                <i className="bi bi-printer-fill me-1"></i> Cetak Sarana
+                                <Printer className="me-1" /> Cetak Sarana
                             </button>
                         </div>
 

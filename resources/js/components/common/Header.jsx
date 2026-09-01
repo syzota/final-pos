@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import logoHeader from "../../assets/images/common/logo-header.jpeg";
 import userAvatar from "../../assets/images/common/kristin-cooper.jpeg";
 
+import { Menu, X, Home, Users, BookText, CalendarDays, Calculator } from 'lucide-react';
+
 export default function Header({ activePage = "beranda", onNavigate }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -20,19 +22,8 @@ export default function Header({ activePage = "beranda", onNavigate }) {
         <>
             <header className="header-navbar">
                 <div className="header-content">
-                    {/* KIRI: Hamburger Menu (Mobile) & Logo */}
+                    {/* KIRI: Logo */}
                     <div className="header-left">
-                        <button
-                            className="hamburger-btn"
-                            onClick={() => setSidebarOpen(true)}
-                            aria-label="Menu"
-                        >
-                            <i
-                                className="bi bi-list"
-                                style={{ fontSize: "20px" }}
-                            ></i>
-                        </button>
-
                         <div
                             className="header-brand"
                             onClick={(e) => handleClick(e, "beranda")}
@@ -67,7 +58,7 @@ export default function Header({ activePage = "beranda", onNavigate }) {
                             className={`nav-item ${activePage === "profil" ? "active" : ""}`}
                             onClick={(e) => handleClick(e, "profil")}
                         >
-                            Profil Posyandu
+                            Profil
                         </a>
                         <a
                             href="#artikel"
@@ -92,86 +83,79 @@ export default function Header({ activePage = "beranda", onNavigate }) {
                         </a>
                     </nav>
 
-                    {/* KANAN: Tombol Masuk & Profil */}
+                    {/* KANAN: Tombol Masuk (Desktop) & Hamburger Menu (Mobile) */}
                     <div className="header-actions">
                         <button
-                            className="signin-btn"
+                            className="signin-btn desktop-only"
                             onClick={() => onNavigate("login")}
                         >
                             Masuk
+                        </button>
+                        <button
+                            className="hamburger-btn"
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            aria-label="Menu"
+                            style={{ position: 'relative', zIndex: 10001 }}
+                        >
+                            {sidebarOpen ? <X /> : <Menu />}
                         </button>
                     </div>
                 </div>
             </header>
 
             {/* =========================================
-          SIDEBAR MOBILE (Muncul saat layar HP)
+          DROPDOWN MODAL (Muncul saat layar HP)
           ========================================= */}
 
-            {/* Background Gelap saat Sidebar Terbuka */}
+            {/* Background Gelap saat Menu Terbuka */}
             <div
                 className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`}
                 onClick={() => setSidebarOpen(false)}
             />
 
-            <aside className={`mobile-sidebar ${sidebarOpen ? "show" : ""}`}>
-                <div className="mobile-sidebar-header">
-                    <span>Menu Utama</span>
-                    <button onClick={() => setSidebarOpen(false)}>
-                        <i className="bi bi-x-lg"></i>
+            <aside className={`mobile-dropdown-menu ${sidebarOpen ? "show" : ""}`}>
+                <div className="mobile-dropdown-content">
+                    <button
+                        className={activePage === "beranda" ? "active" : ""}
+                        onClick={(e) => handleClick(e, "beranda")}
+                    >
+                        Beranda
+                    </button>
+                    <button
+                        className={activePage === "profil" ? "active" : ""}
+                        onClick={(e) => handleClick(e, "profil")}
+                    >
+                        Profil
+                    </button>
+                    <button
+                        className={activePage === "artikel" ? "active" : ""}
+                        onClick={(e) => handleClick(e, "artikel")}
+                    >
+                        Artikel
+                    </button>
+                    <button
+                        className={activePage === "jadwal" ? "active" : ""}
+                        onClick={(e) => handleClick(e, "jadwal")}
+                    >
+                        Jadwal
+                    </button>
+                    <button
+                        className={activePage === "kalkulator" ? "active" : ""}
+                        onClick={(e) => handleClick(e, "kalkulator")}
+                    >
+                        Kalkulator
+                    </button>
+                    <div className="mobile-dropdown-divider"></div>
+                    <button
+                        className="mobile-login-btn"
+                        onClick={() => {
+                            setSidebarOpen(false);
+                            onNavigate("login");
+                        }}
+                    >
+                        Masuk / Login
                     </button>
                 </div>
-
-                <button
-                    className={activePage === "beranda" ? "active" : ""}
-                    onClick={(e) => handleClick(e, "beranda")}
-                >
-                    <i
-                        className="bi bi-house-door-fill"
-                        style={{ marginRight: "8px" }}
-                    ></i>{" "}
-                    Beranda
-                </button>
-                <button
-                    className={activePage === "profil" ? "active" : ""}
-                    onClick={(e) => handleClick(e, "profil")}
-                >
-                    <i
-                        className="bi bi-people-fill"
-                        style={{ marginRight: "8px" }}
-                    ></i>{" "}
-                    Profil Posyandu
-                </button>
-                <button
-                    className={activePage === "artikel" ? "active" : ""}
-                    onClick={(e) => handleClick(e, "artikel")}
-                >
-                    <i
-                        className="bi bi-journal-text"
-                        style={{ marginRight: "8px" }}
-                    ></i>{" "}
-                    Artikel
-                </button>
-                <button
-                    className={activePage === "jadwal" ? "active" : ""}
-                    onClick={(e) => handleClick(e, "jadwal")}
-                >
-                    <i
-                        className="bi bi-calendar-event"
-                        style={{ marginRight: "8px" }}
-                    ></i>{" "}
-                    Jadwal
-                </button>
-                <button
-                    className={activePage === "kalkulator" ? "active" : ""}
-                    onClick={(e) => handleClick(e, "kalkulator")}
-                >
-                    <i
-                        className="bi bi-calculator-fill"
-                        style={{ marginRight: "8px" }}
-                    ></i>{" "}
-                    Kalkulator
-                </button>
             </aside>
         </>
     );

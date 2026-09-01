@@ -5,6 +5,8 @@ import Footer from '../components/common/Footer';
 import '../styles/kalkulator.css';
 import caltBg from '../assets/images/common/calt.jpg';
 
+import { HeartPulse, ArrowDown, Info, Activity, Calculator, CheckCircle2, Utensils, Flame, BookPlus, Plus, Trash2 } from 'lucide-react';
+
 // === DATABASE PINTAR BAWAAN SISTEM ===
 const DATABASE_PINTAR = [
   { id: 'db_1', nama_makanan: 'Nasi Putih (1 centong/100g)', kalori_per_porsi: 130 },
@@ -204,7 +206,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
           <div className="kalkulator-cover-hero__content">
 
             <div className="kalkulator-cover-hero__badge">
-              <i className="bi bi-heart-pulse-fill"></i>
+              <HeartPulse />
               <span>Alat Bantu Kesehatan Mandiri</span>
             </div>
 
@@ -232,7 +234,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
               >
                 Mulai Hitung IMT
                 <span>
-                  <i className="bi bi-arrow-down"></i>
+                  <ArrowDown />
                 </span>
               </button>
 
@@ -255,7 +257,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
           </div>
 
           <div className="kalkulator-cover-hero__note">
-            <i className="bi bi-info-circle-fill"></i>
+            <Info />
             <p>
               Hasil kalkulator merupakan informasi awal dan tidak menggantikan
               pemeriksaan atau diagnosis dari tenaga kesehatan.
@@ -271,7 +273,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
           {/* === CALCULATOR 1: IMT === */}
           <div id="calc-imt-card" className="card">
             <div className="section-head">
-              <h3><i className="bi bi-activity me-2" style={{ color: 'var(--violet-deep)' }}></i>1. Kalkulator IMT &amp; Berat Badan Ideal</h3>
+              <h3><Activity className="me-2" />1. Kalkulator IMT &amp; Berat Badan Ideal</h3>
             </div>
             <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
               Hitung Indeks Massa Tubuh (IMT) serta rentang berat badan ideal untuk dewasa berdasarkan kriteria WHO.
@@ -300,7 +302,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
             </div>
 
             <button className="btn btn-violet" style={{ marginTop: '16px', width: '100%', justifyContent: 'center' }} onClick={handleCalcIMT}>
-              <i className="bi bi-calculator me-2"></i>Hitung IMT &amp; BB Ideal
+              <Calculator className="me-2" />Hitung IMT &amp; BB Ideal
             </button>
 
             {imiResult && (
@@ -313,7 +315,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                   {imiResult.imt} <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-soft)' }}>kg/m²</span>
                 </div>
                 <div style={{ fontSize: '12.5px', color: 'var(--ink)', fontWeight: 600 }}>
-                  <i className="bi bi-check-circle-fill me-1" style={{ color: 'var(--green-deep)' }}></i>
+                  <CheckCircle2 className="me-1" />
                   Rentang Berat Badan Ideal Anda: <b>{imiResult.bbIdealMin} – {imiResult.bbIdealMax} kg</b>
                 </div>
               </div>
@@ -323,7 +325,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
           {/* === CALCULATOR 2: KALORI === */}
           <div id="calc-kalori-card" className="card">
             <div className="section-head">
-              <h3><i className="bi bi-egg-fried me-2" style={{ color: 'var(--orange-deep)' }}></i>2. Kalkulator Kalori &amp; Log Makanan</h3>
+              <h3><Utensils className="me-2" />2. Kalkulator Kalori &amp; Log Makanan</h3>
             </div>
             <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
               Hitung kebutuhan kalori harian (TDEE) Anda dan catat menu makanan harian untuk menjaga pola makan seimbang.
@@ -360,7 +362,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
             </div>
 
             <button className="btn btn-violet" style={{ marginTop: '16px', width: '100%', justifyContent: 'center' }} onClick={handleCalcKalori}>
-              <i className="bi bi-fire me-2"></i>Hitung Kebutuhan Kalori
+              <Flame className="me-2" />Hitung Kebutuhan Kalori
             </button>
 
             {kalResult && (
@@ -386,7 +388,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
             {/* Pencatat Log Makanan (Menarik dari DB Gabungan) */}
             <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--line)' }}>
               <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px', color: 'var(--ink)' }}>
-                <i className="bi bi-journal-plus me-1" style={{ color: 'var(--orange-deep)' }}></i>
+                <BookPlus className="me-1" />
                 Pencatat Log Makanan Harian
               </div>
 
@@ -402,7 +404,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </select>
                 <input type="number" min="1" max="10" className="food-qty-input" value={foodQty} onChange={(e) => setFoodQty(parseInt(e.target.value) || 1)} />
                 <button className="btn btn-sm btn-violet food-add-btn" onClick={handleAddFood}>
-                  <i className="bi bi-plus-lg me-1"></i>Tambah
+                  <Plus className="me-1" />Tambah
                 </button>
               </div>
 
@@ -420,7 +422,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                           <td style={{ color: 'var(--orange-deep)' }}><b>{item.totalKalori} kcal</b></td>
                           <td style={{textAlign: 'right'}}>
                             <button style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: 0 }} onClick={() => handleRemoveFood(item.id)}>
-                              <i className="bi bi-trash-fill"></i>
+                              <Trash2 />
                             </button>
                           </td>
                         </tr>

@@ -9,6 +9,10 @@ import CoreTasksCard from '../components/profil/CoreTasksCard';
 import StrategicFunctionsCard from '../components/profil/StrategicFunctionsCard';
 import StrukturKepengurusanSection from '../components/profil/StrukturKepengurusanSection';
 
+import { Info, Users, HeartPulse, Package, MapPin, Phone, Map } from 'lucide-react';
+
+import Skeleton from '../components/common/Skeleton';
+
 export default function ProfilPosyandu({ onNavigate }) {
   const [profilList, setProfilList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,8 +34,18 @@ export default function ProfilPosyandu({ onNavigate }) {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '100px', minHeight: '60vh' }}>
-        <p style={{ color: 'var(--ink-soft)' }}>Memuat...</p>
+      <div className="profil-wrapper">
+        <Header activePage="profil" onNavigate={onNavigate} />
+        <main className="profil-container" style={{ padding: '40px 20px', minHeight: '80vh', maxWidth: '1200px', margin: '0 auto' }}>
+          <section className="profil-section" style={{ marginBottom: '40px' }}>
+             <Skeleton type="box" height="400px" />
+          </section>
+          <section className="profil-section grid-2-col" style={{ marginBottom: '40px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+             <Skeleton type="box" height="300px" />
+             <Skeleton type="box" height="300px" />
+          </section>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -64,7 +78,7 @@ export default function ProfilPosyandu({ onNavigate }) {
           <div className="grid grid-2" style={{ gap: '24px' }}>
             {/* KOLOM KIRI */}
             <div>
-              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><i className="bi bi-info-circle-fill me-2"></i>Informasi Umum</h4>
+              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><Info className="me-2" />Informasi Umum</h4>
               <table className="table" style={{ fontSize: '13px', marginBottom: '24px' }}>
                 <tbody>
                   <tr><td style={{ width: '40%' }}>Kode Kec / Desa</td><td><b>{p.kd_kecamatan || '-'} / {p.kd_desa || '-'}</b></td></tr>
@@ -83,7 +97,7 @@ export default function ProfilPosyandu({ onNavigate }) {
                 </tbody>
               </table>
 
-              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><i className="bi bi-people-fill me-2"></i>Kepengurusan</h4>
+              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><Users className="me-2" />Kepengurusan</h4>
               <table className="table" style={{ fontSize: '13px' }}>
                 <tbody>
                   <tr><td style={{ width: '40%' }}>PJ Umum</td><td><b>{p.pj_umum || '-'}</b></td></tr>
@@ -97,7 +111,7 @@ export default function ProfilPosyandu({ onNavigate }) {
 
             {/* KOLOM KANAN */}
             <div>
-              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><i className="bi bi-heart-pulse-fill me-2"></i>Tenaga Medis & Kader</h4>
+              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><HeartPulse className="me-2" />Tenaga Medis & Kader</h4>
               <table className="table" style={{ fontSize: '13px', marginBottom: '24px' }}>
                 <tbody>
                   <tr><td style={{ width: '40%' }}>Bidan Desa</td><td><b>{p.bidan_desa || '-'}</b></td></tr>
@@ -108,7 +122,7 @@ export default function ProfilPosyandu({ onNavigate }) {
                 </tbody>
               </table>
 
-              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><i className="bi bi-box-seam-fill me-2"></i>Sarana & Prasarana</h4>
+              <h4 style={{ color: '#444', borderBottom: '1px solid #ddd', paddingBottom: '8px', marginBottom: '12px' }}><Package className="me-2" />Sarana & Prasarana</h4>
               <table className="table" style={{ fontSize: '13px' }}>
                 <tbody>
                   <tr><td style={{ width: '40%' }}>Tempat Pelayanan</td><td><b>{p.tempat_pelayanan || '-'}</b></td></tr>
@@ -183,14 +197,14 @@ export default function ProfilPosyandu({ onNavigate }) {
                 <div style={{ padding: '24px' }}>
                   <h3 style={{ margin: '0 0 16px 0', color: 'var(--violet-deep)', fontSize: '20px' }}>{posyandu.nama}</h3>
 
-                  <div style={{ fontSize: '14.5px', color: '#555', marginBottom: '12px', display: 'flex', alignItems: 'flex-start' }}>
-                    <i className="bi bi-geo-alt-fill" style={{ color: 'var(--rose-deep)', marginRight: '10px', marginTop: '2px' }}></i>
-                    <span>{posyandu.alamat || 'Alamat spesifik belum diatur oleh Kader.'}</span>
+                  <div style={{ fontSize: '14.5px', color: '#555', marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <MapPin size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <span style={{ lineHeight: '1.4' }}>{posyandu.alamat || 'Alamat spesifik belum diatur oleh Kader.'}</span>
                   </div>
 
-                  <div style={{ fontSize: '14.5px', color: '#555', marginBottom: '24px', display: 'flex', alignItems: 'center' }}>
-                    <i className="bi bi-telephone-fill" style={{ color: 'var(--cyan-deep)', marginRight: '10px' }}></i>
-                    <span>{posyandu.kontak_darurat || 'Belum ada kontak darurat.'}</span>
+                  <div style={{ fontSize: '14.5px', color: '#555', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <Phone size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <span style={{ lineHeight: '1.4' }}>{posyandu.kontak_darurat || 'Belum ada kontak darurat.'}</span>
                   </div>
 
                   {/* DUA TOMBOL: LIHAT DETAIL & NAVIGASI */}
@@ -198,9 +212,9 @@ export default function ProfilPosyandu({ onNavigate }) {
                     <button
                       className="btn btn-violet"
                       onClick={() => setSelectedDetailPosyandu(posyandu)}
-                      style={{ width: '100%', padding: '10px', fontWeight: 'bold' }}
+                      style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '10px', fontWeight: 'bold' }}
                     >
-                      <i className="bi bi-info-circle me-2"></i> Lihat Detail Profil
+                      <Info size={20} /> Lihat Detail Profil
                     </button>
 
                     <a
@@ -208,7 +222,7 @@ export default function ProfilPosyandu({ onNavigate }) {
                       target="_blank"
                       rel="noreferrer"
                       className="btn btn-outline"
-                      style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '10px', fontWeight: 'bold' }}
+                      style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '10px', fontWeight: 'bold' }}
                       onClick={(e) => {
                         if (!posyandu.link_gmaps) {
                           e.preventDefault();
@@ -216,7 +230,7 @@ export default function ProfilPosyandu({ onNavigate }) {
                         }
                       }}
                     >
-                      <i className="bi bi-map me-2"></i> Navigasi Rute Maps
+                      <Map size={20} /> Navigasi Rute Maps
                     </a>
                   </div>
 

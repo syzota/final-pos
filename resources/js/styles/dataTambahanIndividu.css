@@ -104,7 +104,7 @@
   transition: all 0.2s ease;
 }
 
-.dti-tab i {
+.dti-tab svg {
   width: 34px;
   height: var(--space-4);
   flex-shrink: 0;
@@ -129,7 +129,7 @@
   box-shadow: 0 0 0 2px rgba(41, 118, 199, 0.07);
 }
 
-.dti-tab.active i {
+.dti-tab.active svg {
   background: var(--color-primary);
   color: #ffffff;
 }
@@ -376,7 +376,7 @@
   font-size: var(--font-xs);
 }
 
-.dti-empty i {
+.dti-empty svg {
   display: block;
   margin-bottom: var(--space-1);
   color: #91a9bf;

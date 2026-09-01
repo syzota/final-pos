@@ -1,6 +1,8 @@
 import React from 'react';
 import heroImg from '../../assets/images/common/hero-beranda.png';
 
+import { HeartPulse, ArrowRight, CalendarCheck2, BookHeart, MapPin, ArrowUpRight } from 'lucide-react';
+
 export default function WelcomeBanner({ onNavigate }) {
   return (
     <section className="medical-hero">
@@ -26,7 +28,7 @@ export default function WelcomeBanner({ onNavigate }) {
       <div className="medical-hero__content">
 
         <div className="medical-hero__badge">
-          <i className="bi bi-heart-pulse-fill"></i>
+          <HeartPulse />
           <span>Portal Kesehatan Masyarakat</span>
         </div>
 
@@ -54,7 +56,7 @@ export default function WelcomeBanner({ onNavigate }) {
             Lihat Jadwal Posyandu
 
             <span className="medical-hero__button-icon">
-              <i className="bi bi-arrow-right"></i>
+              <ArrowRight />
             </span>
           </button>
 
@@ -79,7 +81,7 @@ export default function WelcomeBanner({ onNavigate }) {
         <div className="medical-hero__service-item">
 
           <div className="medical-hero__service-icon">
-            <i className="bi bi-calendar2-check"></i>
+            <CalendarCheck2 />
           </div>
 
           <div className="medical-hero__service-text">
@@ -101,7 +103,7 @@ export default function WelcomeBanner({ onNavigate }) {
         <div className="medical-hero__service-item">
 
           <div className="medical-hero__service-icon">
-            <i className="bi bi-journal-medical"></i>
+            <BookHeart />
           </div>
 
           <div className="medical-hero__service-text">
@@ -123,7 +125,7 @@ export default function WelcomeBanner({ onNavigate }) {
         <div className="medical-hero__service-item">
 
           <div className="medical-hero__service-icon">
-            <i className="bi bi-geo-alt"></i>
+            <MapPin />
           </div>
 
           <div className="medical-hero__service-text">
@@ -146,7 +148,7 @@ export default function WelcomeBanner({ onNavigate }) {
         >
           Lihat Informasi
 
-          <i className="bi bi-arrow-up-right"></i>
+          <ArrowUpRight />
         </button>
 
       </div>

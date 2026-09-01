@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
+import { Printer, Save, Trash } from 'lucide-react';
+
 export default function RekapKegiatanView() {
     const [formData, setFormData] = useState({
         kd_kec: '', kd_desa: '', rt: '', no_posyandu: '', bulan_pendataan: '', jumlah: '',
@@ -175,10 +177,10 @@ export default function RekapKegiatanView() {
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}>
-                            <i className="bi bi-printer me-2"></i> Ekspor Kertas PDF
+                            <Printer className="me-2" /> Ekspor Kertas PDF
                         </button>
                         <button className="btn btn-violet" onClick={handleSave} disabled={isLoading}>
-                            <i className="bi bi-save me-2"></i> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                            <Save className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
                         </button>
                     </div>
                 </div>
@@ -337,14 +339,14 @@ export default function RekapKegiatanView() {
                                                         style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}
                                                         onClick={() => handlePrint(item)}
                                                     >
-                                                        <i className="bi bi-printer"></i> Cetak
+                                                        <Printer /> Cetak
                                                     </button>
                                                     <button
                                                         className="btn btn-sm btn-outline"
                                                         style={{ color: '#dc3545', borderColor: '#dc3545' }}
                                                         onClick={() => handleDelete(item.id)}
                                                     >
-                                                        <i className="bi bi-trash"></i> Hapus
+                                                        <Trash /> Hapus
                                                     </button>
                                                 </div>
                                             </td>

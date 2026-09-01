@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { Clock, ArrowRight } from 'lucide-react';
+
+import Skeleton from '../common/Skeleton';
+
 export default function ArticleCard({ onNavigate }) {
   const [artikels, setArtikels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,13 +33,24 @@ export default function ArticleCard({ onNavigate }) {
     }
   };
 
+  const getImageUrl = (path) => {
+    if (!path) return 'https://via.placeholder.com/300x200?text=Kesehatan';
+    return `/storage/${path}`;
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '40px', width: '100%' }}>Memuat artikel terbaru... ⏳</div>;
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', width: '100%' }}>
+        <Skeleton type="card" />
+        <Skeleton type="card" />
+        <Skeleton type="card" />
+      </div>
+    );
   }
 
   if (artikels.length === 0) {
@@ -57,7 +72,7 @@ export default function ArticleCard({ onNavigate }) {
             {/* Meta Kategori & Tanggal */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', fontSize: '12px', fontWeight: 'bold' }}>
               <span className="badge badge-cyan" style={{ textTransform: 'uppercase' }}>{artikel.kategori}</span>
-              <span style={{ color: '#888' }}><i className="bi bi-clock me-1"></i> {formatDate(artikel.published_at)}</span>
+              <span style={{ color: '#888' }}><Clock className="me-1" /> {formatDate(artikel.published_at)}</span>
             </div>
 
             {/* Judul & Cuplikan Isi */}
@@ -82,7 +97,7 @@ export default function ArticleCard({ onNavigate }) {
                 onClick={() => handleReadMore(artikel.id)}
                 style={{ background: 'none', border: 'none', color: 'var(--violet-deep)', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center' }}
               >
-                Baca Artikel <i className="bi bi-arrow-right ms-1"></i>
+                Baca Artikel <ArrowRight className="ms-1" />
               </button>
             </div>
           </div>

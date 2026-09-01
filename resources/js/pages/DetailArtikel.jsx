@@ -3,6 +3,8 @@ import axios from 'axios';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import '../styles/detail-artikel.css';
+import { Loader2 } from 'lucide-react';
+import Skeleton from '../components/common/Skeleton';
 
 export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
   const [artikel, setArtikel] = useState(null);
@@ -90,7 +92,20 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
         <div className="detail-artikel-layout">
           {/* Main Column */}
           <article className="detail-artikel-body">
-            {isLoading && <div style={{ padding: '40px 0' }}>Memuat isi artikel... ⏳</div>}
+            {isLoading && (
+              <div style={{ paddingTop: '16px' }}>
+                <Skeleton type="title" width="80%" height="40px" style={{ marginBottom: '32px' }} />
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', alignItems: 'center' }}>
+                   <Skeleton type="circle" width="48px" height="48px" />
+                   <div>
+                     <Skeleton type="text" width="120px" style={{ marginBottom: '8px' }} />
+                     <Skeleton type="text" width="80px" />
+                   </div>
+                </div>
+                <Skeleton type="text" rows={6} />
+                <Skeleton type="box" height="350px" style={{ marginTop: '40px' }} />
+              </div>
+            )}
             {error && <div style={{ padding: '40px 0', color: 'red' }}>{error}</div>}
 
             {!isLoading && !error && artikel && (
