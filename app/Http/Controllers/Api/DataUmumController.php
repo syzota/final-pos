@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\DataUmum;
+use Illuminate\Http\Request;
 
 class DataUmumController extends Controller
 {
@@ -16,7 +16,7 @@ class DataUmumController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'data'   => $riwayat
+            'data' => $riwayat,
         ], 200);
     }
 
@@ -32,7 +32,7 @@ class DataUmumController extends Controller
 
         // Jika kolom angka kosong, ubah jadi 0
         foreach ($data as $key => $value) {
-            if (!in_array($key, $textFields) && $key !== 'posyandu_id') {
+            if (! in_array($key, $textFields) && $key !== 'posyandu_id') {
                 $data[$key] = empty($value) ? 0 : (int) $value;
             }
         }
@@ -41,8 +41,8 @@ class DataUmumController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'pesan'  => 'Pencatatan Data Umum berhasil disimpan!',
-            'data'   => $dataUmum
+            'pesan' => 'Pencatatan Data Umum berhasil disimpan!',
+            'data' => $dataUmum,
         ], 201);
     }
 
@@ -52,11 +52,12 @@ class DataUmumController extends Controller
         $posyanduId = $request->user()->posyandu_id;
         $dataUmum = DataUmum::where('id', $id)->where('posyandu_id', $posyanduId)->first();
 
-        if (!$dataUmum) {
+        if (! $dataUmum) {
             return response()->json(['pesan' => 'Data tidak ditemukan.'], 404);
         }
 
         $dataUmum->delete();
+
         return response()->json(['status' => 'sukses', 'pesan' => 'Data berhasil dihapus.'], 200);
     }
 }

@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  Activity,
+  Calculator,
+  Calendar,
+  FileText,
+  Upload,
+  CheckCircle2,
+  X,
+  Info,
+  ChevronDown
+} from 'lucide-react';
 
 const KELOMPOK_CALC = {
-  balita: { title: 'Kalkulator Status Gizi', label: 'Status Gizi (BB/TB) — bukan pengganti penilaian ahli gizi' },
-  remaja: { title: 'Kalkulator IMT', label: 'IMT — bukan pengganti penilaian ahli gizi' },
-  hamil: { title: 'Kalkulator IMT', label: 'IMT Ibu Hamil — bukan pengganti penilaian ahli gizi' },
-  lansia: { title: 'Kalkulator IMT', label: 'IMT — bukan pengganti penilaian ahli gizi' }
+  balita: { title: 'Kalkulator Status Gizi Balita', label: 'Status Pertumbuhan (BB/TB Standar Kemenkes)' },
+  remaja: { title: 'Kalkulator IMT Remaja', label: 'Indeks Massa Tubuh (IMT)' },
+  hamil: { title: 'Kalkulator IMT Ibu Hamil', label: 'IMT Pra-Hamil & Risiko KEK' },
+  lansia: { title: 'Kalkulator IMT Lansia', label: 'Indeks Massa Tubuh Lansia' }
 };
 
 export default function KesehatanView() {
@@ -66,16 +77,28 @@ export default function KesehatanView() {
           axios.get('/api/warga/lansia', { headers })
         ]);
 
-        setDaftarAnak(resAnak.data.data);
-        setDaftarRemaja(resRemaja.data.data);
-        setDaftarIbu(resIbu.data.data);
-        setDaftarLansia(resLansia.data.data);
+        setDaftarAnak(resAnak.data.data || []);
+        setDaftarRemaja(resRemaja.data.data || []);
+        setDaftarIbu(resIbu.data.data || []);
+        setDaftarLansia(resLansia.data.data || []);
       } catch (error) {
-        console.error("Gagal memuat data warga:", error);
+        console.error('Gagal memuat data warga:', error);
       }
     };
     fetchData();
   }, []);
+
+  // Kunci scroll saat modal draf terbuka
+  useEffect(() => {
+    if (showDraftModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showDraftModal]);
 
   // === FITUR DRAF: BUKA MODAL & AMBIL DATA ===
   const openDraftModal = async () => {
@@ -86,7 +109,7 @@ export default function KesehatanView() {
       const response = await axios.get(`/api/draf-pemeriksaan/${target}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      setDraftList(response.data.data);
+      setDraftList(response.data.data || []);
     } catch (error) {
       console.error(error);
       setMessage({ type: 'error', text: 'Gagal mengambil daftar draf.' });
@@ -133,6 +156,7 @@ export default function KesehatanView() {
 
   // === HANDLER GLOBAL ===
   const handleFileChange = (e) => setFotoFiles(e.target.files);
+
   const toggleImunisasi = (namaVaksin) => {
     if (imunisasi.includes(namaVaksin)) setImunisasi(imunisasi.filter(item => item !== namaVaksin));
     else setImunisasi([...imunisasi, namaVaksin]);
@@ -156,7 +180,6 @@ export default function KesehatanView() {
     return 'Normal';
   };
 
-  // === HANDLER INPUT MENGGUNAKAN KALKULATOR ===
   const handleBalitaChange = (e) => {
     const { name, value } = e.target;
     let updated = { ...balitaData, [name]: value };
@@ -218,17 +241,21 @@ export default function KesehatanView() {
     setLansiaData(updated);
   };
 
-  // === SUBMIT DATA (FUNGSI UTAMA) ===
   const submitData = async (url, formData, resetStateCallback) => {
-    setIsLoading(true); setMessage({ type: '', text: '' });
+    setIsLoading(true);
+    setMessage({ type: '', text: '' });
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await axios.post(url, formData, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } });
-      setMessage({ type: 'success', text: response.data.pesan });
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setMessage({ type: 'success', text: response.data.pesan || 'Data berhasil disimpan.' });
       resetStateCallback();
       setFotoFiles(null);
     } catch (err) {
-      // PERBAIKAN: Menangkap detail error validasi dari Laravel agar user tahu persis apa yang salah
       let pesanError = err.response?.data?.message || err.message;
       if (err.response?.data?.errors) {
         const firstErrorKey = Object.keys(err.response.data.errors)[0];
@@ -243,9 +270,12 @@ export default function KesehatanView() {
   const handleSubmit = (kelompok, statusForm) => {
     const formData = new FormData();
     formData.append('status_form', statusForm);
-    if (fotoFiles) { for (let i = 0; i < fotoFiles.length; i++) formData.append('dokumentasi_foto[]', fotoFiles[i]); }
+    if (fotoFiles) {
+      for (let i = 0; i < fotoFiles.length; i++) {
+        formData.append('dokumentasi_foto[]', fotoFiles[i]);
+      }
+    }
 
-    // PERBAIKAN: Fungsi pembersih cerdas untuk membuang field kosong yang bikin error
     const appendSafeData = (dataObj, targetIdField) => {
       if (dataObj.pemeriksaan_id) formData.append('pemeriksaan_id', dataObj.pemeriksaan_id);
 
@@ -253,11 +283,7 @@ export default function KesehatanView() {
         if (k === 'pemeriksaan_id') return;
         let val = dataObj[k];
 
-        // Jika user MEMILIH nama dari dropdown, jangan pernah kirim data "_baru"
-        // (ini mencegah error validasi string di laravel)
         if (dataObj[targetIdField] !== 'baru' && k.includes('_baru')) return;
-
-        // Cegah pengiriman field yang murni kosong ("") untuk menghindari konflik string vs int di backend
         if (val !== '' && val !== null && val !== undefined) {
           formData.append(k, val);
         }
@@ -273,24 +299,21 @@ export default function KesehatanView() {
           setImunisasi([]);
         }
       });
-    }
-    else if (kelompok === 'remaja') {
+    } else if (kelompok === 'remaja') {
       appendSafeData(remajaData, 'remaja_id');
       submitData('/api/pemeriksaan-remaja', formData, () => {
         if (statusForm === 'final') {
           setRemajaData({ pemeriksaan_id: '', remaja_id: '', nama_remaja_baru: '', jenis_kelamin_baru: 'L', umur_tahun: '', berat_badan: '', tinggi_badan: '', tekanan_darah: '', status_imt: 'Normal' });
         }
       });
-    }
-    else if (kelompok === 'hamil') {
+    } else if (kelompok === 'hamil') {
       appendSafeData(hamilData, 'ibu_id');
       submitData('/api/pemeriksaan-hamil', formData, () => {
         if (statusForm === 'final') {
           setHamilData({ pemeriksaan_id: '', ibu_id: '', nama_ibu_baru: '', usia_kehamilan_minggu: '', berat_badan: '', tinggi_badan: '', tekanan_darah: '', lingkar_perut: '', lingkar_lengan: '', status_kek: 'Tidak', anemia: 'Tidak', status_imt: 'Normal' });
         }
       });
-    }
-    else if (kelompok === 'lansia') {
+    } else if (kelompok === 'lansia') {
       appendSafeData(lansiaData, 'lansia_id');
       submitData('/api/pemeriksaan-lansia', formData, () => {
         if (statusForm === 'final') {
@@ -308,27 +331,91 @@ export default function KesehatanView() {
     return 'Normal';
   };
 
+  const getTargetTitle = () => {
+    if (target === 'balita') return 'Pemeriksaan Bayi & Balita';
+    if (target === 'remaja') return 'Pemeriksaan Kesehatan Remaja';
+    if (target === 'hamil') return 'Pemeriksaan Ibu Hamil';
+    return 'Pemeriksaan Orang Tua & Lansia';
+  };
+
   return (
     <>
-      {/* === POP-UP MODAL DRAF === */}
+      {/* POP-UP MODAL PILIH DRAF (DESAIN BERSIH & RAPI) */}
       {showDraftModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', width: '90%', maxWidth: '500px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.7)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            padding: '16px'
+          }}
+          onClick={() => setShowDraftModal(false)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              padding: '28px',
+              borderRadius: '20px',
+              width: '100%',
+              maxWidth: '520px',
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
-              <h3 style={{ margin: 0, color: 'var(--violet)' }}>Pilih Draf {target.charAt(0).toUpperCase() + target.slice(1)}</h3>
-              <button onClick={() => setShowDraftModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#64748b' }}>&times;</button>
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase' }}>Draf Tersimpan</span>
+                <h3 style={{ margin: '2px 0 0', color: '#0f172a', fontSize: '18px', fontWeight: 800 }}>
+                  Pilih Draf {target.charAt(0).toUpperCase() + target.slice(1)}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDraftModal(false)}
+                style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
+              >
+                <X size={18} />
+              </button>
             </div>
 
             {isFetchingDrafts ? (
-              <p style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>Memuat draf tersimpan...</p>
+              <p style={{ textAlign: 'center', color: '#64748b', padding: '30px' }}>Memuat draf tersimpan...</p>
             ) : draftList.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>Tidak ada draf tersimpan untuk kelompok sasaran ini.</p>
+              <div style={{ textAlign: 'center', padding: '32px 16px', color: '#64748b' }}>
+                <FileText size={32} style={{ margin: '0 auto 8px', color: '#94a3b8' }} />
+                <p style={{ fontWeight: 600, margin: 0 }}>Tidak ada draf tersimpan untuk kelompok sasaran ini.</p>
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {draftList.map(draft => (
-                  <div key={draft.id} onClick={() => handleSelectDraft(draft)} style={{ padding: '14px', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', background: '#f8fafc', transition: '0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--violet)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#334155' }}>Draf Tanggal: {draft.tanggal_periksa}</div>
-                    <div style={{ fontSize: '13px', color: '#64748b' }}>Ketuk untuk memuat kembali isian form ini.</div>
+                  <div
+                    key={draft.id}
+                    onClick={() => handleSelectDraft(draft)}
+                    style={{
+                      padding: '14px',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      background: '#f8fafc',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: '4px', color: '#0f172a', fontSize: '14px' }}>
+                      Tanggal: {draft.tanggal_periksa}
+                    </div>
+                    <div style={{ fontSize: '12.5px', color: '#64748b' }}>
+                      Ketuk untuk memuat kembali isian form draf ini.
+                    </div>
                   </div>
                 ))}
               </div>
@@ -337,160 +424,408 @@ export default function KesehatanView() {
         </div>
       )}
 
-      {/* === HEADER PILIH SASARAN === */}
-      <div className="card" style={{ marginBottom: '16px' }}>
-        <div className="section-head">
-          <h3>Pilih Kelompok Sasaran</h3>
-          <span className="badge badge-violet">Jadwal rutin: 3 Agustus 2026</span>
+      {/* 1. HEADER: PILLS JADWAL RUTIN DI ATAS + DROPDOWN/CHIPS SASARAN */}
+      <div className="card" style={{ marginBottom: '20px', padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+        {/* Pills Jadwal Rutin di Atas */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Formulir Identifikasi & Pelayanan
+            </span>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '2px 0 0' }}>
+              Pencatatan Kesehatan Warga
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              backgroundColor: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              color: '#15803d',
+              fontSize: '12.5px',
+              fontWeight: 700
+            }}
+          >
+            <Calendar size={14} />
+            <span>Jadwal Rutin: Minggu I & II Setiap Bulan</span>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <div className={`target-chip cyan ${target === 'balita' ? 'active' : ''}`} onClick={() => { setTarget('balita'); setMessage({ type: '', text: '' }); }}><span className="dot"></span>Bayi & Balita</div>
-          <div className={`target-chip orange ${target === 'remaja' ? 'active' : ''}`} onClick={() => { setTarget('remaja'); setMessage({ type: '', text: '' }); }}><span className="dot"></span>Remaja</div>
-          <div className={`target-chip magenta ${target === 'hamil' ? 'active' : ''}`} onClick={() => { setTarget('hamil'); setMessage({ type: '', text: '' }); }}><span className="dot"></span>Ibu Hamil</div>
-          <div className={`target-chip green ${target === 'lansia' ? 'active' : ''}`} onClick={() => { setTarget('lansia'); setMessage({ type: '', text: '' }); }}><span className="dot"></span>Orang Tua & Lansia</div>
+
+        {/* Dropdown Selector untuk Mobile Space-Saving */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+            Pilih Kelompok Sasaran Pemeriksaan:
+          </label>
+
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {[
+              { id: 'balita', label: 'Bayi & Balita (0–5 Tahun)' },
+              { id: 'remaja', label: 'Remaja (10–18 Tahun)' },
+              { id: 'hamil', label: 'Ibu Hamil & Menyusui' },
+              { id: 'lansia', label: 'Orang Tua & Lansia (≥60 Thn)' }
+            ].map((k) => (
+              <button
+                key={k.id}
+                type="button"
+                onClick={() => { setTarget(k.id); setMessage({ type: '', text: '' }); }}
+                style={{
+                  minHeight: '42px',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  border: '1px solid',
+                  borderColor: target === k.id ? 'var(--primary-teal, #008080)' : '#cbd5e1',
+                  backgroundColor: target === k.id ? 'var(--primary-teal, #008080)' : '#ffffff',
+                  color: target === k.id ? '#ffffff' : '#334155',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {k.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {message.text && (
-        <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-          <b>{message.type === 'error' ? 'Peringatan:' : 'Info Sistem:'}</b> {message.text}
+        <div
+          style={{
+            padding: '14px 18px',
+            marginBottom: '20px',
+            borderRadius: '12px',
+            backgroundColor: message.type === 'error' ? '#fef2f2' : '#f0fdf4',
+            border: `1px solid ${message.type === 'error' ? '#fecaca' : '#bbf7d0'}`,
+            color: message.type === 'error' ? '#b91c1c' : '#15803d',
+            fontSize: '13.5px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <Info size={16} />
+          <span>{message.text}</span>
         </div>
       )}
 
-      <div className="grid grid-2">
-        <div className="card">
-          {/* HEADER FORM DENGAN TOMBOL LIHAT DRAF */}
-          <div className="section-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>Form Pemeriksaan — {target === 'balita' ? 'Bayi & Balita' : target === 'remaja' ? 'Remaja' : target === 'hamil' ? 'Ibu Hamil' : 'Orang Tua & Lansia'}</h3>
-            <button onClick={openDraftModal} className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '13px' }}>
+      {/* 2. FORM GRID & KALKULATOR */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        {/* KIRI: FORM ISIAN */}
+        <div className="card" style={{ padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+          {/* Eyebrow & Headline Form Header + Button Fisik Lihat Draf */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9' }}>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Formulir Identifikasi
+              </span>
+              <h3 style={{ margin: '2px 0 0', fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                {getTargetTitle()}
+              </h3>
+            </div>
+
+            {/* Desain Teks "Lihat Draf" Sebagai Button Fisik Nyata */}
+            <button
+              type="button"
+              onClick={openDraftModal}
+              style={{
+                minHeight: '40px',
+                padding: '0 16px',
+                borderRadius: '10px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#f8fafc',
+                color: '#334155',
+                fontSize: '13px',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+              }}
+            >
+              <FileText size={15} color="#008080" />
               Lihat Draf
             </button>
           </div>
 
-          {/* === FORM BALITA === */}
+          {/* FORM BALITA */}
           {target === 'balita' && (
-            <div className="form-grid kel-subform">
-              <div className="form-field full"><label>Pilih Nama Anak</label><select name="anak_id" value={balitaData.anak_id} onChange={handleBalitaChange}><option value="">-- Pilih Anak --</option>{daftarAnak.map((a) => (<option key={a.id} value={a.id}>{a.nama_anak} ({a.jenis_kelamin})</option>))}</select></div>
-              <div className="form-field"><label>Umur (bulan)</label><input type="number" name="umur_bulan" value={balitaData.umur_bulan} onChange={handleBalitaChange} placeholder="Otomatis terisi..." /></div>
-              <div className="form-field"><label>Berat Badan (kg)</label><input type="number" step="0.1" name="berat_badan" value={balitaData.berat_badan} onChange={handleBalitaChange} placeholder="mis. 10.2" /></div>
-              <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" step="0.1" name="tinggi_badan" value={balitaData.tinggi_badan} onChange={handleBalitaChange} placeholder="mis. 78" /></div>
-              <div className="form-field"><label>Lingkar Kepala (cm)</label><input type="number" step="0.1" name="lingkar_kepala" value={balitaData.lingkar_kepala} onChange={handleBalitaChange} placeholder="opsional" /></div>
-              <div className="form-field"><label>Lingkar Lengan (cm)</label><input type="number" step="0.1" name="lingkar_lengan" value={balitaData.lingkar_lengan} onChange={handleBalitaChange} placeholder="opsional" /></div>
-              <div className="form-field full"><label>Catatan Perkembangan Anak</label><textarea rows="2" name="catatan_perkembangan" value={balitaData.catatan_perkembangan} onChange={handleBalitaChange} placeholder="Hasil wawancara perkembangan..."></textarea></div>
-              <div className="form-field full">
-                <label>Status Imunisasi</label>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Pilih Nama Anak</label>
+                <select name="anak_id" value={balitaData.anak_id} onChange={handleBalitaChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }}>
+                  <option value="">-- Pilih Anak Terdaftar --</option>
+                  {daftarAnak.map((a) => (
+                    <option key={a.id} value={a.id}>{a.nama_anak} ({a.jenis_kelamin})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Umur (Bulan)</label>
+                <input type="number" name="umur_bulan" value={balitaData.umur_bulan} onChange={handleBalitaChange} placeholder="Otomatis..." style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
+                <input type="number" step="0.1" name="berat_badan" value={balitaData.berat_badan} onChange={handleBalitaChange} placeholder="mis. 10.5" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
+                <input type="number" step="0.1" name="tinggi_badan" value={balitaData.tinggi_badan} onChange={handleBalitaChange} placeholder="mis. 78.5" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Lingkar Kepala (cm)</label>
+                <input type="number" step="0.1" name="lingkar_kepala" value={balitaData.lingkar_kepala} onChange={handleBalitaChange} placeholder="mis. 45" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Catatan Perkembangan Anak</label>
+                <textarea rows="2" name="catatan_perkembangan" value={balitaData.catatan_perkembangan} onChange={handleBalitaChange} placeholder="Catatan nafsu makan, keaktifan motorik..." style={{ width: '100%', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px' }}></textarea>
+              </div>
+
+              <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '8px' }}>Status Imunisasi Diberikan Hari Ini</label>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {['BCG', 'Polio I', 'Polio II', 'DPT-HB II'].map(v => {
+                  {['BCG', 'Polio I', 'Polio II', 'DPT-HB I', 'DPT-HB II', 'Campak', 'Vitamin A'].map(v => {
                     const isSelected = imunisasi.includes(v);
                     return (
-                      <div
+                      <button
                         key={v}
+                        type="button"
                         onClick={() => toggleImunisasi(v)}
                         style={{
-                          cursor: 'pointer',
-                          border: isSelected ? '1px solid transparent' : '1px solid #cbd5e1',
+                          minHeight: '36px',
+                          border: isSelected ? '1px solid #16a34a' : '1px solid #cbd5e1',
                           backgroundColor: isSelected ? '#16a34a' : '#f8fafc',
                           color: isSelected ? '#ffffff' : '#475569',
                           padding: '6px 14px',
                           borderRadius: '20px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          userSelect: 'none',
-                          transition: 'all 0.2s ease-in-out'
+                          fontSize: '12.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer'
                         }}
                       >
-                        {isSelected && (
-                          <svg viewBox="0 0 24 24" width="16" height="16" style={{ marginRight: '6px', fill: 'currentColor' }}>
-                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
-                          </svg>
-                        )}
                         {v}
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
               </div>
-              <div className="form-field full" style={{ display: 'flex', gap: '10px', marginTop: '18px' }}><button onClick={() => handleSubmit('balita', 'draft')} disabled={isLoading} className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>Simpan Draf</button><button onClick={() => handleSubmit('balita', 'final')} disabled={isLoading} className="btn btn-violet" style={{ flex: 1, justifyContent: 'center' }}>{isLoading ? 'Menyimpan...' : 'Simpan Data'}</button></div>
+
+              <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => handleSubmit('balita', 'draft')}
+                  disabled={isLoading}
+                  style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', color: '#334155', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Simpan Draf
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSubmit('balita', 'final')}
+                  disabled={isLoading}
+                  style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: 'none', backgroundColor: 'var(--primary-teal, #008080)', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  {isLoading ? 'Menyimpan...' : 'Simpan Data Final'}
+                </button>
+              </div>
             </div>
           )}
 
-          {/* === FORM REMAJA === */}
+          {/* FORM REMAJA */}
           {target === 'remaja' && (
-            <div className="form-grid kel-subform">
-              <div className="form-field full"><label>Pilih Nama Remaja</label><select name="remaja_id" value={remajaData.remaja_id} onChange={handleRemajaChange}><option value="">-- Pilih Remaja --</option>{daftarRemaja.map((r) => (<option key={r.id} value={r.id}>{r.nama_remaja} ({r.jenis_kelamin})</option>))}<option value="baru" style={{ fontWeight: 'bold', color: 'var(--violet)' }}>+ Tambah Remaja Baru...</option></select></div>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Pilih Nama Remaja</label>
+                <select name="remaja_id" value={remajaData.remaja_id} onChange={handleRemajaChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }}>
+                  <option value="">-- Pilih Remaja Terdaftar --</option>
+                  {daftarRemaja.map((r) => (
+                    <option key={r.id} value={r.id}>{r.nama_remaja} ({r.jenis_kelamin})</option>
+                  ))}
+                  <option value="baru">+ Tambah Remaja Baru...</option>
+                </select>
+              </div>
+
               {remajaData.remaja_id === 'baru' && (
-                <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', background: '#f1f5f9', padding: '16px', borderRadius: '8px', marginBottom: '8px' }}>
-                  <div className="form-field" style={{ gridColumn: '1 / -1' }}><label>Ketik Nama Lengkap</label><input type="text" name="nama_remaja_baru" value={remajaData.nama_remaja_baru} onChange={handleRemajaChange} placeholder="mis. Dimas Aditya" /></div>
-                  <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin_baru" value={remajaData.jenis_kelamin_baru} onChange={handleRemajaChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+                <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Ketik Nama Lengkap</label>
+                    <input type="text" name="nama_remaja_baru" value={remajaData.nama_remaja_baru} onChange={handleRemajaChange} placeholder="mis. Dimas Aditya" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  </div>
                 </div>
               )}
-              <div className="form-field"><label>Umur (tahun)</label><input type="number" name="umur_tahun" value={remajaData.umur_tahun} onChange={handleRemajaChange} placeholder="Otomatis..." disabled={remajaData.remaja_id !== 'baru'} /></div>
-              <div className="form-field"><label>Berat Badan (kg)</label><input type="number" step="0.1" name="berat_badan" value={remajaData.berat_badan} onChange={handleRemajaChange} placeholder="mis. 48" /></div>
-              <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" step="0.1" name="tinggi_badan" value={remajaData.tinggi_badan} onChange={handleRemajaChange} placeholder="mis. 155" /></div>
-              <div className="form-field"><label>Tekanan Darah (mmHg)</label><input type="text" name="tekanan_darah" value={remajaData.tekanan_darah} onChange={handleRemajaChange} placeholder="mis. 110/70" /></div>
-              <div className="form-field full" style={{ display: 'flex', gap: '10px', marginTop: '18px' }}><button onClick={() => handleSubmit('remaja', 'draft')} disabled={isLoading} className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>Simpan Draf</button><button onClick={() => handleSubmit('remaja', 'final')} disabled={isLoading} className="btn btn-violet" style={{ flex: 1, justifyContent: 'center' }}>{isLoading ? 'Menyimpan...' : 'Simpan Data'}</button></div>
+
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Umur (Tahun)</label>
+                <input type="number" name="umur_tahun" value={remajaData.umur_tahun} onChange={handleRemajaChange} placeholder="mis. 15" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tekanan Darah (mmHg)</label>
+                <input type="text" name="tekanan_darah" value={remajaData.tekanan_darah} onChange={handleRemajaChange} placeholder="mis. 110/70" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
+                <input type="number" step="0.1" name="berat_badan" value={remajaData.berat_badan} onChange={handleRemajaChange} placeholder="mis. 48" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
+                <input type="number" step="0.1" name="tinggi_badan" value={remajaData.tinggi_badan} onChange={handleRemajaChange} placeholder="mis. 155" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+
+              <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="button" onClick={() => handleSubmit('remaja', 'draft')} disabled={isLoading} style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', color: '#334155', fontWeight: 700, cursor: 'pointer' }}>Simpan Draf</button>
+                <button type="button" onClick={() => handleSubmit('remaja', 'final')} disabled={isLoading} style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: 'none', backgroundColor: 'var(--primary-teal, #008080)', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>{isLoading ? 'Menyimpan...' : 'Simpan Data Final'}</button>
+              </div>
             </div>
           )}
 
-          {/* === FORM IBU HAMIL === */}
+          {/* FORM IBU HAMIL */}
           {target === 'hamil' && (
-            <div className="form-grid kel-subform">
-              <div className="form-field full"><label>Nama Ibu</label><select name="ibu_id" value={hamilData.ibu_id} onChange={handleHamilChange}><option value="">-- Pilih Ibu Hamil --</option>{daftarIbu.map((i) => (<option key={i.id} value={i.id}>{i.nama_lengkap}</option>))}<option value="baru" style={{ fontWeight: 'bold', color: 'var(--violet)' }}>+ Tambah Ibu Baru...</option></select></div>
-              {hamilData.ibu_id === 'baru' && (
-                <div style={{ gridColumn: '1 / -1', background: '#f1f5f9', padding: '16px', borderRadius: '8px', marginBottom: '8px' }}>
-                  <div className="form-field full"><label>Ketik Nama Lengkap</label><input type="text" name="nama_ibu_baru" value={hamilData.nama_ibu_baru} onChange={handleHamilChange} placeholder="mis. Siti Aminah" /></div>
-                </div>
-              )}
-              <div className="form-field"><label>Usia Kehamilan (minggu)</label><input type="number" name="usia_kehamilan_minggu" value={hamilData.usia_kehamilan_minggu} onChange={handleHamilChange} placeholder="mis. 24" /></div>
-              <div className="form-field"><label>Berat Badan (kg)</label><input type="number" step="0.1" name="berat_badan" value={hamilData.berat_badan} onChange={handleHamilChange} placeholder="mis. 58" /></div>
-              <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" step="0.1" name="tinggi_badan" value={hamilData.tinggi_badan} onChange={handleHamilChange} placeholder="mis. 156" /></div>
-              <div className="form-field"><label>Tensi (Tekanan Darah)</label><input type="text" name="tekanan_darah" value={hamilData.tekanan_darah} onChange={handleHamilChange} placeholder="mis. 110/80" /></div>
-              <div className="form-field"><label>Lingkar Perut/Pinggang (cm)</label><input type="number" step="0.1" name="lingkar_perut" value={hamilData.lingkar_perut} onChange={handleHamilChange} placeholder="mis. 88" /></div>
-              <div className="form-field"><label>Lingkar Lengan / LILA (cm)</label><input type="number" step="0.1" name="lingkar_lengan" value={hamilData.lingkar_lengan} onChange={handleHamilChange} placeholder="mis. 24.5" /></div>
-              <div className="form-field"><label>Status KEK</label><select name="status_kek" value={hamilData.status_kek} onChange={handleHamilChange}><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>
-              <div className="form-field"><label>Anemia</label><select name="anemia" value={hamilData.anemia} onChange={handleHamilChange}><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>
-              <div className="form-field full" style={{ display: 'flex', gap: '10px', marginTop: '18px' }}><button onClick={() => handleSubmit('hamil', 'draft')} disabled={isLoading} className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>Simpan Draf</button><button onClick={() => handleSubmit('hamil', 'final')} disabled={isLoading} className="btn btn-violet" style={{ flex: 1, justifyContent: 'center' }}>{isLoading ? 'Menyimpan...' : 'Simpan Data'}</button></div>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Nama Ibu Hamil</label>
+                <select name="ibu_id" value={hamilData.ibu_id} onChange={handleHamilChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }}>
+                  <option value="">-- Pilih Ibu Hamil Terdaftar --</option>
+                  {daftarIbu.map((i) => (
+                    <option key={i.id} value={i.id}>{i.nama_lengkap}</option>
+                  ))}
+                  <option value="baru">+ Tambah Ibu Baru...</option>
+                </select>
+              </div>
+
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Usia Kehamilan (Minggu)</label>
+                <input type="number" name="usia_kehamilan_minggu" value={hamilData.usia_kehamilan_minggu} onChange={handleHamilChange} placeholder="mis. 24" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tensi Darah</label>
+                <input type="text" name="tekanan_darah" value={hamilData.tekanan_darah} onChange={handleHamilChange} placeholder="mis. 110/80" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
+                <input type="number" step="0.1" name="berat_badan" value={hamilData.berat_badan} onChange={handleHamilChange} placeholder="mis. 58" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Lingkar Lengan / LILA (cm)</label>
+                <input type="number" step="0.1" name="lingkar_lengan" value={hamilData.lingkar_lengan} onChange={handleHamilChange} placeholder="mis. 24.5" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+
+              <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="button" onClick={() => handleSubmit('hamil', 'draft')} disabled={isLoading} style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', color: '#334155', fontWeight: 700, cursor: 'pointer' }}>Simpan Draf</button>
+                <button type="button" onClick={() => handleSubmit('hamil', 'final')} disabled={isLoading} style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: 'none', backgroundColor: 'var(--primary-teal, #008080)', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>{isLoading ? 'Menyimpan...' : 'Simpan Data Final'}</button>
+              </div>
             </div>
           )}
 
-          {/* === FORM LANSIA === */}
+          {/* FORM LANSIA */}
           {target === 'lansia' && (
-            <div className="form-grid kel-subform">
-              <div className="form-field full"><label>Pilih Nama Lansia</label><select name="lansia_id" value={lansiaData.lansia_id} onChange={handleLansiaChange}><option value="">-- Pilih Orang Tua / Lansia --</option>{daftarLansia.map((l) => (<option key={l.id} value={l.id}>{l.nama_lengkap} ({l.jenis_kelamin})</option>))}<option value="baru" style={{ fontWeight: 'bold', color: 'var(--violet)' }}>+ Tambah Lansia Baru...</option></select></div>
-              {lansiaData.lansia_id === 'baru' && (
-                <div style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', background: '#f1f5f9', padding: '16px', borderRadius: '8px', marginBottom: '8px' }}>
-                  <div className="form-field" style={{ gridColumn: '1 / -1' }}><label>Ketik Nama Lengkap</label><input type="text" name="nama_lansia_baru" value={lansiaData.nama_lansia_baru} onChange={handleLansiaChange} placeholder="mis. Bapak Slamet" /></div>
-                  <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin_baru" value={lansiaData.jenis_kelamin_baru} onChange={handleLansiaChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                </div>
-              )}
-              <div className="form-field"><label>Gula Darah (mg/dL)</label><input type="number" name="gula_darah" value={lansiaData.gula_darah} onChange={handleLansiaChange} placeholder="mis. 110" /></div>
-              <div className="form-field"><label>Tekanan Darah (mmHg)</label><input type="text" name="tekanan_darah" value={lansiaData.tekanan_darah} onChange={handleLansiaChange} placeholder="mis. 130/85" /></div>
-              <div className="form-field"><label>Tensi</label><select name="tensi" value={lansiaData.tensi} onChange={handleLansiaChange}><option value="Rendah">Rendah</option><option value="Normal">Normal</option><option value="Tinggi">Tinggi</option></select></div>
-              <div className="form-field"><label>Nadi (per menit)</label><input type="number" name="nadi" value={lansiaData.nadi} onChange={handleLansiaChange} placeholder="mis. 78" /></div>
-              <div className="form-field"><label>Berat Badan (kg)</label><input type="number" step="0.1" name="berat_badan" value={lansiaData.berat_badan} onChange={handleLansiaChange} placeholder="mis. 60" /></div>
-              <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" step="0.1" name="tinggi_badan" value={lansiaData.tinggi_badan} onChange={handleLansiaChange} placeholder="mis. 160" /></div>
-              <div className="form-field"><label>Lingkar Pinggang (cm)</label><input type="number" step="0.1" name="lingkar_pinggang" value={lansiaData.lingkar_pinggang} onChange={handleLansiaChange} placeholder="mis. 85" /></div>
-              <div className="form-field full" style={{ display: 'flex', gap: '10px', marginTop: '18px' }}><button onClick={() => handleSubmit('lansia', 'draft')} disabled={isLoading} className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>Simpan Draf</button><button onClick={() => handleSubmit('lansia', 'final')} disabled={isLoading} className="btn btn-violet" style={{ flex: 1, justifyContent: 'center' }}>{isLoading ? 'Menyimpan...' : 'Simpan Data'}</button></div>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Pilih Nama Orang Tua / Lansia</label>
+                <select name="lansia_id" value={lansiaData.lansia_id} onChange={handleLansiaChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }}>
+                  <option value="">-- Pilih Lansia Terdaftar --</option>
+                  {daftarLansia.map((l) => (
+                    <option key={l.id} value={l.id}>{l.nama_lengkap} ({l.jenis_kelamin})</option>
+                  ))}
+                  <option value="baru">+ Tambah Lansia Baru...</option>
+                </select>
+              </div>
+
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Gula Darah (mg/dL)</label>
+                <input type="number" name="gula_darah" value={lansiaData.gula_darah} onChange={handleLansiaChange} placeholder="mis. 110" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tekanan Darah (mmHg)</label>
+                <input type="text" name="tekanan_darah" value={lansiaData.tekanan_darah} onChange={handleLansiaChange} placeholder="mis. 130/85" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
+                <input type="number" step="0.1" name="berat_badan" value={lansiaData.berat_badan} onChange={handleLansiaChange} placeholder="mis. 60" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+              <div className="form-field">
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
+                <input type="number" step="0.1" name="tinggi_badan" value={lansiaData.tinggi_badan} onChange={handleLansiaChange} placeholder="mis. 160" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+              </div>
+
+              <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="button" onClick={() => handleSubmit('lansia', 'draft')} disabled={isLoading} style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', color: '#334155', fontWeight: 700, cursor: 'pointer' }}>Simpan Draf</button>
+                <button type="button" onClick={() => handleSubmit('lansia', 'final')} disabled={isLoading} style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: 'none', backgroundColor: 'var(--primary-teal, #008080)', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}>{isLoading ? 'Menyimpan...' : 'Simpan Data Final'}</button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* KOLOM KANAN: KALKULATOR & FOTO */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
-            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><svg className="ic"><use href="#i-calculator" /></svg><span>{KELOMPOK_CALC[target].title}</span></h3></div>
-            <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--cyan-deep)', opacity: .85, marginBottom: '12px' }}>Terhitung otomatis dari berat, tinggi & umur yang diisi di form.</p>
-            <div className="result-box"><div><div className="r-num">{getKalkulatorResult()}</div><div className="r-label">{KELOMPOK_CALC[target].label}</div></div></div>
+        {/* KANAN: KALKULATOR HASIL + MICROCOPY APA ITU IMT + DOKUMENTASI */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Box Kalkulator Otomatis */}
+          <div className="card" style={{ padding: '24px', borderRadius: '20px', backgroundColor: '#f0fdfa', border: '1px solid #ccfbf1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Calculator size={20} color="#008080" />
+              <h3 style={{ color: '#0f766e', fontSize: '17px', fontWeight: 800, margin: 0 }}>
+                {KELOMPOK_CALC[target].title}
+              </h3>
+            </div>
+
+            {/* Microcopy Penjelasan Apa Itu IMT */}
+            <p style={{ fontSize: '12.5px', color: '#115e59', lineHeight: '1.5', margin: '0 0 16px 0' }}>
+              <b>Apa itu IMT?</b> Indeks Massa Tubuh (IMT) adalah rasio perbandingan berat terhadap tinggi badan yang digunakan untuk mendeteksi dini risiko stunting, gizi kurang, atau obesitas.
+            </p>
+
+            <div style={{ padding: '18px', background: '#ffffff', borderRadius: '14px', border: '1px solid #99f6e4', textAlign: 'center' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                Hasil Penilaian Otomatis
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 900, color: '#008080', marginBottom: '6px' }}>
+                {getKalkulatorResult()}
+              </div>
+              <div style={{ fontSize: '12px', color: '#475569', fontWeight: 600 }}>
+                {KELOMPOK_CALC[target].label}
+              </div>
+            </div>
           </div>
-          <div className="card">
-            <div className="section-head"><h3>Dokumentasi Foto</h3></div>
-            <div className="upload-box" style={{ position: 'relative', overflow: 'hidden' }}>
-              <input type="file" multiple accept="image/png, image/jpeg" onChange={handleFileChange} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
-              <svg className="ic ic-lg"><use href="#i-camera" /></svg>
-              <span><b>Tap untuk unggah</b> foto kegiatan</span>
-              {fotoFiles ? <span style={{ color: 'var(--cyan-deep)' }}>{fotoFiles.length} foto terpilih</span> : <span>Maks. 5 foto · 2MB/foto · JPG/PNG</span>}
+
+          {/* Box Upload Dokumentasi Foto */}
+          <div className="card" style={{ padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+              <Upload size={18} color="#64748b" />
+              <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                Dokumentasi Foto Pemeriksaan
+              </h3>
+            </div>
+
+            <div
+              style={{
+                position: 'relative',
+                border: '2px dashed #cbd5e1',
+                borderRadius: '14px',
+                padding: '24px 16px',
+                textAlign: 'center',
+                backgroundColor: '#f8fafc',
+                cursor: 'pointer'
+              }}
+            >
+              <input
+                type="file"
+                multiple
+                accept="image/png, image/jpeg, image/webp"
+                onChange={handleFileChange}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+              />
+              <Upload size={28} style={{ margin: '0 auto 8px', color: '#008080' }} />
+              <p style={{ margin: 0, fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+                Ketuk untuk unggah foto kegiatan
+              </p>
+              <span style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '4px' }}>
+                {fotoFiles ? `${fotoFiles.length} foto dipilih` : 'Format JPG, PNG, WEBP (Maks. 2MB)'}
+              </span>
             </div>
           </div>
         </div>

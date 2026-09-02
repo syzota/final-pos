@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Info, Search, Plus, FileEdit, Pencil, Trash2, Utensils, Check } from 'lucide-react';
 
-import { Info, Search, Plus, FileEdit, Pencil, Trash } from 'lucide-react';
-
-// === DATABASE PINTAR (MINI API MAKANAN INDONESIA) ===
-// Bertindak sebagai "API Luar" agar Kader tidak perlu menebak kalori
 const EXTERNAL_API_MOCK = [
-  { nama_makanan: 'Nasi Putih (1 centong/100g)', kalori_per_porsi: 130 },
+  { nama_makanan: 'Nasi Putih (1 centong / 100g)', kalori_per_porsi: 130 },
   { nama_makanan: 'Nasi Goreng (1 porsi)', kalori_per_porsi: 267 },
   { nama_makanan: 'Mie Ayam (1 mangkuk)', kalori_per_porsi: 330 },
   { nama_makanan: 'Bakso Sapi (1 mangkuk)', kalori_per_porsi: 326 },
@@ -26,10 +23,6 @@ const EXTERNAL_API_MOCK = [
   { nama_makanan: 'Susu Sapi (1 gelas)', kalori_per_porsi: 146 },
   { nama_makanan: 'Roti Tawar (1 lembar)', kalori_per_porsi: 75 },
   { nama_makanan: 'Mie Instan Goreng (1 bungkus)', kalori_per_porsi: 380 },
-  { nama_makanan: 'Mie Instan Kuah (1 bungkus)', kalori_per_porsi: 330 },
-  { nama_makanan: 'Bubur Ayam (1 mangkuk)', kalori_per_porsi: 372 },
-  { nama_makanan: 'Nasi Padang (1 porsi komplit)', kalori_per_porsi: 680 },
-  { nama_makanan: 'Pempek (1 porsi)', kalori_per_porsi: 390 },
   { nama_makanan: 'Sayur Sop (1 mangkuk)', kalori_per_porsi: 70 },
 ];
 
@@ -39,8 +32,6 @@ export default function KelolaMakananView() {
   const [formData, setFormData] = useState({ nama_makanan: '', kalori_per_porsi: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-
-  // State untuk Fitur Pencarian Cerdas
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
@@ -51,13 +42,12 @@ export default function KelolaMakananView() {
   const fetchFoods = async () => {
     try {
       const response = await axios.get('/api/makanan');
-      setFoods(response.data.data);
+      setFoods(response.data.data || []);
     } catch (err) {
-      console.error("Gagal memuat data makanan", err);
+      console.error('Gagal memuat data makanan', err);
     }
   };
 
-  // Handler Pencarian Database Pintar
   const handleSearch = (e) => {
     const q = e.target.value;
     setSearchQuery(q);
@@ -71,7 +61,6 @@ export default function KelolaMakananView() {
     }
   };
 
-  // Menyimpan langsung dari Database Pintar ke Laravel
   const handleSaveFromApi = async (food) => {
     setIsLoading(true);
     setMessage({ type: '', text: '' });
@@ -84,10 +73,10 @@ export default function KelolaMakananView() {
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      setMessage({ type: 'success', text: `✨ ${food.nama_makanan} berhasil ditambahkan ke Posyandu!` });
+      setMessage({ type: 'success', text: `✨ ${food.nama_makanan} berhasil ditambahkan ke referensi!` });
       setSearchQuery('');
       setSearchResults([]);
-      fetchFoods(); // Segarkan tabel
+      fetchFoods();
     } catch (err) {
       setMessage({ type: 'error', text: 'Gagal menyimpan makanan dari database pintar.' });
     } finally {
@@ -147,8 +136,7 @@ export default function KelolaMakananView() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setFoods(foods.filter(f => f.id !== id));
-        setMessage({ type: 'success', text: 'Data makanan dihapus.' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        setMessage({ type: 'success', text: 'Data makanan berhasil dihapus.' });
       } catch (err) {
         setMessage({ type: 'error', text: 'Gagal menghapus data makanan.' });
       }
@@ -156,99 +144,228 @@ export default function KelolaMakananView() {
   };
 
   return (
-    <div style={{ animation: 'fadein 0.4s ease' }}>
-      <div className="callout" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Info />
-        <span>Pilih makanan dari Database Pintar atau ketik manual. Makanan yang ditambahkan di sini akan muncul di Kalkulator Warga.</span>
+    <div style={{ animation: 'fadein 0.3s ease' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '14px 18px',
+          borderRadius: '12px',
+          backgroundColor: '#f0fdfa',
+          border: '1px solid #ccfbf1',
+          color: '#0f766e',
+          fontSize: '13.5px',
+          marginBottom: '20px'
+        }}
+      >
+        <Info size={18} style={{ flexShrink: 0 }} />
+        <span>Menu makanan yang dikelola di sini akan otomatis tersedia pada Kalkulator Kalori Mandiri untuk Warga.</span>
       </div>
 
       {message.text && (
-        <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '14px', fontWeight: '500', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
+        <div
+          style={{
+            padding: '12px 16px',
+            marginBottom: '20px',
+            borderRadius: '10px',
+            fontSize: '13px',
+            fontWeight: 600,
+            backgroundColor: message.type === 'error' ? '#fef2f2' : '#f0fdf4',
+            border: `1px solid ${message.type === 'error' ? '#fecaca' : '#bbf7d0'}`,
+            color: message.type === 'error' ? '#b91c1c' : '#15803d'
+          }}
+        >
           {message.text}
         </div>
       )}
 
-      <div className="grid grid-2" style={{ gap: '24px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        {/* KIRI: CARI DARI DATABASE PINTAR */}
+        <div className="card" style={{ padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Utensils size={20} color="#008080" />
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              Cari Referensi Kalori Makanan
+            </h3>
+          </div>
+          <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0' }}>
+            Ketik nama makanan (mis. Nasi, Soto, Tempe), nilai kalori sudah terstandardisasi.
+          </p>
 
-        {/* KIRI: PENCARIAN CERDAS (API MOCK) */}
-        <div className="card" style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', border: 'none' }}>
-          <div className="section-head" style={{ marginBottom: '16px' }}>
-            <h3 style={{ color: 'var(--cyan-deep)', margin: 0 }}><Search className="me-2" />Cari dari Database Pintar</h3>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#0369a1' }}>Ketik nama makanan (misal: Nasi, Soto, Ayam), kalorinya sudah otomatis tersedia!</p>
+          <div style={{ position: 'relative', marginBottom: '16px' }}>
+            <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+            <input
+              type="text"
+              placeholder="Ketik nama makanan lokal..."
+              value={searchQuery}
+              onChange={handleSearch}
+              style={{
+                width: '100%',
+                minHeight: '44px',
+                borderRadius: '12px',
+                border: '1.5px solid #cbd5e1',
+                padding: '0 14px 0 42px',
+                fontSize: '13.5px',
+                backgroundColor: '#ffffff'
+              }}
+            />
           </div>
 
-          <input
-            type="text"
-            className="form-field full"
-            placeholder="Cari makanan di sini..."
-            value={searchQuery}
-            onChange={handleSearch}
-            style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #bae6fd', width: '100%', marginBottom: '12px' }}
-          />
-
           {searchResults.length > 0 && (
-            <div style={{ background: '#fff', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+            <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
               {searchResults.map((food, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#fff', borderBottom: '1px solid #f1f5f9' }}>
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    backgroundColor: '#ffffff',
+                    borderBottom: '1px solid #f1f5f9'
+                  }}
+                >
                   <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#334155' }}>{food.nama_makanan}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--orange-deep)', fontWeight: '600' }}>{food.kalori_per_porsi} kkal</div>
+                    <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#0f172a' }}>{food.nama_makanan}</div>
+                    <div style={{ fontSize: '12.5px', color: '#ea580c', fontWeight: 700 }}>{food.kalori_per_porsi} kkal</div>
                   </div>
-                  <button className="btn btn-sm btn-outline" style={{ color: 'var(--cyan-deep)', borderColor: 'var(--cyan-deep)' }} onClick={() => handleSaveFromApi(food)} disabled={isLoading}>
-                    <Plus /> Tambah
+                  <button
+                    type="button"
+                    onClick={() => handleSaveFromApi(food)}
+                    disabled={isLoading}
+                    style={{
+                      minHeight: '34px',
+                      padding: '0 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #008080',
+                      backgroundColor: '#f0fdfa',
+                      color: '#008080',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <Plus size={14} /> Tambah
                   </button>
                 </div>
               ))}
             </div>
           )}
-          {searchQuery.length > 1 && searchResults.length === 0 && (
-             <div style={{ textAlign: 'center', padding: '16px', color: '#64748b', fontSize: '13px' }}>Makanan tidak ditemukan di Database Pintar. Silakan tambah manual.</div>
-          )}
         </div>
 
-        {/* KANAN: TAMBAH MANUAL & DAFTAR MAKANAN */}
-        <div className="card">
-          <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0 }}>Daftar Menu Posyandu</h3>
-            <button className="btn btn-violet btn-sm" onClick={() => showForm()}><FileEdit className="me-1" />Input Manual</button>
+        {/* KANAN: DAFTAR MENU & INPUT MANUAL */}
+        <div className="card" style={{ padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              Daftar Menu Posyandu
+            </h3>
+            <button
+              type="button"
+              onClick={() => showForm()}
+              style={{
+                minHeight: '38px',
+                padding: '0 14px',
+                borderRadius: '10px',
+                backgroundColor: 'var(--primary-teal, #008080)',
+                color: '#ffffff',
+                border: 'none',
+                fontSize: '13px',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              <FileEdit size={15} /> Input Manual
+            </button>
           </div>
 
           {editingId && (
-            <div className="card pad-sm" style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', marginBottom: '16px' }}>
-              <div className="form-grid">
-                <div className="form-field full">
-                  <label>Nama Makanan (+ takaran porsi)</label>
-                  <input type="text" value={formData.nama_makanan} onChange={(e) => setFormData({ ...formData, nama_makanan: e.target.value })} placeholder="mis. Jus Alpukat (1 gelas)" />
+            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Nama Makanan</label>
+                  <input
+                    type="text"
+                    value={formData.nama_makanan}
+                    onChange={(e) => setFormData({ ...formData, nama_makanan: e.target.value })}
+                    placeholder="mis. Jus Buah Naga (1 gelas)"
+                    style={{ width: '100%', minHeight: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '13px' }}
+                  />
                 </div>
-                <div className="form-field full">
-                  <label>Kalori per Porsi (kkal)</label>
-                  <input type="number" value={formData.kalori_per_porsi} onChange={(e) => setFormData({ ...formData, kalori_per_porsi: e.target.value })} placeholder="mis. 220" />
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Kalori per Porsi (kkal)</label>
+                  <input
+                    type="number"
+                    value={formData.kalori_per_porsi}
+                    onChange={(e) => setFormData({ ...formData, kalori_per_porsi: e.target.value })}
+                    placeholder="mis. 180"
+                    style={{ width: '100%', minHeight: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '13px' }}
+                  />
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
-                <button className="btn btn-violet" style={{ flex: 1, justifyContent: 'center' }} onClick={handleSave} disabled={isLoading}>
-                  {isLoading ? 'Menyimpan...' : (editingId === 'new' ? 'Simpan Manual' : 'Simpan Perubahan')}
-                </button>
-                <button className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={hideForm}>Batal</button>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={isLoading}
+                    style={{ flex: 1, minHeight: '40px', borderRadius: '8px', backgroundColor: 'var(--primary-teal, #008080)', color: '#ffffff', fontWeight: 700, fontSize: '13px', border: 'none', cursor: 'pointer' }}
+                  >
+                    {editingId === 'new' ? 'Simpan Manual' : 'Simpan Perubahan'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={hideForm}
+                    style={{ flex: 1, minHeight: '40px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', color: '#64748b', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    Batal
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
-          <div className="table-responsive">
-            <table className="table">
-              <thead><tr><th>Menu Makanan</th><th>Kalori</th><th style={{ textAlign: 'right' }}>Aksi</th></tr></thead>
+          <div className="table-responsive" style={{ maxHeight: '420px', overflowY: 'auto' }}>
+            <table className="table" style={{ fontSize: '13px', width: '100%' }}>
+              <thead>
+                <tr>
+                  <th>Menu Makanan</th>
+                  <th>Kalori</th>
+                  <th style={{ textAlign: 'right' }}>Aksi</th>
+                </tr>
+              </thead>
               <tbody>
                 {foods.length === 0 ? (
-                  <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>Belum ada data makanan yang ditambahkan.</td></tr>
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>
+                      Belum ada data makanan yang ditambahkan.
+                    </td>
+                  </tr>
                 ) : (
                   foods.map(f => (
                     <tr key={f.id}>
-                      <td><b style={{ color: '#334155' }}>{f.nama_makanan}</b></td>
-                      <td style={{ color: 'var(--orange-deep)', fontWeight: 'bold' }}>{f.kalori_per_porsi} kkal</td>
+                      <td><strong style={{ color: '#0f172a' }}>{f.nama_makanan}</strong></td>
+                      <td><span style={{ color: '#ea580c', fontWeight: 700 }}>{f.kalori_per_porsi} kkal</span></td>
                       <td style={{ textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                          <button className="btn btn-sm btn-outline" onClick={() => showForm(f.id)}><Pencil /></button>
-                          <button className="btn btn-sm btn-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }} onClick={() => handleDelete(f.id)}><Trash /></button>
+                          <button
+                            type="button"
+                            onClick={() => showForm(f.id)}
+                            style={{ minHeight: '32px', padding: '0 8px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#ffffff', color: '#334155', cursor: 'pointer' }}
+                          >
+                            <Pencil size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(f.id)}
+                            style={{ minHeight: '32px', padding: '0 8px', borderRadius: '6px', border: 'none', backgroundColor: '#fee2e2', color: '#dc2626', cursor: 'pointer' }}
+                          >
+                            <Trash2 size={13} />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -258,7 +375,6 @@ export default function KelolaMakananView() {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );

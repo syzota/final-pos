@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\WargaDewasa;
+use App\Models\WargaKeluarga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -14,6 +16,7 @@ class AuthController extends Controller
      * Login untuk Akun Pengelola / Warga
      *
      * @unauthenticated
+     *
      * @body username string required Username akun
      * @body password string required Kata sandi akun
      *
@@ -119,7 +122,7 @@ class AuthController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'username' => 'required|string|max:255|unique:users,username,'.$user->id,
             'current_password' => 'required|current_password',
             'new_password' => 'nullable|min:6|confirmed',
         ], [
@@ -136,13 +139,13 @@ class AuthController extends Controller
 
         $user->save();
 
-        $keluarga = \App\Models\WargaKeluarga::where('user_id', $user->id)->first();
+        $keluarga = WargaKeluarga::where('user_id', $user->id)->first();
 
         if ($keluarga) {
             $keluarga->nama_kepala_keluarga = $request->username;
             $keluarga->save();
 
-            \App\Models\WargaDewasa::where('keluarga_id', $keluarga->id)
+            WargaDewasa::where('keluarga_id', $keluarga->id)
                 ->where('jenis_kelamin', 'L')
                 ->update([
                     'nama_lengkap' => $request->username,

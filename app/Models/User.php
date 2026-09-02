@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,12 +9,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-// UBAH posyandu_id MENJADI posyandu DI BAWAH INI:
-#[Fillable(['name', 'username', 'email', 'password', 'role', 'posyandu'])]
+#[Fillable(['name', 'username', 'email', 'password', 'role', 'posyandu_id', 'posyandu'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected function casts(): array
     {
@@ -24,6 +22,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function posyandu()
     {
         return $this->belongsTo(Posyandu::class, 'posyandu_id');

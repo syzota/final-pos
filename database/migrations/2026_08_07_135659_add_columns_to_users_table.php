@@ -10,17 +10,17 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Cek apakah kolom username belum ada, jika belum, baru buat
-            if (!Schema::hasColumn('users', 'username')) {
+            if (! Schema::hasColumn('users', 'username')) {
                 $table->string('username')->unique()->nullable()->after('name');
             }
 
             // Cek apakah kolom role belum ada
-            if (!Schema::hasColumn('users', 'role')) {
+            if (! Schema::hasColumn('users', 'role')) {
                 $table->string('role')->default('warga')->after('username');
             }
 
             // Cek apakah kolom posyandu belum ada
-            if (!Schema::hasColumn('users', 'posyandu')) {
+            if (! Schema::hasColumn('users', 'posyandu')) {
                 $table->string('posyandu')->nullable()->after('role');
             }
         });

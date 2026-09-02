@@ -291,9 +291,30 @@ export default function ProfilView() {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '24px', textAlign: 'right' }}>
-                    <button type="submit" className="btn btn-violet" disabled={isLoading}>
-                        {isLoading ? 'Menyimpan...' : 'Simpan Seluruh Perubahan Data'}
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isLoading}
+                        style={{
+                            minHeight: '48px',
+                            padding: '0 32px',
+                            borderRadius: '12px',
+                            backgroundColor: 'var(--primary-teal, #008080)',
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: '15px',
+                            border: 'none',
+                            cursor: isLoading ? 'not-allowed' : 'pointer',
+                            boxShadow: '0 4px 14px rgba(0, 128, 128, 0.2)',
+                            width: '100%',
+                            maxWidth: '360px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        {isLoading ? 'Menyimpan Perubahan...' : 'Simpan Seluruh Perubahan Data'}
                     </button>
                 </div>
             </form>

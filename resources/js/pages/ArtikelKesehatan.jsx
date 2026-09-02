@@ -1,31 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
-
 import '../styles/artikel.css';
-
 import heroBgImg from '../assets/images/common/hero-artikel.png';
 import authorImg from '../assets/images/artikel/author-sarah.jpeg';
 
 import {
   BookHeart,
   ArrowDown,
-  HeartPulse,
-  Users,
-  ShieldCheck,
   ListFilter,
-  ChevronRight,
-  Clock,
-  CircleAlert,
-  Hourglass,
-  BookX,
   Calendar,
   ArrowUpRight,
-  ArrowRight
+  ArrowRight,
+  CircleAlert,
+  BookX
 } from 'lucide-react';
-
 import Skeleton from '../components/common/Skeleton';
 
 const topikList = [
@@ -40,27 +30,22 @@ const topikList = [
   'Lainnya'
 ];
 
-export default function ArtikelKesehatan({
-  activePage,
-  onNavigate,
-  onDarurat
-}) {
+export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) {
   const [activeTopik, setActiveTopik] = useState('Semua Topik');
   const [artikels, setArtikels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortOrder, setSortOrder] = useState('desc'); // 'desc' = terbaru, 'asc' = terlama
 
   useEffect(() => {
     const fetchArtikels = async () => {
       try {
         setIsLoading(true);
         const response = await axios.get('/api/artikels');
-        setArtikels(response.data.data);
+        setArtikels(response.data.data || []);
       } catch (err) {
         console.error('Gagal mengambil data artikel:', err);
-        setError(
-          'Gagal memuat artikel dari server. Pastikan server Laravel sedang berjalan.'
-        );
+        setError('Gagal memuat artikel dari server. Pastikan koneksi aktif.');
       } finally {
         setIsLoading(false);
       }
@@ -71,68 +56,57 @@ export default function ArtikelKesehatan({
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
-
-    const options = {
+    return new Date(dateString).toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
-    };
-
-    return new Date(dateString).toLocaleDateString(
-      'id-ID',
-      options
-    );
+    });
   };
 
   const getImageUrl = (path) => {
-    if (!path) return '';
+    if (!path) return 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
     return `/storage/${path}`;
   };
 
-  const filteredArtikels = artikels.filter((artikel) => {
-    if (activeTopik === 'Semua Topik') return true;
+  // Filter topik & sorting
+  const filteredArtikels = artikels
+    .filter((artikel) => {
+      if (activeTopik === 'Semua Topik') return true;
+      return (artikel.kategori || '').toLowerCase() === activeTopik.toLowerCase();
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.published_at || a.created_at || 0);
+      const dateB = new Date(b.published_at || b.created_at || 0);
+      return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+    });
 
-    return (
-      artikel.kategori.toLowerCase() ===
-      activeTopik.toLowerCase()
-    );
-  });
-
-  const featuredArticle =
-    filteredArtikels.length > 0
-      ? filteredArtikels[0]
-      : null;
-
-  const regularArticles =
-    filteredArtikels.length > 1
-      ? filteredArtikels.slice(1)
-      : [];
+  const featuredArticle = filteredArtikels.length > 0 ? filteredArtikels[0] : null;
+  const regularArticles = filteredArtikels.length > 1 ? filteredArtikels.slice(1) : [];
 
   const openArticle = (id) => {
     localStorage.setItem('active_article_id', id);
-
     if (onNavigate) {
       onNavigate('detail-artikel');
     }
   };
 
+  const toggleSort = () => {
+    setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+  };
+
   return (
     <div className="artikel-page">
-      <Header
-        activePage={activePage}
-        onNavigate={onNavigate}
-        onDarurat={onDarurat}
-      />
+      <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="artikel-main">
-
+        {/* HERO SECTION */}
         <section className="artikel-hero">
           <div className="artikel-hero__media">
             <img
               src={heroBgImg}
-              alt=""
-              aria-hidden="true"
+              alt="Edukasi Kesehatan Posyandu Loa Duri Ulu"
               className="artikel-hero__image"
+              loading="lazy"
             />
             <div className="artikel-hero__overlay"></div>
             <div className="artikel-hero__glow"></div>
@@ -140,19 +114,17 @@ export default function ArtikelKesehatan({
 
           <div className="artikel-hero__content">
             <div className="artikel-hero__badge">
-              <BookHeart />
-              <span>Ruang Edukasi Posyandu</span>
+              <BookHeart size={16} />
+              <span>Ruang Edukasi & Informasi Kesehatan</span>
             </div>
 
             <h1 className="artikel-hero-title">
               Pengetahuan Kesehatan
-              <span> untuk Keluarga yang Lebih Siap</span>
+              <span> untuk Keluarga yang Lebih Sehat</span>
             </h1>
 
             <p className="artikel-hero-subtitle">
-              Baca informasi seputar kesehatan ibu, anak,
-              nutrisi, vaksinasi, dan tumbuh kembang yang
-              disiapkan untuk masyarakat Loa Duri Ulu.
+              Pelajari informasi praktis seputar nutrisi balita, perawatan ibu hamil, jadwal imunisasi, dan pola hidup sehat di Desa Loa Duri Ulu.
             </p>
 
             <div className="artikel-hero__actions">
@@ -160,105 +132,95 @@ export default function ArtikelKesehatan({
                 type="button"
                 className="artikel-hero__primary"
                 onClick={() =>
-                  document
-                    .getElementById('artikel-list')
-                    ?.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start'
-                    })
+                  document.getElementById('artikel-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
+                style={{ minHeight: '44px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
               >
                 Jelajahi Artikel
-                <span>
-                  <ArrowDown />
-                </span>
+                <ArrowDown size={16} />
               </button>
 
               <button
                 type="button"
                 className="artikel-hero__secondary"
                 onClick={() => setActiveTopik('Semua Topik')}
+                style={{ minHeight: '44px' }}
               >
                 Semua Topik
               </button>
             </div>
-
-            <div className="artikel-hero__facts">
-              <div>
-                <HeartPulse />
-                <span>Informasi kesehatan keluarga</span>
-              </div>
-
-              <div>
-                <Users />
-                <span>Untuk masyarakat Loa Duri Ulu</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="artikel-hero__floating-card">
-            <div className="artikel-hero__floating-icon">
-              <ShieldCheck />
-            </div>
-
-            <div>
-              <span>Informasi Kesehatan</span>
-              <strong>
-                Ringkas, relevan, dan mudah dibaca
-              </strong>
-            </div>
           </div>
         </section>
 
-        <section
-          id="artikel-list"
-          className="artikel-content-section"
-        >
-          <div className="artikel-section-heading">
+        {/* SECTION DAFTAR ARTIKEL */}
+        <section id="artikel-list" className="artikel-content-section" style={{ padding: '40px 16px', maxWidth: '1200px', margin: '0 auto' }}>
+          <div className="artikel-section-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
             <div>
-              <span className="artikel-eyebrow">
-                ARTIKEL TERBARU
+              <span className="artikel-eyebrow" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase' }}>
+                KATALOG ARTIKEL
               </span>
-
-              <h2>
-                Temukan informasi yang Anda butuhkan
+              <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 0 0' }}>
+                Temukan Informasi Sesuai Kebutuhan Anda
               </h2>
-
-              <p>
-                Pilih topik untuk menampilkan artikel sesuai
-                kebutuhan.
-              </p>
             </div>
 
+            {/* Fungsionalitas Tombol Sortir */}
             <button
               type="button"
               className="sort-btn"
+              onClick={toggleSort}
+              style={{
+                minHeight: '44px',
+                padding: '0 18px',
+                borderRadius: '10px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#ffffff',
+                color: '#0f172a',
+                fontSize: '13.5px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}
+              title="Klik untuk mengubah urutan artikel"
             >
-              <ListFilter />
-              Terbaru
+              <ListFilter size={16} />
+              Urutkan: {sortOrder === 'desc' ? 'Terbaru' : 'Terlama'}
             </button>
           </div>
 
-          <div className="artikel-filter-bar">
-            <div className="topik-chips">
+          {/* Chips Topik */}
+          <div className="artikel-filter-bar" style={{ marginBottom: '32px', overflowX: 'auto', paddingBottom: '8px' }}>
+            <div className="topik-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap' }}>
               {topikList.map((topik) => (
                 <button
                   type="button"
                   key={topik}
-                  className={`chip ${
-                    activeTopik === topik
-                      ? 'active'
-                      : 'inactive'
-                  }`}
+                  className={`chip ${activeTopik === topik ? 'active' : 'inactive'}`}
                   onClick={() => setActiveTopik(topik)}
+                  style={{
+                    minHeight: '40px',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '13.5px',
+                    fontWeight: 600,
+                    border: '1px solid',
+                    borderColor: activeTopik === topik ? 'var(--primary-teal, #008080)' : '#e2e8f0',
+                    backgroundColor: activeTopik === topik ? 'var(--primary-teal, #008080)' : '#ffffff',
+                    color: activeTopik === topik ? '#ffffff' : '#475569',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer'
+                  }}
                 >
                   {topik}
                 </button>
               ))}
             </div>
           </div>
+
           {isLoading && (
-            <div className="artikel-grid" style={{ marginTop: '32px' }}>
+            <div className="artikel-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
               {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={`skel-art-${i}`} type="card" />
               ))}
@@ -266,97 +228,113 @@ export default function ArtikelKesehatan({
           )}
 
           {error && (
-            <div className="artikel-state artikel-state--error">
-              <div className="artikel-state__icon">
-                <CircleAlert />
-              </div>
-              <p>{error}</p>
+            <div className="artikel-state artikel-state--error" style={{ textAlign: 'center', padding: '48px 20px', background: '#fef2f2', borderRadius: '16px', color: '#b91c1c' }}>
+              <CircleAlert size={32} style={{ margin: '0 auto 12px' }} />
+              <p style={{ fontWeight: 600, margin: 0 }}>{error}</p>
             </div>
           )}
 
-          {!isLoading &&
-            !error &&
-            filteredArtikels.length === 0 && (
-              <div className="artikel-state">
-                <div className="artikel-state__icon">
-                  <BookX />
-                </div>
-                <p>Belum ada artikel untuk topik ini.</p>
-              </div>
-            )}
+          {!isLoading && !error && filteredArtikels.length === 0 && (
+            <div className="artikel-state" style={{ textAlign: 'center', padding: '48px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
+              <BookX size={32} style={{ margin: '0 auto 12px', color: '#94a3b8' }} />
+              <p style={{ fontWeight: 600, fontSize: '15px', margin: 0 }}>Belum ada artikel untuk topik "{activeTopik}".</p>
+              <p style={{ fontSize: '13px', margin: '4px 0 0' }}>Silakan pilih topik lainnya atau kembali lagi nanti.</p>
+            </div>
+          )}
 
           {!isLoading && !error && (
-            <div className="artikel-grid">
-
+            <div className="artikel-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+              {/* Featured Article Card */}
               {featuredArticle && (
-                <div className="featured-article-wrapper">
-                  <article className="featured-article-card">
-                    <div className="featured-article-image">
+                <div className="featured-article-wrapper" style={{ gridColumn: '1 / -1', marginBottom: '8px' }}>
+                  <article
+                    className="featured-article-card"
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                      borderRadius: '20px',
+                      overflow: 'hidden',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <div style={{ position: 'relative', minHeight: '260px', overflow: 'hidden' }}>
                       <img
                         src={getImageUrl(featuredArticle.path_foto)}
                         alt={featuredArticle.judul}
+                        loading="lazy"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
-
-                      <div className="featured-image-overlay"></div>
-
-                      <span className="featured-label">
-                        Pilihan Terbaru
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '16px',
+                          left: '16px',
+                          backgroundColor: '#008080',
+                          color: '#ffffff',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        Pilihan Utama
                       </span>
                     </div>
 
-                    <div className="featured-article-body">
-                      <div className="featured-article-meta">
-                        <span className="artikel-category-badge">
+                    <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', fontSize: '13px', color: '#64748b' }}>
+                        <span style={{ color: 'var(--primary-teal, #008080)', fontWeight: 700, textTransform: 'uppercase' }}>
                           {featuredArticle.kategori}
                         </span>
-
-                        <div className="artikel-read-time">
-                          <Calendar />
+                        <span>•</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Calendar size={14} />
                           {formatDate(featuredArticle.published_at)}
-                        </div>
+                        </span>
                       </div>
 
-                      <div className="featured-article-title-block">
-                        <h2 className="featured-article-title">
-                          {featuredArticle.judul}
-                        </h2>
-                      </div>
+                      <h2
+                        style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', marginBottom: '12px', lineHeight: '1.35', cursor: 'pointer' }}
+                        onClick={() => openArticle(featuredArticle.id)}
+                      >
+                        {featuredArticle.judul}
+                      </h2>
 
-                      <div className="featured-article-excerpt-block">
-                        <p className="featured-article-excerpt">
-                          {featuredArticle.isi_artikel}
-                        </p>
-                      </div>
+                      <p style={{ fontSize: '14.5px', color: '#475569', lineHeight: '1.6', marginBottom: '24px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {featuredArticle.isi_artikel}
+                      </p>
 
-                      <div className="featured-article-footer">
-                        <div className="author-info">
-                          <img
-                            src={authorImg}
-                            alt="Avatar Penulis"
-                            className="author-avatar"
-                          />
-
-                          <div className="author-text">
-                            <span>Ditulis oleh</span>
-
-                            <strong className="author-name">
-                              {featuredArticle.penulis?.name ||
-                                'Admin Posyandu'}
-                            </strong>
-                          </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <img src={authorImg} alt="Penulis" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                            {featuredArticle.penulis?.name || 'Kader Posyandu'}
+                          </span>
                         </div>
 
                         <button
                           type="button"
-                          className="baca-artikel-link"
-                          onClick={() =>
-                            openArticle(featuredArticle.id)
-                          }
+                          onClick={() => openArticle(featuredArticle.id)}
+                          style={{
+                            minHeight: '44px',
+                            padding: '0 20px',
+                            borderRadius: '10px',
+                            backgroundColor: 'var(--primary-teal, #008080)',
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: '13.5px',
+                            border: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            cursor: 'pointer'
+                          }}
                         >
                           Baca Artikel
-                          <span>
-                            <ArrowUpRight />
-                          </span>
+                          <ArrowUpRight size={16} />
                         </button>
                       </div>
                     </div>
@@ -364,66 +342,92 @@ export default function ArtikelKesehatan({
                 </div>
               )}
 
+              {/* Regular Articles Grid */}
               {regularArticles.map((artikel) => (
-                <div
-                  className="article-card-wrapper"
+                <article
                   key={artikel.id}
+                  className="article-card"
+                  style={{
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
                 >
-                  <article className="article-card">
-                    <button
-                      type="button"
-                      className="article-card-img"
-                      onClick={() => openArticle(artikel.id)}
-                      aria-label={`Buka artikel ${artikel.judul}`}
+                  <div
+                    style={{ position: 'relative', width: '100%', height: '190px', overflow: 'hidden', cursor: 'pointer' }}
+                    onClick={() => openArticle(artikel.id)}
+                  >
+                    <img
+                      src={getImageUrl(artikel.path_foto)}
+                      alt={artikel.judul}
+                      loading="lazy"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '12px',
+                        backgroundColor: 'rgba(255,255,255,0.95)',
+                        color: 'var(--primary-teal, #008080)',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '11.5px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase'
+                      }}
                     >
-                      <img
-                        src={getImageUrl(artikel.path_foto)}
-                        alt={artikel.judul}
-                      />
+                      {artikel.kategori}
+                    </span>
+                  </div>
 
-                      <div className="article-card-img__overlay"></div>
-
-                      <span className="article-card-category">
-                        {artikel.kategori}
-                      </span>
-                    </button>
-
-                    <div className="article-card-body">
-                      <div className="article-card-meta">
-                        <span>
-                          <Calendar />
-                          {formatDate(artikel.published_at)}
-                        </span>
-                      </div>
-
-                      <h3 className="article-card-title">
-                        {artikel.judul}
-                      </h3>
-
-                      <p className="article-card-excerpt">
-                        {artikel.isi_artikel}
-                      </p>
-
-                      <div className="article-card-footer">
-                        <span className="article-card-author">
-                          {artikel.penulis?.name ||
-                            'Admin Posyandu'}
-                        </span>
-
-                        <button
-                          type="button"
-                          className="bookmark-icon"
-                          onClick={() => openArticle(artikel.id)}
-                        >
-                          Baca
-                          <ArrowRight />
-                        </button>
-                      </div>
+                  <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Calendar size={13} />
+                      <span>{formatDate(artikel.published_at)}</span>
                     </div>
-                  </article>
-                </div>
-              ))}
 
+                    <h3
+                      style={{ fontSize: '16.5px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', lineHeight: '1.4', cursor: 'pointer' }}
+                      onClick={() => openArticle(artikel.id)}
+                    >
+                      {artikel.judul}
+                    </h3>
+
+                    <p style={{ fontSize: '13.5px', color: '#475569', lineHeight: '1.5', marginBottom: '16px', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {artikel.isi_artikel}
+                    </p>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '14px', marginTop: 'auto' }}>
+                      <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#64748b' }}>
+                        {artikel.penulis?.name || 'Kader Posyandu'}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => openArticle(artikel.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--primary-teal, #008080)',
+                          fontWeight: 700,
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Baca <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
         </section>

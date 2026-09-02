@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PencatatanKegiatan;
+use Illuminate\Http\Request;
 
 class PencatatanKegiatanController extends Controller
 {
@@ -15,7 +15,7 @@ class PencatatanKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'data'   => $riwayat
+            'data' => $riwayat,
         ], 200);
     }
 
@@ -29,7 +29,7 @@ class PencatatanKegiatanController extends Controller
 
         // Ubah string kosong jadi 0 untuk input angka
         foreach ($data as $key => $value) {
-            if (!in_array($key, $textFields) && $key !== 'posyandu_id') {
+            if (! in_array($key, $textFields) && $key !== 'posyandu_id') {
                 $data[$key] = empty($value) ? 0 : (int) $value;
             }
         }
@@ -38,8 +38,8 @@ class PencatatanKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'pesan'  => 'Pencatatan Kegiatan 13 Poin berhasil disimpan!',
-            'data'   => $pencatatan
+            'pesan' => 'Pencatatan Kegiatan 13 Poin berhasil disimpan!',
+            'data' => $pencatatan,
         ], 201);
     }
 
@@ -48,9 +48,12 @@ class PencatatanKegiatanController extends Controller
         $posyanduId = $request->user()->posyandu_id;
         $pencatatan = PencatatanKegiatan::where('id', $id)->where('posyandu_id', $posyanduId)->first();
 
-        if (!$pencatatan) return response()->json(['pesan' => 'Data tidak ditemukan.'], 404);
+        if (! $pencatatan) {
+            return response()->json(['pesan' => 'Data tidak ditemukan.'], 404);
+        }
 
         $pencatatan->delete();
+
         return response()->json(['status' => 'sukses', 'pesan' => 'Data berhasil dihapus.'], 200);
     }
 }

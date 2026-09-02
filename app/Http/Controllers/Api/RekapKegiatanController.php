@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\RekapKegiatan;
+use Illuminate\Http\Request;
 
 class RekapKegiatanController extends Controller
 {
@@ -20,7 +20,7 @@ class RekapKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'data'   => $riwayat
+            'data' => $riwayat,
         ], 200);
     }
 
@@ -34,7 +34,7 @@ class RekapKegiatanController extends Controller
         $textFields = ['kd_kec', 'kd_desa', 'rt', 'no_posyandu', 'bulan_pendataan'];
 
         foreach ($data as $key => $value) {
-            if (!in_array($key, $textFields) && $key !== 'posyandu_id') {
+            if (! in_array($key, $textFields) && $key !== 'posyandu_id') {
                 $data[$key] = empty($value) ? 0 : (int) $value;
             }
         }
@@ -43,8 +43,8 @@ class RekapKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'pesan'  => 'Data Hasil Kegiatan Posyandu berhasil disimpan!',
-            'data'   => $rekap
+            'pesan' => 'Data Hasil Kegiatan Posyandu berhasil disimpan!',
+            'data' => $rekap,
         ], 201);
     }
 
@@ -55,7 +55,7 @@ class RekapKegiatanController extends Controller
 
         $rekap = RekapKegiatan::where('id', $id)->where('posyandu_id', $posyanduId)->first();
 
-        if (!$rekap) {
+        if (! $rekap) {
             return response()->json(['pesan' => 'Data tidak ditemukan atau Anda tidak memiliki akses.'], 404);
         }
 
@@ -63,7 +63,7 @@ class RekapKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'pesan'  => 'Data rekap berhasil dihapus.'
+            'pesan' => 'Data rekap berhasil dihapus.',
         ], 200);
     }
 }

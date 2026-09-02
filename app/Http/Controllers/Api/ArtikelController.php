@@ -22,7 +22,7 @@ class ArtikelController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'data' => $query->latest()->get()
+            'data' => $query->latest()->get(),
         ]);
     }
 
@@ -30,7 +30,7 @@ class ArtikelController extends Controller
     {
         $artikel = Artikel::with('penulis:id,name,role')->find($id);
 
-        if (!$artikel) {
+        if (! $artikel) {
             return response()->json(['status' => 'gagal', 'pesan' => 'Artikel tidak ditemukan'], 404);
         }
 
@@ -54,7 +54,7 @@ class ArtikelController extends Controller
         }
 
         // Buat URL ramah SEO (Slug) dari Judul, tambah angka acak agar unik
-        $slug = Str::slug($request->judul) . '-' . time();
+        $slug = Str::slug($request->judul).'-'.time();
 
         $artikel = Artikel::create([
             'penulis_id' => $request->user()->id,
@@ -71,14 +71,14 @@ class ArtikelController extends Controller
         return response()->json([
             'status' => 'sukses',
             'pesan' => 'Artikel berhasil disimpan',
-            'data' => $artikel
+            'data' => $artikel,
         ], 201);
     }
 
     public function update(Request $request, $id)
     {
         $artikel = Artikel::find($id);
-        if (!$artikel) {
+        if (! $artikel) {
             return response()->json(['status' => 'gagal', 'pesan' => 'Artikel tidak ditemukan'], 404);
         }
 
@@ -100,7 +100,7 @@ class ArtikelController extends Controller
 
         // Jika judul berubah, ubah juga slug-nya
         if ($request->has('judul') && $request->judul !== $artikel->judul) {
-            $artikel->slug = Str::slug($request->judul) . '-' . time();
+            $artikel->slug = Str::slug($request->judul).'-'.time();
         }
 
         // Update waktu publish jika status berubah jadi dipublikasikan
@@ -114,14 +114,14 @@ class ArtikelController extends Controller
         return response()->json([
             'status' => 'sukses',
             'pesan' => 'Artikel berhasil diperbarui',
-            'data' => $artikel
+            'data' => $artikel,
         ]);
     }
 
     public function destroy($id)
     {
         $artikel = Artikel::find($id);
-        if (!$artikel) {
+        if (! $artikel) {
             return response()->json(['status' => 'gagal', 'pesan' => 'Artikel tidak ditemukan'], 404);
         }
 
@@ -130,6 +130,7 @@ class ArtikelController extends Controller
         }
 
         $artikel->delete();
+
         return response()->json(['status' => 'sukses', 'pesan' => 'Artikel berhasil dihapus']);
     }
 }

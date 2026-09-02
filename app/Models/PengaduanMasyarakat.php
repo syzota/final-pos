@@ -22,7 +22,7 @@ class PengaduanMasyarakat extends Model
         'isi_keluhan',
         'lokasi_masalah',
         'lampiran',
-        'status'
+        'status',
     ];
 
     protected $casts = [

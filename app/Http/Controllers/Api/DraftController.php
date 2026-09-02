@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PemeriksaanBalita;
-use App\Models\PemeriksaanRemaja;
 use App\Models\PemeriksaanHamil;
 use App\Models\PemeriksaanLansia;
+use App\Models\PemeriksaanRemaja;
+use Illuminate\Http\Request;
 
 class DraftController extends Controller
 {
@@ -25,7 +25,7 @@ class DraftController extends Controller
             case 'balita':
                 $query = PemeriksaanBalita::where('status_form', 'draft');
                 if ($posyanduId) {
-                    $query->whereHas('kader', function($q) use ($posyanduId) {
+                    $query->whereHas('kader', function ($q) use ($posyanduId) {
                         $q->where('posyandu_id', $posyanduId);
                     });
                 }
@@ -36,7 +36,7 @@ class DraftController extends Controller
             case 'remaja':
                 $query = PemeriksaanRemaja::where('status_form', 'draft');
                 if ($posyanduId) {
-                    $query->whereHas('kader', function($q) use ($posyanduId) {
+                    $query->whereHas('kader', function ($q) use ($posyanduId) {
                         $q->where('posyandu_id', $posyanduId);
                     });
                 }
@@ -47,7 +47,7 @@ class DraftController extends Controller
             case 'ibu':
                 $query = PemeriksaanHamil::where('status_form', 'draft');
                 if ($posyanduId) {
-                    $query->whereHas('kader', function($q) use ($posyanduId) {
+                    $query->whereHas('kader', function ($q) use ($posyanduId) {
                         $q->where('posyandu_id', $posyanduId);
                     });
                 }
@@ -57,7 +57,7 @@ class DraftController extends Controller
             case 'lansia':
                 $query = PemeriksaanLansia::where('status_form', 'draft');
                 if ($posyanduId) {
-                    $query->whereHas('kader', function($q) use ($posyanduId) {
+                    $query->whereHas('kader', function ($q) use ($posyanduId) {
                         $q->where('posyandu_id', $posyanduId);
                     });
                 }
@@ -70,7 +70,7 @@ class DraftController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'data' => $data
+            'data' => $data,
         ]);
     }
 }

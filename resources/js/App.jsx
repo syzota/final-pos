@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from './api/axiosClient';
+import logo from './assets/images/common/logo-header.jpeg';
 import Beranda from './pages/Beranda';
 import ProfilPosyandu from './pages/ProfilPosyandu';
 import ArtikelKesehatan from './pages/ArtikelKesehatan';
@@ -26,8 +27,6 @@ function App() {
 
   const [activePage, setActivePage] = useState(getPageFromHash());
   const [userAuth, setUserAuth] = useState(null);
-
-  // State pelindung untuk mencegah render sebelum tiket divalidasi
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -36,21 +35,20 @@ function App() {
     };
     window.addEventListener('hashchange', handleHashChange);
 
-    // FUNGSI BARU: Pemulihan Sesi (Session Persistence)
     const verifySession = async () => {
       const token = localStorage.getItem('auth_token');
 
       if (token) {
         try {
-          // Inspeksi token ke backend untuk memastikan belum expired/diblokir
           const response = await axiosClient.get('/me');
           setUserAuth(response.data.data);
         } catch (error) {
-          console.error("Token tidak valid / expired:", error);
-          localStorage.removeItem('auth_token'); // Buang token palsu/usang
+          console.error('Token tidak valid / expired:', error);
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
         }
       }
-      setIsCheckingAuth(false); // Buka layar setelah pemeriksaan selesai
+      setIsCheckingAuth(false);
     };
 
     verifySession();
@@ -75,9 +73,10 @@ function App() {
         await axiosClient.post('/logout');
       }
     } catch (error) {
-      console.error("Gagal logout dari server:", error);
+      console.error('Gagal logout dari server:', error);
     } finally {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
       setUserAuth(null);
       handleNavigate('login');
     }
@@ -85,13 +84,49 @@ function App() {
 
   const pageProps = { activePage, onNavigate: handleNavigate, onDarurat: handleOpenDarurat };
 
-  // Tampilkan layar loading putih (atau animasi) selama proses inspeksi berlangsung
   if (isCheckingAuth) {
-    return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Memverifikasi keamanan sesi...</div>;
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8fafc',
+        fontFamily: "'Plus Jakarta Sans', sans-serif"
+      }}>
+        <div style={{
+          width: '72px',
+          height: '72px',
+          borderRadius: '50%',
+          boxShadow: '0 8px 24px rgba(0, 128, 128, 0.15)',
+          overflow: 'hidden',
+          marginBottom: '20px',
+          animation: 'pulse 1.8s infinite ease-in-out'
+        }}>
+          <img src={logo} alt="Posyandu Loa Duri Ulu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid #e2e8f0',
+          borderTopColor: '#008080',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+          marginBottom: '16px'
+        }}></div>
+        <p style={{ color: '#475569', fontSize: '15px', fontWeight: 600, margin: 0 }}>
+          Memverifikasi keamanan sesi...
+        </p>
+        <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+          Posyandu Loa Duri Ulu
+        </p>
+      </div>
+    );
   }
 
   return (
-    <>
+    <div className="app-container page-fade-in">
       {activePage === 'login' ? (
         <Login onNavigate={handleNavigate} onLogin={(user) => { setUserAuth(user); handleNavigate('dashboard'); }} />
       ) : activePage === 'dashboard' ? (
@@ -111,7 +146,7 @@ function App() {
       ) : (
         <Beranda {...pageProps} />
       )}
-    </>
+    </div>
   );
 }
 

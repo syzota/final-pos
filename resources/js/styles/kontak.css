@@ -5,7 +5,7 @@
 .kontak-page {
   min-height: 100vh;
   background-color: #f9f9ff;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 .kontak-main {

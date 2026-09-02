@@ -10,15 +10,10 @@ export default defineConfig({
             ],
             refresh: true,
         }),
-
         react(),
     ],
-
     server: {
-        host: true,
-        hmr: {
-            host: '192.168.18.12',
-        },
+        host: 'localhost',
         cors: true,
     },
 });

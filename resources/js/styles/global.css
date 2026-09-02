@@ -1,15 +1,16 @@
 :root {
-  --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-secondary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-headline: 'Quicksand', system-ui, -apple-system, sans-serif;
+  --font-body: 'Poppins', system-ui, -apple-system, sans-serif;
 
-  /* Typography - Golden Ratio (1.618) Scale */
-  --font-xs: 0.618rem;   /* ~10px */
-  --font-base: 1rem;     /* 16px */
-  --font-lg: 1.618rem;   /* ~26px */
-  --font-xl: 2.618rem;   /* ~42px */
-  --font-xxl: 4.236rem;  /* ~68px */
+  --font-primary: var(--font-body);
+  --font-secondary: var(--font-headline);
 
-  /* Spatial System (8pt / 4pt Grid) */
+  /* Brand Colors */
+  --primary-teal: #008080;
+  --primary-teal-dark: #006666;
+  --primary-teal-light: #e6f3f3;
+
+  /* Spatial System */
   --space-05: 4px;
   --space-1: 8px;
   --space-1-5: 12px;
@@ -19,10 +20,8 @@
   --space-5: 40px;
   --space-6: 48px;
   --space-8: 64px;
-  --space-12: 96px;
-  --space-16: 128px;
 
-  /* Theme variables from new HTML */
+  /* Theme variables */
   --bg: #F8F9FF;
   --surface: #FFFFFF;
   --surface-dim: #CBDBF5;
@@ -46,10 +45,10 @@
   --radius-sm: 8px;
   --shadow: 0 4px 20px rgba(11,28,48,0.08);
 
-  /* Legacy mappings to preserve existing components */
-  --color-primary: var(--violet-deep);
-  --color-primary-light: var(--violet);
-  --color-primary-bg: var(--violet-bg);
+  /* Legacy mappings */
+  --color-primary: var(--primary-teal);
+  --color-primary-light: var(--cyan);
+  --color-primary-bg: var(--cyan-bg);
   --color-dark: var(--ink);
   --color-text-subtle: var(--ink-soft);
   --color-text-muted: var(--ink-faint);
@@ -72,56 +71,120 @@
 }
 
 html {
-  font-size: 16px; /* Base 16px */
+  font-size: 16px;
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-primary);
-  font-size: var(--font-base);
-  font-weight: 400; /* Regular untuk teks yang lebih panjang dan nyaman dibaca */
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
   background-color: var(--color-bg);
   color: var(--color-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700; /* Bold untuk hierarki yang kuat */
-  line-height: 1.2;
+/* HEADLINE: Menggunakan Quicksand */
+h1, h2, h3, h4, h5, h6,
+.font-headline,
+.section-head h3,
+.hero-title,
+.brand-title,
+.card-title,
+.header-brand-name,
+th {
+  font-family: var(--font-headline) !important;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+  letter-spacing: -0.01em;
 }
 
-h1 { font-size: var(--font-xxl); }
-h2 { font-size: var(--font-xl); }
-h3, h4 { font-size: var(--font-lg); }
-h5, h6 { font-size: var(--font-base); }
-
+/* BODY, INPUT, BUTTON: Menggunakan Poppins */
+p, span, label, input, textarea, select, button, a, td, li, .badge {
+  font-family: var(--font-body);
+}
 
 a {
   color: inherit;
-  text-decoration: inherit;
+  text-decoration: none;
 }
 
 button {
+  font-family: var(--font-body);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+.page-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Base button standards with 44px min tap target */
+.btn-primary, .signin-btn {
+  font-family: var(--font-body);
+  background-color: var(--primary-teal, #008080);
+  color: #ffffff !important;
   border: none;
-  background: transparent;
-  font: inherit;
-  color: inherit;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
-input, textarea, select {
-  border: none;
-  font: inherit;
-  outline: none;
-  background: transparent;
+.btn-primary:hover, .signin-btn:hover {
+  background-color: var(--primary-teal-dark, #006666);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 128, 128, 0.25);
 }
 
-img {
-  display: block;
-  max-width: 100%;
+.btn-primary:active, .signin-btn:active {
+  transform: translateY(0);
 }
 
-.text {
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
+.btn-outline {
+  font-family: var(--font-body);
+  border: 1.5px solid var(--primary-teal, #008080);
+  color: var(--primary-teal, #008080);
+  background-color: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-teal-light, #e6f3f3);
+}
+
+/* Table Responsive wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile full width CTA helper */
+@media (max-width: 768px) {
+  .btn-cta-full-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }

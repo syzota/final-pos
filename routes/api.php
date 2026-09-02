@@ -1,14 +1,32 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\PosyanduController;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AdminAnalitikController;
+use App\Http\Controllers\Api\AdminLaporanController;
 use App\Http\Controllers\Api\ArtikelController;
-use App\Http\Middleware\CheckRole; // Import Middleware baru kita
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\DataTambahanIndividuController;
+use App\Http\Controllers\Api\DataUmumController;
+use App\Http\Controllers\Api\DraftController;
+use App\Http\Controllers\Api\FormulirIdentifikasiController;
+use App\Http\Controllers\Api\PemeriksaanBalitaController;
+use App\Http\Controllers\Api\PemeriksaanHamilController;
+use App\Http\Controllers\Api\PemeriksaanLansiaController;
+use App\Http\Controllers\Api\PemeriksaanRemajaController;
+use App\Http\Controllers\Api\PencatatanKegiatanController;
+use App\Http\Controllers\Api\PengaduanMasyarakatController;
+use App\Http\Controllers\Api\PosyanduController;
+use App\Http\Controllers\Api\ReferensiMakananController;
+use App\Http\Controllers\Api\RekapKegiatanController;
+use App\Http\Controllers\Api\WargaController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /**
  * @title API Posyandu LDU
+ *
  * @version 1.0.0
+ *
  * @description Dokumentasi resmi API untuk Web Posyandu
  */
 
@@ -18,165 +36,146 @@ use App\Http\Middleware\CheckRole; // Import Middleware baru kita
 Route::get('/ping', function () {
     return response()->json(['status' => 'sukses', 'pesan' => 'API Aktif']);
 });
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/profil-posyandu', [PosyanduController::class, 'index']);
 Route::get('/artikels', [ArtikelController::class, 'index']);
 Route::get('/artikels/{id}', [ArtikelController::class, 'show']);
-Route::get('/makanan', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'index']);
-
+Route::get('/makanan', [ReferensiMakananController::class, 'index']);
 
 // ==========================================
 // 2. PROTECTED ROUTES (Wajib punya token/login)
 // ==========================================
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/formulir-identifikasi', [\App\Http\Controllers\Api\FormulirIdentifikasiController::class, 'store']);
-    Route::get('/formulir-identifikasi', [\App\Http\Controllers\Api\FormulirIdentifikasiController::class, 'index']);
-    Route::post('/pengaduan-masyarakat', [\App\Http\Controllers\Api\PengaduanMasyarakatController::class, 'store']);
-    Route::get('/pengaduan-masyarakat', [\App\Http\Controllers\Api\PengaduanMasyarakatController::class, 'index']);
+    // Formulir & Pengaduan (Warga / Kader)
+    Route::post('/formulir-identifikasi', [FormulirIdentifikasiController::class, 'store']);
+    Route::get('/formulir-identifikasi', [FormulirIdentifikasiController::class, 'index']);
+    Route::post('/pengaduan-masyarakat', [PengaduanMasyarakatController::class, 'store']);
+    Route::get('/pengaduan-masyarakat', [PengaduanMasyarakatController::class, 'index']);
 
-    // Rute umum untuk semua user yang berhasil login
+    // Akun & Sesi Pengguna
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', function (\Illuminate\Http\Request $request) {
+    Route::get('/me', function (Request $request) {
         return response()->json([
             'status' => 'sukses',
-            // Gunakan ->load() untuk mengambil relasi pada data user yang sedang login
-            'data' => $request->user()->load('posyandu')
+            'data' => $request->user()->load('posyandu'),
         ]);
     });
-    Route::put(
-        '/akun/ganti-password',
-        [AuthController::class, 'updatePassword']
-    );
-
-    // Rute untuk warga/user mengupdate username & password mereka sendiri
-    Route::put('/warga/update-akun', [\App\Http\Controllers\Api\AuthController::class, 'updateAkunWarga']);
+    Route::put('/akun/ganti-password', [AuthController::class, 'updatePassword']);
+    Route::put('/warga/update-akun', [AuthController::class, 'updateAkunWarga']);
 
     // ----------------------------------------------------
     // GRUP A: Khusus KADER dan KETUA POSYANDU
     // (Akses operasional posyandu harian & Artikel)
     // ----------------------------------------------------
-    Route::middleware(CheckRole::class.':kader,ketua')->group(function () {
-        // CRUD Artikel
+    Route::middleware('role:kader,ketua')->group(function () {
+        // Kelola Artikel
         Route::post('/artikels', [ArtikelController::class, 'store']);
         Route::post('/artikels/{id}', [ArtikelController::class, 'update']);
         Route::delete('/artikels/{id}', [ArtikelController::class, 'destroy']);
-        Route::post('/warga', [\App\Http\Controllers\Api\WargaController::class, 'store']);
-        // Mengambil daftar warga
-        Route::get('/warga', [\App\Http\Controllers\Api\WargaController::class, 'index']);
-        // Reset password warga
-        Route::put('/warga/{id}/reset-password', [\App\Http\Controllers\Api\WargaController::class, 'resetPassword']);
 
-        Route::delete(
-            '/warga/{id}',
-            [\App\Http\Controllers\Api\WargaController::class, 'destroy']
-        );
+        // Kelola Data Warga
+        Route::get('/warga', [WargaController::class, 'index']);
+        Route::post('/warga', [WargaController::class, 'store']);
+        Route::delete('/warga/{id}', [WargaController::class, 'destroy']);
+        Route::put('/warga/{id}/reset-password', [WargaController::class, 'resetPassword']);
 
-        // Pencatatan Kesehatan - Balita
-        Route::post('/pemeriksaan-balita', [\App\Http\Controllers\Api\PemeriksaanBalitaController::class, 'store']);
-        // Mengambil daftar nama anak untuk Dropdown form pemeriksaan
-        Route::get('/warga/anak', [\App\Http\Controllers\Api\WargaController::class, 'getListAnak']);
-        // Dropdown nama remaja
-        Route::get('/warga/remaja', [\App\Http\Controllers\Api\WargaController::class, 'getListRemaja']);
+        // Dropdown Sasaran Warga
+        Route::get('/warga/anak', [WargaController::class, 'getListAnak']);
+        Route::get('/warga/remaja', [WargaController::class, 'getListRemaja']);
+        Route::get('/warga/ibu', [WargaController::class, 'getListIbu']);
+        Route::get('/warga/lansia', [WargaController::class, 'getListLansia']);
 
-        // Pencatatan Kesehatan - Remaja
-        Route::post('/pemeriksaan-remaja', [\App\Http\Controllers\Api\PemeriksaanRemajaController::class, 'store']);
+        // Pencatatan Pemeriksaan Kesehatan
+        Route::post('/pemeriksaan-balita', [PemeriksaanBalitaController::class, 'store']);
+        Route::post('/pemeriksaan-remaja', [PemeriksaanRemajaController::class, 'store']);
+        Route::post('/pemeriksaan-hamil', [PemeriksaanHamilController::class, 'store']);
+        Route::post('/pemeriksaan-lansia', [PemeriksaanLansiaController::class, 'store']);
+        Route::get('/draf-pemeriksaan/{kelompok}', [DraftController::class, 'getDrafts']);
 
-        // Dropdown nama Ibu
-        Route::get('/warga/ibu', [\App\Http\Controllers\Api\WargaController::class, 'getListIbu']);
+        // Referensi Makanan
+        Route::post('/makanan', [ReferensiMakananController::class, 'store']);
+        Route::put('/makanan/{id}', [ReferensiMakananController::class, 'update']);
+        Route::delete('/makanan/{id}', [ReferensiMakananController::class, 'destroy']);
 
-        // Pencatatan Kesehatan - Ibu Hamil
-        Route::post('/pemeriksaan-hamil', [\App\Http\Controllers\Api\PemeriksaanHamilController::class, 'store']);
+        // Rekap Kegiatan
+        Route::get('/rekap-kegiatan', [RekapKegiatanController::class, 'index']);
+        Route::post('/rekap-kegiatan', [RekapKegiatanController::class, 'store']);
+        Route::delete('/rekap-kegiatan/{id}', [RekapKegiatanController::class, 'destroy']);
 
-        // Dropdown nama Lansia
-        Route::get('/warga/lansia', [\App\Http\Controllers\Api\WargaController::class, 'getListLansia']);
+        // Pencatatan Kegiatan
+        Route::get('/pencatatan-kegiatan', [PencatatanKegiatanController::class, 'index']);
+        Route::post('/pencatatan-kegiatan', [PencatatanKegiatanController::class, 'store']);
+        Route::delete('/pencatatan-kegiatan/{id}', [PencatatanKegiatanController::class, 'destroy']);
 
-        // Pencatatan Kesehatan - Lansia
-        Route::post('/pemeriksaan-lansia', [\App\Http\Controllers\Api\PemeriksaanLansiaController::class, 'store']);
-        // Mengambil daftar draf berdasarkan kelompok sasaran
-        Route::get('/draf-pemeriksaan/{kelompok}', [\App\Http\Controllers\Api\DraftController::class, 'getDrafts']);
+        // Data Umum
+        Route::get('/data-umum', [DataUmumController::class, 'index']);
+        Route::post('/data-umum', [DataUmumController::class, 'store']);
+        Route::delete('/data-umum/{id}', [DataUmumController::class, 'destroy']);
 
-        Route::post('/makanan', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'store']);
-        Route::put('/makanan/{id}', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'update']);
-        Route::delete('/makanan/{id}', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'destroy']);
+        // Data Tambahan Individu
+        Route::get('/data-tambahan-individu', [DataTambahanIndividuController::class, 'index']);
+        Route::post('/data-tambahan-individu', [DataTambahanIndividuController::class, 'store']);
+        Route::delete('/data-tambahan-individu/{id}', [DataTambahanIndividuController::class, 'destroy']);
 
-        Route::get('/rekap-kegiatan', [\App\Http\Controllers\Api\RekapKegiatanController::class, 'index']);
-        Route::post('/rekap-kegiatan', [\App\Http\Controllers\Api\RekapKegiatanController::class, 'store']);
-        Route::delete('/rekap-kegiatan/{id}', [\App\Http\Controllers\Api\RekapKegiatanController::class, 'destroy']);
-
-        Route::get('/pencatatan-kegiatan', [\App\Http\Controllers\Api\PencatatanKegiatanController::class, 'index']);
-        Route::post('/pencatatan-kegiatan', [\App\Http\Controllers\Api\PencatatanKegiatanController::class, 'store']);
-        Route::delete('/pencatatan-kegiatan/{id}', [\App\Http\Controllers\Api\PencatatanKegiatanController::class, 'destroy']);
-
-        Route::get('/data-umum', [\App\Http\Controllers\Api\DataUmumController::class, 'index']);
-        Route::post('/data-umum', [\App\Http\Controllers\Api\DataUmumController::class, 'store']);
-        Route::delete('/data-umum/{id}', [\App\Http\Controllers\Api\DataUmumController::class, 'destroy']);
-
-        // Data Tambahan: Ibu Hamil, Nifas, Kematian Ibu, Diare
-        Route::get('/data-tambahan-individu', [\App\Http\Controllers\Api\DataTambahanIndividuController::class, 'index']);
-        Route::post('/data-tambahan-individu', [\App\Http\Controllers\Api\DataTambahanIndividuController::class, 'store']);
-        Route::delete('/data-tambahan-individu/{id}', [\App\Http\Controllers\Api\DataTambahanIndividuController::class, 'destroy']);
-        Route::get('/dashboard/stats', [\App\Http\Controllers\Api\DashboardController::class, 'getStats']);
+        // Dashboard Stats
+        Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
     });
 
     // ----------------------------------------------------
     // GRUP B: Khusus KETUA POSYANDU
     // (Akses manajerial profil posyandu)
     // ----------------------------------------------------
-    Route::middleware(CheckRole::class.':ketua')->group(function () {
-        // Nanti rute untuk edit profil & jadwal posyandu ditaruh di sini
-        Route::get('/posyandu/me', [\App\Http\Controllers\Api\PosyanduController::class, 'getMe']);
-        Route::post('/posyandu/me/update', [\App\Http\Controllers\Api\PosyanduController::class, 'updateMe']);
+    Route::middleware('role:ketua')->group(function () {
+        Route::get('/posyandu/me', [PosyanduController::class, 'getMe']);
+        Route::post('/posyandu/me/update', [PosyanduController::class, 'updateMe']);
     });
 
     // ----------------------------------------------------
     // GRUP C: Khusus WARGA
     // (Akses read-only rapor keluarga)
     // ----------------------------------------------------
-    Route::middleware(CheckRole::class.':warga')->group(function () {
-        Route::get('/warga/rapor-keluarga', [\App\Http\Controllers\Api\WargaController::class, 'getRaporKeluarga']);
-        Route::post('/warga/anak', [\App\Http\Controllers\Api\WargaController::class, 'tambahAnakWarga']);
+    Route::middleware('role:warga')->group(function () {
+        Route::get('/warga/rapor-keluarga', [WargaController::class, 'getRaporKeluarga']);
+        Route::post('/warga/anak', [WargaController::class, 'tambahAnakWarga']);
     });
 
     // ----------------------------------------------------
     // GRUP D: Khusus SUPERADMIN (Desa)
     // (Akses mata elang / analitik)
     // ----------------------------------------------------
-    Route::middleware(CheckRole::class.':superadmin')->group(function () {
-        // Nanti rute untuk dashboard rekap desa ditaruh di sini
-        Route::get('/admin/pengaduan', [\App\Http\Controllers\Api\PengaduanMasyarakatController::class, 'getAllForAdmin']);
-        Route::patch('/admin/pengaduan/{id}/status', [\App\Http\Controllers\Api\PengaduanMasyarakatController::class, 'updateStatus']);
-        Route::get('/admin/posyandu-updates', [\App\Http\Controllers\Api\PengaduanMasyarakatController::class, 'getLatestUpdateTiapPosyandu']);
-        Route::get('/admin/formulir', [\App\Http\Controllers\Api\FormulirIdentifikasiController::class, 'getAllForAdmin']);
-        Route::get('/admin/statistik', [\App\Http\Controllers\Api\PengaduanMasyarakatController::class, 'getStatistik']);
-        // ... rute admin lainnya ...
-        Route::delete('/admin/formulir/{id}', [\App\Http\Controllers\Api\FormulirIdentifikasiController::class, 'destroyForAdmin']);
-        Route::delete('/admin/pengaduan/{id}', [\App\Http\Controllers\Api\PengaduanMasyarakatController::class, 'destroyForAdmin']);
-        // Rute Menampilkan Data Kesehatan berdasarkan Posyandu
-        Route::get('/admin/pemeriksaan/balita', [\App\Http\Controllers\Api\PemeriksaanBalitaController::class, 'getForAdmin']);
-        Route::get('/admin/pemeriksaan/remaja', [\App\Http\Controllers\Api\PemeriksaanRemajaController::class, 'getForAdmin']);
-        Route::get('/admin/pemeriksaan/ibu-hamil', [\App\Http\Controllers\Api\PemeriksaanHamilController::class, 'getForAdmin']);
-        Route::get('/admin/pemeriksaan/lansia', [\App\Http\Controllers\Api\PemeriksaanLansiaController::class, 'getForAdmin']);
+    Route::middleware('role:superadmin')->group(function () {
+        Route::get('/admin/pengaduan', [PengaduanMasyarakatController::class, 'getAllForAdmin']);
+        Route::patch('/admin/pengaduan/{id}/status', [PengaduanMasyarakatController::class, 'updateStatus']);
+        Route::delete('/admin/pengaduan/{id}', [PengaduanMasyarakatController::class, 'destroyForAdmin']);
+        Route::get('/admin/posyandu-updates', [PengaduanMasyarakatController::class, 'getLatestUpdateTiapPosyandu']);
+        Route::get('/admin/formulir', [FormulirIdentifikasiController::class, 'getAllForAdmin']);
+        Route::delete('/admin/formulir/{id}', [FormulirIdentifikasiController::class, 'destroyForAdmin']);
+        Route::get('/admin/statistik', [PengaduanMasyarakatController::class, 'getStatistik']);
 
-        // Rute Menghapus Data Kesehatan
-        Route::delete('/admin/pemeriksaan/balita/{id}', [\App\Http\Controllers\Api\PemeriksaanBalitaController::class, 'destroyForAdmin']);
-        Route::delete('/admin/pemeriksaan/remaja/{id}', [\App\Http\Controllers\Api\PemeriksaanRemajaController::class, 'destroyForAdmin']);
-        Route::delete('/admin/pemeriksaan/ibu-hamil/{id}', [\App\Http\Controllers\Api\PemeriksaanHamilController::class, 'destroyForAdmin']);
-        Route::delete('/admin/pemeriksaan/lansia/{id}', [\App\Http\Controllers\Api\PemeriksaanLansiaController::class, 'destroyForAdmin']);
-        Route::get('/admin/laporan-posyandu/{posyandu_id}', [\App\Http\Controllers\Api\AdminLaporanController::class, 'getLaporanPosyandu']);
+        // Data Pemeriksaan Kesehatan Per Posyandu
+        Route::get('/admin/pemeriksaan/balita', [PemeriksaanBalitaController::class, 'getForAdmin']);
+        Route::get('/admin/pemeriksaan/remaja', [PemeriksaanRemajaController::class, 'getForAdmin']);
+        Route::get('/admin/pemeriksaan/ibu-hamil', [PemeriksaanHamilController::class, 'getForAdmin']);
+        Route::get('/admin/pemeriksaan/lansia', [PemeriksaanLansiaController::class, 'getForAdmin']);
 
-        Route::get('/admin/dashboard-analitik', [\App\Http\Controllers\Api\AdminAnalitikController::class, 'getDashboardData']);
-    }
-    );
+        Route::delete('/admin/pemeriksaan/balita/{id}', [PemeriksaanBalitaController::class, 'destroyForAdmin']);
+        Route::delete('/admin/pemeriksaan/remaja/{id}', [PemeriksaanRemajaController::class, 'destroyForAdmin']);
+        Route::delete('/admin/pemeriksaan/ibu-hamil/{id}', [PemeriksaanHamilController::class, 'destroyForAdmin']);
+        Route::delete('/admin/pemeriksaan/lansia/{id}', [PemeriksaanLansiaController::class, 'destroyForAdmin']);
+
+        Route::get('/admin/laporan-posyandu/{posyandu_id}', [AdminLaporanController::class, 'getLaporanPosyandu']);
+        Route::get('/admin/dashboard-analitik', [AdminAnalitikController::class, 'getDashboardData']);
+    });
 
     // ----------------------------------------------------
     // GRUP E: Khusus PETUGAS PUSKESMAS
     // (Akses read-only laporan kesehatan 9 posyandu)
     // ----------------------------------------------------
-    Route::middleware(CheckRole::class.':puskesmas')->group(function () {
-        Route::get('/puskesmas/pemeriksaan/balita', [\App\Http\Controllers\Api\PemeriksaanBalitaController::class, 'getForAdmin']);
-        Route::get('/puskesmas/pemeriksaan/remaja', [\App\Http\Controllers\Api\PemeriksaanRemajaController::class, 'getForAdmin']);
-        Route::get('/puskesmas/pemeriksaan/ibu-hamil', [\App\Http\Controllers\Api\PemeriksaanHamilController::class, 'getForAdmin']);
-        Route::get('/puskesmas/pemeriksaan/lansia', [\App\Http\Controllers\Api\PemeriksaanLansiaController::class, 'getForAdmin']);
+    Route::middleware('role:puskesmas')->group(function () {
+        Route::get('/puskesmas/pemeriksaan/balita', [PemeriksaanBalitaController::class, 'getForAdmin']);
+        Route::get('/puskesmas/pemeriksaan/remaja', [PemeriksaanRemajaController::class, 'getForAdmin']);
+        Route::get('/puskesmas/pemeriksaan/ibu-hamil', [PemeriksaanHamilController::class, 'getForAdmin']);
+        Route::get('/puskesmas/pemeriksaan/lansia', [PemeriksaanLansiaController::class, 'getForAdmin']);
     });
-
 });

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\WargaKeluarga;
 use App\Models\WargaAnak;
-use App\Models\WargaRemaja;
 use App\Models\WargaDewasa;
-use Illuminate\Support\Facades\Hash;
+use App\Models\WargaKeluarga;
+use App\Models\WargaRemaja;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class WargaController extends Controller
 {
@@ -20,6 +20,7 @@ class WargaController extends Controller
         if (in_array($user->role, ['ketua', 'kader'])) {
             return $user->posyandu_id;
         }
+
         return null;
     }
 
@@ -27,19 +28,19 @@ class WargaController extends Controller
     {
         // 1. VALIDASI DIPERBARUI: Tangkap status pernikahan dan istri
         $request->validate([
-            'nama_lengkap'      => 'required|string',
-            'jenis_kelamin'     => 'required|in:L,P',
-            'nik'               => 'required|string|size:16|unique:warga_keluarga,nik_kepala_keluarga',
-            'no_kk'             => 'required|string|size:16',
-            'no_hp'             => 'nullable|string',
+            'nama_lengkap' => 'required|string',
+            'jenis_kelamin' => 'required|in:L,P',
+            'nik' => 'required|string|size:16|unique:warga_keluarga,nik_kepala_keluarga',
+            'no_kk' => 'required|string|size:16',
+            'no_hp' => 'nullable|string',
             'status_pernikahan' => 'required|in:Menikah,Duda,Janda',
-            'nama_istri'        => 'required_if:status_pernikahan,Menikah|string|nullable',
-            'anak'              => 'nullable|array',
+            'nama_istri' => 'required_if:status_pernikahan,Menikah|string|nullable',
+            'anak' => 'nullable|array',
         ]);
 
         $posyanduId = $this->getPosyanduId();
 
-        if (!$posyanduId && auth()->user()->role !== 'superadmin') {
+        if (! $posyanduId && auth()->user()->role !== 'superadmin') {
             return response()->json(['status' => 'gagal', 'pesan' => 'Akun Anda tidak terikat pada Posyandu manapun.'], 403);
         }
 
@@ -48,36 +49,36 @@ class WargaController extends Controller
         try {
             // 2. Buat Akun Login untuk Warga
             $user = User::create([
-                'name'        => $request->nama_lengkap,
-                'username'    => $request->nik,
-                'password'    => '000000',
-                'role'        => 'warga',
-                'posyandu_id' => $posyanduId
+                'name' => $request->nama_lengkap,
+                'username' => $request->nik,
+                'password' => '000000',
+                'role' => 'warga',
+                'posyandu_id' => $posyanduId,
             ]);
 
             // 3. Buat Data Kepala Keluarga
             $keluarga = WargaKeluarga::create([
-                'posyandu_id'          => $posyanduId,
-                'user_id'              => $user->id,
+                'posyandu_id' => $posyanduId,
+                'user_id' => $user->id,
                 'nama_kepala_keluarga' => $request->nama_lengkap,
-                'no_kk'                => $request->no_kk,
-                'nik_kepala_keluarga'  => $request->nik,
-                'no_hp'                => $request->no_hp,
+                'no_kk' => $request->no_kk,
+                'nik_kepala_keluarga' => $request->nik,
+                'no_hp' => $request->no_hp,
             ]);
 
             // 4. OTOMATIS: Masukkan Suami ke Daftar Dewasa (Untuk Lansia)
             // 4. Masukkan Kepala Keluarga ke daftar dewasa
             WargaDewasa::create([
-                'nama_lengkap'  => $request->nama_lengkap,
+                'nama_lengkap' => $request->nama_lengkap,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'tanggal_lahir' => date('Y-m-d', strtotime('-30 years')),
-                'keluarga_id'   => $keluarga->id,
+                'keluarga_id' => $keluarga->id,
             ]);
 
             // 5. Jika Menikah, masukkan pasangan ke daftar dewasa
             if (
                 $request->status_pernikahan === 'Menikah' &&
-                !empty($request->nama_istri)
+                ! empty($request->nama_istri)
             ) {
                 WargaDewasa::create([
                     'nama_lengkap' => $request->nama_istri,
@@ -87,7 +88,7 @@ class WargaController extends Controller
                     'jenis_kelamin' => $request->jenis_kelamin === 'L' ? 'P' : 'L',
 
                     'tanggal_lahir' => date('Y-m-d', strtotime('-30 years')),
-                    'keluarga_id'   => $keluarga->id,
+                    'keluarga_id' => $keluarga->id,
                 ]);
             }
 
@@ -95,8 +96,8 @@ class WargaController extends Controller
             if ($request->has('anak') && count($request->anak) > 0) {
                 foreach ($request->anak as $dataAnak) {
                     WargaAnak::create([
-                        'keluarga_id'   => $keluarga->id,
-                        'nama_anak'     => $dataAnak['nama'],
+                        'keluarga_id' => $keluarga->id,
+                        'nama_anak' => $dataAnak['nama'],
                         'tanggal_lahir' => $dataAnak['tanggal_lahir'],
                         'jenis_kelamin' => $dataAnak['jenis_kelamin'] ?? 'L',
                     ]);
@@ -107,15 +108,16 @@ class WargaController extends Controller
 
             return response()->json([
                 'status' => 'sukses',
-                'pesan'  => 'Akun keluarga berhasil dibuat.',
-                'data'   => $keluarga->load('anak')
+                'pesan' => 'Akun keluarga berhasil dibuat.',
+                'data' => $keluarga->load('anak'),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => 'gagal',
-                'pesan'  => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                'pesan' => 'Terjadi kesalahan sistem: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -127,20 +129,25 @@ class WargaController extends Controller
         if ($posyanduId) {
             $query->where('posyandu_id', $posyanduId);
         }
+
         return response()->json(['status' => 'sukses', 'data' => $query->get()]);
     }
 
     public function resetPassword($id)
     {
         $keluarga = WargaKeluarga::find($id);
-        if (!$keluarga) return response()->json(['status' => 'gagal', 'pesan' => 'Data keluarga tidak ditemukan.'], 404);
+        if (! $keluarga) {
+            return response()->json(['status' => 'gagal', 'pesan' => 'Data keluarga tidak ditemukan.'], 404);
+        }
 
         $posyanduId = $this->getPosyanduId();
         if ($posyanduId && $keluarga->posyandu_id != $posyanduId) {
             return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak.'], 403);
         }
 
-        if (!$keluarga->user_id) return response()->json(['status' => 'gagal', 'pesan' => 'Belum ada akun login.'], 400);
+        if (! $keluarga->user_id) {
+            return response()->json(['status' => 'gagal', 'pesan' => 'Belum ada akun login.'], 400);
+        }
 
         $user = User::find($keluarga->user_id);
         if ($user) {
@@ -149,9 +156,10 @@ class WargaController extends Controller
 
             return response()->json([
                 'status' => 'sukses',
-                'pesan' => 'PIN berhasil direset ke PIN default.'
+                'pesan' => 'PIN berhasil direset ke PIN default.',
             ]);
         }
+
         return response()->json(['status' => 'gagal', 'pesan' => 'Akun tidak ditemukan.'], 404);
     }
 
@@ -159,10 +167,10 @@ class WargaController extends Controller
     {
         $keluarga = WargaKeluarga::find($id);
 
-        if (!$keluarga) {
+        if (! $keluarga) {
             return response()->json([
                 'status' => 'gagal',
-                'pesan' => 'Data keluarga tidak ditemukan.'
+                'pesan' => 'Data keluarga tidak ditemukan.',
             ], 404);
         }
 
@@ -173,7 +181,7 @@ class WargaController extends Controller
         if ($posyanduId && $keluarga->posyandu_id != $posyanduId) {
             return response()->json([
                 'status' => 'gagal',
-                'pesan' => 'Akses ditolak.'
+                'pesan' => 'Akses ditolak.',
             ], 403);
         }
 
@@ -202,7 +210,7 @@ class WargaController extends Controller
 
             return response()->json([
                 'status' => 'sukses',
-                'pesan' => 'Data keluarga dan akun warga berhasil dihapus.'
+                'pesan' => 'Data keluarga dan akun warga berhasil dihapus.',
             ], 200);
 
         } catch (\Exception $e) {
@@ -210,7 +218,7 @@ class WargaController extends Controller
 
             return response()->json([
                 'status' => 'gagal',
-                'pesan' => 'Gagal menghapus data keluarga: ' . $e->getMessage()
+                'pesan' => 'Gagal menghapus data keluarga: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -225,6 +233,7 @@ class WargaController extends Controller
             $query->join($keluargaTable, "$table.keluarga_id", '=', "$keluargaTable.id")
                 ->where("$keluargaTable.posyandu_id", $posyanduId);
         }
+
         return response()->json(['status' => 'sukses', 'data' => $query->distinct()->get()]);
     }
 
@@ -238,6 +247,7 @@ class WargaController extends Controller
             $query->join($keluargaTable, "$table.keluarga_id", '=', "$keluargaTable.id")
                 ->where("$keluargaTable.posyandu_id", $posyanduId);
         }
+
         return response()->json(['status' => 'sukses', 'data' => $query->distinct()->get()]);
     }
 
@@ -252,6 +262,7 @@ class WargaController extends Controller
             $query->join($keluargaTable, "$table.keluarga_id", '=', "$keluargaTable.id")
                 ->where("$keluargaTable.posyandu_id", $posyanduId);
         }
+
         return response()->json(['status' => 'sukses', 'data' => $query->distinct()->get()]);
     }
 
@@ -265,8 +276,10 @@ class WargaController extends Controller
             $query->join($keluargaTable, "$table.keluarga_id", '=', "$keluargaTable.id")
                 ->where("$keluargaTable.posyandu_id", $posyanduId);
         }
+
         return response()->json(['status' => 'sukses', 'data' => $query->distinct()->get()]);
     }
+
     // =========================================================================
     // FUNGSI KHUSUS WARGA: MENGAMBIL RAPOR KESEHATAN KELUARGA (REAL-TIME)
     // =========================================================================
@@ -280,22 +293,22 @@ class WargaController extends Controller
         // Cari data keluarga berdasarkan akun Warga yang sedang login
         $keluarga = WargaKeluarga::where('user_id', $user->id)->first();
 
-        if (!$keluarga) {
+        if (! $keluarga) {
             return response()->json(['status' => 'gagal', 'pesan' => 'Data keluarga tidak ditemukan.'], 404);
         }
 
         // 1. Tarik Data Anak beserta Riwayat Pemeriksaan Balita
-        $anakList = WargaAnak::where('keluarga_id', $keluarga->id)->get()->map(function($anak) {
+        $anakList = WargaAnak::where('keluarga_id', $keluarga->id)->get()->map(function ($anak) {
             $riwayat = DB::table('pemeriksaan_balita')
                 ->where('anak_id', $anak->id)
                 ->orderBy('tanggal_periksa', 'desc')
                 ->get()
-                ->map(function($periksa) {
+                ->map(function ($periksa) {
                     return [
-                        'bulan'  => date('M Y', strtotime($periksa->tanggal_periksa)),
-                        'bb'     => $periksa->berat_badan . ' kg',
-                        'tb'     => $periksa->tinggi_badan . ' cm',
-                        'status' => $periksa->status_gizi ?: 'Normal'
+                        'bulan' => date('M Y', strtotime($periksa->tanggal_periksa)),
+                        'bb' => $periksa->berat_badan.' kg',
+                        'tb' => $periksa->tinggi_badan.' cm',
+                        'status' => $periksa->status_gizi ?: 'Normal',
                     ];
                 });
 
@@ -303,10 +316,10 @@ class WargaController extends Controller
             $umur = date_diff(date_create($anak->tanggal_lahir), date_create('today'))->y;
 
             return [
-                'nama'    => $anak->nama_anak,
-                'gender'  => $anak->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan',
-                'usia'    => $umur > 0 ? $umur . ' Tahun' : 'Di bawah 1 Tahun',
-                'riwayat' => $riwayat
+                'nama' => $anak->nama_anak,
+                'gender' => $anak->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan',
+                'usia' => $umur > 0 ? $umur.' Tahun' : 'Di bawah 1 Tahun',
+                'riwayat' => $riwayat,
             ];
         });
 
@@ -320,16 +333,16 @@ class WargaController extends Controller
                 $riwayatHamil = DB::table('pemeriksaan_hamil')->where('ibu_id', $dewasa->id)->orderBy('tanggal_periksa', 'desc')->get();
                 if ($riwayatHamil->count() > 0) {
                     $daftarLansiaBumil[] = [
-                        'nama'    => $dewasa->nama_lengkap,
-                        'jenis'   => 'bumil',
-                        'riwayat' => $riwayatHamil->map(function($r) {
+                        'nama' => $dewasa->nama_lengkap,
+                        'jenis' => 'bumil',
+                        'riwayat' => $riwayatHamil->map(function ($r) {
                             return [
-                                'bulan'  => date('M Y', strtotime($r->tanggal_periksa)),
-                                'ukuran' => $r->lingkar_lengan . ' cm', // LILA
-                                'tensi'  => $r->tekanan_darah ?: '-',
-                                'status' => $r->status_imt ?: 'Normal'
+                                'bulan' => date('M Y', strtotime($r->tanggal_periksa)),
+                                'ukuran' => $r->lingkar_lengan.' cm', // LILA
+                                'tensi' => $r->tekanan_darah ?: '-',
+                                'status' => $r->status_imt ?: 'Normal',
                             ];
-                        })
+                        }),
                     ];
                 }
             }
@@ -338,16 +351,16 @@ class WargaController extends Controller
             $riwayatLansia = DB::table('pemeriksaan_lansia')->where('lansia_id', $dewasa->id)->orderBy('tanggal_periksa', 'desc')->get();
             if ($riwayatLansia->count() > 0) {
                 $daftarLansiaBumil[] = [
-                    'nama'    => $dewasa->nama_lengkap,
-                    'jenis'   => 'lansia',
-                    'riwayat' => $riwayatLansia->map(function($r) {
+                    'nama' => $dewasa->nama_lengkap,
+                    'jenis' => 'lansia',
+                    'riwayat' => $riwayatLansia->map(function ($r) {
                         return [
-                            'bulan'  => date('M Y', strtotime($r->tanggal_periksa)),
-                            'ukuran' => $r->berat_badan . ' kg', // BB
-                            'tensi'  => $r->tekanan_darah ?: '-',
-                            'status' => $r->status_imt ?: 'Normal'
+                            'bulan' => date('M Y', strtotime($r->tanggal_periksa)),
+                            'ukuran' => $r->berat_badan.' kg', // BB
+                            'tensi' => $r->tekanan_darah ?: '-',
+                            'status' => $r->status_imt ?: 'Normal',
                         ];
-                    })
+                    }),
                 ];
             }
         }
@@ -356,8 +369,8 @@ class WargaController extends Controller
             'status' => 'sukses',
             'data' => [
                 'anak' => $anakList,
-                'anggotaLansiaBumil' => $daftarLansiaBumil // <-- Sekarang dikirim sebagai Array
-            ]
+                'anggotaLansiaBumil' => $daftarLansiaBumil, // <-- Sekarang dikirim sebagai Array
+            ],
         ], 200);
     }
 
@@ -367,7 +380,7 @@ class WargaController extends Controller
     public function tambahAnakWarga(Request $request)
     {
         $request->validate([
-            'nama_anak'     => 'required|string|max:255',
+            'nama_anak' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date',
             'jenis_kelamin' => 'required|in:L,P',
         ]);
@@ -377,22 +390,22 @@ class WargaController extends Controller
         // Cari data keluarga berdasarkan akun Warga yang sedang login
         $keluarga = WargaKeluarga::where('user_id', $user->id)->first();
 
-        if (!$keluarga) {
+        if (! $keluarga) {
             return response()->json(['status' => 'gagal', 'pesan' => 'Data keluarga tidak ditemukan.'], 404);
         }
 
         // Simpan anak baru dan otomatis ikat dengan keluarga_id (dan Posyandu keluarga tersebut)
         $anak = WargaAnak::create([
-            'keluarga_id'   => $keluarga->id,
-            'nama_anak'     => $request->nama_anak,
+            'keluarga_id' => $keluarga->id,
+            'nama_anak' => $request->nama_anak,
             'tanggal_lahir' => $request->tanggal_lahir,
             'jenis_kelamin' => $request->jenis_kelamin,
         ]);
 
         return response()->json([
             'status' => 'sukses',
-            'pesan'  => 'Data anak berhasil ditambahkan ke keluarga Anda!',
-            'data'   => $anak
+            'pesan' => 'Data anak berhasil ditambahkan ke keluarga Anda!',
+            'data' => $anak,
         ], 201);
     }
 }

@@ -32,6 +32,18 @@ export default function PengaduanView() {
   const [rekapFormulir, setRekapFormulir] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [selectedPengaduan, setSelectedPengaduan] = useState(null);
+  const [showAllRekap, setShowAllRekap] = useState(false);
+
+  useEffect(() => {
+    if (selectedForm || selectedPengaduan) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedForm, selectedPengaduan]);
 
   const fetchRekap = async () => {
     try {
@@ -240,27 +252,173 @@ export default function PengaduanView() {
 
   return (
     <>
-      {/* Bidang Main Tabs */}
-      <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '16px' }}>
-        <button className={`tab-btn ${tab === 0 ? 'active' : ''}`} onClick={() => { setTab(0); resetFormIden(); }}>
-          <Book className="me-1" />Pendidikan
-        </button>
-        <button className={`tab-btn ${tab === 1 ? 'active' : ''}`} onClick={() => { setTab(1); resetFormIden(); }}>
-          <Droplet className="me-1" />Pekerjaan Umum
-        </button>
-        <button className={`tab-btn ${tab === 2 ? 'active' : ''}`} onClick={() => { setTab(2); resetFormIden(); }}>
-          <Home className="me-1" />Perumahan Rakyat
-        </button>
-        <button className={`tab-btn ${tab === 3 ? 'active' : ''}`} onClick={() => { setTab(3); resetFormIden(); }}>
-          <ShieldCheck className="me-1" />Trantibumlinmas
-        </button>
-        <button className={`tab-btn ${tab === 4 ? 'active' : ''}`} onClick={() => { setTab(4); resetFormIden(); }}>
-          <Heart className="me-1" />Sosial
-        </button>
+      {/* 1. SECTION REKAP DINAMIS TERATAS (MAKSIMAL 3 ITEM DENGAN TOMBOL LIHAT SEMUA) */}
+      {(() => {
+        const bidangSaatIni = BIDANG_MAP[tab];
+        const namaBidang = ['Pendidikan', 'Pekerjaan Umum', 'Perumahan Rakyat', 'Trantibumlinmas', 'Sosial'][tab];
+        const dataPengaduanFilter = rekapPengaduan?.filter(item => item.bidang === bidangSaatIni) || [];
+        const dataFormulirFilter = rekapFormulir?.filter(item => item.bidang === bidangSaatIni) || [];
+        const belumSelesai = dataPengaduanFilter.filter(item => item.status !== 'selesai').length;
+
+        const displayFormulir = showAllRekap ? dataFormulirFilter : dataFormulirFilter.slice(0, 3);
+        const displayPengaduan = showAllRekap ? dataPengaduanFilter : dataPengaduanFilter.slice(0, 3);
+
+        return (
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '12px' }}>
+              {/* --- KIRI: REKAP FORMULIR --- */}
+              <div className="card" style={{ padding: '20px', borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Rekap Formulir {namaBidang}</h3>
+                  <span className="badge badge-cyan" style={{ fontSize: '11px', fontWeight: 700 }}>{dataFormulirFilter.length} Tersimpan</span>
+                </div>
+                <div className="table-responsive">
+                  <table className="table" style={{ fontSize: '13px' }}>
+                    <thead>
+                      <tr><th>Tanggal</th><th>Sub-Bidang</th><th style={{ textAlign: 'right' }}>Aksi</th></tr>
+                    </thead>
+                    <tbody>
+                      {displayFormulir.length > 0 ? (
+                        displayFormulir.map((item, idx) => (
+                          <tr key={idx}>
+                            <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
+                            <td><span style={{ fontWeight: 600, color: '#1e293b' }}>{item.sub_bidang || '-'}</span></td>
+                            <td style={{ textAlign: 'right' }}>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline"
+                                onClick={() => setSelectedForm(item)}
+                                style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700 }}
+                              >
+                                <Eye size={13} className="me-1" />Detail
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr><td colSpan="3" style={{ textAlign: 'center', padding: '16px', color: '#94a3b8' }}>Belum ada formulir tersimpan.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* --- KANAN: REKAP PENGADUAN --- */}
+              <div className="card" style={{ padding: '20px', borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Rekap Pengaduan {namaBidang}</h3>
+                  {belumSelesai > 0 && <span className="badge badge-orange" style={{ fontSize: '11px', fontWeight: 700 }}>{belumSelesai} Baru</span>}
+                </div>
+                <div className="table-responsive">
+                  <table className="table" style={{ fontSize: '13px' }}>
+                    <thead>
+                      <tr><th>Pelapor</th><th>Keluhan</th><th>Status</th><th style={{ textAlign: 'right' }}>Aksi</th></tr>
+                    </thead>
+                    <tbody>
+                      {displayPengaduan.length > 0 ? (
+                        displayPengaduan.map((item, idx) => (
+                          <tr key={idx}>
+                            <td><b>{item.nama_pelapor || 'Warga'}</b></td>
+                            <td>{(item.isi_keluhan || '').substring(0, 24)}{(item.isi_keluhan || '').length > 24 ? '...' : ''}</td>
+                            <td>
+                              <span className={`badge ${item.status === 'menunggu' ? 'badge-rose' : item.status === 'diproses' ? 'badge-orange' : 'badge-green'}`} style={{ fontSize: '11px' }}>
+                                {item.status === 'menunggu' ? 'Baru' : item.status === 'diproses' ? 'Diproses' : 'Selesai'}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline"
+                                onClick={() => setSelectedPengaduan(item)}
+                                style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700 }}
+                              >
+                                <Eye size={13} className="me-1" />Detail
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr><td colSpan="4" style={{ textAlign: 'center', padding: '16px', color: '#94a3b8' }}>Belum ada pengaduan di bidang ini.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Tombol Lihat Semua Rekap */}
+            {(dataFormulirFilter.length > 3 || dataPengaduanFilter.length > 3) && (
+              <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowAllRekap(!showAllRekap)}
+                  style={{
+                    minHeight: '38px',
+                    padding: '0 20px',
+                    borderRadius: '10px',
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#ffffff',
+                    color: 'var(--primary-teal, #008080)',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {showAllRekap ? 'Tampilkan Lebih Sedikit (3 Teratas)' : `Lihat Semua Rekap (${dataFormulirFilter.length + dataPengaduanFilter.length} Data)`}
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* 2. SELECTOR DROPDOWN & TABS 5 BIDANG SPM */}
+      <div className="card" style={{ marginBottom: '20px', padding: '20px', borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '8px' }}>
+          Pilih Bidang Standar Pelayanan Minimal (SPM):
+        </label>
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+          {[
+            { id: 0, label: 'Pendidikan', icon: Book },
+            { id: 1, label: 'Pekerjaan Umum', icon: Droplet },
+            { id: 2, label: 'Perumahan Rakyat', icon: Home },
+            { id: 3, label: 'Trantibumlinmas', icon: ShieldCheck },
+            { id: 4, label: 'Sosial', icon: Heart }
+          ].map(b => {
+            const Icon = b.icon;
+            return (
+              <button
+                key={b.id}
+                type="button"
+                className={`tab-btn ${tab === b.id ? 'active' : ''}`}
+                onClick={() => { setTab(b.id); resetFormIden(); }}
+                style={{
+                  minHeight: '44px',
+                  padding: '8px 18px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  border: '1px solid',
+                  borderColor: tab === b.id ? 'var(--primary-teal, #008080)' : '#cbd5e1',
+                  backgroundColor: tab === b.id ? 'var(--primary-teal, #008080)' : '#ffffff',
+                  color: tab === b.id ? '#ffffff' : '#334155',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Icon size={16} />
+                {b.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {message.text && (
-        <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '14px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
+        <div style={{ padding: '14px 18px', marginBottom: '20px', borderRadius: '12px', fontSize: '13.5px', fontWeight: 600, backgroundColor: message.type === 'error' ? '#fef2f2' : '#f0fdf4', border: `1px solid ${message.type === 'error' ? '#fecaca' : '#bbf7d0'}`, color: message.type === 'error' ? '#b91c1c' : '#15803d' }}>
           <b>Info Sistem:</b> {message.text}
         </div>
       )}
@@ -995,107 +1153,29 @@ export default function PengaduanView() {
         </div>
       )}
 
-      {/* =========================================================================
-          TABEL REKAP DINAMIS BAWAH (BERLAKU UNTUK SEMUA BIDANG)
-          ========================================================================= */}
-      {(() => {
-        const bidangSaatIni = BIDANG_MAP[tab];
-        const namaBidang = ['Pendidikan', 'Pekerjaan Umum', 'Perumahan Rakyat', 'Trantibumlinmas', 'Sosial'][tab];
-
-        // Filter data dengan aman
-        const dataPengaduanFilter = rekapPengaduan?.filter(item => item.bidang === bidangSaatIni) || [];
-        const dataFormulirFilter = rekapFormulir?.filter(item => item.bidang === bidangSaatIni) || [];
-        const belumSelesai = dataPengaduanFilter.filter(item => item.status !== 'selesai').length;
-
-        return (
-          <div className="grid grid-2" style={{ marginTop: '16px' }}>
-            {/* --- KIRI: REKAP FORMULIR --- */}
-            <div className="card">
-              <div className="section-head">
-                <h3>Rekap Formulir {namaBidang}</h3>
-              </div>
-              <div className="table-responsive">
-                <table className="table">
-                  <thead>
-                    <tr><th>Tanggal</th><th>Sub-Bidang</th><th>Aksi</th></tr>
-                  </thead>
-                  <tbody>
-                    {dataFormulirFilter.length > 0 ? (
-                      dataFormulirFilter.map((item, idx) => (
-                        <tr key={idx}>
-                          <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
-                          <td><span style={{ fontWeight: '600', color: '#333' }}>{item.sub_bidang || '-'}</span></td>
-                          <td>
-                            <button className="btn btn-sm btn-outline" onClick={() => setSelectedForm(item)}>
-                              <Eye className="me-1" />Detail
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#666' }}>Belum ada formulir tersimpan.</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* --- KANAN: REKAP PENGADUAN --- */}
-            <div className="card">
-              <div className="section-head">
-                <h3>Rekap Pengaduan {namaBidang}</h3>
-                {belumSelesai > 0 && <span className="badge badge-orange">{belumSelesai} belum ditindak</span>}
-              </div>
-              <div className="table-responsive">
-                <table className="table">
-                  <thead>
-                    <tr><th>Pelapor</th><th>Isi Singkat</th><th>Status</th><th>Aksi</th></tr>
-                  </thead>
-                  <tbody>
-                    {dataPengaduanFilter.length > 0 ? (
-                      dataPengaduanFilter.map((item, idx) => (
-                        <tr key={idx}>
-                          <td>{item.nama_pelapor || 'Warga'}</td>
-                          <td>{(item.isi_keluhan || '').substring(0, 30)}{(item.isi_keluhan || '').length > 30 ? '...' : ''}</td>
-                          <td>
-                            <span className={`badge ${item.status === 'menunggu' ? 'badge-rose' : item.status === 'diproses' ? 'badge-orange' : 'badge-green'}`}>
-                              {item.status === 'menunggu' ? 'Baru' : item.status === 'diproses' ? 'Diproses' : 'Selesai'}
-                            </span>
-                          </td>
-                          <td>
-                            <button className="btn btn-sm btn-outline" onClick={() => setSelectedPengaduan(item)}>
-                              <Eye /> Detail
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#666' }}>Belum ada pengaduan di bidang ini.</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* =========================================
           MODAL POP-UP DETAIL FORMULIR
           ========================================= */}
       {selectedForm && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999,
+          backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', zIndex: 9999,
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
         }}>
           <div className="card" style={{
             width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
-            position: 'relative', backgroundColor: '#fff', borderRadius: '12px', padding: '24px'
+            position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
           }}>
             <button
+              type="button"
               onClick={() => setSelectedForm(null)}
-              style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#666' }}
+              style={{
+                position: 'absolute', top: '16px', right: '16px',
+                background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', cursor: 'pointer', color: '#64748b', zIndex: 10
+              }}
+              aria-label="Tutup"
             >
               &times;
             </button>
@@ -1154,16 +1234,23 @@ export default function PengaduanView() {
       {selectedPengaduan && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999,
+          backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', zIndex: 9999,
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
         }}>
           <div className="card" style={{
             width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
-            position: 'relative', backgroundColor: '#fff', borderRadius: '12px', padding: '24px'
+            position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
           }}>
             <button
+              type="button"
               onClick={() => setSelectedPengaduan(null)}
-              style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#666' }}
+              style={{
+                position: 'absolute', top: '16px', right: '16px',
+                background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', cursor: 'pointer', color: '#64748b', zIndex: 10
+              }}
+              aria-label="Tutup"
             >
               &times;
             </button>

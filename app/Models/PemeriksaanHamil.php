@@ -15,19 +15,22 @@ class PemeriksaanHamil extends Model
         'ibu_id', 'kader_id', 'tanggal_periksa', 'usia_kehamilan_minggu',
         'berat_badan', 'tinggi_badan', 'tekanan_darah', 'lingkar_perut',
         'lingkar_lengan', 'status_kek', 'anemia', 'status_imt',
-        'dokumentasi_foto', 'status_form'
+        'dokumentasi_foto', 'status_form',
     ];
 
     protected $casts = [
         'dokumentasi_foto' => 'array',
-        'tanggal_periksa' => 'date'
+        'tanggal_periksa' => 'date',
     ];
+
     public function kader()
     {
         // Mengarahkan 'kader_id' di tabel pemeriksaan ke tabel 'users'
         return $this->belongsTo(User::class, 'kader_id');
     }
-    public function ibu() {
+
+    public function ibu()
+    {
         return $this->belongsTo(WargaDewasa::class, 'ibu_id');
     }
 }

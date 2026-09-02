@@ -10,13 +10,14 @@ class WargaKeluarga extends Model
     use HasFactory;
 
     protected $table = 'warga_keluarga'; // Pastikan nama tabelnya akurat
+
     protected $fillable = [
         'posyandu_id',
         'user_id',
         'nama_kepala_keluarga',
         'no_kk',
         'nik_kepala_keluarga',
-        'no_hp'
+        'no_hp',
     ];
 
     // Relasi ke tabel anak (Satu keluarga bisa banyak anak)

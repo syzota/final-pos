@@ -12,9 +12,10 @@ class ReferensiMakananController extends Controller
     public function index()
     {
         $makanan = DB::table('referensi_makanan')->orderBy('nama_makanan', 'asc')->get();
+
         return response()->json([
             'status' => 'sukses',
-            'data' => $makanan
+            'data' => $makanan,
         ]);
     }
 
@@ -23,7 +24,7 @@ class ReferensiMakananController extends Controller
     {
         $request->validate([
             'nama_makanan' => 'required|string',
-            'kalori_per_porsi' => 'required|numeric'
+            'kalori_per_porsi' => 'required|numeric',
         ]);
 
         $posyanduId = $request->user()->posyandu_id;
@@ -44,7 +45,7 @@ class ReferensiMakananController extends Controller
     {
         $request->validate([
             'nama_makanan' => 'required|string',
-            'kalori_per_porsi' => 'required|numeric'
+            'kalori_per_porsi' => 'required|numeric',
         ]);
 
         DB::table('referensi_makanan')->where('id', $id)->update([
@@ -60,6 +61,7 @@ class ReferensiMakananController extends Controller
     public function destroy($id)
     {
         DB::table('referensi_makanan')->where('id', $id)->delete();
+
         return response()->json(['status' => 'sukses', 'pesan' => 'Data makanan berhasil dihapus!']);
     }
 }

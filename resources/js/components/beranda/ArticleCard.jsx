@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-import { Clock, ArrowRight } from 'lucide-react';
-
+import { Clock, ArrowRight, BookOpen } from 'lucide-react';
 import Skeleton from '../common/Skeleton';
 
 export default function ArticleCard({ onNavigate }) {
@@ -10,32 +8,24 @@ export default function ArticleCard({ onNavigate }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Menarik data artikel dari backend Laravel
     axios.get('/api/artikels')
       .then(res => {
-        // Karena ini Beranda, kita hanya ambil 3 artikel paling baru
-        const terbaru = res.data.data.slice(0, 3);
+        const data = res.data.data || [];
+        const terbaru = data.slice(0, 3);
         setArtikels(terbaru);
         setLoading(false);
       })
       .catch(err => {
-        console.error("Gagal memuat artikel beranda:", err);
+        console.error('Gagal memuat artikel beranda:', err);
         setLoading(false);
       });
   }, []);
 
-  // Fungsi untuk melompat ke halaman detail
   const handleReadMore = (id) => {
     localStorage.setItem('active_article_id', id);
     if (onNavigate) {
-      // Pastikan 'detail-artikel' sesuai dengan nama rute navigasimu
       onNavigate('detail-artikel');
     }
-  };
-
-  const getImageUrl = (path) => {
-    if (!path) return 'https://via.placeholder.com/300x200?text=Kesehatan';
-    return `/storage/${path}`;
   };
 
   const formatDate = (dateString) => {
@@ -54,54 +44,120 @@ export default function ArticleCard({ onNavigate }) {
   }
 
   if (artikels.length === 0) {
-    return <div style={{ textAlign: 'center', padding: '40px', width: '100%', color: '#666' }}>Belum ada artikel yang dipublikasikan.</div>;
+    return (
+      <div style={{ textAlign: 'center', padding: '48px 20px', width: '100%', background: '#ffffff', borderRadius: '16px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
+        <BookOpen size={32} style={{ margin: '0 auto 12px', color: '#94a3b8' }} />
+        <p style={{ fontWeight: 600, fontSize: '15px', margin: 0 }}>Belum ada artikel yang dipublikasikan saat ini.</p>
+        <p style={{ fontSize: '13px', margin: '4px 0 0' }}>Kader posyandu akan segera menambahkan edukasi kesehatan terbaru.</p>
+      </div>
+    );
   }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', width: '100%' }}>
       {artikels.map(artikel => (
-        <div key={artikel.id} className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '16px', border: '1px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+        <article
+          key={artikel.id}
+          className="card article-hover-card"
+          style={{
+            padding: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
+            transition: 'transform 0.25s ease, box-shadow 0.25s ease'
+          }}
+        >
           {/* Gambar Artikel */}
-          <img
-            src={artikel.path_foto ? `/storage/${artikel.path_foto}` : 'https://via.placeholder.com/400x200?text=Artikel+Kesehatan'}
-            alt={artikel.judul}
-            style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-          />
+          <div style={{ position: 'relative', width: '100%', height: '200px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
+            <img
+              src={artikel.path_foto ? `/storage/${artikel.path_foto}` : 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80'}
+              alt={artikel.judul}
+              loading="lazy"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+            />
+            <span
+              style={{
+                position: 'absolute',
+                top: '14px',
+                left: '14px',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                color: 'var(--primary-teal, #008080)',
+                padding: '4px 12px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+              }}
+            >
+              {artikel.kategori}
+            </span>
+          </div>
 
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-            {/* Meta Kategori & Tanggal */}
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', fontSize: '12px', fontWeight: 'bold' }}>
-              <span className="badge badge-cyan" style={{ textTransform: 'uppercase' }}>{artikel.kategori}</span>
-              <span style={{ color: '#888' }}><Clock className="me-1" /> {formatDate(artikel.published_at)}</span>
+            {/* Meta Tanggal */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', fontSize: '12.5px', color: '#64748b', fontWeight: 500 }}>
+              <Clock size={14} />
+              <span>{formatDate(artikel.published_at)}</span>
             </div>
 
-            {/* Judul & Cuplikan Isi */}
-            <h3 style={{ fontSize: '18px', color: 'var(--ink)', marginBottom: '12px', lineHeight: '1.4' }}>
+            {/* Judul Artikel */}
+            <h3
+              style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                color: '#0f172a',
+                marginBottom: '10px',
+                lineHeight: '1.4',
+                cursor: 'pointer'
+              }}
+              onClick={() => handleReadMore(artikel.id)}
+            >
               {artikel.judul}
             </h3>
-            <p style={{ fontSize: '14px', color: '#666', marginBottom: '24px', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+
+            {/* Cuplikan Isi */}
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6', marginBottom: '20px', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
               {artikel.isi_artikel}
             </p>
 
             {/* Footer Card: Penulis & Tombol Baca */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f0f0f0', paddingTop: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--violet-deep)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>
-                  {artikel.penulis?.name?.charAt(0) || 'A'}
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#008080', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700 }}>
+                  {artikel.penulis?.name?.charAt(0) || 'K'}
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#444' }}>
-                  {artikel.penulis?.name || 'Admin'}
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                  {artikel.penulis?.name || 'Kader Posyandu'}
                 </span>
               </div>
+
               <button
+                type="button"
                 onClick={() => handleReadMore(artikel.id)}
-                style={{ background: 'none', border: 'none', color: 'var(--violet-deep)', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center' }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--primary-teal, #008080)',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '13.5px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '8px 0'
+                }}
               >
-                Baca Artikel <ArrowRight className="ms-1" />
+                Baca Lengkap
+                <ArrowRight size={16} />
               </button>
             </div>
           </div>
-        </div>
+        </article>
       ))}
     </div>
   );

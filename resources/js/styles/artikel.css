@@ -12,10 +12,7 @@
       #ffffff 48%,
       #f8fbff 100%
     );
-  font-family:
-    'Plus Jakarta Sans',
-    system-ui,
-    sans-serif;
+  font-family: var(--font-body);
   color: #17283a;
 }
 
