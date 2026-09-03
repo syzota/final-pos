@@ -113,9 +113,18 @@ class WargaController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
+            /*
+             * Simpan detail exception ke log Laravel
+             * untuk kebutuhan debugging developer.
+             *
+             * Jangan kirim detail exception ke client.
+             */
+            report($e);
+
             return response()->json([
                 'status' => 'gagal',
-                'pesan'  => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                'pesan' => 'Terjadi kesalahan sistem. Silakan coba lagi.'
             ], 500);
         }
     }
@@ -208,9 +217,11 @@ class WargaController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
+            report($e);
+
             return response()->json([
                 'status' => 'gagal',
-                'pesan' => 'Gagal menghapus data keluarga: ' . $e->getMessage()
+                'pesan' => 'Gagal menghapus data keluarga. Silakan coba lagi.'
             ], 500);
         }
     }
