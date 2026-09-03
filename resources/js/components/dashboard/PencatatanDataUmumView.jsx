@@ -180,19 +180,13 @@ export default function PencatatanDataUmumView() {
           TAMPILAN MONITOR (INPUT UNTUK KADER/KETUA)
           ========================================================= */}
             <div className="no-print">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <div>
-                        <h2 style={{ color: 'var(--violet-deep)', margin: '0 0 8px 0' }}>Pencatatan Data Umum Posyandu</h2>
-                        <p style={{ color: '#666', margin: 0, fontSize: '14px' }}>Isi data keseluruhan sasaran dan pengunjung Posyandu bulan ini.</p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}>
-                            <Printer className="me-2" /> Ekspor PDF Kertas
-                        </button>
-                        <button className="btn btn-violet" onClick={handleSave} disabled={isLoading}>
-                            <Save className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
-                        </button>
-                    </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                    <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--primary-teal, #008080)', borderColor: 'var(--primary-teal, #008080)', minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
+                        <Printer size={16} style={{ marginRight: '8px' }} /> Ekspor PDF Kertas
+                    </button>
+                    <button className="btn btn-primary" onClick={handleSave} disabled={isLoading} style={{ minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
+                        <Save size={16} style={{ marginRight: '8px' }} /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                    </button>
                 </div>
 
                 {message.text && (

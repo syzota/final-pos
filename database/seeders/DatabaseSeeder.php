@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         // Sutradara yang memanggil UserSeeder untuk dijalankan
         $this->call([
             UserSeeder::class,
+            ArtikelSeeder::class,
         ]);
     }
 }

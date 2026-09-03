@@ -220,10 +220,6 @@ export default function PuskesmasView() {
           TAMPILAN NORMAL (DI LAYAR MONITOR)
           ========================================= */}
             <div className="no-print">
-                <div className="section-head" style={{ marginBottom: '24px' }}>
-                    <h2><Hospital className="me-2" />Laporan Kesehatan per Posyandu</h2>
-                    <p style={{ color: '#666' }}>Tinjau dan ekspor laporan pemeriksaan secara terperinci untuk diserahkan ke instansi.</p>
-                </div>
 
                 {message.text && (
                     <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '14px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>

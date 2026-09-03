@@ -224,10 +224,6 @@ export default function AdminEksporView() {
           TAMPILAN NORMAL (DI LAYAR MONITOR)
           ========================================= */}
             <div className="no-print">
-                <div className="section-head" style={{ marginBottom: '24px' }}>
-                    <h2><HeartPulse className="me-2" />Pemantauan Pencatatan Kesehatan</h2>
-                    <p style={{ color: '#666' }}>Pilih Posyandu untuk meninjau, menghapus, atau mengekspor riwayat pemeriksaan dari 4 sasaran kesehatan.</p>
-                </div>
 
                 {message.text && (
                     <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '14px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import PageHero from '../components/common/PageHero';
+import SectionHeader from '../components/common/SectionHeader';
 import '../styles/artikel.css';
 import heroBgImg from '../assets/images/common/hero-artikel.png';
 import authorImg from '../assets/images/artikel/author-sarah.jpeg';
@@ -65,6 +67,7 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
 
   const getImageUrl = (path) => {
     if (!path) return 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+    if (path.startsWith('http')) return path;
     return `/storage/${path}`;
   };
 
@@ -99,70 +102,39 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
       <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="artikel-main">
-        {/* HERO SECTION */}
-        <section className="artikel-hero">
-          <div className="artikel-hero__media">
-            <img
-              src={heroBgImg}
-              alt="Edukasi Kesehatan Posyandu Loa Duri Ulu"
-              className="artikel-hero__image"
-              loading="lazy"
-            />
-            <div className="artikel-hero__overlay"></div>
-            <div className="artikel-hero__glow"></div>
-          </div>
-
-          <div className="artikel-hero__content">
-            <div className="artikel-hero__badge">
-              <BookHeart size={16} />
-              <span>Ruang Edukasi & Informasi Kesehatan</span>
-            </div>
-
-            <h1 className="artikel-hero-title">
-              Pengetahuan Kesehatan
-              <span> untuk Keluarga yang Lebih Sehat</span>
-            </h1>
-
-            <p className="artikel-hero-subtitle">
-              Pelajari informasi praktis seputar nutrisi balita, perawatan ibu hamil, jadwal imunisasi, dan pola hidup sehat di Desa Loa Duri Ulu.
-            </p>
-
-            <div className="artikel-hero__actions">
-              <button
-                type="button"
-                className="artikel-hero__primary"
-                onClick={() =>
-                  document.getElementById('artikel-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-                style={{ minHeight: '44px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-              >
-                Jelajahi Artikel
-                <ArrowDown size={16} />
-              </button>
-
-              <button
-                type="button"
-                className="artikel-hero__secondary"
-                onClick={() => setActiveTopik('Semua Topik')}
-                style={{ minHeight: '44px' }}
-              >
-                Semua Topik
-              </button>
-            </div>
-          </div>
-        </section>
+        {/* UNIFIED HERO SECTION */}
+        <PageHero
+          badgeIcon={BookHeart}
+          badgeText="Edukasi Kesehatan"
+          title="Pengetahuan Kesehatan"
+          titleHighlight="untuk Keluarga yang Lebih Sehat"
+          description="Panduan praktis nutrisi, imunisasi, dan pola hidup sehat untuk keluarga."
+          primaryAction={{
+            label: 'Jelajahi Artikel',
+            icon: ArrowDown,
+            onClick: () =>
+              document.getElementById('artikel-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+          }}
+          secondaryAction={{
+            label: 'Semua Topik',
+            onClick: () => {
+              setActiveTopik('Semua Topik');
+              document.getElementById('artikel-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            },
+          }}
+          bgImage={heroBgImg}
+        />
 
         {/* SECTION DAFTAR ARTIKEL */}
         <section id="artikel-list" className="artikel-content-section" style={{ padding: '40px 16px', maxWidth: '1200px', margin: '0 auto' }}>
-          <div className="artikel-section-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-            <div>
-              <span className="artikel-eyebrow" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase' }}>
-                KATALOG ARTIKEL
-              </span>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 0 0' }}>
-                Temukan Informasi Sesuai Kebutuhan Anda
-              </h2>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+            <SectionHeader
+              eyebrow="KATALOG ARTIKEL"
+              title="Temukan Informasi Sesuai Kebutuhan Anda"
+              description="Pilih topik artikel atau gunakan pencarian untuk menemukan edukasi yang tepat."
+              align="left"
+              style={{ marginBottom: 0 }}
+            />
 
             {/* Fungsionalitas Tombol Sortir */}
             <button
@@ -201,16 +173,18 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                   onClick={() => setActiveTopik(topik)}
                   style={{
                     minHeight: '40px',
-                    padding: '8px 16px',
-                    borderRadius: '20px',
+                    padding: '8px 18px',
+                    borderRadius: '999px',
                     fontSize: '13.5px',
                     fontWeight: 600,
                     border: '1px solid',
-                    borderColor: activeTopik === topik ? 'var(--primary-teal, #008080)' : '#e2e8f0',
-                    backgroundColor: activeTopik === topik ? 'var(--primary-teal, #008080)' : '#ffffff',
-                    color: activeTopik === topik ? '#ffffff' : '#475569',
+                    borderColor: activeTopik === topik ? 'var(--primary-500)' : 'var(--neutral-200)',
+                    backgroundColor: activeTopik === topik ? 'var(--primary-500)' : '#ffffff',
+                    color: activeTopik === topik ? '#ffffff' : 'var(--neutral-700)',
                     whiteSpace: 'nowrap',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease-in-out',
+                    boxShadow: activeTopik === topik ? '0 2px 8px rgba(0, 128, 128, 0.25)' : 'none',
                   }}
                 >
                   {topik}
@@ -264,6 +238,10 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                         src={getImageUrl(featuredArticle.path_foto)}
                         alt={featuredArticle.judul}
                         loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&auto=format&fit=crop&q=80';
+                        }}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                       <span
@@ -365,6 +343,10 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                       src={getImageUrl(artikel.path_foto)}
                       alt={artikel.judul}
                       loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+                      }}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     <span

@@ -1441,12 +1441,12 @@ body {
 .medical-hero {
   position: relative;
   width: 100%;
-  min-height: 624px;
+  min-height: 520px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 72px var(--space-6) 120px;
-  margin-bottom: 56px;
+  padding: 80px var(--space-6);
+  margin-bottom: var(--space-6);
   border-radius: 32px;
   background-color: var(--color-primary);
   overflow: visible;
@@ -1607,126 +1607,11 @@ body {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.18);
 }
-
-.medical-hero__service-panel {
-  position: absolute;
-  z-index: 10;
-  left: 5%;
-  right: 5%;
-  bottom: calc(-1 * var(--space-6));
-  min-height: var(--space-12);
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr 1px 1fr auto;
-  align-items: center;
-  padding: var(--space-2) var(--space-2);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(207, 220, 235, 0.90);
-  box-shadow: 0 18px 50px rgba(39, 73, 109, 0.17);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-.medical-hero__service-item {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-05) var(--space-2);
-}
-
-.medical-hero__service-icon {
-  width: 42px;
-  height: var(--space-5);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 13px;
-  background-color: var(--color-primary-bg);
-  color: var(--color-primary);
-  font-size: var(--font-base);
-}
-
-.medical-hero__service-text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-05);
-}
-
-.medical-hero__service-label {
-  color: #75869a;
-  font-size: var(--font-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.medical-hero__service-text strong {
-  color: var(--color-dark);
-  font-size: var(--font-base);
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.medical-hero__divider {
-  width: 1px;
-  height: var(--space-6);
-  background-color: #dbe6f1;
-}
-
-.medical-hero__panel-button {
-  height: var(--space-6);
-  padding: 0 var(--space-3);
-  margin-left: var(--space-1-5);
-  border: 0;
-  border-radius: 14px;
-  background-color: var(--color-primary);
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
-  white-space: nowrap;
-  font-family: inherit;
-  font-size: var(--font-xs);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.medical-hero__panel-button:hover {
-  background-color: var(--color-primary-light);
-  transform: translateY(-1px);
-  box-shadow: 0 7px 16px rgba(41, 118, 199, 0.25);
-}
-
 @media (max-width: 1024px) {
   .medical-hero {
-    min-height: 592px;
-    padding: var(--space-8) var(--space-4) 152px;
-    margin-bottom: 88px;
-  }
-
-  .medical-hero__service-panel {
-    bottom: -80px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: var(--space-2);
-  }
-
-  .medical-hero__divider {
-    display: none;
-  }
-
-  .medical-hero__service-item {
-    padding: var(--space-05) var(--space-1-5);
-  }
-
-  .medical-hero__panel-button {
-    grid-column: 1 / -1;
-    width: 100%;
-    margin: 3px 0 0;
+    min-height: 480px;
+    padding: var(--space-8) var(--space-4);
+    margin-bottom: var(--space-5);
   }
 }
 
@@ -1737,145 +1622,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: var(--space-5) var(--space-3) var(--space-3);
-    margin-bottom: 0;
+    padding: var(--space-5) var(--space-3);
+    margin-bottom: var(--space-4);
     border-radius: 24px;
     overflow: hidden;
-  }
-
-  .medical-hero__background {
-    border-radius: inherit;
-  }
-
-  .medical-hero__background-image {
-    object-position: center center;
-    transform: scale(1.04);
-  }
-
-  .medical-hero__overlay {
-    background: rgba(36, 76, 116, 0.82);
-  }
-
-  .medical-hero__gradient {
-    background: linear-gradient(180deg, rgba(0, 93, 167, 0.28) 0%, rgba(41, 118, 199, 0.14) 45%, rgba(0, 93, 167, 0.34) 100%);
-  }
-
-  .medical-hero__content {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  .medical-hero__badge {
-    width: fit-content;
-    margin-bottom: var(--space-3);
-    padding: var(--space-1) var(--space-1-5);
-    font-size: var(--font-xs);
-  }
-
-  .medical-hero__title {
-    width: 100%;
-    max-width: 330px;
-    font-size: clamp(2.2rem, 10vw, 3rem);
-    line-height: 1.02;
-    letter-spacing: -0.045em;
-    text-align: left;
-  }
-
-  .medical-hero__title br {
-    display: none;
-  }
-
-  .medical-hero__title span {
-    display: inline;
-  }
-
-  .medical-hero__description {
-    max-width: 330px;
-    margin: var(--space-3) 0 0;
-    font-size: var(--font-base);
-    line-height: 1.7;
-    text-align: left;
-    color: rgba(255, 255, 255, 0.84);
-  }
-
-  .medical-hero__buttons {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-1-5);
-    margin-top: var(--space-3);
-  }
-
-  .medical-hero__primary-button,
-  .medical-hero__secondary-button {
-    width: 100%;
-    min-height: var(--space-6);
-    font-size: var(--font-base);
-  }
-
-  .medical-hero__service-panel {
-    position: relative;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    width: 100%;
-    margin-top: var(--space-4);
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0;
-    padding: var(--space-1) var(--space-2) var(--space-2);
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 14px 32px rgba(17, 45, 74, 0.16);
-  }
-
-  .medical-hero__service-item {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 42px 1fr;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) 0;
-  }
-
-  .medical-hero__service-icon {
-    width: 42px;
-    height: var(--space-5);
-    border-radius: 13px;
-    font-size: var(--font-base);
-  }
-
-  .medical-hero__service-text {
-    gap: 3px;
-  }
-
-  .medical-hero__service-label {
-    font-size: var(--font-xs);
-    letter-spacing: 0.06em;
-  }
-
-  .medical-hero__service-text strong {
-    font-size: var(--font-base);
-    line-height: 1.4;
-  }
-
-  .medical-hero__divider {
-    display: block;
-    width: 100%;
-    height: 1px;
-    background-color: #e3ebf3;
-  }
-
-  .medical-hero__panel-button {
-    width: 100%;
-    min-height: var(--space-6);
-    margin: var(--space-1-5) 0 0;
-    border-radius: 14px;
   }
 }
 

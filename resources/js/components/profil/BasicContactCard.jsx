@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Phone } from 'lucide-react';
+import { Phone, Building } from 'lucide-react';
 
 // 1. Tambahkan { data } di dalam kurung untuk menerima lemparan dari ProfilPosyandu.jsx
 export default function BasicContactCard({ data }) {
@@ -22,7 +22,7 @@ export default function BasicContactCard({ data }) {
       label: 'TELEPON LAYANAN',
       value: data.no_telepon,
       icon: (
-        <Phone />
+        <Phone size={18} />
       )
     },
     {
@@ -46,8 +46,26 @@ export default function BasicContactCard({ data }) {
   ];
 
   return (
-    <div className="basic-contact-card">
-      <h3 className="card-title">Informasi Kontak Dasar</h3>
+    <div
+      className="basic-contact-card"
+      style={{
+        padding: '28px 24px',
+        borderRadius: '18px',
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.03)'
+      }}
+    >
+      <div className="card-header-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: 'var(--primary-50, #f0fdfa)', color: 'var(--primary-600, #0d9488)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Building size={22} />
+        </div>
+        <div>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0' }}>Informasi Kontak Dasar</h3>
+          <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Layanan informasi & alamat desa</span>
+        </div>
+      </div>
+
       <div className="contact-grid">
         {contactItems.map((item, idx) => (
           <div className="contact-item" key={idx}>

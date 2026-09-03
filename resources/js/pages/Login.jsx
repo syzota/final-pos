@@ -4,26 +4,17 @@ import logo from '../assets/images/common/logo-header.jpeg';
 import { Loader2, ArrowLeft, Eye, EyeOff, Lock, User, ShieldAlert } from 'lucide-react';
 
 export default function Login({ onNavigate, onLogin }) {
-  const [loginType, setLoginType] = useState('pengelola');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleTypeChange = (type) => {
-    setLoginType(type);
-    setError('');
-    setUsername('');
-    setPassword('');
-    setShowPassword(false);
-  };
-
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
 
-    if (!username || !password) {
-      setError('Username dan kata sandi wajib diisi.');
+    if (!username.trim() || !password) {
+      setError('Username / NIK dan kata sandi wajib diisi.');
       return;
     }
 
@@ -32,20 +23,12 @@ export default function Login({ onNavigate, onLogin }) {
 
     try {
       const response = await axiosClient.post('/login', {
-        username,
+        username: username.trim(),
         password,
       });
 
       const token = response.data.data.token;
       const user = response.data.data.user;
-
-      if (loginType === 'warga' && user.role !== 'warga') {
-        throw new Error('Gagal: Anda menggunakan akun Pengelola. Silakan pindah ke tab "Akun Pengelola".');
-      }
-
-      if (loginType === 'pengelola' && user.role === 'warga') {
-        throw new Error('Gagal: Anda menggunakan akun Warga. Silakan pindah ke tab "Akun Warga".');
-      }
 
       localStorage.setItem('auth_token', token);
       localStorage.setItem('auth_user', JSON.stringify(user));
@@ -55,12 +38,15 @@ export default function Login({ onNavigate, onLogin }) {
       }
     } catch (err) {
       console.error('Gagal Login:', err);
-      if (err.message && err.message.startsWith('Gagal:')) {
-        setError(err.message);
+      if (err.response && err.response.data && err.response.data.pesan) {
+        setError(err.response.data.pesan);
       } else if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
+      } else if (err.response && err.response.data && err.response.data.errors) {
+        const firstErr = Object.values(err.response.data.errors)[0];
+        setError(Array.isArray(firstErr) ? firstErr[0] : firstErr);
       } else {
-        setError('Koneksi ke server gagal atau Username/Password salah.');
+        setError('Koneksi ke server gagal atau Username / NIK dan Kata Sandi tidak cocok.');
       }
     } finally {
       setIsLoading(false);
@@ -68,7 +54,17 @@ export default function Login({ onNavigate, onLogin }) {
   };
 
   return (
-    <div id="login-screen" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', background: 'linear-gradient(135deg, #f0fdfa 0%, #e2e8f0 100%)' }}>
+    <div
+      id="login-screen"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px 16px',
+        background: 'linear-gradient(135deg, #f0fdfa 0%, #e2e8f0 100%)'
+      }}
+    >
       <div
         className="login-card"
         style={{
@@ -109,124 +105,122 @@ export default function Login({ onNavigate, onLogin }) {
         </button>
 
         {/* Brand Header */}
-        <div style={{ textAlign: 'center', marginTop: '12px', marginBottom: '24px' }}>
+        <div style={{ textAlign: 'center', marginTop: '12px', marginBottom: '28px' }}>
           <div
             style={{
               width: '64px',
               height: '64px',
               borderRadius: '16px',
               overflow: 'hidden',
-              margin: '0 auto 12px',
+              margin: '0 auto 14px',
               boxShadow: '0 4px 12px rgba(0, 128, 128, 0.15)'
             }}
           >
-            <img src={logo} alt="Posyandu Loa Duri Ulu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img
+              src={logo}
+              alt="Posyandu Loa Duri Ulu"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           </div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0' }}>
             Posyandu Loa Duri Ulu
           </h1>
-          <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0 }}>
-            Masuk ke sistem pencatatan & pelaporan kesehatan desa
+          <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0, lineHeight: '1.4' }}>
+            Masuk ke akun Anda untuk melanjutkan
           </p>
         </div>
 
-        {/* Role Toggle */}
-        <div
-          style={{
-            display: 'flex',
-            backgroundColor: '#f1f5f9',
-            padding: '4px',
-            borderRadius: '12px',
-            marginBottom: '24px'
-          }}
-        >
-          <button
-            type="button"
-            className={`role-btn ${loginType === 'pengelola' ? 'active' : ''}`}
-            onClick={() => handleTypeChange('pengelola')}
-            style={{
-              flex: 1,
-              minHeight: '40px',
-              borderRadius: '9px',
-              border: 'none',
-              fontSize: '13.5px',
-              fontWeight: 700,
-              backgroundColor: loginType === 'pengelola' ? '#ffffff' : 'transparent',
-              color: loginType === 'pengelola' ? 'var(--primary-teal, #008080)' : '#64748b',
-              boxShadow: loginType === 'pengelola' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            Akun Pengelola
-          </button>
-          <button
-            type="button"
-            className={`role-btn ${loginType === 'warga' ? 'active' : ''}`}
-            onClick={() => handleTypeChange('warga')}
-            style={{
-              flex: 1,
-              minHeight: '40px',
-              borderRadius: '9px',
-              border: 'none',
-              fontSize: '13.5px',
-              fontWeight: 700,
-              backgroundColor: loginType === 'warga' ? '#ffffff' : 'transparent',
-              color: loginType === 'warga' ? 'var(--primary-teal, #008080)' : '#64748b',
-              boxShadow: loginType === 'warga' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            Akun Warga
-          </button>
-        </div>
-
-        {/* Form Login */}
+        {/* Form Login Tunggal */}
         <form onSubmit={handleLogin}>
           <div className="field" style={{ marginBottom: '18px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-              {loginType === 'warga' ? 'Nomor Induk Kependudukan (NIK)' : 'Username Petugas'}
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+              Username atau NIK
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  pointerEvents: 'none',
+                  color: '#94a3b8'
+                }}
+              >
+                <User size={18} />
+              </div>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder={loginType === 'warga' ? 'Masukkan 16 digit NIK Anda' : 'mis. kader.melati atau ketua.melati'}
+                placeholder="Masukkan username atau NIK Anda"
                 disabled={isLoading}
+                autoComplete="username"
                 style={{
                   width: '100%',
                   minHeight: '46px',
                   borderRadius: '12px',
                   border: '1px solid #cbd5e1',
-                  padding: '0 14px',
+                  padding: '0 14px 0 42px',
                   fontSize: '14px',
-                  backgroundColor: '#ffffff'
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--primary-500, #008080)';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(0, 128, 128, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#cbd5e1';
+                  e.target.style.boxShadow = 'none';
                 }}
               />
             </div>
           </div>
 
           <div className="field" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
               Kata Sandi / PIN
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  pointerEvents: 'none',
+                  color: '#94a3b8'
+                }}
+              >
+                <Lock size={18} />
+              </div>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Masukkan kata sandi atau 6 digit PIN"
                 disabled={isLoading}
+                autoComplete="current-password"
                 style={{
                   width: '100%',
                   minHeight: '46px',
                   borderRadius: '12px',
                   border: '1px solid #cbd5e1',
-                  padding: '0 44px 0 14px',
+                  padding: '0 44px 0 42px',
                   fontSize: '14px',
-                  backgroundColor: '#ffffff'
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--primary-500, #008080)';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(0, 128, 128, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#cbd5e1';
+                  e.target.style.boxShadow = 'none';
                 }}
               />
               <button
@@ -279,7 +273,7 @@ export default function Login({ onNavigate, onLogin }) {
               width: '100%',
               minHeight: '48px',
               borderRadius: '12px',
-              backgroundColor: 'var(--primary-teal, #008080)',
+              backgroundColor: 'var(--primary-500, #008080)',
               color: '#ffffff',
               fontSize: '15px',
               fontWeight: 700,
@@ -289,7 +283,7 @@ export default function Login({ onNavigate, onLogin }) {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 4px 14px rgba(0, 128, 128, 0.2)',
+              boxShadow: '0 4px 14px rgba(0, 128, 128, 0.25)',
               transition: 'all 0.2s ease'
             }}
           >
@@ -299,7 +293,7 @@ export default function Login({ onNavigate, onLogin }) {
                 <span>Memverifikasi Akun...</span>
               </>
             ) : (
-              <span>Masuk ke Dashboard</span>
+              <span>Masuk ke Sistem</span>
             )}
           </button>
         </form>

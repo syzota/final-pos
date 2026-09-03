@@ -67,19 +67,6 @@ export default function DashboardHome({ role, onViewChange }) {
 
   return (
     <div style={{ animation: 'fadein 0.3s ease' }}>
-      {/* HERO SECTION DENGAN TIPOGRAFI MODERN & HIERARKI JELAS */}
-      <div style={{ marginBottom: '24px', backgroundColor: '#ffffff', padding: '24px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          Ringkasan Operasional Bulanan
-        </span>
-        <h1 style={{ color: '#0f172a', margin: '4px 0 6px 0', fontSize: '24px', fontWeight: 800 }}>
-          Beranda Analitik Posyandu Loa Duri Ulu
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '14px', margin: 0, lineHeight: '1.5' }}>
-          Pantau rekapitulasi data penimbangan kesehatan, laporan pengaduan masyarakat, serta progres register bulanan desa.
-        </p>
-      </div>
-
       {/* 1. BENTO GRID 4 STATS CARD (4x4 COMPACT STYLE) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '16px', marginBottom: '28px' }}>
         {/* CARD 1: Total Warga */}

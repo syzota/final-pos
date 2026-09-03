@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Clock, ArrowRight, BookOpen } from 'lucide-react';
 import Skeleton from '../common/Skeleton';
+import { getInitials } from '../../utils/helpers';
 
 export default function ArticleCard({ onNavigate }) {
   const [artikels, setArtikels] = useState([]);
@@ -33,6 +34,12 @@ export default function ArticleCard({ onNavigate }) {
     return new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
+  const getImageUrl = (path) => {
+    if (!path) return 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+    if (path.startsWith('http')) return path;
+    return `/storage/${path}`;
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', width: '100%' }}>
@@ -54,13 +61,12 @@ export default function ArticleCard({ onNavigate }) {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', width: '100%' }}>
+    <div className="article-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', width: '100%' }}>
       {artikels.map(artikel => (
         <article
           key={artikel.id}
-          className="card article-hover-card"
+          className="article-card"
           style={{
-            padding: 0,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
@@ -74,9 +80,13 @@ export default function ArticleCard({ onNavigate }) {
           {/* Gambar Artikel */}
           <div style={{ position: 'relative', width: '100%', height: '200px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
             <img
-              src={artikel.path_foto ? `/storage/${artikel.path_foto}` : 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80'}
+              src={getImageUrl(artikel.path_foto)}
               alt={artikel.judul}
               loading="lazy"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+              }}
               style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
             />
             <span
@@ -84,14 +94,15 @@ export default function ArticleCard({ onNavigate }) {
                 position: 'absolute',
                 top: '14px',
                 left: '14px',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                color: 'var(--primary-teal, #008080)',
-                padding: '4px 12px',
-                borderRadius: '8px',
+                backgroundColor: 'var(--secondary-50)',
+                color: 'var(--primary-800)',
+                padding: '4px 14px',
+                borderRadius: '999px',
                 fontSize: '12px',
                 fontWeight: 700,
                 textTransform: 'uppercase',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                border: '1px solid var(--secondary-200)',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
               }}
             >
               {artikel.kategori}
@@ -100,7 +111,7 @@ export default function ArticleCard({ onNavigate }) {
 
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
             {/* Meta Tanggal */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', fontSize: '12.5px', color: '#64748b', fontWeight: 500 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', fontSize: '12.5px', color: 'var(--neutral-500)', fontWeight: 500 }}>
               <Clock size={14} />
               <span>{formatDate(artikel.published_at)}</span>
             </div>
@@ -110,7 +121,7 @@ export default function ArticleCard({ onNavigate }) {
               style={{
                 fontSize: '18px',
                 fontWeight: 700,
-                color: '#0f172a',
+                color: 'var(--neutral-900)',
                 marginBottom: '10px',
                 lineHeight: '1.4',
                 cursor: 'pointer'
@@ -120,18 +131,52 @@ export default function ArticleCard({ onNavigate }) {
               {artikel.judul}
             </h3>
 
-            {/* Cuplikan Isi */}
-            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6', marginBottom: '20px', flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {/* Ringkasan Konten */}
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--neutral-600)',
+                lineHeight: '1.6',
+                marginBottom: '20px',
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                flexGrow: 1
+              }}
+            >
               {artikel.isi_artikel}
             </p>
 
-            {/* Footer Card: Penulis & Tombol Baca */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: 'auto' }}>
+            {/* Penulis & Tombol Selengkapnya */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: '16px',
+                borderTop: '1px solid var(--neutral-200)',
+                marginTop: 'auto'
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#008080', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700 }}>
-                  {artikel.penulis?.name?.charAt(0) || 'K'}
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--secondary-200)',
+                    color: 'var(--primary-900)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '12px'
+                  }}
+                >
+                  {getInitials(artikel.penulis?.name)}
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neutral-700)' }}>
                   {artikel.penulis?.name || 'Kader Posyandu'}
                 </span>
               </div>
@@ -142,7 +187,7 @@ export default function ArticleCard({ onNavigate }) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--primary-teal, #008080)',
+                  color: 'var(--primary-600)',
                   fontWeight: 700,
                   cursor: 'pointer',
                   fontSize: '13.5px',

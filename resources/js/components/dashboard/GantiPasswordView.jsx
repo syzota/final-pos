@@ -191,25 +191,6 @@ export default function GantiPasswordView() {
   return (
     <div className="account-pin-page">
 
-      <section className="account-pin-hero">
-        <div>
-          <span className="account-pin-eyebrow">
-            KEAMANAN AKUN
-          </span>
-
-          <h2>Ganti PIN Akun</h2>
-
-          <p>
-            Gunakan PIN 6 digit yang mudah Anda ingat,
-            tetapi tidak mudah ditebak orang lain.
-          </p>
-        </div>
-
-        <div className="account-pin-hero-icon">
-          <ShieldAlert />
-        </div>
-      </section>
-
 
       {message.text && (
         <div

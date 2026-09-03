@@ -15,50 +15,50 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchArtikelData = async (targetId) => {
+    const articleId = targetId || localStorage.getItem('active_article_id');
+
+    if (!articleId) {
+      setError('Artikel tidak ditemukan atau ID tidak valid.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError('');
+      // 1. Tembak API untuk ambil detail artikel yang sedang dibaca
+      const detailResponse = await axios.get(`/api/artikels/${articleId}`);
+      setArtikel(detailResponse.data.data);
+
+      // 2. Tembak API untuk ambil SEMUA artikel (buat sidebar)
+      const allArticlesResponse = await axios.get('/api/artikels');
+      const semuaArtikel = allArticlesResponse.data.data || [];
+
+      // 3. Filter: Buang artikel yang sedang dibaca, lalu ambil maksimal 3 buah
+      const filteredLainnya = semuaArtikel
+        .filter(item => item.id !== parseInt(articleId))
+        .slice(0, 3);
+
+      setArtikelLainnya(filteredLainnya);
+
+    } catch (err) {
+      console.error('Gagal mengambil data artikel:', err);
+      setError('Gagal memuat isi artikel dari server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchArtikelData = async () => {
-      const articleId = localStorage.getItem('active_article_id');
-
-      if (!articleId) {
-        setError('Artikel tidak ditemukan atau ID tidak valid.');
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        // 1. Tembak API untuk ambil detail artikel yang sedang dibaca
-        const detailResponse = await axios.get(`/api/artikels/${articleId}`);
-        setArtikel(detailResponse.data.data);
-
-        // 2. Tembak API untuk ambil SEMUA artikel (buat sidebar)
-        const allArticlesResponse = await axios.get('/api/artikels');
-        const semuaArtikel = allArticlesResponse.data.data;
-
-        // 3. Filter: Buang artikel yang sedang dibaca, lalu ambil maksimal 3 buah
-        const filteredLainnya = semuaArtikel
-          .filter(item => item.id !== parseInt(articleId))
-          .slice(0, 3);
-
-        setArtikelLainnya(filteredLainnya);
-
-      } catch (err) {
-        console.error('Gagal mengambil data artikel:', err);
-        setError('Gagal memuat isi artikel dari server.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchArtikelData();
   }, []);
 
-  // FUNGSI BARU: Untuk melompat ke artikel lain dari sidebar tanpa reload penuh
+  // Untuk melompat ke artikel lain dari sidebar secara halus (SPA) tanpa reload penuh
   const handleBacaArtikelLain = (id) => {
     localStorage.setItem('active_article_id', id);
-    // Refresh window/halaman ke atas agar useEffect narik ulang data baru
-    window.location.reload();
-    window.scrollTo(0, 0);
+    fetchArtikelData(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const formatDate = (dateString) => {
@@ -68,7 +68,8 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
   };
 
   const getImageUrl = (path) => {
-    if (!path) return 'https://via.placeholder.com/300x200?text=Artikel+Kesehatan';
+    if (!path) return 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+    if (path.startsWith('http')) return path;
     return `/storage/${path}`;
   };
 
@@ -136,7 +137,14 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
 
                 {artikel.path_foto && (
                   <div className="detail-artikel-closing-img" style={{ marginTop: '32px' }}>
-                    <img src={getImageUrl(artikel.path_foto)} alt={artikel.judul} />
+                    <img
+                      src={getImageUrl(artikel.path_foto)}
+                      alt={artikel.judul}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&auto=format&fit=crop&q=80';
+                      }}
+                    />
                     <span className="closing-img-tag">{artikel.kategori}</span>
                   </div>
                 )}
@@ -161,7 +169,14 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
                     }}
                   >
                     <div className="related-article-img">
-                      <img src={getImageUrl(item.path_foto)} alt={item.judul} />
+                      <img
+                        src={getImageUrl(item.path_foto)}
+                        alt={item.judul}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+                        }}
+                      />
                     </div>
                     <div className="related-article-info">
                       <p className="related-article-title" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -174,21 +189,6 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
               ) : (
                 <p style={{ color: '#888', fontSize: '13px', fontStyle: 'italic' }}>Tidak ada artikel lain yang diterbitkan saat ini.</p>
               )}
-            </div>
-
-            <div className="progress-cta-card">
-              <h3 className="progress-cta-title">Pantau Progres</h3>
-              <p className="progress-cta-desc">
-                Gunakan kalkulator pertumbuhan kami untuk melacak status nutrisi anak Anda secara
-                rutin.
-              </p>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => onNavigate && onNavigate('kalkulator')}
-              >
-                Buka Kalkulator
-              </button>
             </div>
           </aside>
         </div>

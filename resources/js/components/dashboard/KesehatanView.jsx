@@ -426,15 +426,15 @@ export default function KesehatanView() {
 
       {/* 1. HEADER: PILLS JADWAL RUTIN DI ATAS + DROPDOWN/CHIPS SASARAN */}
       <div className="card" style={{ marginBottom: '20px', padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-        {/* Pills Jadwal Rutin di Atas */}
+        {/* Header Sasaran Pemeriksaan */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
-          <div>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Formulir Identifikasi & Pelayanan
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#f0fdfa', color: 'var(--primary-teal, #008080)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Activity size={18} />
+            </div>
+            <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+              Pilih Kelompok Sasaran
             </span>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '2px 0 0' }}>
-              Pencatatan Kesehatan Warga
-            </h2>
           </div>
 
           <div

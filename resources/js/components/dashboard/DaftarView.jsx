@@ -85,9 +85,9 @@ export default function DaftarView() {
 
   return (
     <div className="card">
-      <div className="section-head">
-        <h3>Daftar 9 Posyandu — Desa Loa Duri Ulu</h3>
-        <span className="badge badge-violet">Baris Anda dapat diedit</span>
+      <div className="section-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>Tabel Wilayah & Jadwal Pelayanan</h3>
+        <span className="badge badge-cyan" style={{ fontSize: '12px', fontWeight: 700 }}>Baris Anda dapat diedit</span>
       </div>
 
       {message.text && (

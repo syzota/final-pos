@@ -1,0 +1,496 @@
+/**
+ * ==============================================================================
+ * DESIGN TOKENS - COLOR SYSTEM
+ * Primary: Deep Teal (#008080)
+ * Secondary: Ice Blue / Soft Azure (#c7e4ff)
+ * ==============================================================================
+ */
+
+:root {
+  /* --------------------------------------------------------------------------
+   * 1. PRIMARY PALETTE (Teal: #008080 at 500)
+   * Memberikan kesan profesional, higienis, terpercaya, dan tenang.
+   * -------------------------------------------------------------------------- */
+  --primary-50:  #e6f4f4;
+  --primary-100: #cce9e9;
+  --primary-200: #99d3d3;
+  --primary-300: #66bdbc;
+  --primary-400: #33a7a6;
+  --primary-500: #008080; /* Base Primary */
+  --primary-600: #007373;
+  --primary-700: #006666; /* Hover / High contrast state */
+  --primary-800: #004d4d; /* Deep contrast text */
+  --primary-900: #003333;
+  --primary-950: #001a1a;
+
+  /* --------------------------------------------------------------------------
+   * 2. SECONDARY PALETTE (Ice Blue / Soft Azure: #c7e4ff at 200)
+   * Harmoni Analog (180° & 209°). Ideal untuk soft container, active pill, badge.
+   * -------------------------------------------------------------------------- */
+  --secondary-50:  #f0f7ff;
+  --secondary-100: #e0effe;
+  --secondary-200: #c7e4ff; /* Base Secondary (Container / Subtle Accent) */
+  --secondary-300: #a3d2ff;
+  --secondary-400: #70b5ff;
+  --secondary-500: #3b93f7;
+  --secondary-600: #1d76e0; /* Solid Secondary Action */
+  --secondary-700: #145db7;
+  --secondary-800: #134d93;
+  --secondary-900: #144177;
+  --secondary-950: #0c284d;
+
+  /* --------------------------------------------------------------------------
+   * 3. ACCENT PALETTE (Warm Amber / Gold: #f59e0b)
+   * Komplementer hangat untuk menarik atensi (Badge promo, status pending, CTA khusus).
+   * -------------------------------------------------------------------------- */
+  --accent-50:  #fffbeb;
+  --accent-100: #fef3c7;
+  --accent-200: #fde68a;
+  --accent-300: #fcd34d;
+  --accent-400: #fbbf24;
+  --accent-500: #f59e0b; /* Base Accent */
+  --accent-600: #d97706;
+  --accent-700: #b45309;
+  --accent-800: #92400e;
+  --accent-900: #78350f;
+
+  /* --------------------------------------------------------------------------
+   * 4. NEUTRAL PALETTE (Slate / Cool Gray)
+   * Di-balance dengan spektrum cool tone agar tidak bentrok dengan Teal & Ice Blue.
+   * -------------------------------------------------------------------------- */
+  --neutral-50:  #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+  --neutral-950: #020617;
+
+  /* --------------------------------------------------------------------------
+   * 5. SEMANTIC & STATUS FEEDBACK
+   * -------------------------------------------------------------------------- */
+  /* Success (Transaksi Sukses, Lunas, Normal) */
+  --color-success-bg:     #ecfdf5;
+  --color-success-border: #a7f3d0;
+  --color-success-text:   #065f46;
+  --color-success-solid:  #10b981;
+
+  /* Warning (Menunggu Konfirmasi, Stok Menipis, Resiko Sedang) */
+  --color-warning-bg:     #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-warning-text:   #92400e;
+  --color-warning-solid:  #f59e0b;
+
+  /* Danger (Batal, Refund, Stok Habis, Bahaya) */
+  --color-danger-bg:      #fef2f2;
+  --color-danger-border:  #fecaca;
+  --color-danger-text:    #991b1b;
+  --color-danger-solid:   #ef4444;
+
+  /* Info (Informasi Posyandu, Jadwal, Catatan) */
+  --color-info-bg:        #f0f9ff;
+  --color-info-border:    #bae6fd;
+  --color-info-text:      #075985;
+  --color-info-solid:     #0284c7;
+
+  /* --------------------------------------------------------------------------
+   * 6. FUNCTIONAL / SEMANTIC COMPONENT MAPPINGS
+   * -------------------------------------------------------------------------- */
+  /* Surfaces & Backgrounds */
+  --color-bg-canvas:       var(--neutral-50);
+  --color-bg-surface:      #ffffff;
+  --color-bg-surface-soft: var(--neutral-100);
+  --color-bg-surface-card: #ffffff;
+  
+  /* Primary Functional */
+  --color-primary:             var(--primary-500);
+  --color-primary-hover:       var(--primary-600);
+  --color-primary-active:      var(--primary-700);
+  --color-primary-subtle:      var(--primary-50);
+  --color-primary-border:      var(--primary-300);
+  --color-text-on-primary:     #ffffff;
+
+  /* Secondary Functional (#c7e4ff) */
+  --color-secondary:           var(--secondary-200); /* #c7e4ff */
+  --color-secondary-container: var(--secondary-200);
+  --color-secondary-hover:     var(--secondary-300);
+  --color-secondary-subtle:    var(--secondary-50);
+  --color-secondary-solid:     var(--secondary-600);
+  --color-text-on-secondary:   var(--primary-800); /* Kontras tinggi & terbaca jelas */
+
+  /* Text Hierarchy */
+  --color-text-primary:    var(--neutral-900);
+  --color-text-secondary:  var(--neutral-600);
+  --color-text-tertiary:   var(--neutral-500);
+  --color-text-muted:      var(--neutral-400);
+  --color-text-link:       var(--primary-600);
+  --color-text-link-hover: var(--primary-700);
+
+  /* Borders & Focus Ring */
+  --color-border:          var(--neutral-200);
+  --color-border-subtle:   var(--neutral-100);
+  --color-border-focus:    var(--primary-500);
+  --color-ring-focus:      rgba(0, 128, 128, 0.25);
+
+  /* --------------------------------------------------------------------------
+   * 7. BACKWARD COMPATIBILITY (Menjaga kode lama tetap berfungsi tanpa break)
+   * -------------------------------------------------------------------------- */
+  --primary-teal:          var(--primary-500);
+  --primary-teal-dark:     var(--primary-700);
+  --primary-teal-light:    var(--primary-50);
+  --secondary-ice-blue:    var(--secondary-200);
+  --secondary-ice-blue-dark: var(--secondary-700);
+}
+
+/* =============================================================================
+   REUSABLE UTILITY CLASSES FOR DESIGN TOKENS
+   ============================================================================= */
+
+/* Backgrounds */
+.bg-primary-main { background-color: var(--primary-500) !important; color: #ffffff !important; }
+.bg-primary-subtle { background-color: var(--primary-50) !important; color: var(--primary-800) !important; }
+.bg-secondary-container { background-color: var(--secondary-200) !important; color: var(--primary-800) !important; }
+.bg-secondary-subtle { background-color: var(--secondary-50) !important; color: var(--secondary-800) !important; }
+.bg-surface { background-color: var(--color-bg-surface) !important; }
+.bg-canvas { background-color: var(--color-bg-canvas) !important; }
+
+/* Text Colors */
+.text-primary-main { color: var(--primary-500) !important; }
+.text-primary-deep { color: var(--primary-800) !important; }
+.text-secondary-solid { color: var(--secondary-600) !important; }
+.text-muted-custom { color: var(--neutral-500) !important; }
+
+/* Borders */
+.border-primary-main { border-color: var(--primary-500) !important; }
+.border-secondary-main { border-color: var(--secondary-300) !important; }
+.border-subtle { border-color: var(--neutral-200) !important; }
+
+/* Badges / Pills */
+.badge-teal {
+  background-color: var(--primary-50);
+  color: var(--primary-800);
+  border: 1px solid var(--primary-200);
+  font-weight: 600;
+}
+
+.badge-secondary-ice {
+  background-color: var(--secondary-200);
+  color: var(--primary-900);
+  border: 1px solid var(--secondary-300);
+  font-weight: 600;
+}
+
+.badge-warm-accent {
+  background-color: var(--accent-100);
+  color: var(--accent-800);
+  border: 1px solid var(--accent-300);
+  font-weight: 600;
+}
+
+/* Secondary Button Soft Style (Sesuai Karakteristik #c7e4ff) */
+.btn-secondary-soft {
+  background-color: var(--secondary-200);
+  color: var(--primary-900);
+  border: 1px solid transparent;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-secondary-soft:hover {
+  background-color: var(--secondary-300);
+  color: var(--primary-950);
+  box-shadow: 0 4px 12px rgba(199, 228, 255, 0.4);
+}
+
+/* =============================================================================
+   PAGE HERO COMPONENT (UNIFIED ACROSS ALL PAGES)
+   ============================================================================= */
+.page-hero {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px var(--space-4);
+  margin-bottom: var(--space-6);
+  border-radius: 28px;
+  background: linear-gradient(135deg, #004d4d 0%, #006666 45%, #008080 100%);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 20px 50px rgba(0, 77, 77, 0.18);
+}
+
+.page-hero__bg-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+
+.page-hero__bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.18;
+  filter: saturate(120%);
+}
+
+.page-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at top right, rgba(199, 228, 255, 0.12) 0%, transparent 60%),
+              linear-gradient(180deg, rgba(0, 51, 51, 0.45) 0%, rgba(0, 77, 77, 0.65) 100%);
+}
+
+.page-hero__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 840px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.page-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  margin-bottom: var(--space-2);
+  border-radius: 999px;
+  background: rgba(199, 228, 255, 0.15);
+  border: 1px solid rgba(199, 228, 255, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.page-hero__badge svg {
+  color: var(--secondary-200);
+}
+
+.page-hero__title {
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  font-family: var(--font-headline);
+  font-size: clamp(2rem, 3.8vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 20px rgba(0, 26, 26, 0.3);
+}
+
+.page-hero__title-highlight {
+  font-family: var(--font-headline, 'Quicksand', sans-serif) !important;
+  font-weight: 800 !important;
+  color: var(--secondary-200) !important;
+  display: inline !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page-hero__description {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto 24px auto;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15.5px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.page-hero__actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-hero__btn-primary {
+  min-height: 46px;
+  padding: 0 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: var(--primary-800);
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+.page-hero__btn-primary:hover {
+  background-color: var(--secondary-100);
+  color: var(--primary-900);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.page-hero__btn-secondary {
+  min-height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(199, 228, 255, 0.4);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.page-hero__btn-secondary:hover {
+  background: rgba(199, 228, 255, 0.25);
+  border-color: var(--secondary-200);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.page-hero__stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-top: 20px;
+}
+
+.page-hero__stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 51, 51, 0.35);
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(199, 228, 255, 0.2);
+}
+
+.page-hero__stat-item svg {
+  color: var(--secondary-200);
+}
+
+@media (max-width: 768px) {
+  .page-hero {
+    min-height: auto;
+    padding: 44px 20px;
+    border-radius: 22px;
+    margin-bottom: var(--space-4);
+  }
+
+  .page-hero__title {
+    font-size: 1.95rem;
+    line-height: 1.2;
+  }
+
+  .page-hero__description {
+    font-size: 14.5px;
+  }
+
+  .page-hero__actions {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .page-hero__btn-primary,
+  .page-hero__btn-secondary {
+    width: 100%;
+  }
+}
+
+/* =============================================================================
+   SECTION HEADER COMPONENT (UNIFIED)
+   ============================================================================= */
+.section-header {
+  margin-bottom: 40px;
+}
+
+.section-header--center {
+  text-align: center;
+}
+
+.section-header--left {
+  text-align: left;
+}
+
+.section-header__eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary-700);
+  background-color: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.section-header__title {
+  font-family: var(--font-headline);
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: 800;
+  color: var(--neutral-900);
+  line-height: 1.3;
+  margin: 0 0 14px 0;
+}
+
+.section-header__description {
+  font-size: 15px;
+  color: var(--neutral-600);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.section-header--center .section-header__description {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+/* Base Card Standard */
+.card-standard {
+  background-color: #ffffff;
+  border: 1px solid var(--neutral-200);
+  border-radius: 18px;
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-standard:hover {
+  border-color: var(--primary-300);
+  box-shadow: 0 8px 24px rgba(0, 128, 128, 0.08);
+  transform: translateY(-2px);
+}
+

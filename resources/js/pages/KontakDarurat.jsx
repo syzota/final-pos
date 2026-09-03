@@ -1,6 +1,8 @@
 import React from 'react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import PageHero from '../components/common/PageHero';
+import SectionHeader from '../components/common/SectionHeader';
 import '../styles/kontak.css';
 
 import { Info, ShieldCheck, ClipboardCheck, MapPin, Signpost, ArrowUpRight, Hospital, CalendarCheck2, UserCheck } from 'lucide-react';
@@ -10,79 +12,6 @@ export default function KontakDarurat({
   onNavigate,
   onDarurat
 }) {
-
-  /*
-   * Lokasi mengikuti data lokasi yang sudah digunakan
-   * di halaman Profil Posyandu.
-   *
-   * Tidak meminta GPS pengguna.
-   */
-  const locations = [
-    {
-      id: 1,
-      name: 'Posyandu Bina Putra',
-      address: 'Gg. Melati 6 No.5',
-      coords: '-0.591351, 117.063864',
-      mapsUrl: 'https://maps.google.com/?q=-0.591351,117.063864',
-    },
-    {
-      id: 2,
-      name: 'Posyandu Melati',
-      address: 'Belakang Pos Polisi',
-      coords: '-0.587910, 117.061170',
-      mapsUrl: 'https://maps.google.com/?q=-0.587910,117.061170',
-    },
-    {
-      id: 3,
-      name: 'Posyandu Terkini',
-      address: 'Gg. Nangka',
-      coords: '-0.589430, 117.061800',
-      mapsUrl: 'https://maps.google.com/?q=-0.589430,117.061800',
-    },
-    {
-      id: 4,
-      name: 'Posyandu Tunas Mulia',
-      address: 'Loa Duri Ulu RT.08',
-      coords: '-0.587190, 117.048890',
-      mapsUrl: 'https://maps.google.com/?q=-0.587190,117.048890',
-    },
-    {
-      id: 5,
-      name: 'Posyandu Nusa Indah',
-      address: 'Loa Duri Ulu RT.12',
-      coords: '-0.588640, 117.055510',
-      mapsUrl: 'https://maps.google.com/?q=-0.588640,117.055510',
-    },
-    {
-      id: 6,
-      name: 'Posyandu Rukun Lestari',
-      address: 'Jl. Padat Karya',
-      coords: '-0.590050, 117.053150',
-      mapsUrl: 'https://maps.google.com/?q=-0.590050,117.053150',
-    },
-    {
-      id: 7,
-      name: 'Posyandu Mawar',
-      address: 'Gintung RT 10',
-      coords: '-0.605280, 117.048430',
-      mapsUrl: 'https://maps.google.com/?q=-0.605280,117.048430',
-    },
-    {
-      id: 8,
-      name: 'Posyandu Cempaka',
-      address: 'RT 17 Sei Pimping',
-      coords: '-0.575500, 117.043630',
-      mapsUrl: 'https://maps.google.com/?q=-0.575500,117.043630',
-    },
-    {
-      id: 9,
-      name: 'Posyandu Surya',
-      address: 'RT 14 C3C5+542',
-      coords: '-0.579550, 117.057760',
-      mapsUrl: 'https://maps.google.com/?q=-0.579550,117.057760',
-    },
-  ];
-
 
   const informationCards = [
     {
@@ -125,76 +54,28 @@ export default function KontakDarurat({
       />
 
 
-      <main className="kontak-info-main">
+      <main className="kontak-info-main" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 16px' }}>
+        {/* UNIFIED HERO SECTION */}
+        <PageHero
+          badgeIcon={Info}
+          badgeText="Kontak & Lokasi"
+          title="Informasi Kontak &"
+          titleHighlight="Lokasi Posyandu"
+          description="Layanan kontak siaga dan titik lokasi 9 Posyandu di Desa Loa Duri Ulu."
+          stats={[
+            { icon: ShieldCheck, label: 'Layanan Resmi Desa Loa Duri Ulu' },
+            { icon: MapPin, label: '9 Titik Posyandu Terdata Lengkap' },
+          ]}
+        />
 
-        {/* ==================================================
-            HERO / HEADER
-            ================================================== */}
-        <section className="kontak-info-hero">
-
-          <div className="kontak-info-hero__content">
-
-            <div className="kontak-info-eyebrow">
-              <Info />
-              Informasi Layanan Masyarakat
-            </div>
-
-            <h1>
-              Informasi Kontak &amp;
-              <span> Lokasi Posyandu</span>
-            </h1>
-
-            <p>
-              Temukan informasi layanan kesehatan, nomor darurat,
-              serta lokasi Posyandu di wilayah Loa Duri Ulu.
-              Halaman ini disediakan sebagai pusat informasi bagi masyarakat.
-            </p>
-
-          </div>
-
-
-          <div className="kontak-info-hero__notice">
-
-            <div className="kontak-info-notice-icon">
-              <ShieldCheck />
-            </div>
-
-            <div>
-              <strong>Informasi untuk warga</strong>
-
-              <p>
-                Website tidak meminta atau membagikan lokasi GPS Anda.
-                Gunakan informasi alamat dan peta di bawah untuk menemukan
-                Posyandu yang dituju.
-              </p>
-            </div>
-
-          </div>
-
-        </section>
-
-
-        {/* ==================================================
-            PAPAN INFORMASI
-            ================================================== */}
+        {/* PAPAN INFORMASI */}
         <section className="kontak-info-section">
-
-          <div className="kontak-info-heading">
-
-            <div>
-              <span className="kontak-section-label">
-                INFORMASI PENTING
-              </span>
-
-              <h2>Papan Informasi Layanan</h2>
-
-              <p>
-                Informasi singkat yang perlu diketahui sebelum
-                menggunakan layanan kesehatan.
-              </p>
-            </div>
-
-          </div>
+          <SectionHeader
+            eyebrow="INFORMASI PENTING"
+            title="Papan Informasi Layanan"
+            description="Informasi penting yang perlu diketahui masyarakat sebelum menghubungi atau mengunjungi posyandu."
+            align="left"
+          />
 
 
           <div className="kontak-info-cards">
@@ -244,24 +125,14 @@ export default function KontakDarurat({
         {/* ==================================================
             CATATAN SEBELUM DATANG
             ================================================== */}
+        {/* PANDUAN SEBELUM DATANG */}
         <section className="kontak-guide-section">
-
-          <div className="kontak-guide-header">
-
-            <div className="kontak-guide-header-icon">
-              <ClipboardCheck />
-            </div>
-
-            <div>
-              <span className="kontak-section-label">
-                SEBELUM DATANG
-              </span>
-
-              <h2>Informasi yang Sebaiknya Disiapkan</h2>
-            </div>
-
-          </div>
-
+          <SectionHeader
+            eyebrow="SEBELUM DATANG"
+            title="Informasi yang Sebaiknya Disiapkan"
+            description="Langkah praktis persiapan warga sebelum berkunjung ke posyandu."
+            align="left"
+          />
 
           <div className="kontak-guide-grid">
 
@@ -317,110 +188,6 @@ export default function KontakDarurat({
               </div>
 
             </div>
-
-          </div>
-
-        </section>
-
-
-        {/* ==================================================
-            9 LOKASI POSYANDU
-            ================================================== */}
-        <section className="kontak-location-section">
-
-          <div className="kontak-info-heading kontak-location-heading">
-
-            <div>
-
-              <span className="kontak-section-label">
-                LOKASI LAYANAN
-              </span>
-
-              <h2>9 Posyandu di Loa Duri Ulu</h2>
-
-              <p>
-                Pilih lokasi untuk membuka titik Posyandu
-                melalui Google Maps.
-              </p>
-
-            </div>
-
-            <div className="kontak-location-count">
-
-              <strong>9</strong>
-
-              <span>
-                Lokasi
-                <br />
-                Posyandu
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <div className="kontak-location-grid">
-
-            {locations.map((location) => (
-
-              <article
-                key={location.id}
-                className="kontak-location-card"
-              >
-
-                <div className="kontak-location-number">
-                  {String(location.id).padStart(2, '0')}
-                </div>
-
-
-                <div className="kontak-location-icon">
-                  <MapPin />
-                </div>
-
-
-                <div className="kontak-location-content">
-
-                  <h3>
-                    {location.name}
-                  </h3>
-
-
-                  <div className="kontak-location-address">
-
-                    <Signpost />
-
-                    <span>
-                      {location.address}
-                    </span>
-
-                  </div>
-
-
-                  <div className="kontak-location-coords">
-
-                    {location.coords}
-
-                  </div>
-
-                </div>
-
-
-                <a
-                  href={location.mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="kontak-location-map"
-                  aria-label={`Buka lokasi ${location.name} di Google Maps`}
-                >
-                  <span>Buka Peta</span>
-
-                  <ArrowUpRight />
-                </a>
-
-              </article>
-
-            ))}
 
           </div>
 

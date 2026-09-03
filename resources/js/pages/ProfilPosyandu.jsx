@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
@@ -8,11 +9,12 @@ import BasicContactCard from '../components/profil/BasicContactCard';
 import CoreTasksCard from '../components/profil/CoreTasksCard';
 import StrategicFunctionsCard from '../components/profil/StrategicFunctionsCard';
 import StrukturKepengurusanSection from '../components/profil/StrukturKepengurusanSection';
+import SectionHeader from '../components/common/SectionHeader';
 
 import { Info, Users, HeartPulse, Package, MapPin, Phone, Map, X } from 'lucide-react';
 import Skeleton from '../components/common/Skeleton';
 
-export default function ProfilPosyandu({ onNavigate }) {
+export default function ProfilPosyandu({ onNavigate, onDarurat }) {
   const [profilList, setProfilList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDetailPosyandu, setSelectedDetailPosyandu] = useState(null);
@@ -29,22 +31,31 @@ export default function ProfilPosyandu({ onNavigate }) {
       });
   }, []);
 
-  // Kunci scroll body saat modal popup terbuka
+  // Kunci scroll body saat modal popup terbuka & dukung tombol Escape
   useEffect(() => {
     if (selectedDetailPosyandu) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedDetailPosyandu(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedDetailPosyandu]);
 
   if (loading) {
     return (
       <div className="profil-wrapper">
-        <Header activePage="profil" onNavigate={onNavigate} />
+        <Header activePage="profil" onNavigate={onNavigate} onDarurat={onDarurat} />
         <main className="profil-container" style={{ padding: '40px 20px', minHeight: '80vh', maxWidth: '1200px', margin: '0 auto' }}>
           <section className="profil-section" style={{ marginBottom: '40px' }}>
             <Skeleton type="box" height="400px" />
@@ -65,7 +76,7 @@ export default function ProfilPosyandu({ onNavigate }) {
     if (!selectedDetailPosyandu) return null;
     const p = selectedDetailPosyandu;
 
-    return (
+    const modalJSX = (
       <div
         style={{
           position: 'fixed',
@@ -73,9 +84,9 @@ export default function ProfilPosyandu({ onNavigate }) {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.7)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 9999,
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(6px)',
+          zIndex: 99999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -219,11 +230,13 @@ export default function ProfilPosyandu({ onNavigate }) {
         </div>
       </div>
     );
+
+    return createPortal(modalJSX, document.body);
   };
 
   return (
     <div className="profil-wrapper">
-      <Header activePage="profil" onNavigate={onNavigate} />
+      <Header activePage="profil" onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="profil-container">
         <section className="profil-section">
@@ -244,19 +257,13 @@ export default function ProfilPosyandu({ onNavigate }) {
           <StrukturKepengurusanSection />
         </section>
 
-        {/* DAFTAR 9 LOKASI POSYANDU */}
+        {/* LOKASI POSYANDU */}
         <section className="profil-section" style={{ marginTop: '56px', marginBottom: '64px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Wilayah Kerja Pelayanan
-            </span>
-            <h2 style={{ color: '#0f172a', fontSize: '26px', fontWeight: 800, margin: '4px 0 8px 0' }}>
-              Daftar 9 Lokasi Posyandu
-            </h2>
-            <p style={{ color: '#64748b', fontSize: '14.5px', maxWidth: '600px', margin: '0 auto' }}>
-              Temukan posyandu terdekat di lingkungan rukun tetangga (RT) Anda di Desa Loa Duri Ulu.
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Wilayah Kerja Pelayanan"
+            title="Lokasi Posyandu"
+            description="Temukan posyandu terdekat di lingkungan rukun tetangga (RT) Anda di Desa Loa Duri Ulu."
+          />
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
             {profilList.map((posyandu, idx) => (
@@ -266,9 +273,9 @@ export default function ProfilPosyandu({ onNavigate }) {
                 style={{
                   padding: 0,
                   overflow: 'hidden',
-                  borderRadius: '16px',
+                  borderRadius: '18px',
                   border: '1px solid #e2e8f0',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
                   backgroundColor: '#ffffff',
                   display: 'flex',
                   flexDirection: 'column'
@@ -279,6 +286,10 @@ export default function ProfilPosyandu({ onNavigate }) {
                     src={posyandu.foto ? `/storage/${posyandu.foto}` : 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&auto=format&fit=crop&q=80'}
                     alt={posyandu.nama}
                     loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&auto=format&fit=crop&q=80';
+                    }}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
@@ -298,24 +309,29 @@ export default function ProfilPosyandu({ onNavigate }) {
                     <span style={{ lineHeight: '1.4' }}>{posyandu.kontak_darurat || posyandu.no_telp || '0812-5000-100' + ((idx % 9) + 1)}</span>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
                     <button
                       type="button"
                       className="btn btn-primary"
                       onClick={() => setSelectedDetailPosyandu(posyandu)}
                       style={{
-                        flex: 1,
+                        width: '100%',
                         minHeight: '44px',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '8px',
                         borderRadius: '10px',
                         fontWeight: 700,
-                        fontSize: '13.5px'
+                        fontSize: '13.5px',
+                        backgroundColor: 'var(--primary-500, #008080)',
+                        color: '#ffffff',
+                        border: 'none',
+                        boxShadow: '0 2px 6px rgba(0, 128, 128, 0.2)',
+                        cursor: 'pointer'
                       }}
                     >
-                      <Info size={16} /> Lihat Detail
+                      <Info size={16} /> Lihat Detail Lengkap Posyandu
                     </button>
 
                     <a
@@ -324,19 +340,22 @@ export default function ProfilPosyandu({ onNavigate }) {
                       rel="noreferrer"
                       className="btn btn-outline"
                       style={{
-                        minHeight: '44px',
-                        minWidth: '44px',
+                        width: '100%',
+                        minHeight: '40px',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        gap: '8px',
                         borderRadius: '10px',
-                        color: 'var(--primary-teal, #008080)',
+                        color: 'var(--primary-700, #007373)',
                         borderColor: '#cbd5e1',
-                        padding: '0 14px'
+                        backgroundColor: '#f8fafc',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        textDecoration: 'none'
                       }}
-                      title="Lihat di Google Maps"
                     >
-                      <Map size={18} />
+                      <Map size={16} /> Buka di Google Maps
                     </a>
                   </div>
                 </div>

@@ -91,7 +91,7 @@ export default function Footer() {
               <div className="footer-col-title" style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc', marginBottom: '14px' }}>
                 Layanan & Informasi
               </div>
-              <a href="#profil" className="footer-link">Profil 9 Posyandu</a>
+              <a href="#profil" className="footer-link">Profil Posyandu</a>
               <a href="#artikel" className="footer-link">Artikel & Edukasi</a>
               <a href="#jadwal" className="footer-link">Jadwal Penimbangan</a>
               <a href="#kalkulator" className="footer-link">Kalkulator Gizi</a>

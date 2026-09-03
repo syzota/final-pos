@@ -4,6 +4,7 @@ import Footer from '../components/common/Footer';
 import WelcomeBanner from '../components/beranda/WelcomeBanner';
 import FeatureCards from '../components/beranda/FeatureCards';
 import ArticleCard from '../components/beranda/ArticleCard';
+import SectionHeader from '../components/common/SectionHeader';
 import { ArrowRight } from 'lucide-react';
 
 export default function Beranda({ activePage = 'beranda', onNavigate, onDarurat }) {
@@ -24,45 +25,50 @@ export default function Beranda({ activePage = 'beranda', onNavigate, onDarurat 
 
         {/* Artikel Kesehatan Terbaru */}
         <section className="content-grid" style={{ marginTop: '48px', marginBottom: '64px' }}>
-          <div className="article-section-header" style={{ marginBottom: '24px', textAlign: 'center' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Edukasi & Informasi Terkini
-            </span>
-            <h2 className="article-section-title" style={{ fontSize: '26px', fontWeight: 800, marginTop: '4px', color: '#0f172a' }}>
-              Artikel Kesehatan Terbaru
-            </h2>
-            <p style={{ fontSize: '14.5px', color: '#64748b', maxWidth: '600px', margin: '6px auto 0' }}>
-              Informasi terpercaya seputar tumbuh kembang balita, pola gizi keluarga, dan tips kesehatan dari kader terpercaya.
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Edukasi & Informasi Terkini"
+            title="Artikel Kesehatan Terbaru"
+            description="Informasi terpercaya seputar tumbuh kembang balita, pola gizi keluarga, dan tips kesehatan dari kader Posyandu terpercaya."
+          />
 
           {/* Grid Kartu Artikel */}
           <ArticleCard onNavigate={onNavigate} />
 
-          {/* Tombol Lihat Semua Artikel di Bagian Bawah (Model See More) */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '36px' }}>
+          {/* Tombol Lihat Semua Artikel */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
             <button
               type="button"
-              className="btn btn-outline"
+              className="btn-lihat-artikel"
               onClick={() => onNavigate && onNavigate('artikel')}
               style={{
-                minHeight: '46px',
-                padding: '0 32px',
-                borderRadius: '12px',
+                minHeight: '48px',
+                padding: '12px 34px',
+                borderRadius: '999px',
                 fontSize: '15px',
                 fontWeight: 700,
-                color: 'var(--primary-teal, #008080)',
-                borderColor: 'var(--primary-teal, #008080)',
+                color: '#ffffff',
+                backgroundColor: 'var(--primary-500, #008080)',
+                border: 'none',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                backgroundColor: '#ffffff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                justifyContent: 'center',
+                gap: '10px',
+                boxShadow: '0 6px 18px rgba(0, 128, 128, 0.22)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease-in-out'
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--primary-600, #007373)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 128, 128, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--primary-500, #008080)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 6px 18px rgba(0, 128, 128, 0.22)';
+              }}
             >
-              Lihat Semua Artikel Kesehatan
+              <span>Lihat Semua Artikel Kesehatan</span>
               <ArrowRight size={18} />
             </button>
           </div>

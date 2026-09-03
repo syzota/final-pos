@@ -107,7 +107,7 @@ export default function WargaAnakView() {
         </div>
       )}
 
-      <div className="grid grid-2" style={{ gridTemplateColumns: '.9fr 1.3fr' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px' }}>
 
         {/* === MENU ANAK === */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>

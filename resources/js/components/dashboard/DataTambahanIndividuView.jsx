@@ -479,25 +479,6 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
     <>
       <div className="dti-page dti-no-print">
 
-        <section className="dti-hero">
-          <div>
-            <span className="dti-eyebrow">
-              DATA TAMBAHAN KADER
-            </span>
-
-            <h2>Data Individu Tambahan Posyandu</h2>
-
-            <p>
-              Pencatatan sederhana per orang untuk ibu hamil,
-              nifas, kematian ibu nifas, dan diare.
-            </p>
-          </div>
-
-          <div className="dti-hero-icon">
-            <Contact />
-          </div>
-        </section>
-
         {message.text && (
           <div className={`dti-alert dti-alert--${message.type}`}>
             <i
