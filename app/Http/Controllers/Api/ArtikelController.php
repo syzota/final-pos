@@ -10,19 +10,16 @@ use Illuminate\Support\Str;
 
 class ArtikelController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Artikel::with('penulis:id,name,role');
-
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        } else {
-            $query->where('status', 'dipublikasikan');
-        }
+        $artikels = Artikel::with('penulis:id,name,role')
+            ->where('status', 'dipublikasikan')
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => 'sukses',
-            'data' => $query->latest()->get()
+            'data' => $artikels
         ]);
     }
 
@@ -40,6 +37,28 @@ class ArtikelController extends Controller
         return response()->json([
             'status' => 'sukses',
             'data' => $artikel
+        ]);
+    }
+
+    public function manage(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->posyandu_id) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Akun Anda tidak terikat pada Posyandu.'
+            ], 403);
+        }
+
+        $artikels = Artikel::with('penulis:id,name,role')
+            ->where('posyandu_id', $user->posyandu_id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => 'sukses',
+            'data' => $artikels
         ]);
     }
 

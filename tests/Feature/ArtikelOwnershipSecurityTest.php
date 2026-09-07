@@ -40,7 +40,8 @@ class ArtikelOwnershipSecurityTest extends TestCase
     private function createArtikel(
         Posyandu $posyandu,
         User $penulis,
-        string $judul = 'Artikel Test'
+        string $judul = 'Artikel Test',
+        string $status = 'dipublikasikan'
     ): Artikel {
         return Artikel::create([
             'posyandu_id' => $posyandu->id,
@@ -49,11 +50,13 @@ class ArtikelOwnershipSecurityTest extends TestCase
             'judul' => $judul,
             'slug' => 'artikel-test-' . uniqid(),
             'isi_artikel' => 'Isi artikel test.',
-            'status' => 'dipublikasikan',
-            'published_at' => now(),
+            'status' => $status,
+            'published_at' =>
+                $status === 'dipublikasikan'
+                    ? now()
+                    : null,
         ]);
     }
-
     public function test_created_article_is_assigned_to_logged_in_users_posyandu(): void
     {
         $posyandu = $this->createPosyandu(
@@ -304,5 +307,119 @@ class ArtikelOwnershipSecurityTest extends TestCase
                 'data.id',
                 $artikel->id
             );
+    }
+    public function test_public_cannot_read_draft_articles(): void
+    {
+        $mawar = $this->createPosyandu(
+            'Posyandu Mawar'
+        );
+
+        $kader = $this->createUser(
+            $mawar,
+            'kader.mawar'
+        );
+
+        $published = $this->createArtikel(
+            $mawar,
+            $kader,
+            'Artikel Publik',
+            'dipublikasikan'
+        );
+
+        $draft = $this->createArtikel(
+            $mawar,
+            $kader,
+            'Artikel Draft Rahasia',
+            'draf'
+        );
+
+        /*
+         * Bahkan kalau public mencoba mengirim ?status=draf,
+         * endpoint public tetap hanya boleh mengembalikan
+         * artikel yang sudah dipublikasikan.
+         */
+        $response = $this->getJson(
+            '/api/artikels?status=draf'
+        );
+
+        $response->assertOk();
+
+        $ids = collect(
+            $response->json('data')
+        )->pluck('id');
+
+        $this->assertTrue(
+            $ids->contains($published->id)
+        );
+
+        $this->assertFalse(
+            $ids->contains($draft->id)
+        );
+    }
+
+    public function test_manage_list_only_returns_articles_from_logged_in_users_posyandu(): void
+    {
+        $mawar = $this->createPosyandu(
+            'Posyandu Mawar'
+        );
+
+        $melati = $this->createPosyandu(
+            'Posyandu Melati'
+        );
+
+        $kaderMawar = $this->createUser(
+            $mawar,
+            'kader.mawar'
+        );
+
+        $kaderMelati = $this->createUser(
+            $melati,
+            'kader.melati'
+        );
+
+        $mawarPublished = $this->createArtikel(
+            $mawar,
+            $kaderMawar,
+            'Artikel Publik Mawar',
+            'dipublikasikan'
+        );
+
+        $mawarDraft = $this->createArtikel(
+            $mawar,
+            $kaderMawar,
+            'Artikel Draft Mawar',
+            'draf'
+        );
+
+        $melatiPublished = $this->createArtikel(
+            $melati,
+            $kaderMelati,
+            'Artikel Publik Melati',
+            'dipublikasikan'
+        );
+
+        Sanctum::actingAs($kaderMawar);
+
+        $response = $this->getJson(
+            '/api/artikels/manage'
+        );
+
+        $response->assertOk();
+
+        $ids = collect(
+            $response->json('data')
+        )->pluck('id');
+
+        $this->assertTrue(
+            $ids->contains($mawarPublished->id)
+        );
+
+        $this->assertTrue(
+            $ids->contains($mawarDraft->id)
+        );
+
+        $this->assertFalse(
+            $ids->contains($melatiPublished->id)
+        );
     }
 }

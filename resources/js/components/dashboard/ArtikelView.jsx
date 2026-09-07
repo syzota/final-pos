@@ -23,29 +23,29 @@ export default function ArtikelView() {
   };
 
   // 1. Fungsi Ambil Data dari API
-  const fetchArticles = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem('auth_token');
+    const fetchArticles = async () => {
+        try {
+            setIsLoading(true);
 
-      // Karena API defaultnya hanya mengambil yang 'dipublikasikan',
-      // kita tembak 2 kali (Draf & Publikasi) lalu gabungkan agar tampil semua di Dashboard.
-      const [pubRes, drafRes] = await Promise.all([
-        axios.get('/api/artikels?status=dipublikasikan', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('/api/artikels?status=draf', { headers: { Authorization: `Bearer ${token}` } })
-      ]);
+            const token = localStorage.getItem('auth_token');
 
-      const combined = [...drafRes.data.data, ...pubRes.data.data];
-      // Urutkan berdasarkan yang terbaru
-      combined.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const response = await axios.get('/api/artikels/manage', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
-      setArticles(combined);
-    } catch (error) {
-      console.error("Gagal mengambil artikel:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+            setArticles(response.data.data);
+        } catch (error) {
+            console.error('Gagal mengambil artikel:', error);
+
+            if (error.response?.status === 403) {
+                alert('Kamu tidak memiliki akses untuk mengelola artikel.');
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
   useEffect(() => {
     fetchArticles();

@@ -28,7 +28,8 @@ Route::post('/login', [AuthController::class, 'login'])
 
 Route::get('/profil-posyandu', [PosyanduController::class, 'index']);
 Route::get('/artikels', [ArtikelController::class, 'index']);
-Route::get('/artikels/{id}', [ArtikelController::class, 'show']);
+Route::get('/artikels/{id}', [ArtikelController::class, 'show'])
+    ->whereNumber('id');
 Route::get('/makanan', [\App\Http\Controllers\Api\ReferensiMakananController::class, 'index']);
 
 
@@ -85,6 +86,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // (Akses operasional posyandu harian & Artikel)
     // ----------------------------------------------------
     Route::middleware(CheckRole::class . ':kader,ketua')->group(function () {
+
+        Route::get(
+            '/artikels/manage',
+            [ArtikelController::class, 'manage']
+        );
 
         // CRUD Artikel
         Route::post(
