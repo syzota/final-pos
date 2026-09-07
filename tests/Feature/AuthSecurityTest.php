@@ -105,4 +105,50 @@ class AuthSecurityTest extends TestCase
             ->postJson('/api/login', $credentials)
             ->assertStatus(429);
     }
+    public function test_login_token_expires_after_configured_time(): void
+    {
+        config([
+            'sanctum.expiration' => 480,
+        ]);
+
+        User::factory()->create([
+            'name' => 'Token Expiration Test',
+            'username' => 'token.expiration',
+            'role' => 'kader',
+            'password' => Hash::make('123456'),
+        ]);
+
+        $loginResponse = $this->postJson('/api/login', [
+            'username' => 'token.expiration',
+            'password' => '123456',
+        ]);
+
+        $loginResponse->assertOk();
+
+        $token = $loginResponse->json('data.token');
+
+        // Token baru masih valid
+        $this->withToken($token)
+            ->getJson('/api/me')
+            ->assertOk();
+
+        // Lewati batas 8 jam
+        $this->travel(481)->minutes();
+
+// Reset guard supaya request berikutnya
+// benar-benar memvalidasi Bearer token dari awal
+        $this->app['auth']->forgetGuards();
+
+// Token harus sudah tidak berlaku
+        $this->withToken($token)
+            ->getJson('/api/me')
+            ->assertUnauthorized();
+    }
+    public function test_sanctum_token_expiration_is_configured(): void
+    {
+        $this->assertSame(
+            480,
+            (int) config('sanctum.expiration')
+        );
+    }
 }
