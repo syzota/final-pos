@@ -209,10 +209,14 @@ Route::middleware('auth:sanctum')->group(function () {
             [\App\Http\Controllers\Api\DraftController::class, 'getDrafts']
         );
 
+// ==========================================
+// REFERENSI MAKANAN
+// ==========================================
 
-        // ==========================================
-        // REFERENSI MAKANAN
-        // ==========================================
+        Route::get(
+            '/makanan/manage',
+            [\App\Http\Controllers\Api\ReferensiMakananController::class, 'manage']
+        );
 
         Route::post(
             '/makanan',
@@ -222,13 +226,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put(
             '/makanan/{id}',
             [\App\Http\Controllers\Api\ReferensiMakananController::class, 'update']
-        );
+        )->whereNumber('id');
 
         Route::delete(
             '/makanan/{id}',
             [\App\Http\Controllers\Api\ReferensiMakananController::class, 'destroy']
-        );
-
+        )->whereNumber('id');
 
         // ==========================================
         // REKAP KEGIATAN
