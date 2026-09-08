@@ -215,7 +215,11 @@ class WargaController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            try {
+                DB::rollBack();
+            } catch (\Throwable) {
+                // Savepoint might already be cleared by database engine
+            }
 
             report($e);
 

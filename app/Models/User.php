@@ -10,8 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-// UBAH posyandu_id MENJADI posyandu DI BAWAH INI:
-#[Fillable(['name', 'username', 'email', 'password', 'role', 'posyandu'])]
+#[Fillable(['name', 'username', 'email', 'password', 'role', 'posyandu', 'posyandu_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {

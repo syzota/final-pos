@@ -134,21 +134,17 @@ class ErrorHandlingSecurityTest extends TestCase
         Sanctum::actingAs($kader);
 
         /*
-         * Buat trigger SQLite khusus untuk test.
-         *
-         * Setiap DELETE terhadap warga_keluarga
-         * sengaja dibuat gagal.
+         * Simulasikan database query failure saat delete
+         * menggunakan QueryException agar portabel di semua driver DB.
          */
-        DB::statement("
-        CREATE TRIGGER fail_warga_delete
-        BEFORE DELETE ON warga_keluarga
-        BEGIN
-            SELECT RAISE(
-                ABORT,
-                'simulated delete failure'
+        WargaKeluarga::deleting(function () {
+            throw new \Illuminate\Database\QueryException(
+                'testing',
+                'DELETE FROM warga_keluarga WHERE id = ?',
+                [],
+                new \Exception('simulated delete failure')
             );
-        END;
-    ");
+        });
 
         $response = $this->deleteJson(
             '/api/warga/' . $keluarga->id
