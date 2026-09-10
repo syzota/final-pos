@@ -239,9 +239,14 @@ export default function PuskesmasView() {
                     <div className="section-head"><h3>Pilih Posyandu</h3></div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {daftarPosyandu.map((p) => (
-                            <button key={p.id} onClick={() => setSelectedPosyandu(p)} className={`btn btn-sm ${selectedPosyandu?.id === p.id ? 'btn-cyan' : 'btn-outline'}`}>
+                            <Button
+                                key={p.id}
+                                variant={selectedPosyandu?.id === p.id ? 'cyan' : 'secondary'}
+                                size="sm"
+                                onClick={() => setSelectedPosyandu(p)}
+                            >
                                 {p.nama}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>
@@ -258,22 +263,25 @@ export default function PuskesmasView() {
                                     type="month"
                                     value={filterBulan}
                                     onChange={(e) => setFilterBulan(e.target.value)}
-                                    style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+                                    style={{ padding: '6px 12px', minHeight: '38px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
                                 />
-                                <Button variant="primary" onClick={() => window.print()}>
-                                    <File01Icon size={18} className="me-2" />Ekspor Sesuai Filter
+                                <Button variant="primary" size="sm" icon={File01Icon} onClick={() => window.print()}>
+                                    Ekspor Laporan (PDF)
                                 </Button>
                             </div>
                         </div>
 
                         <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px' }}>
                             {SASARAN_NAMA.map((nama, index) => (
-                                <button
-                                    key={index} className={`tab-btn ${tab === index ? 'active' : ''}`} onClick={() => setTab(index)}
-                                    style={{ padding: '8px 16px', borderRadius: '20px', border: tab === index ? 'none' : '1px solid #ddd', backgroundColor: tab === index ? 'var(--cyan-deep)' : 'transparent', color: tab === index ? 'white' : '#666', fontWeight: 'bold', cursor: 'pointer' }}
+                                <Button
+                                    key={index}
+                                    variant={tab === index ? 'cyan' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => setTab(index)}
+                                    style={{ borderRadius: '20px' }}
                                 >
                                     {nama}
-                                </button>
+                                </Button>
                             ))}
                         </div>
 

@@ -447,7 +447,7 @@ export default function KelolaWargaView({ posyandu }) {
                     name="nama_lengkap"
                     value={formData.nama_lengkap}
                     onChange={handleInputChange}
-                    placeholder="mis. Bpk. Ahmad Hidayat"
+                    placeholder="Contoh: Bpk. Ahmad Hidayat"
                     required
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: errors.nama_lengkap ? '1.5px solid #ef4444' : '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
@@ -489,7 +489,7 @@ export default function KelolaWargaView({ posyandu }) {
                       name="nama_istri"
                       value={formData.nama_istri}
                       onChange={handleInputChange}
-                      placeholder="mis. Ibu Nurjanah"
+                      placeholder="Contoh: Ibu Nurjanah"
                       style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                     />
                   </div>
@@ -536,7 +536,7 @@ export default function KelolaWargaView({ posyandu }) {
                     name="no_hp"
                     value={formData.no_hp}
                     onChange={handleInputChange}
-                    placeholder="mis. 081234567890"
+                    placeholder="Contoh: 081234567890"
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
                 </div>

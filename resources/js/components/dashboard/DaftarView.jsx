@@ -154,7 +154,7 @@ export default function DaftarView() {
                 name="nama"
                 value={formData.nama}
                 onChange={handleChange}
-                placeholder="mis. Posyandu Kemuning 01"
+                placeholder="Contoh: Posyandu Kemuning 01"
                 required
                 style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '13.5px' }}
               />
@@ -166,7 +166,7 @@ export default function DaftarView() {
                 name="keterangan_waktu"
                 value={formData.keterangan_waktu}
                 onChange={handleChange}
-                placeholder="mis. Setiap Tanggal 5 Awal Bulan"
+                placeholder="Contoh: Setiap Tanggal 5 Awal Bulan"
                 style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '13.5px' }}
               />
             </div>
@@ -177,7 +177,7 @@ export default function DaftarView() {
                 name="alamat"
                 value={formData.alamat}
                 onChange={handleChange}
-                placeholder="mis. Jl. Pelita RT 04 Desa Loa Duri Ulu"
+                placeholder="Contoh: Jl. Pelita RT 04 Desa Loa Duri Ulu"
                 style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '13.5px' }}
               />
             </div>

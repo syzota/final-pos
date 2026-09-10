@@ -302,7 +302,7 @@ export default function WargaKalkulatorView() {
                             <div className="form-grid">
                                 <div className="form-field full">
                                     <label>Usia Kehamilan Saat Ini (minggu)</label>
-                                    <input type="number" placeholder="mis. 20" min="1" max="42" value={janinMinggu} onChange={e => setJaninMinggu(e.target.value)} />
+                                    <input type="number" placeholder="Contoh: 20" min="1" max="42" value={janinMinggu} onChange={e => setJaninMinggu(e.target.value)} />
                                 </div>
                             </div>
                         </div>

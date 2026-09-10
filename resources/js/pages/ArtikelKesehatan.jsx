@@ -390,25 +390,20 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                         {artikel.penulis?.name || 'Kader Posyandu'}
                       </span>
 
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconRight={ArrowRight01Icon}
                         onClick={() => openArticle(artikel.id)}
                         style={{
-                          background: 'none',
-                          border: 'none',
                           color: 'var(--primary-teal, #008080)',
                           fontWeight: 700,
-                          fontSize: '13px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          cursor: 'pointer',
-                          flexShrink: 0,
-                          whiteSpace: 'nowrap'
+                          padding: '0 8px',
+                          flexShrink: 0
                         }}
                       >
-                        Baca <ArrowRight01Icon size={14} />
-                      </button>
+                        Baca Selengkapnya
+                      </Button>
                     </div>
                   </div>
                 </article>

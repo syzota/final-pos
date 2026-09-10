@@ -476,7 +476,7 @@ export default function ArtikelView() {
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Judul Artikel *</label>
                 <input
                   type="text"
-                  placeholder="mis. Panduan Gizi Seimbang Balita Usia 1-3 Tahun"
+                  placeholder="Contoh: Panduan Gizi Seimbang Balita Usia 1-3 Tahun"
                   value={formData.judul}
                   onChange={(e) => setFormData({ ...formData, judul: e.target.value })}
                   style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '13.5px' }}

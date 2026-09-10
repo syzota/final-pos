@@ -326,7 +326,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="usia_kehamilan_minggu"
               value={detail.usia_kehamilan_minggu}
               onChange={handleDetailChange}
-              placeholder="mis. 28"
+              placeholder="Contoh: 28"
               required
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
@@ -344,7 +344,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="tekanan_darah"
               value={detail.tekanan_darah}
               onChange={handleDetailChange}
-              placeholder="mis. 120/80 atau 140/90"
+              placeholder="Contoh: 120/80 atau 140/90"
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
             <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
@@ -398,7 +398,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="hari_nifas"
               value={detail.hari_nifas}
               onChange={handleDetailChange}
-              placeholder="mis. 7"
+              placeholder="Contoh: 7"
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
             <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
@@ -451,7 +451,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="hari_nifas"
               value={detail.hari_nifas}
               onChange={handleDetailChange}
-              placeholder="mis. 3"
+              placeholder="Contoh: 3"
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
           </div>
@@ -465,7 +465,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="penyebab"
               value={detail.penyebab}
               onChange={handleDetailChange}
-              placeholder="mis. Perdarahan post-partum / Eklampsia / Infeksi"
+              placeholder="Contoh: Perdarahan post-partum / Eklampsia / Infeksi"
               required
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
@@ -487,7 +487,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
             name="lama_hari"
             value={detail.lama_hari}
             onChange={handleDetailChange}
-            placeholder="mis. 2"
+            placeholder="Contoh: 2"
             required
             style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
           />
@@ -805,7 +805,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                     name="nama"
                     value={common.nama}
                     onChange={handleCommonChange}
-                    placeholder="mis. Ibu Siti Rahmawati"
+                    placeholder="Contoh: Ibu Siti Rahmawati"
                     required
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
@@ -821,7 +821,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                     name="umur"
                     value={common.umur}
                     onChange={handleCommonChange}
-                    placeholder="mis. 28"
+                    placeholder="Contoh: 28"
                     required
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
@@ -846,7 +846,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                     name="alamat"
                     value={common.alamat}
                     onChange={handleCommonChange}
-                    placeholder="mis. RT 03 Dusun Karya Bersama"
+                    placeholder="Contoh: RT 03 Dusun Karya Bersama"
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
                 </div>

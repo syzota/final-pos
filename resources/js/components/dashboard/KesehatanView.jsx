@@ -1412,7 +1412,7 @@ export default function KesehatanView() {
                   name="berat_badan"
                   value={balitaData.berat_badan}
                   onChange={handleBalitaChange}
-                  placeholder="mis. 10.5"
+                  placeholder="Contoh: 10.5"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1440,7 +1440,7 @@ export default function KesehatanView() {
                   name="tinggi_badan"
                   value={balitaData.tinggi_badan}
                   onChange={handleBalitaChange}
-                  placeholder="mis. 78.5"
+                  placeholder="Contoh: 78.5"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1462,7 +1462,7 @@ export default function KesehatanView() {
 
               <div className="form-field">
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Lingkar Kepala (cm)</label>
-                <input type="number" step="0.1" name="lingkar_kepala" value={balitaData.lingkar_kepala} onChange={handleBalitaChange} placeholder="mis. 45" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" name="lingkar_kepala" value={balitaData.lingkar_kepala} onChange={handleBalitaChange} placeholder="Contoh: 45" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
               <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Catatan Perkembangan Anak</label>
@@ -1562,7 +1562,7 @@ export default function KesehatanView() {
                       name="nama_remaja_baru"
                       value={remajaData.nama_remaja_baru}
                       onChange={handleRemajaChange}
-                      placeholder="mis. Dimas Aditya"
+                      placeholder="Contoh: Dimas Aditya"
                       style={{
                         width: '100%',
                         minHeight: '44px',
@@ -1610,7 +1610,7 @@ export default function KesehatanView() {
                   name="umur_tahun"
                   value={remajaData.umur_tahun}
                   onChange={handleRemajaChange}
-                  placeholder="mis. 15"
+                  placeholder="Contoh: 15"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1637,7 +1637,7 @@ export default function KesehatanView() {
                   name="tekanan_darah"
                   value={remajaData.tekanan_darah}
                   onChange={handleRemajaChange}
-                  placeholder="mis. 110/70"
+                  placeholder="Contoh: 110/70"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1665,7 +1665,7 @@ export default function KesehatanView() {
                   name="berat_badan"
                   value={remajaData.berat_badan}
                   onChange={handleRemajaChange}
-                  placeholder="mis. 48"
+                  placeholder="Contoh: 48"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1687,7 +1687,7 @@ export default function KesehatanView() {
 
               <div className="form-field">
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                <input type="number" step="0.1" name="tinggi_badan" value={remajaData.tinggi_badan} onChange={handleRemajaChange} placeholder="mis. 155" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" name="tinggi_badan" value={remajaData.tinggi_badan} onChange={handleRemajaChange} placeholder="Contoh: 155" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
 
               <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
@@ -1757,7 +1757,7 @@ export default function KesehatanView() {
                       name="nama_ibu_baru"
                       value={hamilData.nama_ibu_baru}
                       onChange={handleHamilChange}
-                      placeholder="mis. Siti Aminah"
+                      placeholder="Contoh: Siti Aminah"
                       style={{
                         width: '100%',
                         minHeight: '44px',
@@ -1785,7 +1785,7 @@ export default function KesehatanView() {
                   name="usia_kehamilan_minggu"
                   value={hamilData.usia_kehamilan_minggu}
                   onChange={handleHamilChange}
-                  placeholder="mis. 24"
+                  placeholder="Contoh: 24"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1812,7 +1812,7 @@ export default function KesehatanView() {
                   name="tekanan_darah"
                   value={hamilData.tekanan_darah}
                   onChange={handleHamilChange}
-                  placeholder="mis. 110/80"
+                  placeholder="Contoh: 110/80"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1840,7 +1840,7 @@ export default function KesehatanView() {
                   name="berat_badan"
                   value={hamilData.berat_badan}
                   onChange={handleHamilChange}
-                  placeholder="mis. 58"
+                  placeholder="Contoh: 58"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1868,7 +1868,7 @@ export default function KesehatanView() {
                   name="tinggi_badan"
                   value={hamilData.tinggi_badan}
                   onChange={handleHamilChange}
-                  placeholder="mis. 158"
+                  placeholder="Contoh: 158"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -1890,7 +1890,7 @@ export default function KesehatanView() {
 
               <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Lingkar Lengan / LILA (cm)</label>
-                <input type="number" step="0.1" name="lingkar_lengan" value={hamilData.lingkar_lengan} onChange={handleHamilChange} placeholder="mis. 24.5" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" name="lingkar_lengan" value={hamilData.lingkar_lengan} onChange={handleHamilChange} placeholder="Contoh: 24.5" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
 
               <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
@@ -1960,7 +1960,7 @@ export default function KesehatanView() {
                       name="nama_lansia_baru"
                       value={lansiaData.nama_lansia_baru}
                       onChange={handleLansiaChange}
-                      placeholder="mis. H. Sulaiman"
+                      placeholder="Contoh: H. Sulaiman"
                       style={{
                         width: '100%',
                         minHeight: '44px',
@@ -2008,7 +2008,7 @@ export default function KesehatanView() {
                   name="gula_darah"
                   value={lansiaData.gula_darah}
                   onChange={handleLansiaChange}
-                  placeholder="mis. 110"
+                  placeholder="Contoh: 110"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -2035,7 +2035,7 @@ export default function KesehatanView() {
                   name="tekanan_darah"
                   value={lansiaData.tekanan_darah}
                   onChange={handleLansiaChange}
-                  placeholder="mis. 130/85"
+                  placeholder="Contoh: 130/85"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -2063,7 +2063,7 @@ export default function KesehatanView() {
                   name="berat_badan"
                   value={lansiaData.berat_badan}
                   onChange={handleLansiaChange}
-                  placeholder="mis. 60"
+                  placeholder="Contoh: 60"
                   style={{
                     width: '100%',
                     minHeight: '44px',
@@ -2085,7 +2085,7 @@ export default function KesehatanView() {
 
               <div className="form-field">
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                <input type="number" step="0.1" name="tinggi_badan" value={lansiaData.tinggi_badan} onChange={handleLansiaChange} placeholder="mis. 160" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" name="tinggi_badan" value={lansiaData.tinggi_badan} onChange={handleLansiaChange} placeholder="Contoh: 160" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
 
               <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
@@ -2245,46 +2245,22 @@ export default function KesehatanView() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                    <button
-                      type="button"
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      icon={RefreshIcon}
                       onClick={() => fileInputRef.current?.click()}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid #cbd5e1',
-                        backgroundColor: '#f8fafc',
-                        color: '#334155',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        transition: 'all 0.15s ease'
-                      }}
                     >
-                      <RefreshIcon size={14} /> Ganti Foto
-                    </button>
-                    <button
-                      type="button"
+                      Ganti Foto
+                    </Button>
+                    <Button
+                      variant="danger-outline"
+                      size="sm"
+                      icon={Delete02Icon}
                       onClick={handleRemovePhoto}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid #fee2e2',
-                        backgroundColor: '#fff1f2',
-                        color: '#ef4444',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        transition: 'all 0.15s ease'
-                      }}
                     >
-                      <Delete02Icon size={14} /> Hapus
-                    </button>
+                      Hapus Foto
+                    </Button>
                   </div>
                 </div>
               </div>

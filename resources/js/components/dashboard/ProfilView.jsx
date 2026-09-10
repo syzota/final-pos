@@ -316,11 +316,11 @@ export default function ProfilView() {
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Rukun Tetangga (RT)</label>
-                  <input inputMode="numeric" name="rukun_tetangga" value={formData.rukun_tetangga || ''} onChange={handleChange} placeholder="mis. 04" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input inputMode="numeric" name="rukun_tetangga" value={formData.rukun_tetangga || ''} onChange={handleChange} placeholder="Contoh: 04" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Nomor Posyandu</label>
-                  <input inputMode="numeric" name="nomor_posyandu" value={formData.nomor_posyandu || ''} onChange={handleChange} placeholder="mis. 01" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input inputMode="numeric" name="nomor_posyandu" value={formData.nomor_posyandu || ''} onChange={handleChange} placeholder="Contoh: 01" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field" style={{ gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Alamat Lengkap Bangunan Posyandu</label>
@@ -351,7 +351,7 @@ export default function ProfilView() {
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Program Terintegrasi Lainnya</label>
-                  <input name="program_terintegrasi" value={formData.program_terintegrasi || ''} onChange={handleChange} placeholder="mis. Posbindu / Lansia" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input name="program_terintegrasi" value={formData.program_terintegrasi || ''} onChange={handleChange} placeholder="Contoh: Posbindu / Lansia" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
               </div>
             </div>
@@ -484,7 +484,7 @@ export default function ProfilView() {
                 </div>
                 <div className="form-field" style={{ gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Sarana Lainnya</label>
-                  <input name="sarana_lain" value={formData.sarana_lain || ''} onChange={handleChange} placeholder="mis. Ruang tunggu ber-AC, dapur sehat PMT" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input name="sarana_lain" value={formData.sarana_lain || ''} onChange={handleChange} placeholder="Contoh: Ruang tunggu ber-AC, dapur sehat PMT" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
               </div>
             </div>

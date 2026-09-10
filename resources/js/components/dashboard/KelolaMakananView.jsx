@@ -367,7 +367,7 @@ export default function KelolaMakananView() {
                       <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '4px' }}>Nama Makanan *</label>
                       <input
                         type="text"
-                        placeholder="mis. Bubur Manado (1 porsi)"
+                        placeholder="Contoh: Bubur Manado (1 porsi)"
                         value={formData.nama_makanan}
                         onChange={(e) => setFormData({ ...formData, nama_makanan: e.target.value })}
                         required
@@ -381,7 +381,7 @@ export default function KelolaMakananView() {
                         inputMode="numeric"
                         min="0"
                         max="5000"
-                        placeholder="mis. 180"
+                        placeholder="Contoh: 180"
                         value={formData.kalori_per_porsi}
                         onChange={(e) => setFormData({ ...formData, kalori_per_porsi: e.target.value })}
                         required

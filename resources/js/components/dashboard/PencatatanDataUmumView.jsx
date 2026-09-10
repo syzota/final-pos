@@ -221,13 +221,13 @@ export default function PencatatanDataUmumView() {
                             <div className="section-head"><h3>Identitas & Poin 1 - 2</h3></div>
                             <div className="form-grid">
                                 <div className="form-field full"><label>Posyandu</label><input name="nama_posyandu" value={formData.nama_posyandu} onChange={handleChange} placeholder="Nama Posyandu" /></div>
-                                <div className="form-field full"><label>Rukun Warga (RW)</label><input name="rukun_warga" value={formData.rukun_warga} onChange={handleChange} placeholder="mis. 05" /></div>
+                                <div className="form-field full"><label>Rukun Warga (RW)</label><input name="rukun_warga" value={formData.rukun_warga} onChange={handleChange} placeholder="Contoh: 05" /></div>
                                 <div className="form-field"><label>Desa/Kelurahan</label><input name="desa" value={formData.desa} onChange={handleChange} /></div>
                                 <div className="form-field"><label>Kecamatan</label><input name="kecamatan" value={formData.kecamatan} onChange={handleChange} /></div>
 
                                 <div className="form-field full" style={{ borderBottom: '1px solid #eee', paddingBottom: '4px', marginTop: '8px' }}><b>Waktu Pendataan</b></div>
-                                <div className="form-field"><label>1. Tahun</label><input type="number" name="tahun" value={formData.tahun} onChange={handleChange} placeholder="mis. 2026" /></div>
-                                <div className="form-field"><label>2. Bulan</label><input name="bulan" value={formData.bulan} onChange={handleChange} placeholder="mis. Agustus" /></div>
+                                <div className="form-field"><label>1. Tahun</label><input type="number" name="tahun" value={formData.tahun} onChange={handleChange} placeholder="Contoh: 2026" /></div>
+                                <div className="form-field"><label>2. Bulan</label><input name="bulan" value={formData.bulan} onChange={handleChange} placeholder="Contoh: Agustus" /></div>
                             </div>
                         </div>
 

@@ -453,11 +453,11 @@ export default function PengaduanView() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <div className="form-field">
                       <label>Umur (Tahun)</label>
-                      <input type="number" name="umur_tahun" value={formIden.umur_tahun || ''} onChange={handleIdenChange} placeholder="mis. 3" min="0" max="6" />
+                      <input type="number" name="umur_tahun" value={formIden.umur_tahun || ''} onChange={handleIdenChange} placeholder="Contoh: 3" min="0" max="6" />
                     </div>
                     <div className="form-field">
                       <label>Umur (Bulan)</label>
-                      <input type="number" name="umur_bulan" value={formIden.umur_bulan || ''} onChange={handleIdenChange} placeholder="mis. 4" min="0" max="11" />
+                      <input type="number" name="umur_bulan" value={formIden.umur_bulan || ''} onChange={handleIdenChange} placeholder="Contoh: 4" min="0" max="11" />
                     </div>
                   </div>
 
@@ -468,7 +468,7 @@ export default function PengaduanView() {
 
                   <div className="form-field">
                     <label>Alamat (RT/RW/Dusun)</label>
-                    <input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="mis. RT 03" />
+                    <input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="Contoh: RT 03" />
                   </div>
 
                   <div className="form-field">
@@ -493,7 +493,7 @@ export default function PengaduanView() {
 
                   <div className="form-field full">
                     <label>Catatan Perkembangan</label>
-                    <textarea rows="2" name="catatan_perkembangan" value={formIden.catatan_perkembangan || ''} onChange={handleIdenChange} placeholder="mis. Sesuai usia, perlu stimulasi bicara, sangat aktif..."></textarea>
+                    <textarea rows="2" name="catatan_perkembangan" value={formIden.catatan_perkembangan || ''} onChange={handleIdenChange} placeholder="Contoh: Sesuai usia, perlu stimulasi bicara, sangat aktif..."></textarea>
                   </div>
                 </div>
               )}
@@ -501,13 +501,13 @@ export default function PengaduanView() {
               {/* LAMPIRAN 2: IDENTIFIKASI PERPUSTAKAAN / POJOK BACA */}
               {subTab0 === 1 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Fasilitas (Perpustakaan/Pojok Baca)</label><input name="nama_fasilitas" value={formIden.nama_fasilitas || ''} onChange={handleIdenChange} placeholder="mis. Perpustakaan Desa Harapan" /></div>
+                  <div className="form-field full"><label>Nama Fasilitas (Perpustakaan/Pojok Baca)</label><input name="nama_fasilitas" value={formIden.nama_fasilitas || ''} onChange={handleIdenChange} placeholder="Contoh: Perpustakaan Desa Harapan" /></div>
                   <div className="form-field"><label>Ketersediaan Fasilitas</label><select name="ketersediaan" value={formIden.ketersediaan || 'Ada'} onChange={handleIdenChange}><option value="Ada">Ada</option><option value="Tidak">Tidak</option></select></div>
-                  <div className="form-field"><label>Jumlah Buku</label><input type="text" name="jumlah_buku" value={formIden.jumlah_buku || ''} onChange={handleIdenChange} placeholder="mis. 120 buku cerita" /></div>
+                  <div className="form-field"><label>Jumlah Buku</label><input type="text" name="jumlah_buku" value={formIden.jumlah_buku || ''} onChange={handleIdenChange} placeholder="Contoh: 120 buku cerita" /></div>
                   <div className="form-field"><label>Kondisi Buku & Fasilitas</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Cukup">Cukup</option><option value="Kurang">Kurang</option></select></div>
                   <div className="form-field"><label>Akses Masyarakat</label><select name="akses" value={formIden.akses || 'Mudah'} onChange={handleIdenChange}><option value="Mudah">Mudah</option><option value="Sulit">Sulit</option></select></div>
-                  <div className="form-field full"><label>Petugas Pengelola</label><input name="pengelola" value={formIden.pengelola || ''} onChange={handleIdenChange} placeholder="mis. Kader, PKK Desa, Karang Taruna" /></div>
-                  <div className="form-field full"><label>Catatan / Kebutuhan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Butuh rak baru, perlu update buku cerita anak..."></textarea></div>
+                  <div className="form-field full"><label>Petugas Pengelola</label><input name="pengelola" value={formIden.pengelola || ''} onChange={handleIdenChange} placeholder="Contoh: Kader, PKK Desa, Karang Taruna" /></div>
+                  <div className="form-field full"><label>Catatan / Kebutuhan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Butuh rak baru, perlu update buku cerita anak..."></textarea></div>
                 </div>
               )}
 
@@ -518,21 +518,21 @@ export default function PengaduanView() {
                   <div className="form-field"><label>Nama Anak</label><input name="nama_anak" value={formIden.nama_anak || ''} onChange={handleIdenChange} placeholder="Nama anak usia dini" /></div>
                   <div className="form-field"><label>Tingkat Literasi Digital</label><select name="tingkat_literasi" value={formIden.tingkat_literasi || 'Rendah'} onChange={handleIdenChange}><option value="Rendah">Rendah (Belum terbiasa aplikasi)</option><option value="Sedang">Sedang (Bisa WA & aplikasi dasar)</option><option value="Tinggi">Tinggi (Mahir pakai aplikasi edukasi)</option></select></div>
                   <div className="form-field"><label>Fasilitas HP/Gawai</label><select name="fasilitas_hp" value={formIden.fasilitas_hp || 'Ya'} onChange={handleIdenChange}><option value="Ya">Ya (Punya & memadai)</option><option value="Tidak">Tidak (Tidak punya/sering error)</option></select></div>
-                  <div className="form-field"><label>Kebutuhan Aplikasi Edukasi</label><input name="kebutuhan_aplikasi" value={formIden.kebutuhan_aplikasi || ''} onChange={handleIdenChange} placeholder="mis. Video edukasi, aplikasi membaca" /></div>
-                  <div className="form-field"><label>Materi Pelatihan Diterima</label><input name="materi_pelatihan" value={formIden.materi_pelatihan || ''} onChange={handleIdenChange} placeholder="mis. Cara mengunduh aplikasi" /></div>
-                  <div className="form-field full"><label>Catatan Tambahan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. HP memori penuh, hambatan sinyal, dll..."></textarea></div>
+                  <div className="form-field"><label>Kebutuhan Aplikasi Edukasi</label><input name="kebutuhan_aplikasi" value={formIden.kebutuhan_aplikasi || ''} onChange={handleIdenChange} placeholder="Contoh: Video edukasi, aplikasi membaca" /></div>
+                  <div className="form-field"><label>Materi Pelatihan Diterima</label><input name="materi_pelatihan" value={formIden.materi_pelatihan || ''} onChange={handleIdenChange} placeholder="Contoh: Cara mengunduh aplikasi" /></div>
+                  <div className="form-field full"><label>Catatan Tambahan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: HP memori penuh, hambatan sinyal, dll..."></textarea></div>
                 </div>
               )}
 
               {/* LAMPIRAN 4: INVENTARIS APE */}
               {subTab0 === 3 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Jenis Alat Peraga Edukasi (APE)</label><input name="jenis_ape" value={formIden.jenis_ape || ''} onChange={handleIdenChange} placeholder="mis. Balok susun, Puzzle kayu, Poster" /></div>
-                  <div className="form-field"><label>Jumlah Tersedia</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="mis. 5 set, 12 pcs" /></div>
+                  <div className="form-field full"><label>Jenis Alat Peraga Edukasi (APE)</label><input name="jenis_ape" value={formIden.jenis_ape || ''} onChange={handleIdenChange} placeholder="Contoh: Balok susun, Puzzle kayu, Poster" /></div>
+                  <div className="form-field"><label>Jumlah Tersedia</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="Contoh: 5 set, 12 pcs" /></div>
                   <div className="form-field"><label>Kondisi Saat Ini</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Rusak Ringan">Rusak Ringan</option><option value="Rusak Berat">Rusak Berat</option></select></div>
                   <div className="form-field"><label>Prioritas Kebutuhan</label><select name="prioritas" value={formIden.prioritas || 'Sedang'} onChange={handleIdenChange}><option value="Tinggi">Tinggi (Sangat mendesak)</option><option value="Sedang">Sedang</option><option value="Rendah">Rendah</option></select></div>
-                  <div className="form-field full"><label>Kebutuhan Tambahan</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="mis. Butuh 2 set puzzle baru" /></div>
-                  <div className="form-field full"><label>Catatan Observasi</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. APE jarang digunakan, kader butuh pelatihan cara pakai..."></textarea></div>
+                  <div className="form-field full"><label>Kebutuhan Tambahan</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="Contoh: Butuh 2 set puzzle baru" /></div>
+                  <div className="form-field full"><label>Catatan Observasi</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: APE jarang digunakan, kader butuh pelatihan cara pakai..."></textarea></div>
                 </div>
               )}
 
@@ -561,12 +561,12 @@ export default function PengaduanView() {
                 </div>
                 <div className="form-field">
                   <label>Penerima Aspirasi</label>
-                  <input name="penerima_aspirasi" value={formPengaduan.penerima_aspirasi || ''} onChange={handlePengaduanChange} placeholder="mis. Rina (Kader Pendidikan)" />
+                  <input name="penerima_aspirasi" value={formPengaduan.penerima_aspirasi || ''} onChange={handlePengaduanChange} placeholder="Contoh: Rina (Kader Pendidikan)" />
                 </div>
 
                 <div className="form-field">
                   <label>Nama Pengusul</label>
-                  <input name="nama_pelapor" value={formPengaduan.nama_pelapor || ''} onChange={handlePengaduanChange} placeholder="mis. Siti Aminah" />
+                  <input name="nama_pelapor" value={formPengaduan.nama_pelapor || ''} onChange={handlePengaduanChange} placeholder="Contoh: Siti Aminah" />
                 </div>
 
                 {/* --- 3 KOTAK TAMBAHAN YANG SEBELUMNYA HILANG --- */}
@@ -590,7 +590,7 @@ export default function PengaduanView() {
 
                 <div className="form-field full">
                   <label>Alamat Lengkap</label>
-                  <input name="alamat" value={formPengaduan.alamat || ''} onChange={handlePengaduanChange} placeholder="mis. RT 02 / RW 05, Desa Mulawarman" />
+                  <input name="alamat" value={formPengaduan.alamat || ''} onChange={handlePengaduanChange} placeholder="Contoh: RT 02 / RW 05, Desa Mulawarman" />
                 </div>
 
                 <div className="form-field full">
@@ -607,7 +607,7 @@ export default function PengaduanView() {
 
                 <div className="form-field full">
                   <label>Uraian Aspirasi / Masukan</label>
-                  <textarea name="isi_keluhan" value={formPengaduan.isi_keluhan || ''} onChange={handlePengaduanChange} rows="3" placeholder="mis. Perlu penambahan buku bacaan PAUD karena jumlah buku di perpustakaan desa sangat terbatas..."></textarea>
+                  <textarea name="isi_keluhan" value={formPengaduan.isi_keluhan || ''} onChange={handlePengaduanChange} rows="3" placeholder="Contoh: Perlu penambahan buku bacaan PAUD karena jumlah buku di perpustakaan desa sangat terbatas..."></textarea>
                 </div>
 
                 <div className="form-field">
@@ -621,7 +621,7 @@ export default function PengaduanView() {
 
                 <div className="form-field full">
                   <label>Rekomendasi (Kader)</label>
-                  <textarea name="rekomendasi" value={formPengaduan.rekomendasi || ''} onChange={handlePengaduanChange} rows="2" placeholder="mis. Diusulkan masuk dalam rencana pengadaan sarana perpustakaan tahun depan..."></textarea>
+                  <textarea name="rekomendasi" value={formPengaduan.rekomendasi || ''} onChange={handlePengaduanChange} rows="2" placeholder="Contoh: Diusulkan masuk dalam rencana pengadaan sarana perpustakaan tahun depan..."></textarea>
                 </div>
 
                 <div className="form-field full">
@@ -657,10 +657,10 @@ export default function PengaduanView() {
                 <div className="form-grid">
                   <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Lokasi / RT</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. RT 04 Dusun Harapan" /></div>
-                  <div className="form-field full"><label>Temuan Lapangan – Air Bersih</label><input name="temuan_air" value={formIden.temuan_air || ''} onChange={handleIdenChange} placeholder="mis. Air keruh, sumber (sumur/PDAM), keluhan warga" /></div>
-                  <div className="form-field full"><label>Temuan Lapangan – Limbah Domestik</label><input name="temuan_limbah" value={formIden.temuan_limbah || ''} onChange={handleIdenChange} placeholder="mis. Ada/tidak SPAL, limbah dialirkan kemana" /></div>
-                  <div className="form-field full"><label>Kebutuhan / Permasalahan</label><textarea rows="2" name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="mis. Tidak ada SPAL, air meluap saat hujan"></textarea></div>
+                  <div className="form-field full"><label>Lokasi / RT</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: RT 04 Dusun Harapan" /></div>
+                  <div className="form-field full"><label>Temuan Lapangan – Air Bersih</label><input name="temuan_air" value={formIden.temuan_air || ''} onChange={handleIdenChange} placeholder="Contoh: Air keruh, sumber (sumur/PDAM), keluhan warga" /></div>
+                  <div className="form-field full"><label>Temuan Lapangan – Limbah Domestik</label><input name="temuan_limbah" value={formIden.temuan_limbah || ''} onChange={handleIdenChange} placeholder="Contoh: Ada/tidak SPAL, limbah dialirkan kemana" /></div>
+                  <div className="form-field full"><label>Kebutuhan / Permasalahan</label><textarea rows="2" name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="Contoh: Tidak ada SPAL, air meluap saat hujan"></textarea></div>
                   <div className="form-field full"><label>Rekomendasi / Langkah Lanjut</label><textarea rows="2" name="rekomendasi" value={formIden.rekomendasi || ''} onChange={handleIdenChange} placeholder="Saran kepada desa atau lintas sektor"></textarea></div>
                 </div>
               )}
@@ -670,9 +670,9 @@ export default function PengaduanView() {
                   <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
                   <div className="form-field full"><label>Lokasi Embung</label><input name="lokasi_embung" value={formIden.lokasi_embung || ''} onChange={handleIdenChange} placeholder="Nama embung atau titik koordinat" /></div>
-                  <div className="form-field full"><label>Kondisi Fisik Embung</label><input name="kondisi_fisik" value={formIden.kondisi_fisik || ''} onChange={handleIdenChange} placeholder="mis. Terawat, rusak, berlumut, pendangkalan, ada sampah" /></div>
-                  <div className="form-field full"><label>Permasalahan</label><textarea rows="2" name="permasalahan" value={formIden.permasalahan || ''} onChange={handleIdenChange} placeholder="mis. Banyak sedimen, dinding retak, debit kecil"></textarea></div>
-                  <div className="form-field full"><label>Tindakan yang Dibutuhkan</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="mis. Pembersihan sedimen, perbaikan dinding, pasang pagar"></textarea></div>
+                  <div className="form-field full"><label>Kondisi Fisik Embung</label><input name="kondisi_fisik" value={formIden.kondisi_fisik || ''} onChange={handleIdenChange} placeholder="Contoh: Terawat, rusak, berlumut, pendangkalan, ada sampah" /></div>
+                  <div className="form-field full"><label>Permasalahan</label><textarea rows="2" name="permasalahan" value={formIden.permasalahan || ''} onChange={handleIdenChange} placeholder="Contoh: Banyak sedimen, dinding retak, debit kecil"></textarea></div>
+                  <div className="form-field full"><label>Tindakan yang Dibutuhkan</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Pembersihan sedimen, perbaikan dinding, pasang pagar"></textarea></div>
                 </div>
               )}
 
@@ -681,9 +681,9 @@ export default function PengaduanView() {
                   <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
                   <div className="form-field full"><label>Lokasi / Jalur Pipa</label><input name="lokasi_pipa" value={formIden.lokasi_pipa || ''} onChange={handleIdenChange} placeholder="RT/Dusun atau jalur jaringan yang dicek" /></div>
-                  <div className="form-field full"><label>Kerusakan / Permasalahan</label><input name="kerusakan" value={formIden.kerusakan || ''} onChange={handleIdenChange} placeholder="mis. Pipa bocor, pipa pecah, tekanan rendah, tidak mengalir" /></div>
-                  <div className="form-field full"><label>Penyebab (Jika Diketahui)</label><input name="penyebab" value={formIden.penyebab || ''} onChange={handleIdenChange} placeholder="mis. Usia pipa, akar pohon, konstruksi" /></div>
-                  <div className="form-field full"><label>Rekomendasi</label><textarea rows="2" name="rekomendasi" value={formIden.rekomendasi || ''} onChange={handleIdenChange} placeholder="mis. Perbaikan pipa, penggantian, laporan ke PU desa"></textarea></div>
+                  <div className="form-field full"><label>Kerusakan / Permasalahan</label><input name="kerusakan" value={formIden.kerusakan || ''} onChange={handleIdenChange} placeholder="Contoh: Pipa bocor, pipa pecah, tekanan rendah, tidak mengalir" /></div>
+                  <div className="form-field full"><label>Penyebab (Jika Diketahui)</label><input name="penyebab" value={formIden.penyebab || ''} onChange={handleIdenChange} placeholder="Contoh: Usia pipa, akar pohon, konstruksi" /></div>
+                  <div className="form-field full"><label>Rekomendasi</label><textarea rows="2" name="rekomendasi" value={formIden.rekomendasi || ''} onChange={handleIdenChange} placeholder="Contoh: Perbaikan pipa, penggantian, laporan ke PU desa"></textarea></div>
                 </div>
               )}
 
@@ -692,9 +692,9 @@ export default function PengaduanView() {
                   <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
                   <div className="form-field full"><label>Pemilik / Bangunan</label><input name="pemilik" value={formIden.pemilik || ''} onChange={handleIdenChange} placeholder="Nama keluarga atau lokasi sumur" /></div>
-                  <div className="form-field full"><label>Kondisi Sumur</label><input name="kondisi_sumur" value={formIden.kondisi_sumur || ''} onChange={handleIdenChange} placeholder="mis. Dalam, kering, keruh, retak, gangan air rendah, dinding roboh" /></div>
-                  <div className="form-field full"><label>Risiko Sanitasi</label><input name="risiko_sanitasi" value={formIden.risiko_sanitasi || ''} onChange={handleIdenChange} placeholder="mis. Dekat kandang, dekat septik tank, lokasi banjir" /></div>
-                  <div className="form-field full"><label>Tindakan Rehabilitasi</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="mis. Pembersihan, pengerukan, perbaikan dinding, peningkatan bibir sumur"></textarea></div>
+                  <div className="form-field full"><label>Kondisi Sumur</label><input name="kondisi_sumur" value={formIden.kondisi_sumur || ''} onChange={handleIdenChange} placeholder="Contoh: Dalam, kering, keruh, retak, gangan air rendah, dinding roboh" /></div>
+                  <div className="form-field full"><label>Risiko Sanitasi</label><input name="risiko_sanitasi" value={formIden.risiko_sanitasi || ''} onChange={handleIdenChange} placeholder="Contoh: Dekat kandang, dekat septik tank, lokasi banjir" /></div>
+                  <div className="form-field full"><label>Tindakan Rehabilitasi</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Pembersihan, pengerukan, perbaikan dinding, peningkatan bibir sumur"></textarea></div>
                 </div>
               )}
 
@@ -703,9 +703,9 @@ export default function PengaduanView() {
                   <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
                   <div className="form-field full"><label>Lokasi Ruas Jalan</label><input name="lokasi_jalan" value={formIden.lokasi_jalan || ''} onChange={handleIdenChange} placeholder="RT/Dusun/titik koordinat" /></div>
-                  <div className="form-field full"><label>Kondisi Jalan</label><input name="kondisi_jalan" value={formIden.kondisi_jalan || ''} onChange={handleIdenChange} placeholder="mis. Baik, rusak ringan/sedang/berat, berlubang, tergenang, belum pengerasan" /></div>
-                  <div className="form-field full"><label>Dampak ke Masyarakat</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="mis. Sulit dilalui, menghambat akses sekolah/posyandu, membahayakan" /></div>
-                  <div className="form-field full"><label>Usulan Tindakan</label><textarea rows="2" name="usulan_tindakan" value={formIden.usulan_tindakan || ''} onChange={handleIdenChange} placeholder="mis. Pengaspalan, pengerasan, perbaikan drainase, pengurugan jalan"></textarea></div>
+                  <div className="form-field full"><label>Kondisi Jalan</label><input name="kondisi_jalan" value={formIden.kondisi_jalan || ''} onChange={handleIdenChange} placeholder="Contoh: Baik, rusak ringan/sedang/berat, berlubang, tergenang, belum pengerasan" /></div>
+                  <div className="form-field full"><label>Dampak ke Masyarakat</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="Contoh: Sulit dilalui, menghambat akses sekolah/posyandu, membahayakan" /></div>
+                  <div className="form-field full"><label>Usulan Tindakan</label><textarea rows="2" name="usulan_tindakan" value={formIden.usulan_tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Pengaspalan, pengerasan, perbaikan drainase, pengurugan jalan"></textarea></div>
                 </div>
               )}
 
@@ -749,7 +749,7 @@ export default function PengaduanView() {
                 </div>
 
                 <div className="form-field full"><label>Deskripsi Pengaduan / Keluhan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan keluhan/masalah secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. Jalan Utama RT 05" /></div>
+                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: Jalan Utama RT 05" /></div>
 
                 <div className="form-field full"><label>Persyaratan Kelengkapan Aduan</label>
                   <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setLampiranPengaduan)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
@@ -799,7 +799,7 @@ export default function PengaduanView() {
                   <div className="form-field full"><label>Nama Warga</label><input name="nama_warga" value={formIden.nama_warga || ''} onChange={handleIdenChange} placeholder="Isi sesuai daftar hadir" /></div>
                   <div className="form-field"><label>Akses Air Bersih</label><select name="akses_air" value={formIden.akses_air || 'Sumur Bor'} onChange={handleIdenChange}><option value="Sumur Bor">Sumur Bor</option><option value="Jaringan Desa">Jaringan Desa</option><option value="Sungai">Sungai</option></select></div>
                   <div className="form-field"><label>Pengelolaan Sampah</label><select name="pengelolaan_sampah" value={formIden.pengelolaan_sampah || 'Dipilah'} onChange={handleIdenChange}><option value="Dipilah">Dipilah</option><option value="Dibakar">Dibakar</option><option value="Ditimbun">Ditimbun</option></select></div>
-                  <div className="form-field full"><label>Kebiasaan Kebersihan</label><input name="kebiasaan_kebersihan" value={formIden.kebiasaan_kebersihan || ''} onChange={handleIdenChange} placeholder="mis. Cuci tangan pakai sabun, dsb." /></div>
+                  <div className="form-field full"><label>Kebiasaan Kebersihan</label><input name="kebiasaan_kebersihan" value={formIden.kebiasaan_kebersihan || ''} onChange={handleIdenChange} placeholder="Contoh: Cuci tangan pakai sabun, dsb." /></div>
                   <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Masukkan kendala (misal saluran mampet)..."></textarea></div>
                 </div>
               )}
@@ -807,20 +807,20 @@ export default function PengaduanView() {
               {subTab2 === 2 && (
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Warga</label><input name="nama_warga" value={formIden.nama_warga || ''} onChange={handleIdenChange} placeholder="Isi nama lengkap" /></div>
-                  <div className="form-field full"><label>Jenis Tanaman</label><input name="jenis_tanaman" value={formIden.jenis_tanaman || ''} onChange={handleIdenChange} placeholder="mis. Kangkung, cabai, sereh, dsb." /></div>
+                  <div className="form-field full"><label>Jenis Tanaman</label><input name="jenis_tanaman" value={formIden.jenis_tanaman || ''} onChange={handleIdenChange} placeholder="Contoh: Kangkung, cabai, sereh, dsb." /></div>
                   <div className="form-field"><label>Teknik</label><select name="teknik" value={formIden.teknik || 'Tanah Langsung'} onChange={handleIdenChange}><option value="Polybag">Polybag</option><option value="Hidroponik">Hidroponik</option><option value="Tanah Langsung">Tanah Langsung</option></select></div>
                   <div className="form-field"><label>Kondisi Pekarangan</label><select name="kondisi_pekarangan" value={formIden.kondisi_pekarangan || 'Luas'} onChange={handleIdenChange}><option value="Sempit">Sempit</option><option value="Luas">Luas</option></select></div>
-                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Kebutuhan bibit, pupuk, atau pelatihan..."></textarea></div>
+                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Kebutuhan bibit, pupuk, atau pelatihan..."></textarea></div>
                 </div>
               )}
 
               {subTab2 === 3 && (
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Warga</label><input name="nama_warga" value={formIden.nama_warga || ''} onChange={handleIdenChange} placeholder="Nama warga yang membuat biopori" /></div>
-                  <div className="form-field"><label>Jumlah Biopori</label><input type="number" name="jumlah_biopori" value={formIden.jumlah_biopori || ''} onChange={handleIdenChange} placeholder="mis. 1-5 lubang" /></div>
+                  <div className="form-field"><label>Jumlah Biopori</label><input type="number" name="jumlah_biopori" value={formIden.jumlah_biopori || ''} onChange={handleIdenChange} placeholder="Contoh: 1-5 lubang" /></div>
                   <div className="form-field"><label>Lokasi</label><select name="lokasi" value={formIden.lokasi || 'Pekarangan Depan'} onChange={handleIdenChange}><option value="Pekarangan Depan">Pekarangan Depan</option><option value="Pekarangan Belakang">Pekarangan Belakang</option></select></div>
-                  <div className="form-field full"><label>Manfaat</label><input name="manfaat" value={formIden.manfaat || ''} onChange={handleIdenChange} placeholder="mis. Penyerapan air, kompos, dll." /></div>
-                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Kendala alat, tanah keras, dsb."></textarea></div>
+                  <div className="form-field full"><label>Manfaat</label><input name="manfaat" value={formIden.manfaat || ''} onChange={handleIdenChange} placeholder="Contoh: Penyerapan air, kompos, dll." /></div>
+                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Kendala alat, tanah keras, dsb."></textarea></div>
                 </div>
               )}
 
@@ -861,7 +861,7 @@ export default function PengaduanView() {
                 </div>
 
                 <div className="form-field full"><label>Deskripsi Pengaduan / Usulan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan keluhan/kebutuhan bantuan secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. RT 03" /></div>
+                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: RT 03" /></div>
 
                 <div className="form-field full">
                   <label>Persyaratan Kelengkapan Aduan</label>
@@ -903,42 +903,42 @@ export default function PengaduanView() {
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Korban</label><input name="nama_korban" value={formIden.nama_korban || ''} onChange={handleIdenChange} placeholder="Tulis nama lengkap korban" /></div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', gridColumn: '1 / -1' }}>
-                    <div className="form-field"><label>Usia (Tahun)</label><input type="number" name="usia" value={formIden.usia || ''} onChange={handleIdenChange} placeholder="mis. 8" /></div>
+                    <div className="form-field"><label>Usia (Tahun)</label><input type="number" name="usia" value={formIden.usia || ''} onChange={handleIdenChange} placeholder="Contoh: 8" /></div>
                     <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formIden.jenis_kelamin || 'L'} onChange={handleIdenChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
                   </div>
-                  <div className="form-field full"><label>Alamat / Lokasi Pengungsian</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. Posko SDN 05" /></div>
-                  <div className="form-field full"><label>Jenis Paparan Bencana</label><input name="jenis_bencana" value={formIden.jenis_bencana || ''} onChange={handleIdenChange} placeholder="mis. Banjir bandang, gempa" /></div>
-                  <div className="form-field full"><label>Gejala Trauma yang Tampak</label><input name="gejala_trauma" value={formIden.gejala_trauma || ''} onChange={handleIdenChange} placeholder="mis. Menangis, sulit tidur, linglung" /></div>
-                  <div className="form-field full"><label>Kebutuhan Dukungan Psikososial</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="mis. Pendampingan ibu-anak, konseling" /></div>
-                  <div className="form-field"><label>Kondisi Keluarga</label><input name="kondisi_keluarga" value={formIden.kondisi_keluarga || ''} onChange={handleIdenChange} placeholder="mis. Bersama ibu" /></div>
-                  <div className="form-field"><label>Rencana Tindak Lanjut</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Observasi 1 minggu" /></div>
+                  <div className="form-field full"><label>Alamat / Lokasi Pengungsian</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: Posko SDN 05" /></div>
+                  <div className="form-field full"><label>Jenis Paparan Bencana</label><input name="jenis_bencana" value={formIden.jenis_bencana || ''} onChange={handleIdenChange} placeholder="Contoh: Banjir bandang, gempa" /></div>
+                  <div className="form-field full"><label>Gejala Trauma yang Tampak</label><input name="gejala_trauma" value={formIden.gejala_trauma || ''} onChange={handleIdenChange} placeholder="Contoh: Menangis, sulit tidur, linglung" /></div>
+                  <div className="form-field full"><label>Kebutuhan Dukungan Psikososial</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="Contoh: Pendampingan ibu-anak, konseling" /></div>
+                  <div className="form-field"><label>Kondisi Keluarga</label><input name="kondisi_keluarga" value={formIden.kondisi_keluarga || ''} onChange={handleIdenChange} placeholder="Contoh: Bersama ibu" /></div>
+                  <div className="form-field"><label>Rencana Tindak Lanjut</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Observasi 1 minggu" /></div>
                   <div className="form-field full"><label>Petugas Asesmen</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Nama kader/petugas" /></div>
                 </div>
               )}
 
               {subTab3 === 1 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Kegiatan Penyuluhan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="mis. Penyuluhan Pemulihan Trauma Anak" /></div>
+                  <div className="form-field full"><label>Nama Kegiatan Penyuluhan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="Contoh: Penyuluhan Pemulihan Trauma Anak" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="mis. 09.00–11.00" /></div>
-                  <div className="form-field"><label>Lokasi</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. Balai Desa Mekar Sari" /></div>
-                  <div className="form-field"><label>Sasaran Peserta</label><input name="sasaran" value={formIden.sasaran || ''} onChange={handleIdenChange} placeholder="mis. Ibu & Anak" /></div>
-                  <div className="form-field full"><label>Materi Penyuluhan</label><textarea rows="2" name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="mis. Mengenali gejala trauma, teknik relaksasi"></textarea></div>
-                  <div className="form-field"><label>Petugas / Fasilitator</label><input name="fasilitator" value={formIden.fasilitator || ''} onChange={handleIdenChange} placeholder="mis. Siti (Kader), Psikolog" /></div>
-                  <div className="form-field"><label>Catatan Alat / Logistik</label><input name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Siapkan tikar & alat gambar" /></div>
+                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="Contoh: 09.00–11.00" /></div>
+                  <div className="form-field"><label>Lokasi</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: Balai Desa Mekar Sari" /></div>
+                  <div className="form-field"><label>Sasaran Peserta</label><input name="sasaran" value={formIden.sasaran || ''} onChange={handleIdenChange} placeholder="Contoh: Ibu & Anak" /></div>
+                  <div className="form-field full"><label>Materi Penyuluhan</label><textarea rows="2" name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="Contoh: Mengenali gejala trauma, teknik relaksasi"></textarea></div>
+                  <div className="form-field"><label>Petugas / Fasilitator</label><input name="fasilitator" value={formIden.fasilitator || ''} onChange={handleIdenChange} placeholder="Contoh: Siti (Kader), Psikolog" /></div>
+                  <div className="form-field"><label>Catatan Alat / Logistik</label><input name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Siapkan tikar & alat gambar" /></div>
                 </div>
               )}
 
               {subTab3 === 2 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Kegiatan Kesiapsiagaan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="mis. Simulasi Evakuasi Gempa Bumi" /></div>
+                  <div className="form-field full"><label>Nama Kegiatan Kesiapsiagaan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="Contoh: Simulasi Evakuasi Gempa Bumi" /></div>
                   <div className="form-field"><label>Jenis Kegiatan</label><select name="jenis_kegiatan" value={formIden.jenis_kegiatan || 'Simulasi'} onChange={handleIdenChange}><option value="KIE">KIE (Edukasi)</option><option value="Simulasi">Simulasi</option><option value="Keduanya">Keduanya</option><option value="Lainnya">Lainnya</option></select></div>
                   <div className="form-field"><label>Tanggal Pelaksanaan</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
                   <div className="form-field"><label>Jumlah Peserta</label><input type="number" name="jumlah_peserta" value={formIden.jumlah_peserta || ''} onChange={handleIdenChange} placeholder="48" /></div>
                   <div className="form-field"><label>Unsur Peserta</label><input name="unsur_peserta" value={formIden.unsur_peserta || ''} onChange={handleIdenChange} placeholder="Masyarakat, Pelajar, Lansia" /></div>
-                  <div className="form-field full"><label>Materi / Metode</label><input name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="mis. Ceramah + Simulasi Lapangan Drop Cover Hold" /></div>
-                  <div className="form-field full"><label>Capaian & Respon Peserta</label><textarea rows="2" name="capaian" value={formIden.capaian || ''} onChange={handleIdenChange} placeholder="mis. Antusias, 85% warga memahami jalur evakuasi..."></textarea></div>
-                  <div className="form-field full"><label>Hambatan & Tindak Lanjut</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Lansia lambat, perlu relawan pendamping khusus..."></textarea></div>
+                  <div className="form-field full"><label>Materi / Metode</label><input name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="Contoh: Ceramah + Simulasi Lapangan Drop Cover Hold" /></div>
+                  <div className="form-field full"><label>Capaian & Respon Peserta</label><textarea rows="2" name="capaian" value={formIden.capaian || ''} onChange={handleIdenChange} placeholder="Contoh: Antusias, 85% warga memahami jalur evakuasi..."></textarea></div>
+                  <div className="form-field full"><label>Hambatan & Tindak Lanjut</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Lansia lambat, perlu relawan pendamping khusus..."></textarea></div>
                 </div>
               )}
 
@@ -946,38 +946,38 @@ export default function PengaduanView() {
                 <div className="form-grid">
                   <div className="form-field"><label>Tanggal Kejadian</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
                   <div className="form-field"><label>Waktu Kejadian</label><input type="time" name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Lokasi (RT/RW/Area)</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. RT 02 / RW 01" /></div>
-                  <div className="form-field full"><label>Jenis Insiden</label><input name="jenis_insiden" value={formIden.jenis_insiden || ''} onChange={handleIdenChange} placeholder="mis. Keributan, Pencurian, Pohon Tumbang" /></div>
+                  <div className="form-field full"><label>Lokasi (RT/RW/Area)</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: RT 02 / RW 01" /></div>
+                  <div className="form-field full"><label>Jenis Insiden</label><input name="jenis_insiden" value={formIden.jenis_insiden || ''} onChange={handleIdenChange} placeholder="Contoh: Keributan, Pencurian, Pohon Tumbang" /></div>
                   <div className="form-field full"><label>Kronologi Singkat</label><textarea rows="2" name="kronologi" value={formIden.kronologi || ''} onChange={handleIdenChange} placeholder="Ceritakan urutan kejadian secara objektif..."></textarea></div>
-                  <div className="form-field full"><label>Dampak / Korban</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="mis. Tidak ada korban, kerugian 1 unit motor" /></div>
-                  <div className="form-field full"><label>Tindak Lanjut yang Dilakukan</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Mediasi oleh RT, laporan ke Bhabinkamtibmas..."></textarea></div>
+                  <div className="form-field full"><label>Dampak / Korban</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="Contoh: Tidak ada korban, kerugian 1 unit motor" /></div>
+                  <div className="form-field full"><label>Tindak Lanjut yang Dilakukan</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Mediasi oleh RT, laporan ke Bhabinkamtibmas..."></textarea></div>
                   <div className="form-field full"><label>Petugas / Pelapor</label><input name="petugas" value={formIden.petugas || ''} onChange={handleIdenChange} placeholder="Nama kader / Linmas / Satpol PP" /></div>
                 </div>
               )}
 
               {subTab3 === 4 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Tema Sosialisasi</label><input name="tema" value={formIden.tema || ''} onChange={handleIdenChange} placeholder="mis. Pencegahan Pencurian Motor & Keamanan Rumah" /></div>
+                  <div className="form-field full"><label>Tema Sosialisasi</label><input name="tema" value={formIden.tema || ''} onChange={handleIdenChange} placeholder="Contoh: Pencegahan Pencurian Motor & Keamanan Rumah" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="mis. 16.00-17.30" /></div>
-                  <div className="form-field full"><label>Lokasi / Sasaran</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. Balai RW 02, Sasaran: Remaja & Warga" /></div>
+                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="Contoh: 16.00-17.30" /></div>
+                  <div className="form-field full"><label>Lokasi / Sasaran</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: Balai RW 02, Sasaran: Remaja & Warga" /></div>
                   <div className="form-field"><label>Metode</label><input name="metode" value={formIden.metode || ''} onChange={handleIdenChange} placeholder="Ceramah / Diskusi" /></div>
                   <div className="form-field"><label>Jumlah Peserta</label><input type="number" name="jumlah_peserta" value={formIden.jumlah_peserta || ''} onChange={handleIdenChange} placeholder="36" /></div>
-                  <div className="form-field full"><label>Isu Keamanan yang Teridentifikasi</label><textarea rows="2" name="isu_keamanan" value={formIden.isu_keamanan || ''} onChange={handleIdenChange} placeholder="mis. Area gelap di jalan kecil rawan pencurian..."></textarea></div>
-                  <div className="form-field full"><label>Tindak Lanjut Direkomendasikan</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Pemasangan lampu jalan & patroli malam" /></div>
+                  <div className="form-field full"><label>Isu Keamanan yang Teridentifikasi</label><textarea rows="2" name="isu_keamanan" value={formIden.isu_keamanan || ''} onChange={handleIdenChange} placeholder="Contoh: Area gelap di jalan kecil rawan pencurian..."></textarea></div>
+                  <div className="form-field full"><label>Tindak Lanjut Direkomendasikan</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Pemasangan lampu jalan & patroli malam" /></div>
                 </div>
               )}
 
               {subTab3 === 5 && (
                 <div className="form-grid">
                   <div className="form-field"><label>Tanggal Patroli</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="mis. 19.00–22.00 WITA" /></div>
-                  <div className="form-field full"><label>Area / Wilayah Patroli</label><input name="wilayah" value={formIden.wilayah || ''} onChange={handleIdenChange} placeholder="mis. RT 03, RT 04, Jalan Melati" /></div>
+                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="Contoh: 19.00–22.00 WITA" /></div>
+                  <div className="form-field full"><label>Area / Wilayah Patroli</label><input name="wilayah" value={formIden.wilayah || ''} onChange={handleIdenChange} placeholder="Contoh: RT 03, RT 04, Jalan Melati" /></div>
                   <div className="form-field"><label>Metode Patroli</label><select name="metode" value={formIden.metode || 'Jalan Kaki'} onChange={handleIdenChange}><option value="Jalan Kaki">Jalan Kaki</option><option value="Sepeda Motor">Sepeda Motor</option><option value="Mobil">Mobil</option><option value="Gabungan">Gabungan</option></select></div>
-                  <div className="form-field"><label>Petugas Bertugas</label><input name="petugas" value={formIden.petugas || ''} onChange={handleIdenChange} placeholder="mis. Ahmad, Rudi (Linmas)" /></div>
-                  <div className="form-field full"><label>Tujuan Patroli / Operasi</label><input name="tujuan" value={formIden.tujuan || ''} onChange={handleIdenChange} placeholder="mis. Monitoring daerah rawan & antisipasi kerumunan" /></div>
-                  <div className="form-field full"><label>Temuan Selama Patroli</label><textarea rows="2" name="temuan" value={formIden.temuan || ''} onChange={handleIdenChange} placeholder="mis. Ditemukan rumah pintu tidak terkunci, lampu jalan mati..."></textarea></div>
-                  <div className="form-field full"><label>Tindakan & Rekomendasi Lanjut</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="mis. Imbauan kepada pemilik rumah, usul perbaikan lampu..."></textarea></div>
+                  <div className="form-field"><label>Petugas Bertugas</label><input name="petugas" value={formIden.petugas || ''} onChange={handleIdenChange} placeholder="Contoh: Ahmad, Rudi (Linmas)" /></div>
+                  <div className="form-field full"><label>Tujuan Patroli / Operasi</label><input name="tujuan" value={formIden.tujuan || ''} onChange={handleIdenChange} placeholder="Contoh: Monitoring daerah rawan & antisipasi kerumunan" /></div>
+                  <div className="form-field full"><label>Temuan Selama Patroli</label><textarea rows="2" name="temuan" value={formIden.temuan || ''} onChange={handleIdenChange} placeholder="Contoh: Ditemukan rumah pintu tidak terkunci, lampu jalan mati..."></textarea></div>
+                  <div className="form-field full"><label>Tindakan & Rekomendasi Lanjut</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Imbauan kepada pemilik rumah, usul perbaikan lampu..."></textarea></div>
                 </div>
               )}
 
@@ -1021,7 +1021,7 @@ export default function PengaduanView() {
                 </div>
 
                 <div className="form-field full"><label>Deskripsi Pengaduan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan laporan kejadian / kebutuhan keamanan secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Titik Rawan</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. Perempatan Jalan Melati" /></div>
+                <div className="form-field full"><label>Lokasi Masalah/Titik Rawan</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: Perempatan Jalan Melati" /></div>
 
                 <div className="form-field full">
                   <label>Persyaratan Kelengkapan Aduan</label>
@@ -1059,8 +1059,8 @@ export default function PengaduanView() {
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Peserta</label><input name="nama_peserta" value={formIden.nama_peserta || ''} onChange={handleIdenChange} placeholder="Tulis nama lengkap sesuai identitas" /></div>
                   <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formIden.jenis_kelamin || 'P'} onChange={handleIdenChange}><option value="P">Perempuan</option><option value="L">Laki-laki</option></select></div>
-                  <div className="form-field"><label>No HP</label><input name="no_hp" value={formIden.no_hp || ''} onChange={handleIdenChange} placeholder="mis. 0812... (Tulis 'Tidak ada' jika tak punya)" /></div>
-                  <div className="form-field full"><label>Kelompok Rentan</label><input name="kelompok_rentan" value={formIden.kelompok_rentan || ''} onChange={handleIdenChange} placeholder="mis. Lansia, Disabilitas, Ibu Hamil, Anak, dll (Tulis '-' jika tidak ada)" /></div>
+                  <div className="form-field"><label>No HP</label><input name="no_hp" value={formIden.no_hp || ''} onChange={handleIdenChange} placeholder="Contoh: 0812... (Tulis 'Tidak ada' jika tak punya)" /></div>
+                  <div className="form-field full"><label>Kelompok Rentan</label><input name="kelompok_rentan" value={formIden.kelompok_rentan || ''} onChange={handleIdenChange} placeholder="Contoh: Lansia, Disabilitas, Ibu Hamil, Anak, dll (Tulis '-' jika tidak ada)" /></div>
                 </div>
               )}
 
@@ -1070,9 +1070,9 @@ export default function PengaduanView() {
                   <div className="form-field full"><label>Alamat Lengkap</label><input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="Cantumkan RT/RW, Dusun, Desa/Kelurahan" /></div>
                   <div className="form-field"><label>Jumlah Anggota Keluarga</label><input type="number" name="jumlah_anggota" value={formIden.jumlah_anggota || ''} onChange={handleIdenChange} placeholder="Total dalam satu rumah" /></div>
                   <div className="form-field"><label>Status Rumah</label><select name="status_rumah" value={formIden.status_rumah || 'Tidak Layak'} onChange={handleIdenChange}><option value="Layak">Layak</option><option value="Tidak Layak">Tidak Layak</option></select></div>
-                  <div className="form-field full"><label>Penghasilan / Bulan</label><input name="penghasilan" value={formIden.penghasilan || ''} onChange={handleIdenChange} placeholder="mis. Rp 800.000 (Tulis 'Tidak Tetap' jika tak menentu)" /></div>
+                  <div className="form-field full"><label>Penghasilan / Bulan</label><input name="penghasilan" value={formIden.penghasilan || ''} onChange={handleIdenChange} placeholder="Contoh: Rp 800.000 (Tulis 'Tidak Tetap' jika tak menentu)" /></div>
                   <div className="form-field full"><label>Disabilitas</label><input name="disabilitas" value={formIden.disabilitas || ''} onChange={handleIdenChange} placeholder="Tulis jenis disabilitas jika ada (mis. fisik, sensorik). Tulis '-' jika tidak." /></div>
-                  <div className="form-field full"><label>Keterangan Tambahan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="mis. Ibu sakit kronis, rumah rawan longsor..."></textarea></div>
+                  <div className="form-field full"><label>Keterangan Tambahan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="Contoh: Ibu sakit kronis, rumah rawan longsor..."></textarea></div>
                 </div>
               )}
 
@@ -1090,15 +1090,15 @@ export default function PengaduanView() {
 
               {subTab4 === 3 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Kegiatan & Lokasi</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="mis. Penyaluran BLT di Balai Desa" /></div>
+                  <div className="form-field full"><label>Nama Kegiatan & Lokasi</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="Contoh: Penyaluran BLT di Balai Desa" /></div>
                   <div className="form-field"><label>Tanggal Penyaluran</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Jenis Bantuan</label><input name="jenis_bantuan" value={formIden.jenis_bantuan || ''} onChange={handleIdenChange} placeholder="mis. Sembako, BLT" /></div>
+                  <div className="form-field"><label>Jenis Bantuan</label><input name="jenis_bantuan" value={formIden.jenis_bantuan || ''} onChange={handleIdenChange} placeholder="Contoh: Sembako, BLT" /></div>
                   <div className="form-field full"><label>Nama Penerima</label><input name="nama_penerima" value={formIden.nama_penerima || ''} onChange={handleIdenChange} placeholder="Sesuai KTP/KK" /></div>
                   <div className="form-field"><label>NIK Penerima</label><input name="nik_penerima" value={formIden.nik_penerima || ''} onChange={handleIdenChange} placeholder="16 digit" /></div>
-                  <div className="form-field"><label>Jumlah / Volume</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="mis. 10 kg beras, Rp300.000" /></div>
+                  <div className="form-field"><label>Jumlah / Volume</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="Contoh: 10 kg beras, Rp300.000" /></div>
                   <div className="form-field"><label>Metode Penyaluran</label><select name="metode" value={formIden.metode || 'Langsung'} onChange={handleIdenChange}><option value="Langsung">Langsung</option><option value="Diwakili">Diwakili</option><option value="Titipan">Titipan</option><option value="Pindah Alamat">Pindah Alamat</option></select></div>
                   <div className="form-field"><label>Kondisi Barang</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Rusak">Rusak</option><option value="Kurang Lengkap">Kurang Lengkap</option><option value="Tidak Layak">Tidak Layak</option></select></div>
-                  <div className="form-field full"><label>Alamat & Keterangan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="mis. RT 02. Catatan: penerima tidak hadir..."></textarea></div>
+                  <div className="form-field full"><label>Alamat & Keterangan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="Contoh: RT 02. Catatan: penerima tidak hadir..."></textarea></div>
                 </div>
               )}
 
@@ -1140,7 +1140,7 @@ export default function PengaduanView() {
                 </div>
 
                 <div className="form-field full"><label>Deskripsi Pengaduan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan laporan/kebutuhan secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. RT 04" /></div>
+                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: RT 04" /></div>
 
                 <div className="form-field full">
                   <label>Persyaratan Kelengkapan Aduan</label>
