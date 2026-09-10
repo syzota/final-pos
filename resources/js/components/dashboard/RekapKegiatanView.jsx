@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import NotificationModal from '../common/NotificationModal';
+import Button from '../common/Button';
 
-import { Printer, Save, Trash } from 'lucide-react';
+import {
+    PrinterIcon,
+    FloppyDiskIcon,
+    Delete02Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function RekapKegiatanView() {
     const [formData, setFormData] = useState({
@@ -171,19 +177,20 @@ export default function RekapKegiatanView() {
           ========================================================= */}
             <div className="no-print">
                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--primary-teal, #008080)', borderColor: 'var(--primary-teal, #008080)', minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
-                        <Printer size={16} style={{ marginRight: '8px' }} /> Ekspor Kertas PDF
-                    </button>
-                    <button className="btn btn-primary" onClick={handleSave} disabled={isLoading} style={{ minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
-                        <Save size={16} style={{ marginRight: '8px' }} /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
-                    </button>
+                    <Button variant="secondary" onClick={() => handlePrint(null)}>
+                        <PrinterIcon size={16} className="me-2" /> Ekspor Kertas PDF
+                    </Button>
+                    <Button variant="primary" onClick={handleSave} disabled={isLoading}>
+                        <FloppyDiskIcon size={16} className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                    </Button>
                 </div>
 
-                {message.text && (
-                    <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-                        <b>Info Sistem:</b> {message.text}
-                    </div>
-                )}
+                <NotificationModal
+                    isOpen={Boolean(message.text)}
+                    type={message.type || 'success'}
+                    message={message.text}
+                    onClose={() => setMessage({ type: '', text: '' })}
+                />
 
                 {/* --- KELOMPOK 1 & 2 --- */}
                 <div className="grid grid-2" style={{ marginBottom: '16px' }}>
@@ -328,20 +335,20 @@ export default function RekapKegiatanView() {
                                             <td style={{ textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                                     {/* TOMBOL CETAK RIWAYAT */}
-                                                    <button
-                                                        className="btn btn-sm btn-outline"
-                                                        style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
                                                         onClick={() => handlePrint(item)}
                                                     >
-                                                        <Printer /> Cetak
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-outline"
-                                                        style={{ color: '#dc3545', borderColor: '#dc3545' }}
+                                                        <PrinterIcon size={14} className="me-1" /> Cetak
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger-outline"
+                                                        size="sm"
                                                         onClick={() => handleDelete(item.id)}
                                                     >
-                                                        <Trash /> Hapus
-                                                    </button>
+                                                        <Delete02Icon size={14} className="me-1" /> Hapus
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>

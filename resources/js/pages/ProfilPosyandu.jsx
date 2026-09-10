@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import Button from '../components/common/Button';
 import ProfilHeroBanner from '../components/profil/ProfilHeroBanner';
 import ChairmanCard from '../components/profil/ChairmanCard';
 import BasicContactCard from '../components/profil/BasicContactCard';
@@ -11,7 +12,16 @@ import StrategicFunctionsCard from '../components/profil/StrategicFunctionsCard'
 import StrukturKepengurusanSection from '../components/profil/StrukturKepengurusanSection';
 import SectionHeader from '../components/common/SectionHeader';
 
-import { Info, Users, HeartPulse, Package, MapPin, Phone, Map, X } from 'lucide-react';
+import { 
+  InformationCircleIcon, 
+  UserGroupIcon, 
+  Cardiogram01Icon, 
+  DeliveryBox01Icon, 
+  Location01Icon, 
+  Call02Icon, 
+  Directions01Icon, 
+  Cancel01Icon 
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../components/common/Skeleton';
 
 export default function ProfilPosyandu({ onNavigate, onDarurat }) {
@@ -129,7 +139,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
               color: '#64748b'
             }}
           >
-            <X size={20} />
+            <Cancel01Icon size={20} />
           </button>
 
           <div style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '16px', marginBottom: '24px' }}>
@@ -148,7 +158,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
             {/* KOLOM KIRI */}
             <div>
               <h4 style={{ color: '#0f172a', fontSize: '15px', fontWeight: 700, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Info size={16} color="#008080" />
+                <InformationCircleIcon size={16} color="#008080" />
                 Informasi Wilayah
               </h4>
               <table className="table" style={{ fontSize: '13.5px', marginBottom: '24px', width: '100%' }}>
@@ -167,7 +177,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
               </table>
 
               <h4 style={{ color: '#0f172a', fontSize: '15px', fontWeight: 700, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Users size={16} color="#008080" />
+                <UserGroupIcon size={16} color="#008080" />
                 Susunan Pengurus
               </h4>
               <table className="table" style={{ fontSize: '13.5px', width: '100%' }}>
@@ -182,7 +192,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
             {/* KOLOM KANAN */}
             <div>
               <h4 style={{ color: '#0f172a', fontSize: '15px', fontWeight: 700, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <HeartPulse size={16} color="#008080" />
+                <Cardiogram01Icon size={16} color="#008080" />
                 Kader & Tenaga Medis
               </h4>
               <table className="table" style={{ fontSize: '13.5px', marginBottom: '24px', width: '100%' }}>
@@ -193,7 +203,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
               </table>
 
               <h4 style={{ color: '#0f172a', fontSize: '15px', fontWeight: 700, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Package size={16} color="#008080" />
+                <DeliveryBox01Icon size={16} color="#008080" />
                 Sarana & Alat Penimbangan
               </h4>
               <table className="table" style={{ fontSize: '13.5px', width: '100%' }}>
@@ -212,20 +222,14 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
             </div>
           </div>
 
-          <div style={{ marginTop: '32px', textAlign: 'right', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-            <button
-              type="button"
-              className="btn btn-primary"
+          <div style={{ marginTop: '32px', textAlign: 'right', borderTop: '1px solid #e2e8f0', paddingTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              variant="primary"
+              size="md"
               onClick={() => setSelectedDetailPosyandu(null)}
-              style={{
-                minHeight: '44px',
-                padding: '0 24px',
-                borderRadius: '10px',
-                fontWeight: 700
-              }}
             >
               Tutup Rincian
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -238,45 +242,65 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
     <div className="profil-wrapper">
       <Header activePage="profil" onNavigate={onNavigate} onDarurat={onDarurat} />
 
-      <main className="profil-container">
-        <section className="profil-section">
-          <ProfilHeroBanner />
+      <main className="profil-container" style={{ padding: '40px 16px', maxWidth: '1200px', margin: '0 auto' }}>
+        {/* UNIFIED HERO SECTION UNTUK PROFIL */}
+        <section className="profil-section" style={{ marginBottom: '48px' }}>
+          <ProfilHeroBanner defaultProfil={defaultProfil} onNavigate={onNavigate} />
         </section>
 
-        <section className="profil-section grid-2-col" style={{ marginTop: '24px' }}>
-          <ChairmanCard />
-          {defaultProfil && <BasicContactCard data={defaultProfil} />}
+        {/* SECTION 1: SAMBUTAN KETUA & KONTAK SEKRETARIAT */}
+        <section className="profil-section" style={{ marginBottom: '56px' }}>
+          <SectionHeader
+            eyebrow="STRUKTUR & INFORMASI"
+            title="Kepemimpinan & Kontak Posyandu"
+            description="Informasi mengenai kepemimpinan dan kontak posyandu terpadu di Desa Loa Duri Ulu."
+            align="left"
+          />
+          <div className="grid grid-2-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '24px' }}>
+            <ChairmanCard />
+            <BasicContactCard defaultProfil={defaultProfil} onNavigate={onNavigate} />
+          </div>
         </section>
 
-        <section className="profil-section grid-2-col" style={{ marginTop: '24px' }}>
-          <CoreTasksCard />
-          <StrategicFunctionsCard />
+        {/* SECTION 2: TUGAS POKOK & FUNGSI STRATEGIS */}
+        <section className="profil-section" style={{ marginBottom: '56px' }}>
+          <SectionHeader
+            eyebrow="PERAN & FUNGSI"
+            title="Komitmen Pelayanan Masyarakat"
+            description="Tugas pokok dan fungsi strategis Posyandu dalam meningkatkan taraf kesehatan warga desa."
+            align="left"
+          />
+          <div className="grid grid-2-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '24px' }}>
+            <CoreTasksCard />
+            <StrategicFunctionsCard />
+          </div>
         </section>
 
-        <section className="profil-section" style={{ marginTop: '24px' }}>
+        {/* SECTION 3: STRUKTUR KEPENGURUSAN POKJANAL & KADER */}
+        <section className="profil-section" style={{ marginBottom: '56px' }}>
           <StrukturKepengurusanSection />
         </section>
 
-        {/* LOKASI POSYANDU */}
-        <section className="profil-section" style={{ marginTop: '56px', marginBottom: '64px' }}>
+        {/* SECTION 4: DAFTAR 9 TITIK POSYANDU DESA */}
+        <section id="daftar-posyandu" className="profil-section" style={{ marginBottom: '40px' }}>
           <SectionHeader
-            eyebrow="Wilayah Kerja Pelayanan"
-            title="Lokasi Posyandu"
-            description="Temukan posyandu terdekat di lingkungan rukun tetangga (RT) Anda di Desa Loa Duri Ulu."
+            eyebrow="WILAYAH PELAYANAN"
+            title="Daftar 9 Posyandu di Desa Loa Duri Ulu"
+            description="Setiap posyandu melayani warga di lingkungan rukun tetangga (RT) masing-masing secara berkala."
+            align="left"
           />
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+          <div className="posyandu-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
             {profilList.map((posyandu, idx) => (
               <div
                 key={posyandu.id || idx}
-                className="card"
+                className="posyandu-card"
                 style={{
-                  padding: 0,
+                  borderRadius: '16px',
                   overflow: 'hidden',
-                  borderRadius: '18px',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
                   backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
                   display: 'flex',
                   flexDirection: 'column'
                 }}
@@ -300,63 +324,35 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
                   </h3>
 
                   <div style={{ fontSize: '13.5px', color: '#475569', marginBottom: '10px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <MapPin size={16} color="#008080" style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <Location01Icon size={16} color="var(--primary-teal, #008080)" style={{ flexShrink: 0, marginTop: '2px' }} />
                     <span style={{ lineHeight: '1.4' }}>{posyandu.alamat || 'Alamat RT di Desa Loa Duri Ulu'}</span>
                   </div>
 
                   <div style={{ fontSize: '13.5px', color: '#475569', marginBottom: '20px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <Phone size={16} color="#008080" style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <Call02Icon size={16} color="var(--primary-teal, #008080)" style={{ flexShrink: 0, marginTop: '2px' }} />
                     <span style={{ lineHeight: '1.4' }}>{posyandu.kontak_darurat || posyandu.no_telp || '0812-5000-100' + ((idx % 9) + 1)}</span>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
+                    <Button
+                      variant="primary"
+                      size="md"
+                      fullWidth
+                      icon={InformationCircleIcon}
                       onClick={() => setSelectedDetailPosyandu(posyandu)}
-                      style={{
-                        width: '100%',
-                        minHeight: '44px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        gap: '8px',
-                        borderRadius: '10px',
-                        fontWeight: 700,
-                        fontSize: '13.5px',
-                        backgroundColor: 'var(--primary-500, #008080)',
-                        color: '#ffffff',
-                        border: 'none',
-                        boxShadow: '0 2px 6px rgba(0, 128, 128, 0.2)',
-                        cursor: 'pointer'
-                      }}
                     >
-                      <Info size={16} /> Lihat Detail Lengkap Posyandu
-                    </button>
+                      Lihat Detail Posyandu
+                    </Button>
 
-                    <a
-                      href={posyandu.link_gmaps || `https://maps.google.com/?q=Loa+Duri+Ulu+Posyandu+${posyandu.nama}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn btn-outline"
-                      style={{
-                        width: '100%',
-                        minHeight: '40px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        gap: '8px',
-                        borderRadius: '10px',
-                        color: 'var(--primary-700, #007373)',
-                        borderColor: '#cbd5e1',
-                        backgroundColor: '#f8fafc',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        textDecoration: 'none'
-                      }}
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      fullWidth
+                      icon={Directions01Icon}
+                      onClick={() => window.open(posyandu.link_gmaps || `https://maps.google.com/?q=Loa+Duri+Ulu+Posyandu+${posyandu.nama}`, '_blank')}
                     >
-                      <Map size={16} /> Buka di Google Maps
-                    </a>
+                      Buka di Google Maps
+                    </Button>
                   </div>
                 </div>
               </div>

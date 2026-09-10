@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Sparkles } from 'lucide-react';
+import { CheckmarkCircle01Icon, SparklesIcon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function StrategicFunctionsCard() {
   const functions = [
@@ -22,7 +22,7 @@ export default function StrategicFunctionsCard() {
     >
       <div className="card-header-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
         <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: '#f3e8ff', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Sparkles size={22} />
+          <SparklesIcon size={22} />
         </div>
         <div>
           <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0' }}>Peran Bagi Masyarakat</h3>
@@ -33,7 +33,7 @@ export default function StrategicFunctionsCard() {
       <ul className="task-list" style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {functions.map((fn, idx) => (
           <li key={idx} className="task-item" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px', color: '#1e293b', lineHeight: '1.55' }}>
-            <CheckCircle2 size={18} color="#9333ea" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <CheckmarkCircle01Icon size={18} color="#9333ea" style={{ flexShrink: 0, marginTop: '2px' }} />
             <span>{fn}</span>
           </li>
         ))}

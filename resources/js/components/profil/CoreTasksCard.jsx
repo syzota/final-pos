@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, ClipboardList } from 'lucide-react';
+import { CheckmarkCircle01Icon, CheckListIcon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function CoreTasksCard() {
   const tasks = [
@@ -22,7 +22,7 @@ export default function CoreTasksCard() {
     >
       <div className="card-header-row" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
         <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ClipboardList size={22} />
+          <CheckListIcon size={22} />
         </div>
         <div>
           <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0' }}>Tugas Utama Posyandu</h3>
@@ -33,7 +33,7 @@ export default function CoreTasksCard() {
       <ul className="task-list" style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {tasks.map((task, idx) => (
           <li key={idx} className="task-item" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px', color: '#1e293b', lineHeight: '1.55' }}>
-            <CheckCircle2 size={18} color="#0284c7" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <CheckmarkCircle01Icon size={18} color="#0284c7" style={{ flexShrink: 0, marginTop: '2px' }} />
             <span>{task}</span>
           </li>
         ))}

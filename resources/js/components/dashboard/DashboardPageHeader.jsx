@@ -5,8 +5,7 @@ export default function DashboardPageHeader({
   title,
   description,
   badgeIcon: BadgeIcon,
-  action,
-  posyanduName
+  action
 }) {
   return (
     <div
@@ -45,9 +44,10 @@ export default function DashboardPageHeader({
             style={{
               color: '#0f172a',
               margin: '2px 0 6px 0',
-              fontSize: 'clamp(20px, 2.5vw, 25px)',
+              fontSize: 'clamp(22px, 2.5vw, 27px)',
               fontWeight: 800,
-              lineHeight: 1.3
+              letterSpacing: '-0.02em',
+              lineHeight: 1.25
             }}
           >
             {title}
@@ -57,6 +57,7 @@ export default function DashboardPageHeader({
               style={{
                 color: '#64748b',
                 fontSize: '13.5px',
+                fontWeight: 500,
                 margin: 0,
                 lineHeight: 1.55,
                 maxWidth: '720px'
@@ -67,25 +68,8 @@ export default function DashboardPageHeader({
           )}
         </div>
 
-        {(action || posyanduName) && (
+        {action && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', alignSelf: 'flex-start' }}>
-            {posyanduName && (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '6px 14px',
-                  borderRadius: '999px',
-                  backgroundColor: 'var(--secondary-50, #f0f7ff)',
-                  border: '1px solid var(--secondary-200, #c7e4ff)',
-                  color: 'var(--primary-800, #004d4d)',
-                  fontSize: '12.5px',
-                  fontWeight: 700
-                }}
-              >
-                Posyandu {posyanduName}
-              </span>
-            )}
             {action}
           </div>
         )}

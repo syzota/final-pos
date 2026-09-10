@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Calculator, Newspaper, CalendarDays } from 'lucide-react';
+import { Call02Icon, Calculator01Icon, NewsIcon, Calendar01Icon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 import SectionHeader from '../common/SectionHeader';
 
@@ -14,7 +14,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       iconBg: '#fee2e2',
       iconColor: '#dc2626',
       onClick: onDarurat,
-      icon: Phone,
+      icon: Call02Icon,
     },
     {
       id: 'kalkulator',
@@ -25,7 +25,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       iconBg: '#e0f2fe',
       iconColor: '#0284c7',
       page: 'kalkulator',
-      icon: Calculator,
+      icon: Calculator01Icon,
     },
     {
       id: 'artikel',
@@ -36,7 +36,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       iconBg: '#ccfbf1',
       iconColor: '#0d9488',
       page: 'artikel',
-      icon: Newspaper,
+      icon: NewsIcon,
     },
     {
       id: 'jadwal',
@@ -47,7 +47,7 @@ export default function FeatureCards({ onNavigate, onDarurat }) {
       iconBg: '#fef3c7',
       iconColor: '#d97706',
       page: 'jadwal',
-      icon: CalendarDays,
+      icon: Calendar01Icon,
     },
   ];
 

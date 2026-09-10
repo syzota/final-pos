@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import logoHeader from '../../assets/images/common/logo-header.jpeg';
-import { Menu, X, Home, Users, BookText, CalendarDays, Calculator, LogIn } from 'lucide-react';
+import { 
+  Home01Icon, 
+  UserGroupIcon, 
+  Book02Icon, 
+  Calendar01Icon, 
+  Calculator01Icon, 
+  Call02Icon, 
+  Login01Icon 
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
+import { 
+  Menu01Icon, 
+  Cancel01Icon 
+} from '@theexperiencecompany/gaia-icons/stroke-rounded';
 
 export default function Header({ activePage = 'beranda', onNavigate, onDarurat }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -45,20 +57,20 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
             <div
               className="header-brand"
               onClick={(e) => handleClick(e, 'beranda')}
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', height: '100%' }}
             >
               <img
                 src={logoHeader}
                 className="header-logo"
                 alt="Logo Posyandu Loa Duri Ulu"
                 loading="lazy"
-                style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'cover' }}
+                style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'cover', flexShrink: 0, display: 'block' }}
               />
-              <div>
-                <div className="brand-title" style={{ fontSize: '17px', fontWeight: 800, color: 'var(--ink)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div className="brand-title" style={{ fontSize: '17px', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.2, margin: 0, display: 'flex', alignItems: 'center' }}>
                   Posyandu Loa Duri Ulu
                 </div>
-                <div className="brand-subtitle" style={{ fontSize: '12px', color: 'var(--ink-soft)', fontWeight: 500 }}>
+                <div className="brand-subtitle" style={{ fontSize: '12px', color: 'var(--ink-soft)', fontWeight: 500, lineHeight: 1.2, marginTop: '2px', display: 'flex', alignItems: 'center' }}>
                   Layanan Kesehatan Masyarakat
                 </div>
               </div>
@@ -66,7 +78,7 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
           </div>
 
           {/* TENGAH: Menu Navigasi Desktop */}
-          <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '100%' }}>
             {[
               { id: 'beranda', label: 'Beranda' },
               { id: 'profil', label: 'Profil' },
@@ -85,7 +97,8 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
                   style={{
                     fontSize: '14.5px',
                     fontWeight: isActive ? 700 : 600,
-                    padding: '8px 16px',
+                    height: '40px',
+                    padding: '0 18px',
                     borderRadius: '999px',
                     backgroundColor: isActive ? 'var(--secondary-200)' : 'transparent',
                     color: isActive ? 'var(--primary-900)' : 'var(--neutral-600)',
@@ -93,39 +106,49 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
                     textDecoration: 'none',
                     display: 'inline-flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: 1,
+                    boxSizing: 'border-box',
+                    textAlign: 'center',
                   }}
                 >
-                  {item.label}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>
+                    {item.label}
+                  </span>
                 </a>
               );
             })}
           </nav>
 
           {/* KANAN: Tombol Masuk (Desktop) & Hamburger Menu (Mobile) */}
-          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px', height: '100%' }}>
             <button
               type="button"
               className="signin-btn desktop-only"
               onClick={() => onNavigate && onNavigate('login')}
               style={{
-                minHeight: '42px',
+                height: '40px',
+                minHeight: '40px',
                 padding: '0 20px',
                 borderRadius: '999px',
                 fontSize: '14px',
                 fontWeight: 700,
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '8px',
                 backgroundColor: 'var(--primary-500)',
                 color: '#ffffff',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 2px 8px rgba(0, 128, 128, 0.2)'
+                boxShadow: '0 2px 8px rgba(0, 128, 128, 0.2)',
+                lineHeight: 1,
+                boxSizing: 'border-box',
               }}
             >
-              <LogIn size={16} />
-              Masuk
+              <Login01Icon size={16} />
+              <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Masuk</span>
             </button>
             <button
               type="button"
@@ -133,17 +156,24 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
               onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle Menu"
               style={{
+                width: '44px',
+                height: '44px',
                 minWidth: '44px',
                 minHeight: '44px',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 position: 'relative',
-                zIndex: 10001
+                zIndex: 10001,
+                padding: 0,
+                border: 'none',
+                background: 'transparent',
+                lineHeight: 1,
+                boxSizing: 'border-box',
               }}
             >
-              {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+              {sidebarOpen ? <Cancel01Icon size={24} /> : <Menu01Icon size={24} />}
             </button>
           </div>
         </div>
@@ -158,21 +188,21 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
       <aside className={`mobile-dropdown-menu ${sidebarOpen ? 'show' : ''}`}>
         <div className="mobile-dropdown-content" style={{ padding: '24px 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
-            <img src={logoHeader} alt="Logo" style={{ width: '36px', height: '36px', borderRadius: '8px' }} />
-            <div>
-              <strong style={{ fontSize: '15px', color: '#0f172a' }}>Posyandu Loa Duri Ulu</strong>
-              <div style={{ fontSize: '12px', color: '#64748b' }}>Menu Navigasi</div>
+            <img src={logoHeader} alt="Logo" style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0, display: 'block' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <strong style={{ fontSize: '15px', color: '#0f172a', lineHeight: 1.2, display: 'flex', alignItems: 'center' }}>Posyandu Loa Duri Ulu</strong>
+              <div style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.2, marginTop: '2px', display: 'flex', alignItems: 'center' }}>Menu Navigasi</div>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {[
-              { id: 'beranda', label: 'Beranda', icon: Home },
-              { id: 'profil', label: 'Profil Posyandu', icon: Users },
-              { id: 'artikel', label: 'Artikel Kesehatan', icon: BookText },
-              { id: 'jadwal', label: 'Jadwal Kegiatan', icon: CalendarDays },
-              { id: 'kalkulator', label: 'Kalkulator Gizi', icon: Calculator },
-              { id: 'kontak', label: 'Kontak & Bantuan', icon: Users },
+              { id: 'beranda', label: 'Beranda', icon: Home01Icon },
+              { id: 'profil', label: 'Profil Posyandu', icon: UserGroupIcon },
+              { id: 'artikel', label: 'Artikel Kesehatan', icon: Book02Icon },
+              { id: 'jadwal', label: 'Jadwal Kegiatan', icon: Calendar01Icon },
+              { id: 'kalkulator', label: 'Kalkulator Gizi', icon: Calculator01Icon },
+              { id: 'kontak', label: 'Kontak & Bantuan', icon: Call02Icon },
             ].map((item) => {
               const isActive = activePage === item.id;
               const IconComp = item.icon;
@@ -182,6 +212,7 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
                   className={`mobile-nav-btn ${isActive ? 'active' : ''}`}
                   onClick={(e) => handleClick(e, item.id)}
                   style={{
+                    height: '48px',
                     minHeight: '48px',
                     fontSize: '15px',
                     fontWeight: isActive ? 700 : 600,
@@ -190,17 +221,19 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    padding: '10px 16px',
+                    padding: '0 16px',
                     borderRadius: '12px',
                     border: 'none',
                     backgroundColor: isActive ? 'var(--secondary-200)' : 'transparent',
                     color: isActive ? 'var(--primary-900)' : 'var(--neutral-700)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
+                    lineHeight: 1,
+                    boxSizing: 'border-box',
                   }}
                 >
-                  <IconComp size={18} color={isActive ? 'var(--primary-700)' : 'var(--neutral-500)'} />
-                  <span>{item.label}</span>
+                  <IconComp size={18} color={isActive ? 'var(--primary-700)' : 'var(--neutral-500)'} style={{ flexShrink: 0 }} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>{item.label}</span>
                 </button>
               );
             })}
@@ -215,6 +248,7 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
               if (onNavigate) onNavigate('login');
             }}
             style={{
+              height: '48px',
               minHeight: '48px',
               width: '100%',
               borderRadius: '12px',
@@ -228,10 +262,13 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
               gap: '8px',
               border: 'none',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0, 128, 128, 0.25)'
+              boxShadow: '0 4px 12px rgba(0, 128, 128, 0.25)',
+              lineHeight: 1,
+              boxSizing: 'border-box',
             }}
           >
-            <LogIn size={18} /> Masuk ke Akun
+            <Login01Icon size={18} />
+            <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>Masuk ke Akun</span>
           </button>
         </div>
       </aside>

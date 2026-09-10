@@ -65,15 +65,15 @@
 .shell { display: flex; min-height: 100vh; }
 
 .sidebar {
-  width: 236px; flex-shrink: 0; background: var(--surface);
-  border-right: 1.var(--space-05) solid var(--line);
+  width: 284px; flex-shrink: 0; background: var(--surface);
+  border-right: 1px solid var(--line);
   display: flex; flex-direction: column; padding: 0 var(--space-2) var(--space-3);
   position: sticky; top: 0; height: 100vh;
 }
 .brand { display: flex; align-items: center; gap: var(--space-1-5); padding: 0 var(--space-1); min-height: var(--space-8); margin-bottom: var(--space-1); }
-.brand .mark { width: 40px; height: var(--space-5); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.brand .mark img { width: 100%; height: 100%; object-fit: cover; }
-.brand-name { font-size: var(--font-base); font-weight: 800; line-height: 1.15; }
+.brand .mark { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; }
+.brand .mark img { width: 100%; height: 100%; object-fit: contain; }
+.brand-name { font-size: 13.5px; font-weight: 800; line-height: 1.25; white-space: normal; }
 .brand-sub { font-size: var(--font-xs); color: var(--ink-soft); font-weight: 600; }
 
 .nav-group-label { font-size: var(--font-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); font-weight: 700; margin: var(--space-2) var(--space-1-5) var(--space-1); }
@@ -81,6 +81,8 @@
   display: flex; align-items: center; gap: var(--space-1-5); padding: var(--space-1-5) var(--space-1-5); border-radius: 12px;
   font-size: var(--font-base); font-weight: 600; color: var(--ink-soft); cursor: pointer; margin-bottom: 2px;
   transition: .15s;
+  white-space: normal;
+  line-height: 1.35;
 }
 .sidebar .nav-item:hover { background: #EFF4FF; color: var(--ink); }
 .sidebar .nav-item.active { background: var(--violet-bg); color: var(--violet-deep); }
@@ -103,14 +105,14 @@
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: var(--space-1-5) var(--space-3); min-height: var(--space-8); border-bottom: 1.var(--space-05) solid var(--line); background: var(--surface);
+  padding: var(--space-1-5) var(--space-3); min-height: 60px; border-bottom: 1px solid var(--line); background: var(--surface);
   position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
   box-sizing: border-box;
 }
 .topbar h2 { font-size: var(--font-base); font-weight: 800; color: var(--ink); line-height: 1.2; margin: 0; }
 .topbar .desc { font-size: var(--font-xs); color: var(--ink-soft); font-weight: 600; margin-top: 2px; }
 .topbar-right { display: flex; align-items: center; gap: var(--space-1-5); }
-.icon-btn { width: 36px; height: var(--space-5); border-radius: 10px; border: 1.5px solid var(--line); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-soft); flex-shrink: 0; }
+.icon-btn { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-soft); flex-shrink: 0; }
 .hamburger-btn { display: none; }
 .topbar-profile { display: flex; align-items: center; gap: var(--space-1); padding-left: var(--space-1-5); border-left: 1.5px solid var(--line); flex-shrink: 0; }
 .topbar-profile-info { display: flex; flex-direction: column; justify-content: center; text-align: left; overflow: hidden; min-width: 0; }
@@ -167,7 +169,7 @@
 .form-chip.active { background: var(--violet-bg); color: var(--violet-deep); border-color: var(--violet-deep); }
 
 .table { width: 100%; border-collapse: collapse; font-size: var(--font-base); }
-.table th { text-align: left; font-size: var(--font-xs); text-transform: uppercase; letter-spacing: .04em; color: var(--ink-faint); font-weight: 700; padding: var(--space-1-5) var(--space-1-5); border-bottom: 1.var(--space-05) solid var(--line); }
+.table th { text-align: left; font-size: var(--font-xs); text-transform: uppercase; letter-spacing: .04em; color: var(--ink-faint); font-weight: 700; padding: var(--space-1-5) var(--space-1-5); border-bottom: 1px solid var(--line); }
 .table td { padding: var(--space-2) var(--space-1-5); border-bottom: 1px solid var(--line); font-weight: 500; }
 .table tr:last-child td { border-bottom: none; }
 .row-highlight { background: var(--violet-bg); }

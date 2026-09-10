@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import axiosClient from '../api/axiosClient';
 import logo from '../assets/images/common/logo-header.jpeg';
-import { Loader2, ArrowLeft, Eye, EyeOff, Lock, User, ShieldAlert } from 'lucide-react';
+import Button from '../components/common/Button';
+import { 
+  ArrowLeft01Icon, 
+  UserIcon, 
+  LockIcon, 
+  ViewIcon, 
+  ViewOffSlashIcon, 
+  AlertCircleIcon, 
+  Loading03Icon 
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function Login({ onNavigate, onLogin }) {
   const [username, setUsername] = useState('');
@@ -79,30 +88,18 @@ export default function Login({ onNavigate, onLogin }) {
         }}
       >
         {/* Tombol Back di Pojok Kiri Atas Card */}
-        <button
-          type="button"
-          onClick={() => onNavigate && onNavigate('beranda')}
-          aria-label="Kembali ke Beranda"
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            width: '40px',
-            height: '40px',
-            borderRadius: '10px',
-            backgroundColor: '#f1f5f9',
-            border: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: '#475569',
-            transition: 'background 0.2s ease'
-          }}
-          title="Kembali ke Halaman Publik"
-        >
-          <ArrowLeft size={20} />
-        </button>
+        <div style={{ position: 'absolute', top: '20px', left: '20px' }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
+            icon={ArrowLeft01Icon}
+            onClick={() => onNavigate && onNavigate('beranda')}
+            aria-label="Kembali ke Beranda"
+            title="Kembali ke Halaman Publik"
+            style={{ backgroundColor: '#f1f5f9', color: '#475569' }}
+          />
+        </div>
 
         {/* Brand Header */}
         <div style={{ textAlign: 'center', marginTop: '12px', marginBottom: '28px' }}>
@@ -147,7 +144,7 @@ export default function Login({ onNavigate, onLogin }) {
                   color: '#94a3b8'
                 }}
               >
-                <User size={18} />
+                <UserIcon size={18} />
               </div>
               <input
                 type="text"
@@ -194,7 +191,7 @@ export default function Login({ onNavigate, onLogin }) {
                   color: '#94a3b8'
                 }}
               >
-                <Lock size={18} />
+                <LockIcon size={18} />
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -239,7 +236,7 @@ export default function Login({ onNavigate, onLogin }) {
                 }}
                 title={showPassword ? 'Sembunyikan sandi' : 'Tampilkan sandi'}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <ViewOffSlashIcon size={18} /> : <ViewIcon size={18} />}
               </button>
             </div>
           </div>
@@ -260,42 +257,22 @@ export default function Login({ onNavigate, onLogin }) {
                 lineHeight: '1.4'
               }}
             >
-              <ShieldAlert size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <AlertCircleIcon size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
               <span>{error}</span>
             </div>
           )}
 
           {/* Submit Button with Animated Loading State */}
-          <button
+          <Button
             type="submit"
-            disabled={isLoading}
-            style={{
-              width: '100%',
-              minHeight: '48px',
-              borderRadius: '12px',
-              backgroundColor: 'var(--primary-500, #008080)',
-              color: '#ffffff',
-              fontSize: '15px',
-              fontWeight: 700,
-              border: 'none',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '0 4px 14px rgba(0, 128, 128, 0.25)',
-              transition: 'all 0.2s ease'
-            }}
+            variant="primary"
+            size="lg"
+            loading={isLoading}
+            loadingText="Memverifikasi Akun..."
+            fullWidth
           >
-            {isLoading ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                <span>Memverifikasi Akun...</span>
-              </>
-            ) : (
-              <span>Masuk ke Sistem</span>
-            )}
-          </button>
+            Masuk ke Sistem
+          </Button>
         </form>
       </div>
     </div>

@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom'; // <-- PERBAIKAN (titik 1): import ReactDOM untuk createPortal
+import ReactDOM from 'react-dom';
 import axios from 'axios';
+import NotificationModal from '../common/NotificationModal';
+import Button from '../common/Button';
 
-import { Camera, Printer, Hospital, BookHeart, FileText, Search } from 'lucide-react';
+import {
+    Camera01Icon,
+    PrinterIcon,
+    Book02Icon,
+    File01Icon,
+    Search01Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function PuskesmasView() {
     const [selectedPosyandu, setSelectedPosyandu] = useState(null);
@@ -143,7 +151,7 @@ export default function PuskesmasView() {
                     </table>
 
                     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
-                        <h4 style={{ color: '#555', marginBottom: '12px' }}><Camera className="me-2" />Bukti Foto Pemeriksaan</h4>
+                        <h4 style={{ color: '#555', marginBottom: '12px' }}><Camera01Icon size={18} className="me-2" />Bukti Foto Pemeriksaan</h4>
                         {fotoArray.length > 0 ? (
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                 {fotoArray.map((path, idx) => (
@@ -161,11 +169,11 @@ export default function PuskesmasView() {
                         )}
                     </div>
 
-                    <div style={{ marginTop: '24px', textAlign: 'right' }}>
-                        <button className="btn btn-outline me-2" onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
-                            <Printer className="me-2" />Cetak Laporan Ini
-                        </button>
-                        <button className="btn btn-cyan" onClick={() => setSelectedDetail(null)}>Tutup</button>
+                    <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                        <Button variant="secondary" onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
+                            <PrinterIcon size={18} className="me-2" />Cetak Laporan Ini
+                        </Button>
+                        <Button variant="primary" onClick={() => setSelectedDetail(null)}>Tutup</Button>
                     </div>
                 </div>
             </div>
@@ -220,12 +228,12 @@ export default function PuskesmasView() {
           TAMPILAN NORMAL (DI LAYAR MONITOR)
           ========================================= */}
             <div className="no-print">
-
-                {message.text && (
-                    <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '14px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-                        <b>Info Sistem:</b> {message.text}
-                    </div>
-                )}
+                <NotificationModal
+                    isOpen={Boolean(message.text)}
+                    type={message.type || 'success'}
+                    message={message.text}
+                    onClose={() => setMessage({ type: '', text: '' })}
+                />
 
                 <div className="card" style={{ marginBottom: '24px' }}>
                     <div className="section-head"><h3>Pilih Posyandu</h3></div>
@@ -241,7 +249,7 @@ export default function PuskesmasView() {
                 {selectedPosyandu && (
                     <div className="card">
                         <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                            <h3 style={{ margin: 0 }}><BookHeart className="me-2" />Data Pemeriksaan — Posyandu {selectedPosyandu.nama}</h3>
+                            <h3 style={{ margin: 0 }}><Book02Icon size={18} className="me-2" />Data Pemeriksaan — Posyandu {selectedPosyandu.nama}</h3>
 
                             {/* AREA PENYARING BULAN & EKSPOR */}
                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -250,11 +258,11 @@ export default function PuskesmasView() {
                                     type="month"
                                     value={filterBulan}
                                     onChange={(e) => setFilterBulan(e.target.value)}
-                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ccc', outline: 'none' }}
+                                    style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
                                 />
-                                <button className="btn btn-violet" onClick={() => window.print()}>
-                                    <FileText className="me-2" />Ekspor Sesuai Filter
-                                </button>
+                                <Button variant="primary" onClick={() => window.print()}>
+                                    <File01Icon size={18} className="me-2" />Ekspor Sesuai Filter
+                                </Button>
                             </div>
                         </div>
 
@@ -289,9 +297,9 @@ export default function PuskesmasView() {
                                             <td>{formatWaktu(item.created_at)}</td>
                                             <td><span className={`badge ${item.status_form === 'draft' ? 'badge-orange' : 'badge-green'}`}>{item.status_form.toUpperCase()}</span></td>
                                             <td>
-                                                <div style={{ display: 'flex', gap: '4px' }}>
-                                                    <button className="btn btn-sm btn-outline" onClick={() => setSelectedDetail(item)} title="Lihat Rekam Medis"><Search /> Detail</button>
-                                                    <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => cetakIndividu(item)} title="Cetak Rekam Medis Ini"><Printer /></button>
+                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                                    <Button variant="secondary" size="sm" onClick={() => setSelectedDetail(item)} title="Lihat Rekam Medis"><Search01Icon size={14} className="me-1" /> Detail</Button>
+                                                    <Button variant="secondary" size="sm" onClick={() => cetakIndividu(item)} title="Cetak Rekam Medis Ini"><PrinterIcon size={16} /></Button>
                                                 </div>
                                             </td>
                                         </tr>

@@ -1,32 +1,73 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import '../../styles/dataTambahanIndividu.css';
-
-import { Contact, Save, Printer, FolderOpen, Trash2, UserCheck, HeartPulse, TriangleAlert, Droplet, CheckCircle2, CircleAlert } from 'lucide-react';
+import Button from '../common/Button';
+import NotificationModal from '../common/NotificationModal';
+import {
+  FloppyDiskIcon,
+  PrinterIcon,
+  FolderOpenIcon,
+  Delete02Icon,
+  UserCheck01Icon,
+  Activity01Icon,
+  Alert02Icon,
+  DropletIcon,
+  CheckmarkCircle01Icon,
+  AlertCircleIcon,
+  Calendar03Icon,
+  RefreshIcon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 
 const TYPES = {
   ibu_hamil: {
-    label: 'Data Ibu Hamil',
-    icon: UserCheck,
-    description: 'Data individu ibu hamil yang dicatat oleh kader.',
+    label: 'Ibu Hamil Risiko Tinggi',
+    shortLabel: 'Ibu Hamil Risti',
+    icon: UserCheck01Icon,
+    description: 'Pencatatan data individu ibu hamil dengan faktor risiko tinggi (Risti).',
+    theme: {
+      primary: 'var(--magenta-deep, #93348A)',
+      lightBg: 'var(--magenta-bg, #FBEAF8)',
+      lightBorder: '#f5cbe7',
+      textColor: 'var(--magenta-deep, #93348A)',
+    }
   },
   nifas: {
-    label: 'Data Nifas',
-    icon: HeartPulse,
-    description: 'Data ibu setelah melahirkan selama masa nifas.',
+    label: 'Ibu Nifas & Menyusui',
+    shortLabel: 'Ibu Nifas',
+    icon: Activity01Icon,
+    description: 'Pencatatan kondisi ibu pasca persalinan, masa nifas, dan suplementasi Vitamin A.',
+    theme: {
+      primary: 'var(--cyan-deep, #0E7C93)',
+      lightBg: 'var(--cyan-bg, #E3F7FB)',
+      lightBorder: '#b3e8f3',
+      textColor: 'var(--cyan-deep, #0E7C93)',
+    }
   },
   kematian_nifas: {
-    label: 'Kematian Ibu Nifas',
-    icon: TriangleAlert,
-    description: 'Pencatatan kasus kematian ibu pada masa nifas.',
+    label: 'Kasus Kematian Ibu Nifas',
+    shortLabel: 'Kematian Nifas',
+    icon: Alert02Icon,
+    description: 'Pencatatan dan pelaporan kasus kematian ibu pada masa nifas.',
+    theme: {
+      primary: 'var(--rose-deep, #93000A)',
+      lightBg: 'var(--rose-bg, #FFDAD6)',
+      lightBorder: '#fcc5c1',
+      textColor: 'var(--rose-deep, #93000A)',
+    }
   },
   diare: {
-    label: 'Data Diare',
-    icon: Droplet,
-    description: 'Data individu warga yang mengalami diare.',
+    label: 'Warga Penderita Diare',
+    shortLabel: 'Penderita Diare',
+    icon: DropletIcon,
+    description: 'Pencatatan kasus diare warga, pemberian oralit, serta rujukan fasilitas kesehatan.',
+    theme: {
+      primary: 'var(--orange-deep, #B5650C)',
+      lightBg: 'var(--orange-bg, #FFF1DF)',
+      lightBorder: '#fedbb0',
+      textColor: 'var(--orange-deep, #B5650C)',
+    }
   },
 };
 
@@ -42,7 +83,7 @@ const emptyDetail = {
   ibu_hamil: {
     usia_kehamilan_minggu: '',
     tekanan_darah: '',
-    risiko: 'Normal',
+    risiko: 'Risiko Tinggi',
   },
   nifas: {
     tanggal_melahirkan: '',
@@ -63,9 +104,7 @@ const emptyDetail = {
 
 const formatDate = (date) => {
   if (!date) return '-';
-
   const rawDate = String(date);
-
   const parsedDate = rawDate.includes('T')
     ? new Date(rawDate)
     : new Date(`${rawDate}T00:00:00`);
@@ -125,7 +164,6 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
   const fetchRows = async () => {
     setLoading(true);
-
     try {
       const response = await axios.get('/api/data-tambahan-individu', {
         ...config,
@@ -133,7 +171,6 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
           bulan: filterMonth || undefined,
         },
       });
-
       setRows(response.data.data || []);
     } catch (error) {
       console.error('Gagal memuat Data Tambahan', error);
@@ -155,25 +192,19 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
   const handleCommonChange = (event) => {
     const { name, value } = event.target;
-
     setCommon((prev) => ({
       ...prev,
-      [name]:
-        name === 'umur'
-          ? value.replace(/[^0-9]/g, '')
-          : value,
+      [name]: name === 'umur' ? value.replace(/[^0-9]/g, '') : value,
     }));
   };
 
   const handleDetailChange = (event) => {
     const { name, value } = event.target;
-
     setDetail((prev) => ({
       ...prev,
-      [name]:
-        ['usia_kehamilan_minggu', 'hari_nifas', 'lama_hari'].includes(name)
-          ? value.replace(/[^0-9]/g, '')
-          : value,
+      [name]: ['usia_kehamilan_minggu', 'hari_nifas', 'lama_hari'].includes(name)
+        ? value.replace(/[^0-9]/g, '')
+        : value,
     }));
   };
 
@@ -209,20 +240,16 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
       setMessage({
         type: 'success',
-        text:
-          response.data.pesan ||
-          'Data berhasil disimpan.',
+        text: response.data.pesan || 'Data sasaran khusus berhasil disimpan.',
       });
 
       resetForm();
       await fetchRows();
     } catch (error) {
       console.error('Gagal menyimpan Data Tambahan', error);
-
       const validation = error.response?.data?.errors;
       const firstValidation =
-        validation &&
-        Object.values(validation)?.[0]?.[0];
+        validation && Object.values(validation)?.[0]?.[0];
 
       setMessage({
         type: 'error',
@@ -230,7 +257,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
           firstValidation ||
           error.response?.data?.pesan ||
           error.response?.data?.message ||
-          'Data gagal disimpan.',
+          'Data gagal disimpan. Pastikan isian form lengkap.',
       });
     } finally {
       setSaving(false);
@@ -238,23 +265,17 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Hapus data ini?')) return;
+    if (!window.confirm('Yakin ingin menghapus data sasaran ini?')) return;
 
     try {
-      await axios.delete(
-        `/api/data-tambahan-individu/${id}`,
-        config
-      );
-
+      await axios.delete(`/api/data-tambahan-individu/${id}`, config);
       setMessage({
         type: 'success',
-        text: 'Data berhasil dihapus.',
+        text: 'Data berhasil dihapus dari sistem.',
       });
-
       await fetchRows();
     } catch (error) {
       console.error('Gagal menghapus data', error);
-
       setMessage({
         type: 'error',
         text: 'Data gagal dihapus.',
@@ -264,15 +285,12 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
   const generateReport = async () => {
     try {
-      const response = await axios.get(
-        '/api/data-tambahan-individu',
-        {
-          ...config,
-          params: {
-            bulan: filterMonth || undefined,
-          },
-        }
-      );
+      const response = await axios.get('/api/data-tambahan-individu', {
+        ...config,
+        params: {
+          bulan: filterMonth || undefined,
+        },
+      });
 
       const data = response.data.data || [];
       setPrintRows(data);
@@ -289,43 +307,63 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
     }
   };
 
+  const currentTheme = TYPES[activeType]?.theme || TYPES.ibu_hamil.theme;
+  const ActiveIcon = TYPES[activeType]?.icon || UserCheck01Icon;
+
   const renderDetailFields = () => {
     if (activeType === 'ibu_hamil') {
       return (
         <>
-          <div className="dti-field">
-            <label>Usia Kehamilan (minggu)</label>
+          <div className="form-field">
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Usia Kehamilan (Minggu) *
+            </label>
             <input
               type="number"
+              inputMode="numeric"
               min="0"
               max="45"
               name="usia_kehamilan_minggu"
               value={detail.usia_kehamilan_minggu}
               onChange={handleDetailChange}
-              placeholder="Contoh: 24"
+              placeholder="mis. 28"
+              required
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
+            <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+              Hitungan minggu dari HPHT
+            </span>
           </div>
 
-          <div className="dti-field">
-            <label>Tekanan Darah</label>
+          <div className="form-field">
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Tekanan Darah (mmHg)
+            </label>
             <input
               type="text"
               name="tekanan_darah"
               value={detail.tekanan_darah}
               onChange={handleDetailChange}
-              placeholder="Contoh: 110/70"
+              placeholder="mis. 120/80 atau 140/90"
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
+            <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+              Sistol / Diastol hasil tensimeter
+            </span>
           </div>
 
-          <div className="dti-field">
-            <label>Status Risiko</label>
+          <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Klasifikasi Faktor Risiko
+            </label>
             <select
               name="risiko"
               value={detail.risiko}
               onChange={handleDetailChange}
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff', fontSize: '14px' }}
             >
-              <option value="Normal">Normal</option>
-              <option value="Risiko Tinggi">Risiko Tinggi</option>
+              <option value="Risiko Tinggi">Risiko Tinggi (Risti: Usia &lt;20/&gt;35 th, Anemia, Hipertensi, KEK)</option>
+              <option value="Normal">Normal / Terpantau Sehat</option>
             </select>
           </div>
         </>
@@ -335,37 +373,51 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
     if (activeType === 'nifas') {
       return (
         <>
-          <div className="dti-field">
-            <label>Tanggal Melahirkan</label>
+          <div className="form-field">
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Tanggal Melahirkan
+            </label>
             <input
               type="date"
               name="tanggal_melahirkan"
               value={detail.tanggal_melahirkan}
               onChange={handleDetailChange}
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
           </div>
 
-          <div className="dti-field">
-            <label>Hari Ke- Nifas</label>
+          <div className="form-field">
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Hari Nifas Ke-
+            </label>
             <input
               type="number"
+              inputMode="numeric"
               min="0"
+              max="60"
               name="hari_nifas"
               value={detail.hari_nifas}
               onChange={handleDetailChange}
-              placeholder="Contoh: 7"
+              placeholder="mis. 7"
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
+            <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+              Rentang masa nifas (1-42 hari)
+            </span>
           </div>
 
-          <div className="dti-field">
-            <label>Vitamin A</label>
+          <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Mendapat Kapsul Vitamin A Merah (200.000 IU)
+            </label>
             <select
               name="vitamin_a"
               value={detail.vitamin_a}
               onChange={handleDetailChange}
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff', fontSize: '14px' }}
             >
-              <option value="Ya">Ya</option>
-              <option value="Tidak">Tidak</option>
+              <option value="Ya">Ya (Sudah Diberikan 2 Kapsul)</option>
+              <option value="Tidak">Belum / Tidak Diberikan</option>
             </select>
           </div>
         </>
@@ -375,36 +427,47 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
     if (activeType === 'kematian_nifas') {
       return (
         <>
-          <div className="dti-field">
-            <label>Tanggal Melahirkan</label>
+          <div className="form-field">
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Tanggal Melahirkan
+            </label>
             <input
               type="date"
               name="tanggal_melahirkan"
               value={detail.tanggal_melahirkan}
               onChange={handleDetailChange}
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
           </div>
 
-          <div className="dti-field">
-            <label>Hari Ke- Nifas</label>
+          <div className="form-field">
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Meninggal pada Hari Nifas Ke-
+            </label>
             <input
               type="number"
+              inputMode="numeric"
               min="0"
               name="hari_nifas"
               value={detail.hari_nifas}
               onChange={handleDetailChange}
-              placeholder="Contoh: 10"
+              placeholder="mis. 3"
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
           </div>
 
-          <div className="dti-field">
-            <label>Penyebab Singkat</label>
+          <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+            <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Penyebab Kematian Singkat *
+            </label>
             <input
               type="text"
               name="penyebab"
               value={detail.penyebab}
               onChange={handleDetailChange}
-              placeholder="Contoh: perdarahan"
+              placeholder="mis. Perdarahan post-partum / Eklampsia / Infeksi"
+              required
+              style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
           </div>
         </>
@@ -413,39 +476,50 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
     return (
       <>
-        <div className="dti-field">
-          <label>Lama Diare (hari)</label>
+        <div className="form-field">
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+            Lama Menderita Diare (Hari) *
+          </label>
           <input
             type="number"
+            inputMode="numeric"
             min="0"
             name="lama_hari"
             value={detail.lama_hari}
             onChange={handleDetailChange}
-            placeholder="Contoh: 2"
+            placeholder="mis. 2"
+            required
+            style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
           />
         </div>
 
-        <div className="dti-field">
-          <label>Mendapat Oralit</label>
+        <div className="form-field">
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+            Mendapat Oralit &amp; Tablet Zink
+          </label>
           <select
             name="oralit"
             value={detail.oralit}
             onChange={handleDetailChange}
+            style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff', fontSize: '14px' }}
           >
-            <option value="Ya">Ya</option>
-            <option value="Tidak">Tidak</option>
+            <option value="Ya">Ya (Sudah Diberikan Oralit &amp; Zink)</option>
+            <option value="Tidak">Tidak Diberikan</option>
           </select>
         </div>
 
-        <div className="dti-field">
-          <label>Dirujuk</label>
+        <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+          <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+            Dirujuk ke Fasilitas Kesehatan / Puskesmas
+          </label>
           <select
             name="dirujuk"
             value={detail.dirujuk}
             onChange={handleDetailChange}
+            style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff', fontSize: '14px' }}
           >
-            <option value="Tidak">Tidak</option>
-            <option value="Ya">Ya</option>
+            <option value="Tidak">Tidak Perlu Rujuk (Bisa Ditangani Mandiri/Kader)</option>
+            <option value="Ya">Ya (Dirujuk ke Puskesmas Loa Duri)</option>
           </select>
         </div>
       </>
@@ -454,19 +528,15 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
   const detailSummary = (row) => {
     const d = row.detail || {};
-
     if (row.jenis === 'ibu_hamil') {
-      return `${d.usia_kehamilan_minggu || '-'} minggu • ${d.risiko || '-'}`;
+      return `${d.usia_kehamilan_minggu || '-'} mgg • ${d.risiko || 'Risti'} • TD: ${d.tekanan_darah || '-'}`;
     }
-
     if (row.jenis === 'nifas') {
       return `Hari ke-${d.hari_nifas || '-'} • Vit A: ${d.vitamin_a || '-'}`;
     }
-
     if (row.jenis === 'kematian_nifas') {
       return `Hari ke-${d.hari_nifas || '-'} • ${d.penyebab || '-'}`;
     }
-
     return `${d.lama_hari || '-'} hari • Oralit: ${d.oralit || '-'} • Rujuk: ${d.dirujuk || '-'}`;
   };
 
@@ -477,307 +547,520 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
   return (
     <>
-      <div className="dti-page dti-no-print">
+      <style>{`
+        .dti-tab-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 12px;
+          width: 100%;
+        }
+        @media (max-width: 1080px) {
+          .dti-tab-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+        }
+        @media (max-width: 580px) {
+          .dti-tab-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        .dti-tab-btn {
+          min-width: 0;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 14px;
+          border-radius: 12px;
+          border-width: 1.5px;
+          border-style: solid;
+          cursor: pointer;
+          text-align: left;
+          outline: none;
+          min-height: 60px;
+          box-sizing: border-box;
+          transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+        .dti-tab-btn:hover {
+          transform: translateY(-1px);
+        }
+        .dti-main-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+          gap: 24px;
+          align-items: start;
+          width: 100%;
+        }
+        @media (max-width: 1024px) {
+          .dti-main-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        .dti-print-only {
+          display: none;
+        }
+        @media print {
+          .dti-no-print {
+            display: none !important;
+          }
+          .dti-print-only {
+            display: block !important;
+            padding: 24px;
+            background: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+          }
+        }
+      `}</style>
 
-        {message.text && (
-          <div className={`dti-alert dti-alert--${message.type}`}>
-            <i
-              className={
-                message.type === 'success'
-                  ? 'bi bi-check-circle-fill'
-                  : 'bi bi-exclamation-circle-fill'
-              }
-            ></i>
-
-            <span>{message.text}</span>
-          </div>
-        )}
-
-        <section className="dti-tabs">
-          {Object.entries(TYPES).map(([key, item]) => (
-            <button
-              type="button"
-              key={key}
-              className={`dti-tab ${activeType === key ? 'active' : ''}`}
-              onClick={() => changeType(key)}
-            >
-              <i className={item.icon}></i>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </section>
-
-        <form className="dti-form-card" onSubmit={handleSubmit}>
-
-          <div className="dti-form-head">
-            <div>
-              <span className="dti-section-label">
-                FORM INPUT
-              </span>
-
-              <h3>{TYPES[activeType].label}</h3>
-
-              <p>{TYPES[activeType].description}</p>
+      <div className="dti-no-print">
+        {/* 1. HEADER: SEGMENTED TABS KATEGORI SASARAN KHUSUS */}
+        <div
+          className="card"
+          style={{
+            marginBottom: '24px',
+            padding: '20px 24px',
+            borderRadius: '16px',
+            backgroundColor: 'var(--surface, #ffffff)',
+            border: '1.5px solid var(--line, #e2e8f0)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
+                  color: 'var(--primary-teal, #008080)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Activity01Icon size={20} />
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                  Pencatatan Sasaran Khusus
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--ink-soft, #64748b)', fontWeight: 500, marginTop: '2px' }}>
+                  Pilih kategori kondisi khusus warga untuk dicatat dan direkapitulasi dalam register SIP
+                </div>
+              </div>
             </div>
 
-            <div className="dti-form-badge">
-              <i className={TYPES[activeType].icon}></i>
-            </div>
-          </div>
-
-          <div className="dti-grid dti-grid--common">
-
-            <div className="dti-field">
-              <label>Nama Lengkap *</label>
-              <input
-                type="text"
-                name="nama"
-                value={common.nama}
-                onChange={handleCommonChange}
-                placeholder="Nama warga"
-                required
-              />
-            </div>
-
-            <div className="dti-field">
-              <label>Umur *</label>
-              <input
-                type="number"
-                min="0"
-                max="120"
-                name="umur"
-                value={common.umur}
-                onChange={handleCommonChange}
-                placeholder="Tahun"
-                required
-              />
-            </div>
-
-            <div className="dti-field">
-              <label>Tanggal Pencatatan *</label>
-              <input
-                type="date"
-                name="tanggal"
-                value={common.tanggal}
-                onChange={handleCommonChange}
-                required
-              />
-            </div>
-
-            <div className="dti-field dti-field--wide">
-              <label>Alamat</label>
-              <input
-                type="text"
-                name="alamat"
-                value={common.alamat}
-                onChange={handleCommonChange}
-                placeholder="RT / alamat singkat"
-              />
-            </div>
-
-          </div>
-
-          <div className="dti-divider">
-            <span>Data khusus</span>
-          </div>
-
-          <div className="dti-grid dti-grid--detail">
-            {renderDetailFields()}
-          </div>
-
-          <div className="dti-field dti-field--note">
-            <label>Catatan</label>
-            <textarea
-              name="catatan"
-              value={common.catatan}
-              onChange={handleCommonChange}
-              rows="3"
-              placeholder="Opsional"
-            ></textarea>
-          </div>
-
-          <div className="dti-form-actions">
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={resetForm}
-              disabled={saving}
-            >
-              Reset
-            </button>
-
-            <button
-              type="submit"
-              className="btn btn-violet"
-              disabled={saving}
-            >
-              <Save className="me-2" />
-              {saving ? 'Menyimpan...' : 'Simpan Data'}
-            </button>
-          </div>
-
-        </form>
-
-        <section className="dti-history">
-
-          <div className="dti-history-head">
-
-            <div>
-              <span className="dti-section-label">
-                RIWAYAT & LAPORAN
-              </span>
-
-              <h3>Data yang Sudah Dicatat</h3>
-
-              <p>
-                Filter per bulan lalu generate laporan A4.
-              </p>
-            </div>
-
-            <div className="dti-report-tools">
-
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
                 type="month"
                 value={filterMonth}
                 onChange={(e) => setFilterMonth(e.target.value)}
+                style={{
+                  minHeight: '38px',
+                  padding: '0 12px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #cbd5e1',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  backgroundColor: '#ffffff',
+                  outline: 'none'
+                }}
               />
-
-              <button
-                type="button"
-                className="btn btn-outline"
+              <Button
+                variant="outline"
+                size="sm"
+                icon={PrinterIcon}
                 onClick={generateReport}
               >
-                <Printer className="me-2" />
-                Generate Laporan
-              </button>
-
+                Cetak Laporan
+              </Button>
             </div>
-
           </div>
 
-          {loading ? (
-            <div className="dti-empty">
-              Memuat data...
+          <div className="dti-tab-grid">
+            {Object.entries(TYPES).map(([key, item]) => {
+              const isSelected = activeType === key;
+              const TabIcon = item.icon;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className="dti-tab-btn"
+                  onClick={() => changeType(key)}
+                  style={{
+                    borderColor: isSelected ? item.theme.primary : item.theme.lightBorder,
+                    backgroundColor: isSelected ? item.theme.primary : item.theme.lightBg,
+                    color: isSelected ? '#ffffff' : item.theme.textColor
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '10px',
+                      backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.2)' : '#ffffff',
+                      color: isSelected ? '#ffffff' : item.theme.primary,
+                      border: isSelected ? 'none' : `1px solid ${item.theme.lightBorder}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}
+                  >
+                    <TabIcon size={20} />
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        fontSize: '13.5px',
+                        fontWeight: 800,
+                        lineHeight: 1.25,
+                        color: isSelected ? '#ffffff' : item.theme.textColor,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {item.shortLabel}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        marginTop: '2px',
+                        color: isSelected ? 'rgba(255, 255, 255, 0.85)' : 'var(--ink-soft, #64748b)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {item.label}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <NotificationModal
+          isOpen={Boolean(message.text)}
+          type={message.type || 'success'}
+          message={message.text}
+          onClose={() => setMessage({ type: '', text: '' })}
+        />
+
+        {/* 2. MAIN GRID: FORM INPUT & DAFTAR RIWAYAT */}
+        <div className="dti-main-grid">
+          {/* FORM INPUT SASARAN KHUSUS */}
+          <div
+            id="dti-form-container"
+            className="card"
+            style={{
+              minWidth: 0,
+              padding: '24px',
+              borderRadius: '16px',
+              backgroundColor: 'var(--surface, #ffffff)',
+              border: '1.5px solid var(--line, #e2e8f0)'
+            }}
+          >
+            <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTheme.primary }}></span>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: currentTheme.primary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    Form Input Aktif
+                  </span>
+                </div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                  {TYPES[activeType].label}
+                </h3>
+              </div>
+              <span
+                style={{
+                  fontSize: '11.5px',
+                  fontWeight: 700,
+                  padding: '5px 12px',
+                  borderRadius: '10px',
+                  backgroundColor: currentTheme.lightBg,
+                  color: currentTheme.textColor,
+                  border: `1px solid ${currentTheme.lightBorder}`,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
+                <ActiveIcon size={14} />
+                <span>{TYPES[activeType].shortLabel}</span>
+              </span>
             </div>
-          ) : rows.length === 0 ? (
-            <div className="dti-empty">
-              <FolderOpen />
-              <h4>Belum ada data</h4>
-              <p>
-                Belum ada pencatatan pada {formatMonth(filterMonth)}.
-              </p>
+
+            <form onSubmit={handleSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Nama Lengkap Warga *</label>
+                  <input
+                    type="text"
+                    name="nama"
+                    value={common.nama}
+                    onChange={handleCommonChange}
+                    placeholder="mis. Ibu Siti Rahmawati"
+                    required
+                    style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Umur (Tahun) *</label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    max="120"
+                    name="umur"
+                    value={common.umur}
+                    onChange={handleCommonChange}
+                    placeholder="mis. 28"
+                    required
+                    style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tanggal Pencatatan *</label>
+                  <input
+                    type="date"
+                    name="tanggal"
+                    value={common.tanggal}
+                    onChange={handleCommonChange}
+                    required
+                    style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
+                  />
+                </div>
+
+                <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Alamat Singkat / RT</label>
+                  <input
+                    type="text"
+                    name="alamat"
+                    value={common.alamat}
+                    onChange={handleCommonChange}
+                    placeholder="mis. RT 03 Dusun Karya Bersama"
+                    style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+
+              {/* SECTION DETAIL KHUSUS */}
+              <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: currentTheme.lightBg, border: `1px solid ${currentTheme.lightBorder}`, marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: currentTheme.textColor, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '12px' }}>
+                  Parameter Khusus {TYPES[activeType].shortLabel}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  {renderDetailFields()}
+                </div>
+              </div>
+
+              <div className="form-field full" style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Catatan Kader (Opsional)</label>
+                <textarea
+                  name="catatan"
+                  value={common.catatan}
+                  onChange={handleCommonChange}
+                  rows="2"
+                  placeholder="Keterangan tambahan atau tindakan kader..."
+                  style={{ width: '100%', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px', outline: 'none' }}
+                ></textarea>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={resetForm}
+                  disabled={saving}
+                  style={{ flex: '0 0 100px' }}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  icon={FloppyDiskIcon}
+                  loading={saving}
+                  loadingText="Menyimpan..."
+                  fullWidth
+                >
+                  Simpan Data Sasaran
+                </Button>
+              </div>
+            </form>
+          </div>
+
+          {/* KANAN: DAFTAR DATA BULAN INI */}
+          <div
+            className="card"
+            style={{
+              minWidth: 0,
+              padding: '24px',
+              borderRadius: '16px',
+              backgroundColor: 'var(--surface, #ffffff)',
+              border: '1.5px solid var(--line, #e2e8f0)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Riwayat Pencatatan
+                </h3>
+                <span style={{ fontSize: '12px', color: '#64748b' }}>
+                  Periode {formatMonth(filterMonth)}
+                </span>
+              </div>
+              <span
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  padding: '3px 10px',
+                  borderRadius: '20px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#334155'
+                }}
+              >
+                {rows.length} Data
+              </span>
             </div>
-          ) : (
-            <div className="dti-table-wrap">
-              <table className="dti-table">
 
-                <thead>
-                  <tr>
-                    <th>Tanggal</th>
-                    <th>Jenis</th>
-                    <th>Nama</th>
-                    <th>Umur</th>
-                    <th>Detail</th>
-                    <th>Aksi</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.id}>
-                      <td>{formatDate(row.tanggal)}</td>
-
-                      <td>
-                        <span className={`dti-type dti-type--${row.jenis}`}>
-                          {TYPES[row.jenis]?.label || row.jenis}
+            {loading ? (
+              <p style={{ textAlign: 'center', color: '#64748b', padding: '32px' }}>Memuat riwayat data...</p>
+            ) : rows.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '36px 16px', color: '#64748b', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                <FolderOpenIcon size={36} style={{ margin: '0 auto 8px', color: '#94a3b8' }} />
+                <p style={{ fontWeight: 700, fontSize: '14px', color: '#334155', margin: '0 0 4px' }}>Belum Ada Data</p>
+                <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Pencatatan pada bulan {formatMonth(filterMonth)} masih kosong.</p>
+              </div>
+            ) : (
+              <div style={{ maxHeight: '520px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {rows.map((row) => {
+                  const typeItem = TYPES[row.jenis] || TYPES.ibu_hamil;
+                  return (
+                    <div
+                      key={row.id}
+                      style={{
+                        padding: '14px',
+                        borderRadius: '12px',
+                        border: '1px solid #e2e8f0',
+                        backgroundColor: '#ffffff',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span
+                          style={{
+                            fontSize: '10.5px',
+                            fontWeight: 800,
+                            padding: '2px 8px',
+                            borderRadius: '6px',
+                            backgroundColor: typeItem.theme.lightBg,
+                            color: typeItem.theme.textColor,
+                            border: `1px solid ${typeItem.theme.lightBorder}`,
+                            textTransform: 'uppercase'
+                          }}
+                        >
+                          {typeItem.shortLabel}
                         </span>
-                      </td>
+                        <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>
+                          {formatDate(row.tanggal)}
+                        </span>
+                      </div>
 
-                      <td>
-                        <strong>{row.nama}</strong>
-                        <small>{row.alamat || '-'}</small>
-                      </td>
-
-                      <td>{row.umur} th</td>
-
-                      <td>{detailSummary(row)}</td>
-
-                      <td>
-                        <button
-                          type="button"
-                          className="dti-delete"
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                            {row.nama} <span style={{ fontWeight: 500, color: '#64748b', fontSize: '12px' }}>({row.umur} th)</span>
+                          </h4>
+                          <span style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '2px' }}>
+                            {row.alamat || 'Alamat tidak dicantumkan'}
+                          </span>
+                        </div>
+                        <Button
+                          variant="danger-outline"
+                          size="sm"
+                          icon={Delete02Icon}
                           onClick={() => handleDelete(row.id)}
                         >
-                          <Trash2 />
                           Hapus
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                        </Button>
+                      </div>
 
-              </table>
-            </div>
-          )}
-
-        </section>
-
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#334155', backgroundColor: '#f8fafc', padding: '6px 10px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                        {detailSummary(row)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* =====================================================
-          LAPORAN CETAK
+          LAPORAN CETAK A4 KHUSUS
           ===================================================== */}
-      <div className="dti-print dti-print-only">
-
-        <div className="dti-print-header">
+      <div className="dti-print-only">
+        <div style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
-            <div className="dti-print-org">
-              POSYANDU {posyandu || 'LOA DURI ULU'}
+            <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              SISTEM INFORMASI POSYANDU DESA LOA DURI ULU
             </div>
-
-            <h1>LAPORAN DATA TAMBAHAN</h1>
-
-            <p>
-              Ibu Hamil, Nifas, Kematian Ibu Nifas, dan Diare
+            <h1 style={{ margin: '4px 0 0', fontSize: '18px', fontWeight: 900 }}>
+              LAPORAN DATA SASARAN KHUSUS & RISTI
+            </h1>
+            <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#333' }}>
+              Posyandu: {posyandu || 'Loa Duri Ulu'} • Ibu Hamil Risti, Nifas, Kematian Nifas, & Diare
             </p>
           </div>
-
-          <div className="dti-print-period">
-            <span>Periode</span>
+          <div style={{ textAlign: 'right', fontSize: '12px' }}>
+            <div>Periode Pelaporan:</div>
             <strong>{formatMonth(filterMonth)}</strong>
           </div>
         </div>
 
         {Object.entries(TYPES).map(([type, info], index) => (
-          <section className="dti-print-section" key={type}>
-            <h2>
+          <section key={type} style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '13px', fontWeight: 800, margin: '0 0 8px', borderBottom: '1px solid #ccc', paddingBottom: '4px' }}>
               {index + 1}. {info.label}
-            </h2>
+            </h3>
 
             {grouped[type]?.length === 0 ? (
-              <p className="dti-print-none">Tidak ada data.</p>
+              <p style={{ fontSize: '11.5px', fontStyle: 'italic', color: '#666', margin: 0 }}>Nihil (Tidak ada kasus yang dicatat)</p>
             ) : (
-              <table className="dti-print-table">
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
                 <thead>
-                  <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>Umur</th>
-                    <th>Tanggal</th>
-                    <th>Alamat</th>
-                    <th>Detail</th>
+                  <tr style={{ backgroundColor: '#f2f2f2' }}>
+                    <th style={{ border: '1px solid #000', padding: '6px', textAlign: 'center', width: '35px' }}>No</th>
+                    <th style={{ border: '1px solid #000', padding: '6px', textAlign: 'left' }}>Nama Warga</th>
+                    <th style={{ border: '1px solid #000', padding: '6px', textAlign: 'center', width: '50px' }}>Umur</th>
+                    <th style={{ border: '1px solid #000', padding: '6px', textAlign: 'center', width: '85px' }}>Tanggal</th>
+                    <th style={{ border: '1px solid #000', padding: '6px', textAlign: 'left' }}>Alamat</th>
+                    <th style={{ border: '1px solid #000', padding: '6px', textAlign: 'left' }}>Detail Parameter</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {grouped[type]?.map((row, i) => (
                     <tr key={row.id}>
-                      <td>{i + 1}</td>
-                      <td>{row.nama}</td>
-                      <td>{row.umur} th</td>
-                      <td>{formatDate(row.tanggal)}</td>
-                      <td>{row.alamat || '-'}</td>
-                      <td>{detailSummary(row)}</td>
+                      <td style={{ border: '1px solid #000', padding: '5px', textAlign: 'center' }}>{i + 1}</td>
+                      <td style={{ border: '1px solid #000', padding: '5px', fontWeight: 700 }}>{row.nama}</td>
+                      <td style={{ border: '1px solid #000', padding: '5px', textAlign: 'center' }}>{row.umur} th</td>
+                      <td style={{ border: '1px solid #000', padding: '5px', textAlign: 'center' }}>{formatDate(row.tanggal)}</td>
+                      <td style={{ border: '1px solid #000', padding: '5px' }}>{row.alamat || '-'}</td>
+                      <td style={{ border: '1px solid #000', padding: '5px' }}>{detailSummary(row)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -786,24 +1069,18 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
           </section>
         ))}
 
-        <div className="dti-print-signatures">
-          <div>
-            <p>Kader/Petugas</p>
-            <div className="dti-sign-space"></div>
-            <strong>(........................................)</strong>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '36px', fontSize: '12px' }}>
+          <div style={{ textAlign: 'center', width: '200px' }}>
+            <p style={{ margin: 0 }}>Kader / Petugas,</p>
+            <div style={{ height: '50px' }}></div>
+            <strong>( ........................................ )</strong>
           </div>
-
-          <div>
-            <p>Ketua Posyandu</p>
-            <div className="dti-sign-space"></div>
-            <strong>(........................................)</strong>
+          <div style={{ textAlign: 'center', width: '200px' }}>
+            <p style={{ margin: 0 }}>Ketua Posyandu,</p>
+            <div style={{ height: '50px' }}></div>
+            <strong>( ........................................ )</strong>
           </div>
         </div>
-
-        <div className="dti-print-footer">
-          Dicetak dari Sistem Informasi Posyandu Loa Duri Ulu
-        </div>
-
       </div>
     </>
   );

@@ -5,7 +5,14 @@ import Footer from '../components/common/Footer';
 import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
 import '../styles/jadwal.css';
-import { ClipboardCheck, BookHeart, CalendarCheck, MessageSquareText, Info, MapPin, Clock } from 'lucide-react';
+import { 
+  Calendar01Icon, 
+  Clock01Icon, 
+  Location01Icon, 
+  TaskDone01Icon, 
+  Comment01Icon, 
+  InformationCircleIcon 
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../components/common/Skeleton';
 
 export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
@@ -31,14 +38,14 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
       <main className="jadwal-main" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 16px' }}>
         {/* UNIFIED HERO SECTION */}
         <PageHero
-          badgeIcon={CalendarCheck}
-          badgeText="Jadwal Posyandu"
+          badgeIcon={Calendar01Icon}
+          badgeText="Jadwal Kegiatan"
           title="Jadwal Kegiatan Layanan"
           titleHighlight="9 Posyandu"
           description="Informasi jadwal penimbangan, imunisasi, dan pemeriksaan kesehatan di 9 posyandu desa."
           stats={[
-            { icon: Clock, label: 'Layanan Rutin Setiap Bulan' },
-            { icon: MapPin, label: '9 Titik Posyandu Tersebar' },
+            { icon: Clock01Icon, label: 'Layanan Rutin Setiap Bulan' },
+            { icon: Location01Icon, label: '9 Titik Posyandu Tersebar' },
           ]}
         />
 
@@ -86,7 +93,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
                 {/* Header Card */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={{ width: '46px', height: '46px', borderRadius: '12px', backgroundColor: 'var(--secondary-200)', color: 'var(--primary-800)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <MapPin size={22} />
+                    <Location01Icon size={22} />
                   </div>
                   <div>
                     <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--neutral-900)', margin: '0 0 2px 0' }}>
@@ -126,7 +133,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
                       width: '100%'
                     }}
                   >
-                    <Clock size={16} color="var(--color-success-solid)" />
+                    <Clock01Icon size={16} color="var(--color-success-solid)" />
                     <span>
                       {loc.jadwal?.keterangan_waktu || `Setiap tanggal ${(idx % 15) + 2} awal bulan`}
                     </span>
@@ -193,7 +200,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
                   Langkah 01
                 </span>
                 <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <ClipboardCheck size={18} />
+                  <TaskDone01Icon size={18} />
                 </div>
               </div>
               <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -233,7 +240,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
                   Langkah 02
                 </span>
                 <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Clock size={18} />
+                  <Clock01Icon size={18} />
                 </div>
               </div>
               <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -273,7 +280,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
                   Langkah 03
                 </span>
                 <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#ccfbf1', color: '#0f766e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MessageSquareText size={18} />
+                  <Comment01Icon size={18} />
                 </div>
               </div>
               <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -300,7 +307,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
               lineHeight: '1.5'
             }}
           >
-            <Info size={20} style={{ flexShrink: 0, color: '#d97706' }} />
+            <InformationCircleIcon size={20} style={{ flexShrink: 0, color: '#d97706' }} />
             <span>
               <strong>Pengingat Suplementasi:</strong> Pemberian Vitamin A dosis tinggi dan obat cacing diadakan serentak pada bulan Februari dan Agustus di seluruh Posyandu Desa Loa Duri Ulu.
             </span>

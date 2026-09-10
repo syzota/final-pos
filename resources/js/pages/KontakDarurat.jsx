@@ -5,7 +5,14 @@ import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
 import '../styles/kontak.css';
 
-import { Info, ShieldCheck, ClipboardCheck, MapPin, Signpost, ArrowUpRight, Hospital, CalendarCheck2, UserCheck } from 'lucide-react';
+import { 
+  InformationCircleIcon, 
+  Shield01Icon, 
+  Location01Icon, 
+  Hospital01Icon, 
+  CalendarCheckIn01Icon, 
+  UserCheck01Icon 
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function KontakDarurat({
   activePage,
@@ -15,7 +22,7 @@ export default function KontakDarurat({
 
   const informationCards = [
     {
-      icon: Hospital,
+      icon: Hospital01Icon,
       title: 'Kondisi Gawat Darurat',
       description:
         'Untuk kondisi yang membutuhkan pertolongan medis segera, gunakan layanan darurat resmi.',
@@ -24,7 +31,7 @@ export default function KontakDarurat({
       type: 'emergency',
     },
     {
-      icon: CalendarCheck2,
+      icon: CalendarCheckIn01Icon,
       title: 'Pelayanan Posyandu',
       description:
         'Pelayanan dilaksanakan mengikuti jadwal masing-masing Posyandu di wilayah Loa Duri Ulu.',
@@ -33,7 +40,7 @@ export default function KontakDarurat({
       type: 'schedule',
     },
     {
-      icon: UserCheck,
+      icon: UserCheck01Icon,
       title: 'Ibu, Bayi & Balita',
       description:
         'Informasi pelayanan ibu hamil, bayi dan balita dapat diperoleh melalui Posyandu sesuai wilayah.',
@@ -57,14 +64,14 @@ export default function KontakDarurat({
       <main className="kontak-info-main" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 16px' }}>
         {/* UNIFIED HERO SECTION */}
         <PageHero
-          badgeIcon={Info}
-          badgeText="Kontak & Lokasi"
+          badgeIcon={InformationCircleIcon}
+          badgeText="Kontak & Bantuan"
           title="Informasi Kontak &"
           titleHighlight="Lokasi Posyandu"
           description="Layanan kontak siaga dan titik lokasi 9 Posyandu di Desa Loa Duri Ulu."
           stats={[
-            { icon: ShieldCheck, label: 'Layanan Resmi Desa Loa Duri Ulu' },
-            { icon: MapPin, label: '9 Titik Posyandu Terdata Lengkap' },
+            { icon: Shield01Icon, label: 'Layanan Resmi Desa Loa Duri Ulu' },
+            { icon: Location01Icon, label: '9 Titik Posyandu Terdata Lengkap' },
           ]}
         />
 
@@ -214,7 +221,7 @@ export default function KontakDarurat({
             <div className="kontak-area-overlay" style={{ pointerEvents: 'none' }}>
 
               <div className="kontak-area-pin">
-                <MapPin />
+                <Location01Icon size={24} />
               </div>
 
 
@@ -254,7 +261,7 @@ export default function KontakDarurat({
 
             <div className="kontak-area-note">
 
-              <Info />
+              <InformationCircleIcon size={20} />
 
               <p>
                 Gunakan tombol <strong>Buka Peta</strong> pada daftar

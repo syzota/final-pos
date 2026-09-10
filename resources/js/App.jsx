@@ -29,9 +29,34 @@ function App() {
   const [userAuth, setUserAuth] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+  const scrollToTop = () => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
+  useEffect(() => {
+    scrollToTop();
+    const rafId = requestAnimationFrame(() => {
+      scrollToTop();
+    });
+    const timer = setTimeout(() => {
+      scrollToTop();
+    }, 50);
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer);
+    };
+  }, [activePage]);
+
   useEffect(() => {
     const handleHashChange = () => {
       setActivePage(getPageFromHash());
+      scrollToTop();
     };
     window.addEventListener('hashchange', handleHashChange);
 
@@ -59,7 +84,7 @@ function App() {
   const handleNavigate = (pageId) => {
     setActivePage(pageId);
     window.location.hash = pageId;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
   const handleOpenDarurat = () => {

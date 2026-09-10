@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom'; // <-- PERBAIKAN (titik 1): import ReactDOM untuk createPortal
+import ReactDOM from 'react-dom';
 import axios from 'axios';
+import Button from '../common/Button';
 
-import { Camera, Printer, HeartPulse, Building, FileText, Eye, Trash, Download, Filter, CheckCircle, Search } from 'lucide-react';
+import {
+    Camera01Icon,
+    PrinterIcon,
+    Building01Icon,
+    File01Icon,
+    ViewIcon,
+    Delete02Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../common/Skeleton';
 
 export default function AdminEksporView() {
@@ -146,7 +154,7 @@ export default function AdminEksporView() {
                     </table>
 
                     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
-                        <h4 style={{ color: '#555', marginBottom: '12px' }}><Camera className="me-2" />Bukti Foto Pemeriksaan</h4>
+                        <h4 style={{ color: '#555', marginBottom: '12px' }}><Camera01Icon size={18} className="me-2" />Bukti Foto Pemeriksaan</h4>
                         {fotoArray.length > 0 ? (
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                 {fotoArray.map((path, idx) => (
@@ -164,11 +172,11 @@ export default function AdminEksporView() {
                         )}
                     </div>
 
-                    <div style={{ marginTop: '24px', textAlign: 'right' }}>
-                        <button className="btn btn-outline me-2" onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
-                            <Printer className="me-2" />Cetak Laporan Ini
-                        </button>
-                        <button className="btn btn-cyan" onClick={() => setSelectedDetail(null)}>Tutup</button>
+                    <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                        <Button variant="secondary" onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
+                            <PrinterIcon size={18} className="me-2" />Cetak Laporan Ini
+                        </Button>
+                        <Button variant="primary" onClick={() => setSelectedDetail(null)}>Tutup</Button>
                     </div>
                 </div>
             </div>
@@ -245,11 +253,11 @@ export default function AdminEksporView() {
                 {selectedPosyandu && (
                     <div className="card">
                         <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                            <h3 style={{ margin: 0 }}><Building className="me-2" />Data Kesehatan — Posyandu {selectedPosyandu.nama}</h3>
+                            <h3 style={{ margin: 0 }}><Building01Icon size={18} className="me-2" />Data Kesehatan — Posyandu {selectedPosyandu.nama}</h3>
                             {/* TOMBOL CETAK SEMUA */}
-                            <button className="btn btn-violet" onClick={() => window.print()}>
-                                <FileText className="me-2" />Cetak Semua Halaman Ini
-                            </button>
+                            <Button variant="primary" onClick={() => window.print()}>
+                                <File01Icon size={18} className="me-2" />Cetak Semua Halaman Ini
+                            </Button>
                         </div>
 
                         <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px' }}>
@@ -283,11 +291,11 @@ export default function AdminEksporView() {
                                             <td>{formatWaktu(item.created_at)}</td>
                                             <td><span className={`badge ${item.status_form === 'draft' ? 'badge-orange' : 'badge-green'}`}>{item.status_form.toUpperCase()}</span></td>
                                             <td>
-                                                <div style={{ display: 'flex', gap: '4px' }}>
-                                                    <button className="btn btn-sm btn-outline" onClick={() => setSelectedDetail(item)} title="Lihat Detail"><Eye /></button>
+                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                                    <Button variant="secondary" size="sm" onClick={() => setSelectedDetail(item)} title="Lihat Detail"><ViewIcon size={16} /></Button>
                                                     {/* TOMBOL CETAK PER INDIVIDU */}
-                                                    <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => cetakIndividu(item)} title="Cetak Laporan Pasien Ini"><Printer /></button>
-                                                    <button className="btn btn-sm btn-outline" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleHapusData(item.id)} title="Hapus Data"><Trash /></button>
+                                                    <Button variant="secondary" size="sm" onClick={() => cetakIndividu(item)} title="Cetak Laporan Pasien Ini"><PrinterIcon size={16} /></Button>
+                                                    <Button variant="danger-outline" size="sm" onClick={() => handleHapusData(item.id)} title="Hapus Data"><Delete02Icon size={16} /></Button>
                                                 </div>
                                             </td>
                                         </tr>

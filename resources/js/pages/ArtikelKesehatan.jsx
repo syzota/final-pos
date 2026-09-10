@@ -4,20 +4,20 @@ import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
+import Button from '../components/common/Button';
 import '../styles/artikel.css';
 import heroBgImg from '../assets/images/common/hero-artikel.png';
 import authorImg from '../assets/images/artikel/author-sarah.jpeg';
 
 import {
-  BookHeart,
-  ArrowDown,
-  ListFilter,
-  Calendar,
-  ArrowUpRight,
-  ArrowRight,
-  CircleAlert,
-  BookX
-} from 'lucide-react';
+  Book02Icon,
+  ArrowDown01Icon,
+  FilterIcon,
+  Calendar01Icon,
+  ArrowUpRight01Icon,
+  ArrowRight01Icon,
+  AlertCircleIcon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../components/common/Skeleton';
 
 const topikList = [
@@ -104,14 +104,14 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
       <main className="artikel-main">
         {/* UNIFIED HERO SECTION */}
         <PageHero
-          badgeIcon={BookHeart}
-          badgeText="Edukasi Kesehatan"
+          badgeIcon={Book02Icon}
+          badgeText="Artikel Kesehatan"
           title="Pengetahuan Kesehatan"
           titleHighlight="untuk Keluarga yang Lebih Sehat"
           description="Panduan praktis nutrisi, imunisasi, dan pola hidup sehat untuk keluarga."
           primaryAction={{
             label: 'Jelajahi Artikel',
-            icon: ArrowDown,
+            icon: ArrowDown01Icon,
             onClick: () =>
               document.getElementById('artikel-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
           }}
@@ -137,29 +137,15 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
             />
 
             {/* Fungsionalitas Tombol Sortir */}
-            <button
-              type="button"
-              className="sort-btn"
+            <Button
+              variant="secondary"
+              size="md"
+              icon={FilterIcon}
               onClick={toggleSort}
-              style={{
-                minHeight: '44px',
-                padding: '0 18px',
-                borderRadius: '10px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#ffffff',
-                color: '#0f172a',
-                fontSize: '13.5px',
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer'
-              }}
               title="Klik untuk mengubah urutan artikel"
             >
-              <ListFilter size={16} />
               Urutkan: {sortOrder === 'desc' ? 'Terbaru' : 'Terlama'}
-            </button>
+            </Button>
           </div>
 
           {/* Chips Topik */}
@@ -172,22 +158,28 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                   className={`chip ${activeTopik === topik ? 'active' : 'inactive'}`}
                   onClick={() => setActiveTopik(topik)}
                   style={{
+                    height: '40px',
                     minHeight: '40px',
-                    padding: '8px 18px',
+                    padding: '0 18px',
                     borderRadius: '999px',
                     fontSize: '13.5px',
-                    fontWeight: 600,
+                    fontWeight: activeTopik === topik ? 700 : 600,
                     border: '1px solid',
-                    borderColor: activeTopik === topik ? 'var(--primary-500)' : 'var(--neutral-200)',
-                    backgroundColor: activeTopik === topik ? 'var(--primary-500)' : '#ffffff',
-                    color: activeTopik === topik ? '#ffffff' : 'var(--neutral-700)',
+                    borderColor: activeTopik === topik ? 'var(--primary-teal, #008080)' : '#cbd5e1',
+                    backgroundColor: activeTopik === topik ? 'var(--primary-teal, #008080)' : '#ffffff',
+                    color: activeTopik === topik ? '#ffffff' : '#334155',
                     whiteSpace: 'nowrap',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease-in-out',
-                    boxShadow: activeTopik === topik ? '0 2px 8px rgba(0, 128, 128, 0.25)' : 'none',
+                    boxShadow: activeTopik === topik ? '0 2px 8px rgba(0, 128, 128, 0.25)' : '0 1px 2px rgba(0,0,0,0.03)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: 1,
+                    boxSizing: 'border-box',
                   }}
                 >
-                  {topik}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>{topik}</span>
                 </button>
               ))}
             </div>
@@ -203,14 +195,14 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
 
           {error && (
             <div className="artikel-state artikel-state--error" style={{ textAlign: 'center', padding: '48px 20px', background: '#fef2f2', borderRadius: '16px', color: '#b91c1c' }}>
-              <CircleAlert size={32} style={{ margin: '0 auto 12px' }} />
+              <AlertCircleIcon size={32} style={{ margin: '0 auto 12px' }} />
               <p style={{ fontWeight: 600, margin: 0 }}>{error}</p>
             </div>
           )}
 
           {!isLoading && !error && filteredArtikels.length === 0 && (
             <div className="artikel-state" style={{ textAlign: 'center', padding: '48px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
-              <BookX size={32} style={{ margin: '0 auto 12px', color: '#94a3b8' }} />
+              <Book02Icon size={32} style={{ margin: '0 auto 12px', color: '#94a3b8' }} />
               <p style={{ fontWeight: 600, fontSize: '15px', margin: 0 }}>Belum ada artikel untuk topik "{activeTopik}".</p>
               <p style={{ fontSize: '13px', margin: '4px 0 0' }}>Silakan pilih topik lainnya atau kembali lagi nanti.</p>
             </div>
@@ -269,7 +261,7 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                         </span>
                         <span>•</span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Calendar size={14} />
+                          <Calendar01Icon size={14} />
                           {formatDate(featuredArticle.published_at)}
                         </span>
                       </div>
@@ -285,35 +277,32 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                         {featuredArticle.isi_artikel}
                       </p>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <img src={authorImg} alt="Penulis" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
-                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', gap: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+                          <img src={authorImg} alt="Penulis" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                          <span
+                            title={featuredArticle.penulis?.name || 'Kader Posyandu'}
+                            style={{
+                              fontSize: '13px',
+                              fontWeight: 600,
+                              color: '#334155',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}
+                          >
                             {featuredArticle.penulis?.name || 'Kader Posyandu'}
                           </span>
                         </div>
 
-                        <button
-                          type="button"
+                        <Button
+                          variant="primary"
+                          size="md"
+                          iconRight={ArrowUpRight01Icon}
                           onClick={() => openArticle(featuredArticle.id)}
-                          style={{
-                            minHeight: '44px',
-                            padding: '0 20px',
-                            borderRadius: '10px',
-                            backgroundColor: 'var(--primary-teal, #008080)',
-                            color: '#ffffff',
-                            fontWeight: 700,
-                            fontSize: '13.5px',
-                            border: 'none',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            cursor: 'pointer'
-                          }}
                         >
                           Baca Artikel
-                          <ArrowUpRight size={16} />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </article>
@@ -369,7 +358,7 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
 
                   <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                     <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Calendar size={13} />
+                      <Calendar01Icon size={13} />
                       <span>{formatDate(artikel.published_at)}</span>
                     </div>
 
@@ -384,8 +373,20 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                       {artikel.isi_artikel}
                     </p>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '14px', marginTop: 'auto' }}>
-                      <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#64748b' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '14px', marginTop: 'auto', gap: '12px' }}>
+                      <span
+                        title={artikel.penulis?.name || 'Kader Posyandu'}
+                        style={{
+                          fontSize: '12.5px',
+                          fontWeight: 600,
+                          color: '#64748b',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          minWidth: 0,
+                          flex: 1
+                        }}
+                      >
                         {artikel.penulis?.name || 'Kader Posyandu'}
                       </span>
 
@@ -401,10 +402,12 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                          whiteSpace: 'nowrap'
                         }}
                       >
-                        Baca <ArrowRight size={14} />
+                        Baca <ArrowRight01Icon size={14} />
                       </button>
                     </div>
                   </div>

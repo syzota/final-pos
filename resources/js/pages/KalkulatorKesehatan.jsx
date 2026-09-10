@@ -4,20 +4,18 @@ import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
+import Button from '../components/common/Button';
 import '../styles/kalkulator.css';
 import caltBg from '../assets/images/common/calt.jpg';
 
 import {
-  HeartPulse,
-  ArrowDown,
-  Info,
-  Activity,
-  Calculator,
-  CheckCircle2,
-  Utensils,
-  Flame,
-  AlertCircle
-} from 'lucide-react';
+  Calculator01Icon,
+  ArrowDown01Icon,
+  Activity01Icon,
+  AlertCircleIcon,
+  KitchenUtensilsIcon,
+  FireIcon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const ACTIVITY_FACTOR = {
   sangat_ringan: { label: 'Sangat Ringan (jarang olahraga / duduk)', factor: 1.2 },
@@ -125,14 +123,14 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
       <main className="kalkulator-main">
         {/* UNIFIED HERO SECTION */}
         <PageHero
-          badgeIcon={HeartPulse}
-          badgeText="Kalkulator Kesehatan"
+          badgeIcon={Calculator01Icon}
+          badgeText="Kalkulator Gizi"
           title="Kenali Kondisi Tubuh Anda"
           titleHighlight="dengan Kalkulator Kesehatan Praktis"
           description="Periksa status gizi, Indeks Massa Tubuh (IMT), dan kebutuhan kalori harian Anda."
           primaryAction={{
             label: 'Mulai Hitung IMT',
-            icon: ArrowDown,
+            icon: ArrowDown01Icon,
             onClick: () =>
               document.getElementById('calc-imt-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
           }}
@@ -158,7 +156,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
             <div id="calc-imt-card" className="card" style={{ padding: 'clamp(20px, 4vw, 32px)', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                 <div style={{ width: '38px', height: '38px', borderRadius: '12px', backgroundColor: 'var(--secondary-200, #c7e4ff)', color: 'var(--primary-800, #004d4d)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Activity size={20} />
+                  <Activity01Icon size={20} />
                 </div>
                 <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                   1. Hitung Indeks Massa Tubuh (IMT)
@@ -190,38 +188,40 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{ marginTop: '20px', width: '100%', minHeight: '46px', borderRadius: '12px', fontWeight: 700, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-                onClick={handleCalcIMT}
-              >
-                <Calculator size={18} />
-                Hitung IMT & Berat Ideal
-              </button>
+              <div style={{ marginTop: '20px' }}>
+                <Button
+                  variant="primary"
+                  size="md"
+                  fullWidth
+                  icon={Calculator01Icon}
+                  onClick={handleCalcIMT}
+                >
+                  Hitung IMT & Berat Ideal
+                </Button>
+              </div>
 
               {imiError && (
                 <div style={{
                   marginTop: '14px',
                   padding: '12px 16px',
-                  borderRadius: '10px',
-                  backgroundColor: 'var(--color-danger-bg, #fee2e2)',
-                  border: '1px solid var(--color-danger-border, #fca5a5)',
-                  color: 'var(--color-danger-text, #991b1b)',
-                  fontSize: '13.5px',
+                  borderRadius: '12px',
+                  backgroundColor: '#fee2e2',
+                  border: '1.5px solid #fecaca',
+                  color: '#991b1b',
+                  fontSize: '13px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   fontWeight: 600
                 }}>
-                  <AlertCircle size={18} color="var(--color-danger-solid, #ef4444)" style={{ flexShrink: 0 }} />
+                  <AlertCircleIcon size={16} color="#ef4444" style={{ flexShrink: 0 }} />
                   <span>{imiError}</span>
                 </div>
               )}
 
               {imiResult && (
-                <div style={{ marginTop: '24px', padding: '20px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                <div style={{ marginTop: '24px', padding: '22px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' }}>
                     HASIL PENGUKURAN IMT
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
@@ -235,7 +235,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                   </div>
 
                   <div style={{ fontSize: '13.5px', color: '#334155', lineHeight: '1.5', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
-                    Rentang Berat Badan Ideal Anda: <b style={{ color: '#008080' }}>{imiResult.bbIdealMin} – {imiResult.bbIdealMax} kg</b>
+                    Rentang Berat Badan Ideal Anda: <b style={{ color: 'var(--primary-teal, #008080)' }}>{imiResult.bbIdealMin} – {imiResult.bbIdealMax} kg</b>
                   </div>
                 </div>
               )}
@@ -245,7 +245,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
             <div id="calc-kalori-card" className="card" style={{ padding: 'clamp(20px, 4vw, 32px)', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                 <div style={{ width: '38px', height: '38px', borderRadius: '12px', backgroundColor: '#ffedd5', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Utensils size={20} />
+                  <KitchenUtensilsIcon size={20} />
                 </div>
                 <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                   2. Kebutuhan Kalori Harian (TDEE)
@@ -285,19 +285,40 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{ marginTop: '20px', width: '100%', minHeight: '46px', borderRadius: '12px', fontWeight: 700, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-                onClick={handleCalcKalori}
-              >
-                <Flame size={18} />
-                Hitung Kalori Harian
-              </button>
+              <div style={{ marginTop: '20px' }}>
+                <Button
+                  variant="orange"
+                  size="md"
+                  fullWidth
+                  icon={FireIcon}
+                  onClick={handleCalcKalori}
+                >
+                  Hitung Kalori Harian
+                </Button>
+              </div>
+
+              {kalError && (
+                <div style={{
+                  marginTop: '14px',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  backgroundColor: '#fee2e2',
+                  border: '1.5px solid #fecaca',
+                  color: '#991b1b',
+                  fontSize: '13px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontWeight: 600
+                }}>
+                  <AlertCircleIcon size={16} color="#ef4444" style={{ flexShrink: 0 }} />
+                  <span>{kalError}</span>
+                </div>
+              )}
 
               {kalResult && (
-                <div style={{ marginTop: '24px', padding: '20px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                <div style={{ marginTop: '24px', padding: '22px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' }}>
                     HASIL KALKULATOR KALORI
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '14px' }}>

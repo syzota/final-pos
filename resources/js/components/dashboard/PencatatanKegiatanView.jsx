@@ -1,8 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import NotificationModal from '../common/NotificationModal';
+import Button from '../common/Button';
 
-import { Printer, Save, Pen, Trash } from 'lucide-react';
+import {
+    PrinterIcon,
+    FloppyDiskIcon,
+    Edit02Icon,
+    Delete02Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function PencatatanKegiatanView() {
     const [formData, setFormData] = useState({
@@ -216,19 +223,20 @@ export default function PencatatanKegiatanView() {
 
             <div className="no-print">
                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--primary-teal, #008080)', borderColor: 'var(--primary-teal, #008080)', minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
-                        <Printer size={16} style={{ marginRight: '8px' }} /> Ekspor PDF Kertas
-                    </button>
-                    <button className="btn btn-primary" onClick={handleSave} disabled={isLoading} style={{ minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
-                        <Save size={16} style={{ marginRight: '8px' }} /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
-                    </button>
+                    <Button variant="secondary" onClick={() => handlePrint(null)}>
+                        <PrinterIcon size={16} className="me-2" /> Ekspor PDF Kertas
+                    </Button>
+                    <Button variant="primary" onClick={handleSave} disabled={isLoading}>
+                        <FloppyDiskIcon size={16} className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                    </Button>
                 </div>
 
-                {message.text && (
-                    <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-                        <b>Info Sistem:</b> {message.text}
-                    </div>
-                )}
+                <NotificationModal
+                    isOpen={Boolean(message.text)}
+                    type={message.type || 'success'}
+                    message={message.text}
+                    onClose={() => setMessage({ type: '', text: '' })}
+                />
 
                 <div className="grid grid-2" style={{ marginBottom: '16px' }}>
                     {/* KIRI */}
@@ -323,9 +331,9 @@ export default function PencatatanKegiatanView() {
                         </div>
 
                         <div className="card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
-                            <div className="section-head" style={{ marginBottom: '12px' }}>
-                                <h3 style={{ color: '#334155' }}><Pen className="me-2" />Tanda Tangan Digital</h3>
-                                <button className="btn btn-sm btn-outline" onClick={clearSignature} style={{ color: '#ef4444', borderColor: '#ef4444' }}>Hapus</button>
+                            <div className="section-head" style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h3 style={{ color: '#334155', margin: 0 }}><Edit02Icon size={18} className="me-2" />Tanda Tangan Digital</h3>
+                                <Button variant="danger-outline" size="sm" onClick={clearSignature}>Hapus</Button>
                             </div>
                             <div className="form-field full"><label>Nama Ketua Pelaksana</label><input name="ketua_pelaksana" value={formData.ketua_pelaksana} onChange={handleChange} placeholder="Ketik nama lengkap untuk di bawah TTD" /></div>
 
@@ -384,20 +392,20 @@ export default function PencatatanKegiatanView() {
                                             <td>{item.diare_jml || 0} Anak</td>
                                             <td style={{ textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                    <button
-                                                        className="btn btn-sm btn-outline"
-                                                        style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
                                                         onClick={() => handlePrint(item)}
                                                     >
-                                                        <Printer /> Cetak
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-outline"
-                                                        style={{ color: '#dc3545', borderColor: '#dc3545' }}
+                                                        <PrinterIcon size={14} className="me-1" /> Cetak
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger-outline"
+                                                        size="sm"
                                                         onClick={() => handleDelete(item.id)}
                                                     >
-                                                        <Trash /> Hapus
-                                                    </button>
+                                                        <Delete02Icon size={14} className="me-1" /> Hapus
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>

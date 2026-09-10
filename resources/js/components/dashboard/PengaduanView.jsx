@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import NotificationModal from '../common/NotificationModal';
+import Button from '../common/Button';
 
-import { Book, Droplet, Home, ShieldCheck, Heart, MessageSquareQuote, Lock, Megaphone, Eye, Image } from 'lucide-react';
+import {
+  Book02Icon,
+  DropletIcon,
+  Home01Icon,
+  Shield01Icon,
+  FavouriteIcon,
+  Comment01Icon,
+  LockIcon,
+  Megaphone01Icon,
+  ViewIcon,
+  Image01Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function PengaduanView() {
   const [tab, setTab] = useState(0);
@@ -284,14 +297,14 @@ export default function PengaduanView() {
                             <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
                             <td><span style={{ fontWeight: 600, color: '#1e293b' }}>{item.sub_bidang || '-'}</span></td>
                             <td style={{ textAlign: 'right' }}>
-                              <button
+                              <Button
                                 type="button"
-                                className="btn btn-sm btn-outline"
+                                variant="secondary"
+                                size="sm"
                                 onClick={() => setSelectedForm(item)}
-                                style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700 }}
                               >
-                                <Eye size={13} className="me-1" />Detail
-                              </button>
+                                <ViewIcon size={13} className="me-1" />Detail
+                              </Button>
                             </td>
                           </tr>
                         ))
@@ -326,14 +339,14 @@ export default function PengaduanView() {
                               </span>
                             </td>
                             <td style={{ textAlign: 'right' }}>
-                              <button
+                              <Button
                                 type="button"
-                                className="btn btn-sm btn-outline"
+                                variant="secondary"
+                                size="sm"
                                 onClick={() => setSelectedPengaduan(item)}
-                                style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 700 }}
                               >
-                                <Eye size={13} className="me-1" />Detail
-                              </button>
+                                <ViewIcon size={13} className="me-1" />Detail
+                              </Button>
                             </td>
                           </tr>
                         ))
@@ -349,23 +362,14 @@ export default function PengaduanView() {
             {/* Tombol Lihat Semua Rekap */}
             {(dataFormulirFilter.length > 3 || dataPengaduanFilter.length > 3) && (
               <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setShowAllRekap(!showAllRekap)}
-                  style={{
-                    minHeight: '38px',
-                    padding: '0 20px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    backgroundColor: '#ffffff',
-                    color: 'var(--primary-teal, #008080)',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
                 >
                   {showAllRekap ? 'Tampilkan Lebih Sedikit (3 Teratas)' : `Lihat Semua Rekap (${dataFormulirFilter.length + dataPengaduanFilter.length} Data)`}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -379,11 +383,11 @@ export default function PengaduanView() {
         </label>
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
           {[
-            { id: 0, label: 'Pendidikan', icon: Book },
-            { id: 1, label: 'Pekerjaan Umum', icon: Droplet },
-            { id: 2, label: 'Perumahan Rakyat', icon: Home },
-            { id: 3, label: 'Trantibumlinmas', icon: ShieldCheck },
-            { id: 4, label: 'Sosial', icon: Heart }
+            { id: 0, label: 'Pendidikan', icon: Book02Icon },
+            { id: 1, label: 'Pekerjaan Umum', icon: DropletIcon },
+            { id: 2, label: 'Perumahan Rakyat', icon: Home01Icon },
+            { id: 3, label: 'Trantibumlinmas', icon: Shield01Icon },
+            { id: 4, label: 'Sosial', icon: FavouriteIcon }
           ].map(b => {
             const Icon = b.icon;
             return (
@@ -417,11 +421,12 @@ export default function PengaduanView() {
         </div>
       </div>
 
-      {message.text && (
-        <div style={{ padding: '14px 18px', marginBottom: '20px', borderRadius: '12px', fontSize: '13.5px', fontWeight: 600, backgroundColor: message.type === 'error' ? '#fef2f2' : '#f0fdf4', border: `1px solid ${message.type === 'error' ? '#fecaca' : '#bbf7d0'}`, color: message.type === 'error' ? '#b91c1c' : '#15803d' }}>
-          <b>Info Sistem:</b> {message.text}
-        </div>
-      )}
+      <NotificationModal
+        isOpen={Boolean(message.text)}
+        type={message.type || 'success'}
+        message={message.text}
+        onClose={() => setMessage({ type: '', text: '' })}
+      />
 
       {/* ===== 0. PENDIDIKAN ===== */}
       {tab === 0 && (
@@ -429,7 +434,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><Book className="me-2" />Formulir Identifikasi — Pendidikan</h3>
+                <h3><Book02Icon className="me-2" />Formulir Identifikasi — Pendidikan</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab0 === 0 ? 'active' : ''}`} onClick={() => { setSubTab0(0); resetFormIden(); }}>Anak Usia Dini (0–6 th)</div>
@@ -537,13 +542,13 @@ export default function PengaduanView() {
                 <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
               </div>
 
-              <button onClick={submitIdentifikasi} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</button>
+              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
             </div>
 
             {/* LAMPIRAN 6: ASPIRASI MASYARAKAT BIDANG PENDIDIKAN */}
             <div className="card">
               <div className="section-head">
-                <h3><MessageSquareQuote className="me-2" />Aspirasi Masyarakat — Pendidikan</h3>
+                <h3><Comment01Icon className="me-2" />Aspirasi Masyarakat — Pendidikan</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Catat aspirasi, usulan, dan kebutuhan warga terkait pendidikan sesuai format standar desa.
@@ -575,7 +580,7 @@ export default function PengaduanView() {
                 <div className="form-field">
                   <label>No. KTP (NIK)</label>
                   <input name="nik" value={formPengaduan.nik || ''} onChange={handlePengaduanChange} placeholder="Wajib 16 digit" />
-                  <span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span>
+                  <span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span>
                 </div>
                 <div className="form-field">
                   <label>No. HP (Opsional)</label>
@@ -624,9 +629,9 @@ export default function PengaduanView() {
                   <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setLampiranPengaduan)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
                 </div>
               </div>
-              <button onClick={submitPengaduan} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px', width: '100%', justifyContent: 'center' }}>
+              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>
                 {isLoading ? 'Mengirim...' : 'Simpan Aspirasi'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -638,7 +643,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><Droplet className="me-2" />Formulir Identifikasi — Pekerjaan Umum</h3>
+                <h3><DropletIcon className="me-2" />Formulir Identifikasi — Pekerjaan Umum</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab1 === 0 ? 'active' : ''}`} onClick={() => { setSubTab1(0); resetFormIden(); }}>Edukasi Air &amp; Limbah</div>
@@ -710,12 +715,12 @@ export default function PengaduanView() {
                 <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
               </div>
 
-              <button onClick={submitIdentifikasi} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</button>
+              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
             </div>
 
             <div className="card">
               <div className="section-head">
-                <h3><Megaphone className="me-2" />Pengaduan Masyarakat — Pekerjaan Umum</h3>
+                <h3><Megaphone01Icon className="me-2" />Pengaduan Masyarakat — Pekerjaan Umum</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan formulir ini untuk menampung keluhan masyarakat terkait infrastruktur desa dan sanitasi.
@@ -724,7 +729,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
@@ -751,7 +756,7 @@ export default function PengaduanView() {
                   <span className="field-note">Unggah Surat/Permohonan RT atau Foto lokasi titik pembangunan sarana prasarana.</span>
                 </div>
               </div>
-              <button onClick={submitPengaduan} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px', width: '100%', justifyContent: 'center' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</button>
+              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
             </div>
           </div>
         </div>
@@ -763,7 +768,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><Home className="me-2" />Formulir Identifikasi — Perumahan Rakyat</h3>
+                <h3><Home01Icon className="me-2" />Formulir Identifikasi — Perumahan Rakyat</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab2 === 0 ? 'active' : ''}`} onClick={() => { setSubTab2(0); resetFormIden(); }}>Rumah Layak Huni (RHLH)</div>
@@ -825,12 +830,12 @@ export default function PengaduanView() {
                 <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
               </div>
 
-              <button onClick={submitIdentifikasi} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</button>
+              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
             </div>
 
             <div className="card">
               <div className="section-head">
-                <h3><Megaphone className="me-2" />Pengaduan Masyarakat — Perumahan Rakyat</h3>
+                <h3><Megaphone01Icon className="me-2" />Pengaduan Masyarakat — Perumahan Rakyat</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan formulir ini untuk menampung usulan bantuan rumah, bibit pekarangan, dan keluhan perumahan.
@@ -839,7 +844,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
@@ -871,7 +876,7 @@ export default function PengaduanView() {
                   </div>
                 </div>
               </div>
-              <button onClick={submitPengaduan} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px', width: '100%', justifyContent: 'center' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</button>
+              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
             </div>
           </div>
         </div>
@@ -883,7 +888,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><ShieldCheck className="me-2" />Form Identifikasi & Laporan — Trantibumlinmas</h3>
+                <h3><Shield01Icon className="me-2" />Form Identifikasi & Laporan — Trantibumlinmas</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab3 === 0 ? 'active' : ''}`} onClick={() => { setSubTab3(0); resetFormIden(); }}>Identifikasi Trauma</div>
@@ -982,12 +987,12 @@ export default function PengaduanView() {
                 <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
               </div>
 
-              <button onClick={submitIdentifikasi} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan Laporan...' : 'Simpan Laporan'}</button>
+              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan Laporan...' : 'Simpan Laporan'}</Button>
             </div>
 
             <div className="card">
               <div className="section-head">
-                <h3><MessageSquareQuote className="me-2" />Pengaduan — Trantibumlinmas</h3>
+                <h3><Comment01Icon className="me-2" />Pengaduan — Trantibumlinmas</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan form ini untuk mencatat laporan warga terkait gangguan ketertiban umum dan perlindungan masyarakat.
@@ -996,7 +1001,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat / RT Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat pelapor" /></div>
 
@@ -1029,7 +1034,7 @@ export default function PengaduanView() {
                   </div>
                 </div>
               </div>
-              <button onClick={submitPengaduan} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px', width: '100%', justifyContent: 'center' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</button>
+              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
             </div>
           </div>
         </div>
@@ -1041,7 +1046,7 @@ export default function PengaduanView() {
           <div className="grid grid-2" style={{ marginBottom: '16px' }}>
             <div className="card">
               <div className="section-head">
-                <h3><Heart className="me-2" />Form Identifikasi — Sosial</h3>
+                <h3><FavouriteIcon className="me-2" />Form Identifikasi — Sosial</h3>
               </div>
               <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
                 <div className={`form-chip ${subTab4 === 0 ? 'active' : ''}`} onClick={() => { setSubTab4(0); resetFormIden(); }}>KIE Gender & Inklusi</div>
@@ -1103,12 +1108,12 @@ export default function PengaduanView() {
                 <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
               </div>
 
-              <button onClick={submitIdentifikasi} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</button>
+              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
             </div>
 
             <div className="card">
               <div className="section-head">
-                <h3><MessageSquareQuote className="me-2" />Pengaduan Masyarakat — Sosial</h3>
+                <h3><Comment01Icon className="me-2" />Pengaduan Masyarakat — Sosial</h3>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
                 Gunakan form ini untuk mencatat laporan kebutuhan bansos, inklusi, maupun identifikasi fakir miskin.
@@ -1117,7 +1122,7 @@ export default function PengaduanView() {
               <div className="form-grid">
                 <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><Lock className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
                 <div className="form-field full"><label>Alamat / RT Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat pelapor" /></div>
 
@@ -1147,7 +1152,7 @@ export default function PengaduanView() {
                   </div>
                 </div>
               </div>
-              <button onClick={submitPengaduan} disabled={isLoading} className="btn btn-violet" style={{ marginTop: '16px', width: '100%', justifyContent: 'center' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</button>
+              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
             </div>
           </div>
         </div>
@@ -1212,7 +1217,7 @@ export default function PengaduanView() {
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {fotoArr.map((file_path, idx) => (
                         <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                          <Image className="me-1" />Lihat File {idx + 1}
+                          <Image01Icon size={16} className="me-1" />Lihat File {idx + 1}
                         </a>
                       ))}
                     </div>
@@ -1222,7 +1227,7 @@ export default function PengaduanView() {
             })()}
 
             <div style={{ marginTop: '24px', textAlign: 'right' }}>
-              <button className="btn btn-violet" onClick={() => setSelectedForm(null)}>Tutup Rincian</button>
+              <Button variant="primary" onClick={() => setSelectedForm(null)}>Tutup Rincian</Button>
             </div>
           </div>
         </div>
@@ -1293,7 +1298,7 @@ export default function PengaduanView() {
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {lampiranArr.map((file_path, idx) => (
                         <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                          <Image className="me-1" />Lihat File {idx + 1}
+                          <Image01Icon size={16} className="me-1" />Lihat File {idx + 1}
                         </a>
                       ))}
                     </div>
@@ -1303,7 +1308,7 @@ export default function PengaduanView() {
             })()}
 
             <div style={{ marginTop: '24px', textAlign: 'right' }}>
-              <button className="btn btn-violet" onClick={() => setSelectedPengaduan(null)}>Tutup Rincian</button>
+              <Button variant="primary" onClick={() => setSelectedPengaduan(null)}>Tutup Rincian</Button>
             </div>
           </div>
         </div>

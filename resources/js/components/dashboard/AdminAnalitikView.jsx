@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import { BarChart3, PieChart, Trophy, Award } from 'lucide-react';
+import { BarChartIcon, Analytics01Icon, ChampionIcon, Award01Icon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../common/Skeleton';
 
 export default function AdminAnalitikView() {
@@ -64,7 +64,7 @@ export default function AdminAnalitikView() {
           ========================================= */}
       <div className="card" style={{ marginBottom: '24px' }}>
         <div className="section-head" style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
-          <h3 style={{ margin: 0, color: 'var(--cyan-deep)' }}><BarChart3 className="me-2" />Tren Pemeriksaan Kesehatan (Lintas 9 Posyandu)</h3>
+          <h3 style={{ margin: 0, color: 'var(--cyan-deep)', display: 'flex', alignItems: 'center' }}><BarChartIcon size={20} className="me-2" />Tren Pemeriksaan Kesehatan (Lintas 9 Posyandu)</h3>
           <span className="badge badge-violet">{rentangBulan}</span>
         </div>
 
@@ -104,7 +104,7 @@ export default function AdminAnalitikView() {
             ========================================= */}
         <div className="card">
           <div className="section-head" style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0 }}><PieChart className="me-2" />Capaian Intervensi per Bidang</h3>
+            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center' }}><Analytics01Icon size={20} className="me-2" />Capaian Intervensi per Bidang</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {bidangConfig.map((bidang, index) => {
@@ -140,7 +140,7 @@ export default function AdminAnalitikView() {
             ========================================= */}
         <div className="card">
           <div className="section-head" style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0 }}><Trophy className="me-2" />Ranking Keaktifan Posyandu</h3>
+            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center' }}><ChampionIcon size={20} className="me-2" />Ranking Keaktifan Posyandu</h3>
           </div>
           <div className="table-responsive">
             <table className="table" style={{ fontSize: '13.5px' }}>
@@ -160,7 +160,7 @@ export default function AdminAnalitikView() {
                   return (
                     <tr key={index}>
                       <td>
-                        {index === 0 && <Award className="me-2" />}
+                        {index === 0 && <Award01Icon size={18} className="me-2" />}
                         <b style={{ color: '#334155' }}>{pos.nama}</b>
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 800, color: textColor }}>

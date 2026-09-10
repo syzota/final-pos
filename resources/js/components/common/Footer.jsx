@@ -1,7 +1,13 @@
 import React from 'react';
 import '../../styles/footer.css';
 import logoFooter from '../../assets/images/common/logo-footer.jpeg';
-import { Phone, MapPin, Mail, Globe, MessageCircle } from 'lucide-react';
+import { 
+  Call02Icon, 
+  Location01Icon, 
+  Mail01Icon, 
+  Globe02Icon, 
+  BubbleChatIcon 
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function Footer() {
   return (
@@ -42,7 +48,7 @@ export default function Footer() {
                   transition: 'background 0.2s ease'
                 }}
               >
-                <MessageCircle size={18} />
+                <BubbleChatIcon size={18} />
               </a>
               <a
                 href="https://facebook.com"
@@ -62,7 +68,7 @@ export default function Footer() {
                   transition: 'background 0.2s ease'
                 }}
               >
-                <Globe size={18} />
+                <Globe02Icon size={18} />
               </a>
               <a
                 href="tel:081250001001"
@@ -80,7 +86,7 @@ export default function Footer() {
                   transition: 'background 0.2s ease'
                 }}
               >
-                <Phone size={18} />
+                <Call02Icon size={18} />
               </a>
             </div>
           </div>
@@ -103,11 +109,11 @@ export default function Footer() {
                 Wilayah Pelayanan
               </div>
               <p style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 8px 0' }}>
-                <MapPin size={14} style={{ display: 'inline', marginRight: '6px' }} />
+                <Location01Icon size={14} style={{ display: 'inline', marginRight: '6px' }} />
                 Desa Loa Duri Ulu, Kutai Kartanegara
               </p>
               <p style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 8px 0' }}>
-                <Mail size={14} style={{ display: 'inline', marginRight: '6px' }} />
+                <Mail01Icon size={14} style={{ display: 'inline', marginRight: '6px' }} />
                 posyanduloaduriulu@gmail.com
               </p>
             </div>

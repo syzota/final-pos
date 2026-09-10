@@ -1,5 +1,5 @@
 :root {
-  --font-headline: 'Quicksand', system-ui, -apple-system, sans-serif;
+  --font-headline: 'Poppins', system-ui, -apple-system, sans-serif;
   --font-body: 'Poppins', system-ui, -apple-system, sans-serif;
 
   --font-primary: var(--font-body);
@@ -86,20 +86,36 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* HEADLINE: Menggunakan Quicksand */
-h1, h2, h3, h4, h5, h6,
-.font-headline,
-.section-head h3,
-.hero-title,
-.brand-title,
-.card-title,
-.header-brand-name,
-th {
+/* HEADLINE: Typography Hierarchy */
+h1, .hero-title, .page-title, .dashboard-page-hero h1 {
   font-family: var(--font-headline) !important;
-  font-weight: 700;
+  font-weight: 800 !important;
+  line-height: 1.25;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+h2, .section-head h2, .section-title {
+  font-family: var(--font-headline) !important;
+  font-weight: 800 !important;
   line-height: 1.3;
-  color: var(--ink);
+  color: #0f172a;
+  letter-spacing: -0.015em;
+}
+
+h3, .card-title, .container-title, .section-head h3, .card h3 {
+  font-family: var(--font-headline) !important;
+  font-weight: 800 !important;
+  line-height: 1.35;
+  color: #0f172a;
   letter-spacing: -0.01em;
+}
+
+h4, h5, h6, th, .header-brand-name, .brand-title {
+  font-family: var(--font-headline) !important;
+  font-weight: 700 !important;
+  line-height: 1.35;
+  color: #1e293b;
 }
 
 /* BODY, INPUT, BUTTON: Menggunakan Poppins */
@@ -214,3 +230,68 @@ button {
     max-width: 100% !important;
   }
 }
+
+/* Universal Button Styles (.app-btn) */
+.app-btn {
+  font-family: var(--font-body);
+}
+
+.app-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.app-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.app-btn-primary:hover:not(:disabled),
+.app-btn-teal:hover:not(:disabled) {
+  background-color: var(--primary-teal-dark, #006666) !important;
+  border-color: var(--primary-teal-dark, #006666) !important;
+}
+
+.app-btn-secondary:hover:not(:disabled),
+.app-btn-outline:hover:not(:disabled) {
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+.app-btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+
+.app-btn-danger-outline:hover:not(:disabled),
+.app-btn-danger-soft:hover:not(:disabled) {
+  background-color: #ffe4e6 !important;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes modalPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+

@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Button from '../common/Button';
 import {
-  Users,
-  Activity,
-  Megaphone,
-  HeartPulse,
-  ArrowRight,
-  Building2,
-  BookCheck,
-  FolderCheck,
-  FolderX,
-  FileCheck2,
-  FileX2,
-  Book,
-  Home,
-  ShieldCheck,
-  Flame,
-  Clock
-} from 'lucide-react';
+  UserGroupIcon,
+  Activity01Icon,
+  Megaphone01Icon,
+  Cardiogram01Icon,
+  ArrowRight01Icon,
+  Building01Icon,
+  Book02Icon,
+  FolderCheckIcon,
+  Folder01Icon,
+  File01Icon,
+  Clock01Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../common/Skeleton';
 
 export default function DashboardHome({ role, onViewChange }) {
@@ -82,7 +78,7 @@ export default function DashboardHome({ role, onViewChange }) {
           }}
         >
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#008080', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Users size={24} />
+            <UserGroupIcon size={24} />
           </div>
           <div>
             <div style={{ fontSize: '26px', fontWeight: 900, color: '#0f766e', lineHeight: 1 }}>{stats.top_stats.total_warga}</div>
@@ -103,7 +99,7 @@ export default function DashboardHome({ role, onViewChange }) {
           }}
         >
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#ea580c', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Activity size={24} />
+            <Activity01Icon size={24} />
           </div>
           <div>
             <div style={{ fontSize: '26px', fontWeight: 900, color: '#c2410c', lineHeight: 1 }}>{stats.top_stats.kehadiran_persen}%</div>
@@ -124,7 +120,7 @@ export default function DashboardHome({ role, onViewChange }) {
           }}
         >
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#db2777', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Megaphone size={24} />
+            <Megaphone01Icon size={24} />
           </div>
           <div>
             <div style={{ fontSize: '26px', fontWeight: 900, color: '#be185d', lineHeight: 1 }}>{stats.top_stats.pengaduan_baru}</div>
@@ -145,7 +141,7 @@ export default function DashboardHome({ role, onViewChange }) {
           }}
         >
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: stats.rekap_bulan_ini ? '#16a34a' : '#dc2626', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            {stats.rekap_bulan_ini ? <FileCheck2 size={24} /> : <FileX2 size={24} />}
+            <File01Icon size={24} />
           </div>
           <div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: stats.rekap_bulan_ini ? '#15803d' : '#b91c1c', lineHeight: 1.2 }}>
@@ -165,7 +161,7 @@ export default function DashboardHome({ role, onViewChange }) {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <HeartPulse size={20} color="#008080" />
+                <Cardiogram01Icon size={20} color="#008080" />
                 <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                   Pencatatan Kesehatan Warga
                 </h3>
@@ -199,27 +195,20 @@ export default function DashboardHome({ role, onViewChange }) {
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
-            className="btn btn-outline"
+            variant="secondary"
             style={{
               marginTop: '24px',
-              minHeight: '44px',
               width: '100%',
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '13.5px',
               color: 'var(--primary-teal, #008080)',
               borderColor: 'var(--primary-teal, #008080)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
+              justifyContent: 'center'
             }}
             onClick={() => onViewChange('kesehatan')}
           >
-            Lanjutkan Pengisian Data Kesehatan <ArrowRight size={16} />
-          </button>
+            Lanjutkan Pengisian Data Kesehatan <ArrowRight01Icon size={16} className="ms-1" />
+          </Button>
         </div>
 
         {/* KANAN: 5 BIDANG NON-KESEHATAN (DENGAN WARNA TEKS KONTRAS & JELAS) */}
@@ -227,7 +216,7 @@ export default function DashboardHome({ role, onViewChange }) {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Building2 size={20} color="#7c3aed" />
+                <Building01Icon size={20} color="#7c3aed" />
                 <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                   5 Bidang Non-Kesehatan
                 </h3>
@@ -263,27 +252,20 @@ export default function DashboardHome({ role, onViewChange }) {
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
-            className="btn btn-outline"
+            variant="secondary"
             style={{
               marginTop: '24px',
-              minHeight: '44px',
               width: '100%',
-              borderRadius: '10px',
-              fontWeight: 700,
-              fontSize: '13.5px',
               color: '#7c3aed',
               borderColor: '#c4b5fd',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
+              justifyContent: 'center'
             }}
             onClick={() => onViewChange('pengaduan')}
           >
-            Tinjau Formulir & Pengaduan <ArrowRight size={16} />
-          </button>
+            Tinjau Formulir & Pengaduan <ArrowRight01Icon size={16} className="ms-1" />
+          </Button>
         </div>
       </div>
 
@@ -292,7 +274,7 @@ export default function DashboardHome({ role, onViewChange }) {
         {/* KIRI: BUKU REGISTER BULANAN */}
         <div className="card" style={{ padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <BookCheck size={20} color="#008080" />
+            <Book02Icon size={20} color="#008080" />
             <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
               Status Rekapitulasi Laporan Bulanan
             </h3>
@@ -300,7 +282,7 @@ export default function DashboardHome({ role, onViewChange }) {
 
           {stats.rekap_bulan_ini ? (
             <div style={{ display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', background: '#f0fdf4', borderRadius: '12px', border: '1px solid #bbf7d0' }}>
-              <FolderCheck size={32} color="#16a34a" style={{ flexShrink: 0 }} />
+              <FolderCheckIcon size={32} color="#16a34a" style={{ flexShrink: 0 }} />
               <div>
                 <h4 style={{ margin: '0 0 2px 0', color: '#15803d', fontSize: '14.5px', fontWeight: 700 }}>Laporan Bulan Ini Siap</h4>
                 <p style={{ margin: 0, fontSize: '13px', color: '#166534', lineHeight: '1.4' }}>
@@ -310,7 +292,7 @@ export default function DashboardHome({ role, onViewChange }) {
             </div>
           ) : (
             <div style={{ display: 'flex', gap: '14px', alignItems: 'center', padding: '16px', background: '#fef2f2', borderRadius: '12px', border: '1px solid #fecaca' }}>
-              <FolderX size={32} color="#dc2626" style={{ flexShrink: 0 }} />
+              <Folder01Icon size={32} color="#dc2626" style={{ flexShrink: 0 }} />
               <div>
                 <h4 style={{ margin: '0 0 2px 0', color: '#b91c1c', fontSize: '14.5px', fontWeight: 700 }}>Laporan Belum Diterbitkan</h4>
                 <p style={{ margin: 0, fontSize: '13px', color: '#991b1b', lineHeight: '1.4' }}>
@@ -321,29 +303,29 @@ export default function DashboardHome({ role, onViewChange }) {
           )}
 
           <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button
+            <Button
               type="button"
-              className="btn btn-primary"
-              style={{ flex: 1, minHeight: '44px', borderRadius: '10px', fontWeight: 700, fontSize: '13.5px' }}
+              variant="primary"
+              style={{ flex: 1, justifyContent: 'center' }}
               onClick={() => onViewChange('rekap-kegiatan')}
             >
               Rekap Laporan Bulanan
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="btn btn-outline"
-              style={{ flex: 1, minHeight: '44px', borderRadius: '10px', fontWeight: 700, fontSize: '13.5px' }}
+              variant="secondary"
+              style={{ flex: 1, justifyContent: 'center' }}
               onClick={() => onViewChange('pencatatan-kegiatan')}
             >
               Laporan 13 Poin
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* KANAN: AKTIVITAS TERKINI */}
         <div className="card" style={{ padding: '24px', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <Clock size={20} color="#64748b" />
+            <Clock01Icon size={20} color="#64748b" />
             <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
               Aktivitas Terbaru Sistem
             </h3>

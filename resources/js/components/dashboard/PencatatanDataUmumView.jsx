@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import Button from '../common/Button';
+import NotificationModal from '../common/NotificationModal';
 
-import { Printer, Save, Trash } from 'lucide-react';
+import {
+    PrinterIcon,
+    FloppyDiskIcon,
+    Delete02Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function PencatatanDataUmumView() {
     // === STATE DATA SESUAI KERTAS ===
@@ -181,19 +187,32 @@ export default function PencatatanDataUmumView() {
           ========================================================= */}
             <div className="no-print">
                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--primary-teal, #008080)', borderColor: 'var(--primary-teal, #008080)', minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
-                        <Printer size={16} style={{ marginRight: '8px' }} /> Ekspor PDF Kertas
-                    </button>
-                    <button className="btn btn-primary" onClick={handleSave} disabled={isLoading} style={{ minHeight: '42px', fontWeight: 700, display: 'inline-flex', alignItems: 'center' }}>
-                        <Save size={16} style={{ marginRight: '8px' }} /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
-                    </button>
+                    <Button
+                        variant="secondary"
+                        size="md"
+                        icon={PrinterIcon}
+                        onClick={() => handlePrint(null)}
+                    >
+                        Ekspor PDF Kertas
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        icon={FloppyDiskIcon}
+                        onClick={handleSave}
+                        loading={isLoading}
+                        loadingText="Menyimpan..."
+                    >
+                        Simpan Data Baru
+                    </Button>
                 </div>
 
-                {message.text && (
-                    <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-                        <b>Info Sistem:</b> {message.text}
-                    </div>
-                )}
+                <NotificationModal
+                    isOpen={Boolean(message.text)}
+                    type={message.type || 'success'}
+                    message={message.text}
+                    onClose={() => setMessage({ type: '', text: '' })}
+                />
 
                 <div className="grid grid-2" style={{ marginBottom: '16px' }}>
                     {/* KIRI */}
@@ -312,12 +331,22 @@ export default function PencatatanDataUmumView() {
                                         <td>{item.pengunjung_ibu_hamil || 0} Orang</td>
                                         <td style={{ textAlign: 'center' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                <button className="btn btn-sm btn-outline" style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }} onClick={() => handlePrint(item)}>
-                                                    <Printer /> Cetak
-                                                </button>
-                                                <button className="btn btn-sm btn-outline" style={{ color: '#dc3545', borderColor: '#dc3545' }} onClick={() => handleDelete(item.id)}>
-                                                    <Trash /> Hapus
-                                                </button>
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    icon={PrinterIcon}
+                                                    onClick={() => handlePrint(item)}
+                                                >
+                                                    Cetak
+                                                </Button>
+                                                <Button
+                                                    variant="danger-outline"
+                                                    size="sm"
+                                                    icon={Delete02Icon}
+                                                    onClick={() => handleDelete(item.id)}
+                                                >
+                                                    Hapus
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>

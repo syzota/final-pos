@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import Button from '../components/common/Button';
 import '../styles/detail-artikel.css';
-import { Loader2 } from 'lucide-react';
+import { ArrowLeft01Icon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../components/common/Skeleton';
 
 export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
@@ -83,12 +84,16 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
       <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="detail-artikel-main">
-        <button type="button" className="back-link" onClick={() => onNavigate && onNavigate('artikel')}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M3.825 9H16V7H3.825L9.425 1.4 8 0 0 8 8 16 9.425 14.6 3.825 9V9" fill="currentColor" />
-          </svg>
-          Kembali ke Artikel
-        </button>
+        <div style={{ marginBottom: '20px' }}>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={ArrowLeft01Icon}
+            onClick={() => onNavigate && onNavigate('artikel')}
+          >
+            Kembali ke Artikel
+          </Button>
+        </div>
 
         <div className="detail-artikel-layout">
           {/* Main Column */}

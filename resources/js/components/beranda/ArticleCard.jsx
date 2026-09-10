@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Clock, ArrowRight, BookOpen } from 'lucide-react';
+import { Clock01Icon, ArrowRight01Icon, BookOpen01Icon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../common/Skeleton';
 import { getInitials } from '../../utils/helpers';
 
@@ -53,7 +53,7 @@ export default function ArticleCard({ onNavigate }) {
   if (artikels.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '48px 20px', width: '100%', background: '#ffffff', borderRadius: '16px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
-        <BookOpen size={32} style={{ margin: '0 auto 12px', color: '#94a3b8' }} />
+        <BookOpen01Icon size={32} style={{ margin: '0 auto 12px', color: '#94a3b8' }} />
         <p style={{ fontWeight: 600, fontSize: '15px', margin: 0 }}>Belum ada artikel yang dipublikasikan saat ini.</p>
         <p style={{ fontSize: '13px', margin: '4px 0 0' }}>Kader posyandu akan segera menambahkan edukasi kesehatan terbaru.</p>
       </div>
@@ -112,7 +112,7 @@ export default function ArticleCard({ onNavigate }) {
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
             {/* Meta Tanggal */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', fontSize: '12.5px', color: 'var(--neutral-500)', fontWeight: 500 }}>
-              <Clock size={14} />
+              <Clock01Icon size={14} />
               <span>{formatDate(artikel.published_at)}</span>
             </div>
 
@@ -156,10 +156,19 @@ export default function ArticleCard({ onNavigate }) {
                 justifyContent: 'space-between',
                 paddingTop: '16px',
                 borderTop: '1px solid var(--neutral-200)',
-                marginTop: 'auto'
+                marginTop: 'auto',
+                gap: '12px'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  minWidth: 0,
+                  flex: 1
+                }}
+              >
                 <div
                   style={{
                     width: '32px',
@@ -171,12 +180,23 @@ export default function ArticleCard({ onNavigate }) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontWeight: 700,
-                    fontSize: '12px'
+                    fontSize: '12px',
+                    flexShrink: 0
                   }}
                 >
                   {getInitials(artikel.penulis?.name)}
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neutral-700)' }}>
+                <span
+                  title={artikel.penulis?.name || 'Kader Posyandu'}
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: 'var(--neutral-700)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
                   {artikel.penulis?.name || 'Kader Posyandu'}
                 </span>
               </div>
@@ -194,11 +214,13 @@ export default function ArticleCard({ onNavigate }) {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  padding: '8px 0'
+                  padding: '8px 0',
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
                 }}
               >
                 Baca Lengkap
-                <ArrowRight size={16} />
+                <ArrowRight01Icon size={16} />
               </button>
             </div>
           </div>
