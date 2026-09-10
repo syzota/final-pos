@@ -20,8 +20,12 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
   useEffect(() => {
     if (sidebarOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('sidebar-open');
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.classList.remove('sidebar-open');
     }
 
     const handleKeyDown = (e) => {
@@ -32,7 +36,9 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.classList.remove('sidebar-open');
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [sidebarOpen]);
@@ -183,6 +189,7 @@ export default function Header({ activePage = 'beranda', onNavigate, onDarurat }
       <div
         className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`}
         onClick={() => setSidebarOpen(false)}
+        onTouchMove={(e) => e.preventDefault()}
       />
 
       <aside className={`mobile-dropdown-menu ${sidebarOpen ? 'show' : ''}`}>

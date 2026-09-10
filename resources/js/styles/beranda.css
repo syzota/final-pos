@@ -1450,11 +1450,15 @@ body {
 .sidebar-overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.6);
+    background:rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity:0;
     visibility:hidden;
     transition:.3s;
     z-index:99;
+    touch-action: none;
+    overscroll-behavior: contain;
 }
 
 .sidebar-overlay.show{

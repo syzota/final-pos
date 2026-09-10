@@ -218,6 +218,32 @@ export default function DashboardApp({ userAuth, onLogout }) {
   };
 
   useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.classList.add('sidebar-open');
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.classList.remove('sidebar-open');
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.classList.remove('sidebar-open');
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [sidebarOpen]);
+
+  useEffect(() => {
     scrollToTop();
     const rafId = requestAnimationFrame(() => {
       scrollToTop();
@@ -330,12 +356,31 @@ export default function DashboardApp({ userAuth, onLogout }) {
           color: #475569 !important;
           border: 1px solid transparent !important;
         }
-        .sidebar-nav-item:not(.active):hover {
-          background-color: #f8fafc !important;
-          color: #0f172a !important;
+        body.sidebar-open {
+          overflow: hidden !important;
+          height: 100vh !important;
+          touch-action: none !important;
+        }
+        body.sidebar-open .main {
+          pointer-events: none !important;
+          user-select: none !important;
+        }
+        .sidebar {
+          overscroll-behavior: contain !important;
         }
         .sidebar-backdrop {
           backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+          touch-action: none;
+          overscroll-behavior: contain;
+        }
+        .sidebar-backdrop.show {
+          display: block;
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.55);
+          z-index: 1040;
+          touch-action: none;
         }
       `}</style>
 
@@ -434,7 +479,11 @@ export default function DashboardApp({ userAuth, onLogout }) {
         </aside>
 
         {/* Mobile Backdrop */}
-        <div className={`sidebar-backdrop ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)}></div>
+        <div
+          className={`sidebar-backdrop ${sidebarOpen ? 'show' : ''}`}
+          onClick={() => setSidebarOpen(false)}
+          onTouchMove={(e) => e.preventDefault()}
+        />
 
         {/* MAIN AREA */}
         <div className="main">
