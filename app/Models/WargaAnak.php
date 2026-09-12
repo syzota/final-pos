@@ -22,4 +22,9 @@ class WargaAnak extends Model
     {
         return $this->belongsTo(WargaKeluarga::class, 'keluarga_id');
     }
+
+    public function pemeriksaan()
+    {
+        return $this->hasMany(PemeriksaanBalita::class, 'anak_id');
+    }
 }

@@ -45,7 +45,14 @@ export default function KelolaMakananView() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ nama_makanan: '', kalori_per_porsi: '' });
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    confirmVariant: 'danger'
+  });
   const [searchMockQuery, setSearchMockQuery] = useState('');
   const [searchDbQuery, setSearchDbQuery] = useState('');
 
@@ -72,7 +79,7 @@ export default function KelolaMakananView() {
 
   const handleSaveFromApi = async (food) => {
     setIsLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: '', text: '', title: '', details: null });
     const token = localStorage.getItem('auth_token');
 
     try {
@@ -82,17 +89,26 @@ export default function KelolaMakananView() {
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      setMessage({ type: 'success', text: `"${food.nama_makanan}" berhasil ditambahkan ke basis data posyandu!` });
+      setMessage({
+        type: 'success',
+        title: 'Berhasil Menambahkan Makanan',
+        text: `"${food.nama_makanan}" berhasil ditambahkan ke basis data posyandu!`
+      });
       fetchFoods();
     } catch (err) {
-      setMessage({ type: 'error', text: 'Gagal menyimpan makanan dari referensi.' });
+      const errDetail = err.response?.data?.pesan || err.response?.data?.message || 'Gagal menyimpan makanan dari referensi.';
+      setMessage({
+        type: 'error',
+        title: 'Gagal Menyimpan Makanan',
+        text: errDetail
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const showForm = (id) => {
-    setMessage({ type: '', text: '' });
+    setMessage({ type: '', text: '', title: '', details: null });
     if (id) {
       const food = foods.find(f => f.id === id);
       setEditingId(id);
@@ -110,13 +126,27 @@ export default function KelolaMakananView() {
 
   const handleSave = async (e) => {
     if (e) e.preventDefault();
-    if (!formData.nama_makanan || !formData.kalori_per_porsi) {
-      setMessage({ type: 'error', text: 'Nama makanan dan kalori per porsi wajib diisi.' });
+    
+    const missing = [];
+    if (!formData.nama_makanan?.trim()) {
+      missing.push('Nama makanan belum diisi');
+    }
+    if (!formData.kalori_per_porsi || Number(formData.kalori_per_porsi) <= 0) {
+      missing.push('Jumlah kalori per porsi harus diisi dengan angka positif (> 0 kkal)');
+    }
+
+    if (missing.length > 0) {
+      setMessage({
+        type: 'error',
+        title: 'Data Makanan Belum Lengkap',
+        text: 'Mohon perbaiki formulir makanan sebelum melanjutkan:',
+        details: missing
+      });
       return;
     }
 
     setIsLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: '', text: '', title: '', details: null });
     const token = localStorage.getItem('auth_token');
 
     try {
@@ -124,35 +154,63 @@ export default function KelolaMakananView() {
         await axios.put(`/api/makanan/${editingId}`, formData, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setMessage({ type: 'success', text: 'Menu makanan berhasil diperbarui.' });
+        setMessage({
+          type: 'success',
+          title: 'Perubahan Tersimpan',
+          text: 'Menu makanan berhasil diperbarui dalam basis data posyandu.'
+        });
       } else {
         await axios.post('/api/makanan', formData, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setMessage({ type: 'success', text: 'Menu makanan baru berhasil ditambahkan.' });
+        setMessage({
+          type: 'success',
+          title: 'Menu Berhasil Dibuat',
+          text: 'Menu makanan kustom baru berhasil ditambahkan.'
+        });
       }
       hideForm();
       fetchFoods();
     } catch (err) {
-      setMessage({ type: 'error', text: 'Gagal menyimpan data makanan.' });
+      const errDetail = err.response?.data?.pesan || err.response?.data?.message || 'Gagal menyimpan data makanan.';
+      setMessage({
+        type: 'error',
+        title: 'Gagal Menyimpan Data',
+        text: errDetail
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDelete = async (id, nama) => {
-    if (window.confirm(`Hapus "${nama}" dari daftar referensi kalori posyandu?`)) {
-      try {
-        const token = localStorage.getItem('auth_token');
-        await axios.delete(`/api/makanan/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setFoods(foods.filter(f => f.id !== id));
-        setMessage({ type: 'success', text: `"${nama}" berhasil dihapus.` });
-      } catch (err) {
-        setMessage({ type: 'error', text: 'Gagal menghapus data makanan.' });
+  const handleDelete = (id, nama) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Konfirmasi Hapus Makanan',
+      message: `Apakah Anda yakin ingin menghapus menu "${nama}" dari daftar referensi kalori posyandu? Tindakan ini tidak dapat dibatalkan.`,
+      confirmVariant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem('auth_token');
+          await axios.delete(`/api/makanan/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          setFoods(foods.filter(f => f.id !== id));
+          setMessage({
+            type: 'success',
+            title: 'Menu Dihapus',
+            text: `Menu "${nama}" berhasil dihapus dari basis data posyandu.`
+          });
+        } catch (err) {
+          const errDetail = err.response?.data?.pesan || err.response?.data?.message || 'Gagal menghapus data makanan.';
+          setMessage({
+            type: 'error',
+            title: 'Gagal Menghapus Makanan',
+            text: errDetail
+          });
+        }
       }
-    }
+    });
   };
 
   return (
@@ -193,11 +251,31 @@ export default function KelolaMakananView() {
           <span>Menu makanan yang dikelola di sini akan otomatis tersedia pada Kalkulator Gizi & Kalori Mandiri untuk Warga.</span>
         </div>
 
+        {/* Modal Notifikasi Error & Sukses */}
         <NotificationModal
-          isOpen={Boolean(message.text)}
+          isOpen={Boolean(message.text || message.title)}
           type={message.type || 'success'}
+          title={message.title}
           message={message.text}
-          onClose={() => setMessage({ type: '', text: '' })}
+          details={message.details}
+          onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
+        />
+
+        {/* Modal Konfirmasi Hapus */}
+        <NotificationModal
+          isOpen={confirmModal.isOpen}
+          type="confirm"
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmVariant={confirmModal.confirmVariant || 'danger'}
+          isConfirm
+          confirmText="Ya, Hapus"
+          cancelText="Batal"
+          onConfirm={() => {
+            if (confirmModal.onConfirm) confirmModal.onConfirm();
+            setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' });
+          }}
+          onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' })}
         />
 
         <div className="makanan-grid-layout">
@@ -254,7 +332,7 @@ export default function KelolaMakananView() {
               />
               <input
                 type="text"
-                placeholder="Cari makanan (mis. Nasi, Soto, Tempe)..."
+                placeholder="Cari makanan (Contoh: Nasi, Soto, Tempe)..."
                 value={searchMockQuery}
                 onChange={(e) => setSearchMockQuery(e.target.value)}
                 style={{
@@ -303,11 +381,11 @@ export default function KelolaMakananView() {
                       variant={isAlreadyAdded ? 'secondary' : 'teal'}
                       size="sm"
                       icon={isAlreadyAdded ? CheckmarkCircle01Icon : Add01Icon}
+                      iconOnly
                       onClick={() => handleSaveFromApi(food)}
                       disabled={isLoading || isAlreadyAdded}
-                    >
-                      {isAlreadyAdded ? 'Tersedia' : '+ Tambah'}
-                    </Button>
+                      title={isAlreadyAdded ? 'Sudah Ada di Basis Data' : 'Tambah ke Menu'}
+                    />
                   </div>
                 );
               })}
@@ -338,10 +416,10 @@ export default function KelolaMakananView() {
                 variant="primary"
                 size="sm"
                 icon={Add01Icon}
+                iconOnly
                 onClick={() => showForm(null)}
-              >
-                + Menu Kustom
-              </Button>
+                title="Tambah Menu Kustom"
+              />
             </div>
 
             {/* FORM INLINE TAMBAH / EDIT MAKANAN */}
@@ -405,7 +483,7 @@ export default function KelolaMakananView() {
                       loading={isLoading}
                       loadingText="Menyimpan..."
                     >
-                      Simpan Menu
+                      Simpan Data
                     </Button>
                   </div>
                 </form>

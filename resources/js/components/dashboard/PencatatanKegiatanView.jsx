@@ -12,8 +12,25 @@ import {
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function PencatatanKegiatanView() {
+    const getInitialInfo = () => {
+        try {
+            const raw = localStorage.getItem('auth_user');
+            if (raw) {
+                const user = JSON.parse(raw);
+                const posName = user.posyandu?.nama || (typeof user.posyandu === 'string' ? user.posyandu : '');
+                return {
+                    nama_posyandu: posName ? `Posyandu ${posName.replace(/^Posyandu\s+/i, '')}` : '',
+                    ketua_pelaksana: user.name || ''
+                };
+            }
+        } catch {}
+        return { nama_posyandu: '', ketua_pelaksana: '' };
+    };
+
+    const initialInfo = getInitialInfo();
+
     const [formData, setFormData] = useState({
-        nama_posyandu: '', ketua_pelaksana: '',
+        nama_posyandu: initialInfo.nama_posyandu, ketua_pelaksana: initialInfo.ketua_pelaksana,
         ibu_hamil: '', ibu_hamil_periksa: '', ibu_hamil_fe: '',
         ibu_menyusui: '',
         kb_kondom: '', kb_pil: '', kb_suntik: '',
@@ -27,7 +44,14 @@ export default function PencatatanKegiatanView() {
     const [isPrinting, setIsPrinting] = useState(false);
     const [printData, setPrintData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        confirmVariant: 'danger'
+    });
 
     const [riwayat, setRiwayat] = useState([]);
     const [isLoadingRiwayat, setIsLoadingRiwayat] = useState(true);
@@ -112,17 +136,34 @@ export default function PencatatanKegiatanView() {
     };
 
     const handleSave = async () => {
+        const missing = [];
+        if (!formData.nama_posyandu?.trim()) missing.push('Nama Posyandu belum diisi');
+        if (!formData.ketua_pelaksana?.trim()) missing.push('Nama Ketua Pelaksana belum diisi');
+
+        if (missing.length > 0) {
+            setMessage({
+                type: 'error',
+                title: 'Formulir Kegiatan Belum Lengkap',
+                text: 'Mohon lengkapi bagian identitas kegiatan berikut:',
+                details: missing
+            });
+            return;
+        }
+
         setIsLoading(true);
-        setMessage({ type: '', text: '' });
+        setMessage({ type: '', text: '', title: '', details: null });
         try {
             const token = localStorage.getItem('auth_token');
-            // Gabungkan form data dengan base64 TTD
             const payload = { ...formData, signature_data: signatureData };
 
             const response = await axios.post('/api/pencatatan-kegiatan', payload, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setMessage({ type: 'success', text: response.data.pesan });
+            setMessage({
+                type: 'success',
+                title: 'Kegiatan Berhasil Disimpan',
+                text: response.data.pesan || 'Data pencatatan kegiatan Posyandu berhasil disimpan.'
+            });
 
             setFormData({
                 nama_posyandu: '', ketua_pelaksana: '',
@@ -138,25 +179,45 @@ export default function PencatatanKegiatanView() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             fetchRiwayat();
         } catch (error) {
-            const errMsg = error.response?.data?.pesan || error.message;
-            setMessage({ type: 'error', text: `Gagal menyimpan: ${errMsg}` });
+            const errMsg = error.response?.data?.pesan || error.response?.data?.message || 'Gagal menyimpan data kegiatan.';
+            setMessage({
+                type: 'error',
+                title: 'Gagal Menyimpan Kegiatan',
+                text: errMsg
+            });
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
-        try {
-            const token = localStorage.getItem('auth_token');
-            await axios.delete(`/api/pencatatan-kegiatan/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            setMessage({ type: 'success', text: 'Data berhasil dihapus!' });
-            fetchRiwayat();
-        } catch (error) {
-            setMessage({ type: 'error', text: 'Gagal menghapus data.' });
-        }
+    const handleDelete = (id, nama) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Konfirmasi Hapus Catatan Kegiatan',
+            message: `Apakah Anda yakin ingin menghapus data kegiatan ${nama ? `Ketua "${nama}"` : ''} secara permanen? Data yang telah dihapus tidak dapat dipulihkan.`,
+            confirmVariant: 'danger',
+            onConfirm: async () => {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    await axios.delete(`/api/pencatatan-kegiatan/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    setMessage({
+                        type: 'success',
+                        title: 'Data Dihapus',
+                        text: 'Data pencatatan kegiatan berhasil dihapus.'
+                    });
+                    fetchRiwayat();
+                } catch (error) {
+                    const errMsg = error.response?.data?.pesan || error.response?.data?.message || 'Gagal menghapus data kegiatan.';
+                    setMessage({
+                        type: 'error',
+                        title: 'Gagal Menghapus Data',
+                        text: errMsg
+                    });
+                }
+            }
+        });
     };
 
     const handlePrint = (historyData = null) => {
@@ -222,20 +283,53 @@ export default function PencatatanKegiatanView() {
       `}</style>
 
             <div className="no-print">
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <Button variant="secondary" onClick={() => handlePrint(null)}>
-                        <PrinterIcon size={16} className="me-2" /> Ekspor PDF Kertas
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', width: '100%' }}>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        fullWidth
+                        icon={FloppyDiskIcon}
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        loading={isLoading}
+                        loadingText="Menyimpan..."
+                    >
+                        Simpan Data
                     </Button>
-                    <Button variant="primary" onClick={handleSave} disabled={isLoading}>
-                        <FloppyDiskIcon size={16} className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                    <Button
+                        variant="secondary"
+                        size="md"
+                        fullWidth
+                        icon={PrinterIcon}
+                        onClick={() => handlePrint(null)}
+                    >
+                        Ekspor PDF Kertas
                     </Button>
                 </div>
 
                 <NotificationModal
-                    isOpen={Boolean(message.text)}
+                    isOpen={Boolean(message.text || message.title)}
                     type={message.type || 'success'}
+                    title={message.title}
                     message={message.text}
-                    onClose={() => setMessage({ type: '', text: '' })}
+                    details={message.details}
+                    onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
+                />
+
+                <NotificationModal
+                    isOpen={confirmModal.isOpen}
+                    type="confirm"
+                    title={confirmModal.title}
+                    message={confirmModal.message}
+                    confirmVariant={confirmModal.confirmVariant || 'danger'}
+                    isConfirm
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                    onConfirm={() => {
+                        if (confirmModal.onConfirm) confirmModal.onConfirm();
+                        setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' });
+                    }}
+                    onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' })}
                 />
 
                 <div className="grid grid-2" style={{ marginBottom: '16px' }}>
@@ -395,16 +489,18 @@ export default function PencatatanKegiatanView() {
                                                     <Button
                                                         variant="secondary"
                                                         size="sm"
+                                                        icon={PrinterIcon}
                                                         onClick={() => handlePrint(item)}
                                                     >
-                                                        <PrinterIcon size={14} className="me-1" /> Cetak
+                                                        Cetak
                                                     </Button>
                                                     <Button
                                                         variant="danger-outline"
                                                         size="sm"
-                                                        onClick={() => handleDelete(item.id)}
+                                                        icon={Delete02Icon}
+                                                        onClick={() => handleDelete(item.id, item.ketua_pelaksana)}
                                                     >
-                                                        <Delete02Icon size={14} className="me-1" /> Hapus
+                                                        Hapus
                                                     </Button>
                                                 </div>
                                             </td>

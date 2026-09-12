@@ -6,11 +6,18 @@
 }
 
 .jadwal-main {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   width: 100%;
-  padding: var(--space-4) var(--space-3) var(--space-8);
+  padding: 32px 24px 80px;
+  box-sizing: border-box;
   flex: 1;
+}
+
+@media (max-width: 768px) {
+  .jadwal-main {
+    padding: 20px 16px 64px;
+  }
 }
 
 .jadwal-header-block {

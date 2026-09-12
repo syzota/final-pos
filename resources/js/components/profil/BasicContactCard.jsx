@@ -8,25 +8,23 @@ import {
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 // 1. Tambahkan { data } di dalam kurung untuk menerima lemparan dari ProfilPosyandu.jsx
-export default function BasicContactCard({ data }) {
-
-  // 2. Keamanan ekstra: Jika data belum siap, render kosong dulu agar tidak error
-  if (!data) return null;
+export default function BasicContactCard({ data, defaultProfil }) {
+  const info = data || defaultProfil || {};
 
   const contactItems = [
     {
       label: 'ALAMAT UTAMA',
-      value: data.alamat, // 3. Datanya sekarang memanggil dari API Laravel!
+      value: info.alamat || 'Desa Loa Duri Ulu, Kec. Kutai Kartanegara',
       icon: <Location01Icon size={18} />
     },
     {
       label: 'TELEPON LAYANAN',
-      value: data.no_telepon,
+      value: info.no_telepon || info.no_telp || info.kontak_darurat || '0812-5000-1001',
       icon: <Call02Icon size={18} />
     },
     {
       label: 'SUREL RESMI',
-      value: 'ldu.bersamakitabisa@gmail.com',
+      value: info.email || 'posyanduloaduriulu@gmail.com',
       icon: <Mail01Icon size={18} />
     },
     {

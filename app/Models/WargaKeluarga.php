@@ -26,6 +26,12 @@ class WargaKeluarga extends Model
         return $this->hasMany(WargaAnak::class, 'keluarga_id');
     }
 
+    // Relasi ke tabel dewasa (Suami & Istri)
+    public function dewasa()
+    {
+        return $this->hasMany(WargaDewasa::class, 'keluarga_id');
+    }
+
     // Relasi ke tabel user (Satu keluarga punya 1 akun login)
     public function user()
     {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../components/common/Header';
+import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import Button from '../components/common/Button';
 import '../styles/detail-artikel.css';
@@ -81,7 +81,7 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
 
   return (
     <div className="detail-artikel-page">
-      <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
+      <Navbar activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="detail-artikel-main">
         <div style={{ marginBottom: '20px' }}>
@@ -97,7 +97,7 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
 
         <div className="detail-artikel-layout">
           {/* Main Column */}
-          <article className="detail-artikel-body">
+          <article className="detail-artikel-body reveal-section">
             {isLoading && (
               <div style={{ paddingTop: '16px' }}>
                 <Skeleton type="title" width="80%" height="40px" style={{ marginBottom: '32px' }} />
@@ -121,13 +121,13 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
                 <div className="detail-artikel-meta">
                   <div className="meta-author-avatar">{getInitials(artikel.penulis?.name)}</div>
                   <div className="meta-author-info">
-                    <span className="meta-author-name">{artikel.penulis?.name || 'Admin Posyandu'}</span>
+                    <span className="meta-author-name">{artikel.penulis?.name || 'Kader Posyandu'}</span>
                     <span className="meta-author-role" style={{ textTransform: 'capitalize' }}>
-                      {artikel.penulis?.role || 'Pengelola'}
+                      {artikel.posyandu?.nama ? `Posyandu ${artikel.posyandu.nama}` : (artikel.penulis?.role || 'Pengurus Posyandu')}
                     </span>
                   </div>
                   <span className="meta-dot">•</span>
-                  <span className="meta-date">{formatDate(artikel.published_at)}</span>
+                  <span className="meta-date">{formatDate(artikel.published_at || artikel.created_at)}</span>
                   <span className="meta-dot">•</span>
                   <span className="meta-readtime" style={{ textTransform: 'uppercase' }}>{artikel.kategori}</span>
                 </div>
@@ -158,7 +158,7 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
           </article>
 
           {/* Sidebar Column */}
-          <aside className="detail-artikel-sidebar">
+          <aside className="detail-artikel-sidebar reveal-section reveal-delay-1">
             <div className="related-articles-card">
               <h3 className="sidebar-title">ARTIKEL LAINNYA</h3>
 
@@ -199,7 +199,7 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
         </div>
       </main>
 
-      <Footer />
+      <Footer onNavigate={onNavigate} />
     </div>
   );
 }

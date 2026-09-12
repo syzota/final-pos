@@ -9,17 +9,30 @@ import {
   BubbleChatIcon 
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
-export default function Footer() {
+export default function Footer({ onNavigate }) {
+  const handleLinkClick = (e, pageId) => {
+    e.preventDefault();
+    if (onNavigate) {
+      onNavigate(pageId);
+    } else {
+      window.location.hash = pageId;
+    }
+  };
+
   return (
     <footer className="footer-wrapper">
       <div className="footer-content">
         <div className="footer-top">
           {/* Brand & Description */}
           <div className="footer-brand">
-            <div className="footer-brand-title" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <div 
+              className="footer-brand-title" 
+              onClick={(e) => handleLinkClick(e, 'beranda')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: 'pointer' }}
+            >
               <img
                 src={logoFooter}
-                alt="Posyandu Loa Duri Ulu"
+                alt="Logo Posyandu Loa Duri Ulu"
                 className="footer-logo"
                 loading="lazy"
                 style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }}
@@ -33,9 +46,10 @@ export default function Footer() {
               <a
                 href="https://wa.me/6281250001001"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="footer-social-btn"
                 aria-label="WhatsApp Posyandu"
+                title="Hubungi via WhatsApp"
                 style={{
                   width: '40px',
                   height: '40px',
@@ -53,9 +67,10 @@ export default function Footer() {
               <a
                 href="https://facebook.com"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="footer-social-btn"
                 aria-label="Facebook Posyandu"
+                title="Kunjungi Facebook Posyandu"
                 style={{
                   width: '40px',
                   height: '40px',
@@ -74,6 +89,7 @@ export default function Footer() {
                 href="tel:081250001001"
                 className="footer-social-btn"
                 aria-label="Telepon Layanan"
+                title="Panggilan Telepon Langsung"
                 style={{
                   width: '40px',
                   height: '40px',
@@ -97,25 +113,46 @@ export default function Footer() {
               <div className="footer-col-title" style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc', marginBottom: '14px' }}>
                 Layanan & Informasi
               </div>
-              <a href="#profil" className="footer-link">Profil Posyandu</a>
-              <a href="#artikel" className="footer-link">Artikel & Edukasi</a>
-              <a href="#jadwal" className="footer-link">Jadwal Penimbangan</a>
-              <a href="#kalkulator" className="footer-link">Kalkulator Gizi</a>
-              <a href="#kontak" className="footer-link">Kontak Darurat Medis</a>
+              <a href="#profil" onClick={(e) => handleLinkClick(e, 'profil')} className="footer-link">Profil Posyandu</a>
+              <a href="#artikel" onClick={(e) => handleLinkClick(e, 'artikel')} className="footer-link">Artikel & Edukasi</a>
+              <a href="#jadwal" onClick={(e) => handleLinkClick(e, 'jadwal')} className="footer-link">Jadwal Penimbangan</a>
+              <a href="#kalkulator" onClick={(e) => handleLinkClick(e, 'kalkulator')} className="footer-link">Kalkulator Gizi</a>
+              <a href="#kontak" onClick={(e) => handleLinkClick(e, 'kontak')} className="footer-link">Kontak Darurat Medis</a>
             </div>
 
             <div className="footer-col">
               <div className="footer-col-title" style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc', marginBottom: '14px' }}>
                 Wilayah Pelayanan
               </div>
-              <p style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 8px 0' }}>
-                <Location01Icon size={14} style={{ display: 'inline', marginRight: '6px' }} />
-                Desa Loa Duri Ulu, Kutai Kartanegara
-              </p>
-              <p style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 8px 0' }}>
-                <Mail01Icon size={14} style={{ display: 'inline', marginRight: '6px' }} />
-                posyanduloaduriulu@gmail.com
-              </p>
+              <a 
+                href="https://maps.google.com/?q=Desa+Loa+Duri+Ulu+Kutai+Kartanegara" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', transition: 'color 0.15s ease' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
+              >
+                <Location01Icon size={16} style={{ flexShrink: 0, color: '#38bdf8' }} />
+                <span>Desa Loa Duri Ulu, Kutai Kartanegara</span>
+              </a>
+              <a 
+                href="mailto:posyanduloaduriulu@gmail.com"
+                style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', transition: 'color 0.15s ease' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
+              >
+                <Mail01Icon size={16} style={{ flexShrink: 0, color: '#38bdf8' }} />
+                <span>posyanduloaduriulu@gmail.com</span>
+              </a>
+              <a 
+                href="tel:081250001001"
+                style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', transition: 'color 0.15s ease' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
+              >
+                <Call02Icon size={16} style={{ flexShrink: 0, color: '#38bdf8' }} />
+                <span>0812-5000-1001</span>
+              </a>
             </div>
           </div>
         </div>

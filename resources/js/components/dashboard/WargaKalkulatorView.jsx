@@ -5,7 +5,9 @@ import Button from '../common/Button';
 import {
     InformationCircleIcon,
     Calculator01Icon,
-    FavouriteIcon
+    FavouriteIcon,
+    Add01Icon,
+    Delete02Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const CALC_CATEGORIES = {
@@ -350,6 +352,11 @@ export default function WargaKalkulatorView() {
                     <div className="grid grid-2">
                         <div className="card">
                             <div className="section-head"><h3>IMT &amp; LILA Ibu Hamil</h3></div>
+                            <div style={{ backgroundColor: '#f0fdfa', border: '1px solid #ccfbf1', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#0f766e', marginBottom: '14px', lineHeight: 1.5 }}>
+                                <b>Penjelasan Istilah:</b><br />
+                                • <b>IMT (Indeks Massa Tubuh)</b>: Rasio berat badan terhadap kuadrat tinggi badan untuk memantau status gizi.<br />
+                                • <b>LILA (Lingkar Lengan Atas)</b>: Ukuran pita lengan; LILA &lt; 23,5 cm menandakan risiko <b>KEK (Kekurangan Energi Kronis)</b>.
+                            </div>
                             <div className="form-grid">
                                 <div className="form-field"><label>Berat Badan (kg)</label><input type="number" placeholder="58" value={ihBerat} onChange={e => setIhBerat(e.target.value)} /></div>
                                 <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" placeholder="156" value={ihTinggi} onChange={e => setIhTinggi(e.target.value)} /></div>
@@ -410,6 +417,11 @@ export default function WargaKalkulatorView() {
                 {currentTool === 'imt_ideal' && (
                     <div className="grid grid-2">
                         <div className="card">
+                            <div className="section-head"><h3>IMT &amp; Berat Badan Ideal</h3></div>
+                            <div style={{ backgroundColor: '#f0fdfa', border: '1px solid #ccfbf1', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#0f766e', marginBottom: '14px', lineHeight: 1.5 }}>
+                                <b>Penjelasan Istilah:</b><br />
+                                • <b>IMT (Indeks Massa Tubuh)</b>: Standar WHO &amp; Kemenkes untuk mengukur proporsi berat ideal (Kurus &lt; 18.5, Normal 18.5–24.9, Gemuk 25–29.9, Obesitas &ge; 30).
+                            </div>
                             <div className="form-grid">
                                 <div className="form-field">
                                     <label>Jenis Kelamin</label>
@@ -444,6 +456,11 @@ export default function WargaKalkulatorView() {
                         <div className="grid grid-2">
                             <div className="card">
                                 <div className="section-head"><h3>Kebutuhan Kalori Harian</h3></div>
+                                <div style={{ backgroundColor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#c2410c', marginBottom: '14px', lineHeight: 1.5 }}>
+                                    <b>Penjelasan Istilah:</b><br />
+                                    • <b>TDEE (Total Daily Energy Expenditure)</b>: Estimasi kalori harian yang dibakar tubuh berdasarkan tingkat aktivitas fisik.<br />
+                                    • <b>BMR (Basal Metabolic Rate)</b>: Energi minimal yang dibutuhkan organ tubuh saat istirahat total.
+                                </div>
                                 <div className="form-grid">
                                     <div className="form-field">
                                         <label>Jenis Kelamin</label>
@@ -495,14 +512,21 @@ export default function WargaKalkulatorView() {
                                     <label>Porsi</label>
                                     <input type="number" min="1" value={foodQty} onChange={e => setFoodQty(e.target.value)} />
                                 </div>
-                                <Button variant="primary" onClick={addFoodItem} disabled={foodDb.length === 0}>
-                                    Tambah
-                                </Button>
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    icon={Add01Icon}
+                                    iconOnly
+                                    onClick={addFoodItem}
+                                    disabled={foodDb.length === 0}
+                                    title="Tambah Makanan"
+                                    aria-label="Tambah Makanan"
+                                />
                             </div>
 
                             <div className="table-responsive">
                                 <table className="table" style={{ marginTop: '14px' }}>
-                                    <thead><tr><th>Makanan</th><th>Porsi</th><th>Kalori</th><th>Aksi</th></tr></thead>
+                                    <thead><tr><th>Makanan</th><th>Porsi</th><th>Kalori</th><th style={{ textAlign: 'right' }}>Aksi</th></tr></thead>
                                     <tbody>
                                     {foodLog.length === 0 ? (
                                         <tr><td colSpan="4" style={{ color: 'var(--ink-soft)', fontWeight: 600 }}>Belum ada makanan ditambahkan.</td></tr>
@@ -512,7 +536,16 @@ export default function WargaKalkulatorView() {
                                                 <td>{item.nama}</td>
                                                 <td>{item.qty}x</td>
                                                 <td>{item.qty * item.kaloriSatuan} kkal</td>
-                                                <td><Button variant="danger-outline" size="sm" onClick={() => removeFoodItem(i)}>Hapus</Button></td>
+                                                <td style={{ textAlign: 'right' }}>
+                                                    <Button
+                                                        variant="danger-outline"
+                                                        size="sm"
+                                                        icon={Delete02Icon}
+                                                        onClick={() => removeFoodItem(i)}
+                                                    >
+                                                        Hapus
+                                                    </Button>
+                                                </td>
                                             </tr>
                                         ))
                                     )}

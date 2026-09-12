@@ -52,6 +52,7 @@ const NAV = {
       group: 'Posyandu Loa Duri Ulu',
       items: [
         { id: 'dashboard', label: 'Beranda', ico: Home01Icon },
+        { id: 'kelolawarga', label: 'Kelola Data Warga', ico: UserGroupIcon },
         { id: 'kesehatan', label: 'Pencatatan Kesehatan', ico: Activity01Icon },
         { id: 'pengaduan', label: 'Formulir & Pengaduan', ico: Megaphone01Icon },
         { id: 'rekap-kegiatan', label: 'Rekap Kegiatan Bulanan', ico: File01Icon },
@@ -62,7 +63,6 @@ const NAV = {
     {
       group: 'Kelola Data',
       items: [
-        { id: 'kelolawarga', label: 'Kelola Warga', ico: UserGroupIcon },
         { id: 'kelola-makanan', label: 'Kelola Data Makanan', ico: KitchenUtensilsIcon },
         { id: 'artikel', label: 'Artikel & Berita', ico: Book02Icon },
       ]
@@ -79,6 +79,7 @@ const NAV = {
       group: 'Posyandu Loa Duri Ulu',
       items: [
         { id: 'dashboard', label: 'Beranda', ico: Home01Icon },
+        { id: 'kelolawarga', label: 'Kelola Data Warga', ico: UserGroupIcon },
         { id: 'kesehatan', label: 'Pencatatan Kesehatan', ico: Activity01Icon },
         { id: 'pengaduan', label: 'Formulir & Pengaduan', ico: Megaphone01Icon },
         { id: 'rekap-kegiatan', label: 'Rekap Kegiatan Bulanan', ico: File01Icon },
@@ -92,7 +93,6 @@ const NAV = {
       items: [
         { id: 'profil', label: 'Profil & Sarana', ico: Building01Icon },
         { id: 'daftar', label: 'Daftar 9 Posyandu', ico: Location01Icon },
-        { id: 'kelolawarga', label: 'Kelola Warga', ico: UserGroupIcon },
         { id: 'kelola-makanan', label: 'Kelola Data Makanan', ico: KitchenUtensilsIcon },
         { id: 'artikel', label: 'Artikel & Berita', ico: Book02Icon },
       ]
@@ -234,12 +234,20 @@ export default function DashboardApp({ userAuth, onLogout }) {
       }
     };
 
+    const handleResize = () => {
+      if (window.innerWidth > 900) {
+        setSidebarOpen(false);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
     return () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
       document.body.classList.remove('sidebar-open');
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
     };
   }, [sidebarOpen]);
 
@@ -389,7 +397,12 @@ export default function DashboardApp({ userAuth, onLogout }) {
         {/* SIDEBAR */}
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} id="sidebar">
           {/* Brand Header */}
-          <div className="brand" style={{ flexShrink: 0, padding: '16px 14px 14px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div 
+            className="brand" 
+            onClick={() => handleNavClick('dashboard')}
+            style={{ flexShrink: 0, padding: '16px 14px 14px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+            title="Ke Beranda Dashboard"
+          >
             <div className="mark" style={{ width: '38px', height: '38px', borderRadius: '10px', overflow: 'hidden', flexShrink: 0, background: 'transparent' }}>
               <img src={logo} alt="Logo Posyandu" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
@@ -490,11 +503,13 @@ export default function DashboardApp({ userAuth, onLogout }) {
           <DashboardNavbar
             title={TITLES[currentView] ? TITLES[currentView][0] : 'Beranda'}
             desc={TITLES[currentView] ? TITLES[currentView][1] : ''}
+            userAuth={userAuth}
+            roleLabel={getRoleLabel()}
             onOpenSidebar={() => setSidebarOpen(true)}
           />
 
-          <div className="content" style={{ padding: 'clamp(16px, 3vw, 28px) clamp(12px, 2.5vw, 24px)', maxWidth: '1440px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
-            <div className="view active" style={{ animation: 'fadein .25s ease' }}>
+          <div className="content">
+            <div key={currentView} className="view active dashboard-view-reveal">
               <DashboardPageHeader
                 eyebrow={TITLES[currentView]?.[2] || 'LAYANAN POSYANDU'}
                 title={TITLES[currentView]?.[0] || 'Posyandu Loa Duri Ulu'}

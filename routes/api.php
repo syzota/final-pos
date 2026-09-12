@@ -65,10 +65,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/warga/update-akun', [AuthController::class, 'updateAkunWarga']);
 
     // ----------------------------------------------------
-    // GRUP A: Khusus KADER dan KETUA POSYANDU
+    // GRUP A: Khusus KADER, KETUA POSYANDU, dan SUPERADMIN
     // (Akses operasional posyandu harian & Artikel)
     // ----------------------------------------------------
-    Route::middleware('role:kader,ketua')->group(function () {
+    Route::middleware('role:kader,ketua,superadmin')->group(function () {
         // Kelola Artikel
         Route::post('/artikels', [ArtikelController::class, 'store']);
         Route::post('/artikels/{id}', [ArtikelController::class, 'update']);

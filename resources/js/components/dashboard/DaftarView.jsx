@@ -20,7 +20,7 @@ export default function DaftarView() {
   const [formData, setFormData] = useState({ nama: '', alamat: '', keterangan_waktu: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
 
   useEffect(() => {
     fetchData();
@@ -50,6 +50,7 @@ export default function DaftarView() {
       console.error('Gagal memuat Posyandu:', err.response?.data || err);
       setMessage({
         type: 'error',
+        title: 'Gagal Memuat Posyandu',
         text: err.response?.data?.pesan || err.response?.data?.message || 'Gagal memuat data posyandu.'
       });
     } finally {
@@ -63,8 +64,30 @@ export default function DaftarView() {
 
   const handleSave = async (e) => {
     if (e) e.preventDefault();
+    
+    const missing = [];
+    if (!formData.nama?.trim()) {
+      missing.push('Nama Posyandu belum diisi');
+    }
+    if (!formData.alamat?.trim()) {
+      missing.push('Alamat Posyandu belum diisi');
+    }
+    if (!formData.keterangan_waktu?.trim()) {
+      missing.push('Jadwal rutin pelayanan belum diisi');
+    }
+
+    if (missing.length > 0) {
+      setMessage({
+        type: 'error',
+        title: 'Data Posyandu Belum Lengkap',
+        text: 'Mohon lengkapi bagian profil & jadwal posyandu berikut:',
+        details: missing
+      });
+      return;
+    }
+
     setIsSaving(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: '', text: '', title: '', details: null });
 
     try {
       const token = localStorage.getItem('auth_token');
@@ -77,10 +100,18 @@ export default function DaftarView() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      setMessage({ type: 'success', text: 'Perubahan alamat dan jadwal posyandu Anda berhasil disimpan!' });
+      setMessage({
+        type: 'success',
+        title: 'Profil Posyandu Tersimpan',
+        text: 'Perubahan alamat dan jadwal rutin Posyandu berhasil disimpan!'
+      });
       fetchData();
     } catch (err) {
-      setMessage({ type: 'error', text: 'Gagal menyimpan perubahan posyandu.' });
+      setMessage({
+        type: 'error',
+        title: 'Gagal Menyimpan Data Posyandu',
+        text: err.response?.data?.pesan || err.response?.data?.message || 'Gagal menyimpan perubahan posyandu.'
+      });
     } finally {
       setIsSaving(false);
     }
@@ -89,10 +120,12 @@ export default function DaftarView() {
   return (
     <div style={{ animation: 'fadein 0.3s ease', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <NotificationModal
-        isOpen={Boolean(message.text)}
+        isOpen={Boolean(message.text || message.title)}
         type={message.type || 'success'}
+        title={message.title}
         message={message.text}
-        onClose={() => setMessage({ type: '', text: '' })}
+        details={message.details}
+        onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
       />
 
       {/* 1. KARTU PENGELOLAAN JADWAL & ALAMAT POSYANDU SAYA */}
@@ -183,16 +216,17 @@ export default function DaftarView() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ marginTop: '20px' }}>
             <Button
               type="submit"
               variant="primary"
-              size="md"
+              size="lg"
               icon={FloppyDiskIcon}
               loading={isSaving}
-              loadingText="Menyimpan..."
+              loadingText="Menyimpan Data..."
+              fullWidth
             >
-              Simpan Jadwal & Alamat
+              Simpan Data
             </Button>
           </div>
         </form>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../components/common/Header';
+import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
@@ -16,9 +16,11 @@ import {
   Calendar01Icon,
   ArrowUpRight01Icon,
   ArrowRight01Icon,
-  AlertCircleIcon
+  AlertCircleIcon,
+  Location01Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../components/common/Skeleton';
+import useScrollReveal from '../utils/useScrollReveal';
 
 const topikList = [
   'Semua Topik',
@@ -34,17 +36,25 @@ const topikList = [
 
 export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) {
   const [activeTopik, setActiveTopik] = useState('Semua Topik');
+  const [activePosyandu, setActivePosyandu] = useState('all');
+  const [posyanduList, setPosyanduList] = useState([]);
   const [artikels, setArtikels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortOrder, setSortOrder] = useState('desc'); // 'desc' = terbaru, 'asc' = terlama
 
+  useScrollReveal([artikels, isLoading, activeTopik, activePosyandu]);
+
   useEffect(() => {
-    const fetchArtikels = async () => {
+    const fetchArtikelsAndPosyandu = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('/api/artikels');
-        setArtikels(response.data.data || []);
+        const [artRes, posRes] = await Promise.all([
+          axios.get('/api/artikels'),
+          axios.get('/api/profil-posyandu').catch(() => ({ data: { data: [] } }))
+        ]);
+        setArtikels(artRes.data.data || []);
+        setPosyanduList(posRes.data?.data || []);
       } catch (err) {
         console.error('Gagal mengambil data artikel:', err);
         setError('Gagal memuat artikel dari server. Pastikan koneksi aktif.');
@@ -53,7 +63,7 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
       }
     };
 
-    fetchArtikels();
+    fetchArtikelsAndPosyandu();
   }, []);
 
   const formatDate = (dateString) => {
@@ -71,11 +81,16 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
     return `/storage/${path}`;
   };
 
-  // Filter topik & sorting
+  // Filter topik, posyandu & sorting
   const filteredArtikels = artikels
     .filter((artikel) => {
-      if (activeTopik === 'Semua Topik') return true;
-      return (artikel.kategori || '').toLowerCase() === activeTopik.toLowerCase();
+      const matchTopik = activeTopik === 'Semua Topik' ||
+        (artikel.kategori || '').toLowerCase() === activeTopik.toLowerCase();
+      
+      const matchPosyandu = activePosyandu === 'all' ||
+        String(artikel.posyandu_id || artikel.posyandu?.id || '') === String(activePosyandu);
+
+      return matchTopik && matchPosyandu;
     })
     .sort((a, b) => {
       const dateA = new Date(a.published_at || a.created_at || 0);
@@ -99,7 +114,7 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
 
   return (
     <div className="artikel-page">
-      <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
+      <Navbar activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="artikel-main">
         {/* UNIFIED HERO SECTION */}
@@ -126,7 +141,7 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
         />
 
         {/* SECTION DAFTAR ARTIKEL */}
-        <section id="artikel-list" className="artikel-content-section" style={{ padding: '40px 16px', maxWidth: '1200px', margin: '0 auto' }}>
+        <section id="artikel-list" className="artikel-content-section reveal-section" style={{ padding: '40px 16px', maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
             <SectionHeader
               eyebrow="KATALOG ARTIKEL"
@@ -136,16 +151,40 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
               style={{ marginBottom: 0 }}
             />
 
-            {/* Fungsionalitas Tombol Sortir */}
-            <Button
-              variant="secondary"
-              size="md"
-              icon={FilterIcon}
-              onClick={toggleSort}
-              title="Klik untuk mengubah urutan artikel"
-            >
-              Urutkan: {sortOrder === 'desc' ? 'Terbaru' : 'Terlama'}
-            </Button>
+            {/* Fungsionalitas Filter Posyandu & Tombol Sortir */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <select
+                value={activePosyandu}
+                onChange={(e) => setActivePosyandu(e.target.value)}
+                style={{
+                  height: '42px',
+                  borderRadius: '10px',
+                  border: '1px solid #cbd5e1',
+                  padding: '0 12px',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  backgroundColor: '#ffffff',
+                  color: '#334155',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">Semua Posyandu Penerbit</option>
+                {posyanduList.map(p => (
+                  <option key={p.id} value={p.id}>Posyandu {p.nama}</option>
+                ))}
+              </select>
+
+              <Button
+                variant="secondary"
+                size="md"
+                icon={FilterIcon}
+                onClick={toggleSort}
+                title="Klik untuk mengubah urutan artikel"
+              >
+                Urutkan: {sortOrder === 'desc' ? 'Terbaru' : 'Terlama'}
+              </Button>
+            </div>
           </div>
 
           {/* Chips Topik */}
@@ -203,8 +242,8 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
           {!isLoading && !error && filteredArtikels.length === 0 && (
             <div className="artikel-state" style={{ textAlign: 'center', padding: '48px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1', color: '#64748b' }}>
               <Book02Icon size={32} style={{ margin: '0 auto 12px', color: '#94a3b8' }} />
-              <p style={{ fontWeight: 600, fontSize: '15px', margin: 0 }}>Belum ada artikel untuk topik "{activeTopik}".</p>
-              <p style={{ fontSize: '13px', margin: '4px 0 0' }}>Silakan pilih topik lainnya atau kembali lagi nanti.</p>
+              <p style={{ fontWeight: 600, fontSize: '15px', margin: 0 }}>Belum ada artikel untuk kriteria filter yang dipilih.</p>
+              <p style={{ fontSize: '13px', margin: '4px 0 0' }}>Silakan pilih topik atau posyandu lainnya.</p>
             </div>
           )}
 
@@ -255,9 +294,14 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                     </div>
 
                     <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', fontSize: '13px', color: '#64748b' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', fontSize: '13px', color: '#64748b', flexWrap: 'wrap' }}>
                         <span style={{ color: 'var(--primary-teal, #008080)', fontWeight: 700, textTransform: 'uppercase' }}>
                           {featuredArticle.kategori}
+                        </span>
+                        <span>•</span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#0d9488', fontWeight: 600 }}>
+                          <Location01Icon size={14} />
+                          {featuredArticle.posyandu?.nama ? `Posyandu ${featuredArticle.posyandu.nama}` : 'Desa Loa Duri Ulu'}
                         </span>
                         <span>•</span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -357,9 +401,16 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
                   </div>
 
                   <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Calendar01Icon size={13} />
-                      <span>{formatDate(artikel.published_at)}</span>
+                    {/* Meta Posyandu & Tanggal */}
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#0d9488', fontWeight: 700 }}>
+                        <Location01Icon size={13} />
+                        {artikel.posyandu?.nama ? `Posyandu ${artikel.posyandu.nama}` : 'Desa Loa Duri'}
+                      </span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Calendar01Icon size={13} />
+                        {formatDate(artikel.published_at)}
+                      </span>
                     </div>
 
                     <h3
@@ -413,7 +464,7 @@ export default function ArtikelKesehatan({ activePage, onNavigate, onDarurat }) 
         </section>
       </main>
 
-      <Footer />
+      <Footer onNavigate={onNavigate} />
     </div>
   );
 }

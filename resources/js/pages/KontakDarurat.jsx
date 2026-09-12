@@ -1,8 +1,9 @@
 import React from 'react';
-import Header from '../components/common/Header';
+import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
+import useScrollReveal from '../utils/useScrollReveal';
 import '../styles/kontak.css';
 
 import { 
@@ -19,6 +20,7 @@ export default function KontakDarurat({
   onNavigate,
   onDarurat
 }) {
+  useScrollReveal();
 
   const informationCards = [
     {
@@ -50,33 +52,33 @@ export default function KontakDarurat({
     },
   ];
 
-
   return (
     <div className="kontak-page">
 
-      <Header
+      <Navbar
         activePage={activePage}
         onNavigate={onNavigate}
         onDarurat={onDarurat}
       />
 
-
       <main className="kontak-info-main" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 16px' }}>
         {/* UNIFIED HERO SECTION */}
-        <PageHero
-          badgeIcon={InformationCircleIcon}
-          badgeText="Kontak & Bantuan"
-          title="Informasi Kontak &"
-          titleHighlight="Lokasi Posyandu"
-          description="Layanan kontak siaga dan titik lokasi 9 Posyandu di Desa Loa Duri Ulu."
-          stats={[
-            { icon: Shield01Icon, label: 'Layanan Resmi Desa Loa Duri Ulu' },
-            { icon: Location01Icon, label: '9 Titik Posyandu Terdata Lengkap' },
-          ]}
-        />
+        <div className="reveal-section">
+          <PageHero
+            badgeIcon={InformationCircleIcon}
+            badgeText="Kontak & Bantuan"
+            title="Informasi Kontak &"
+            titleHighlight="Lokasi Posyandu"
+            description="Layanan kontak siaga dan titik lokasi 9 Posyandu di Desa Loa Duri Ulu."
+            stats={[
+              { icon: Shield01Icon, label: 'Layanan Resmi Desa Loa Duri Ulu' },
+              { icon: Location01Icon, label: '9 Titik Posyandu Terdata Lengkap' },
+            ]}
+          />
+        </div>
 
         {/* PAPAN INFORMASI */}
-        <section className="kontak-info-section">
+        <section className="kontak-info-section reveal-section reveal-delay-1">
           <SectionHeader
             eyebrow="INFORMASI PENTING"
             title="Papan Informasi Layanan"
@@ -84,44 +86,37 @@ export default function KontakDarurat({
             align="left"
           />
 
-
           <div className="kontak-info-cards">
 
             {informationCards.map((item, index) => (
-
               <article
                 className={`kontak-info-card kontak-info-card--${item.type}`}
                 key={index}
+                onClick={() => {
+                  if (item.type === 'emergency') window.location.href = 'tel:112';
+                  if (item.type === 'schedule') onNavigate && onNavigate('jadwal');
+                  if (item.type === 'health') onNavigate && onNavigate('profil');
+                }}
+                style={{ cursor: 'pointer', transition: 'transform 0.15s ease' }}
               >
-
                 <div className="kontak-info-card-icon">
                   <item.icon size={24} />
                 </div>
 
-
                 <div className="kontak-info-card-content">
-
                   <h3>{item.title}</h3>
-
                   <p>
                     {item.description}
                   </p>
 
-
                   <div className="kontak-info-card-value">
-
                     <strong>{item.info}</strong>
-
                     <span>
                       {item.caption}
                     </span>
-
                   </div>
-
                 </div>
-
               </article>
-
             ))}
 
           </div>
@@ -133,7 +128,7 @@ export default function KontakDarurat({
             CATATAN SEBELUM DATANG
             ================================================== */}
         {/* PANDUAN SEBELUM DATANG */}
-        <section className="kontak-guide-section">
+        <section className="kontak-guide-section reveal-on-scroll">
           <SectionHeader
             eyebrow="SEBELUM DATANG"
             title="Informasi yang Sebaiknya Disiapkan"
@@ -204,7 +199,7 @@ export default function KontakDarurat({
         {/* ==================================================
             MAP AREA
             ================================================== */}
-        <section className="kontak-area-section">
+        <section className="kontak-area-section reveal-on-scroll">
 
           <div className="kontak-area-image">
 
@@ -278,7 +273,7 @@ export default function KontakDarurat({
       </main>
 
 
-      <Footer />
+      <Footer onNavigate={onNavigate} />
 
     </div>
   );

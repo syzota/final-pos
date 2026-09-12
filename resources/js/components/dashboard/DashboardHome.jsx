@@ -302,11 +302,12 @@ export default function DashboardHome({ role, onViewChange }) {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
             <Button
               type="button"
               variant="primary"
-              style={{ flex: 1, justifyContent: 'center' }}
+              fullWidth
+              style={{ justifyContent: 'center' }}
               onClick={() => onViewChange('rekap-kegiatan')}
             >
               Rekap Laporan Bulanan
@@ -314,7 +315,8 @@ export default function DashboardHome({ role, onViewChange }) {
             <Button
               type="button"
               variant="secondary"
-              style={{ flex: 1, justifyContent: 'center' }}
+              fullWidth
+              style={{ justifyContent: 'center' }}
               onClick={() => onViewChange('pencatatan-kegiatan')}
             >
               Laporan 13 Poin

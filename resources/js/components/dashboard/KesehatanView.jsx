@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Button from '../common/Button';
 import NotificationModal from '../common/NotificationModal';
@@ -94,8 +95,8 @@ const TARGET_GROUPS = [
 export default function KesehatanView() {
   const [target, setTarget] = useState('balita');
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const [errorModal, setErrorModal] = useState({ isOpen: false, title: '', message: '' });
+  const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
+  const [errorModal, setErrorModal] = useState({ isOpen: false, title: '', message: '', details: null });
   const [draftSuccessModal, setDraftSuccessModal] = useState({ isOpen: false, title: '', message: '' });
   
   // === STATE FOTO DOKUMENTASI (HANYA 1 FOTO) ===
@@ -267,15 +268,24 @@ export default function KesehatanView() {
     fetchData();
   }, []);
 
-  // Kunci scroll saat modal draf atau modal status terbuka
+  // Kunci scroll saat modal draf atau modal status terbuka & dukung Escape key
   useEffect(() => {
     if (showDraftModal || draftSuccessModal.isOpen || errorModal.isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showDraftModal) setShowDraftModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [showDraftModal, draftSuccessModal.isOpen, errorModal.isOpen]);
 
@@ -540,137 +550,8 @@ export default function KesehatanView() {
     setLansiaData(updated);
   };
 
-  // === VALIDASI URUTAN PENGISIAN FORM (SEQUENTIAL VALIDATION) ===
-  const getFieldValidation = (kelompok, fieldName) => {
-    if (kelompok === 'balita') {
-      const hasSubsequent = Boolean(
-        balitaData.umur_bulan ||
-        balitaData.berat_badan ||
-        balitaData.tinggi_badan ||
-        balitaData.lingkar_kepala ||
-        balitaData.catatan_perkembangan ||
-        imunisasi.length > 0
-      );
-
-      if (fieldName === 'anak_id') {
-        if (!balitaData.anak_id && hasSubsequent) {
-          return { isError: true, message: 'Kolom ini wajib dipilih terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'berat_badan') {
-        const hasAfterBB = Boolean(balitaData.tinggi_badan || balitaData.lingkar_kepala || balitaData.catatan_perkembangan);
-        if (!balitaData.berat_badan && hasAfterBB) {
-          return { isError: true, message: 'Kolom berat badan wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'tinggi_badan') {
-        const hasAfterTB = Boolean(balitaData.lingkar_kepala || balitaData.catatan_perkembangan);
-        if (!balitaData.tinggi_badan && hasAfterTB) {
-          return { isError: true, message: 'Kolom tinggi badan wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      }
-    } else if (kelompok === 'remaja') {
-      const hasSubsequent = Boolean(
-        remajaData.umur_tahun ||
-        remajaData.tekanan_darah ||
-        remajaData.berat_badan ||
-        remajaData.tinggi_badan
-      );
-
-      if (fieldName === 'remaja_id') {
-        if (!remajaData.remaja_id && hasSubsequent) {
-          return { isError: true, message: 'Kolom ini wajib dipilih terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'nama_remaja_baru') {
-        if (remajaData.remaja_id === 'baru' && !remajaData.nama_remaja_baru && hasSubsequent) {
-          return { isError: true, message: 'Nama remaja baru wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'umur_tahun') {
-        const hasAfterUmur = Boolean(remajaData.tekanan_darah || remajaData.berat_badan || remajaData.tinggi_badan);
-        if (!remajaData.umur_tahun && hasAfterUmur) {
-          return { isError: true, message: 'Kolom umur wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'tekanan_darah') {
-        const hasAfterTD = Boolean(remajaData.berat_badan || remajaData.tinggi_badan);
-        if (!remajaData.tekanan_darah && hasAfterTD) {
-          return { isError: true, message: 'Kolom tekanan darah wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'berat_badan') {
-        const hasAfterBB = Boolean(remajaData.tinggi_badan);
-        if (!remajaData.berat_badan && hasAfterBB) {
-          return { isError: true, message: 'Kolom berat badan wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      }
-    } else if (kelompok === 'hamil') {
-      const hasSubsequent = Boolean(
-        hamilData.usia_kehamilan_minggu ||
-        hamilData.tekanan_darah ||
-        hamilData.berat_badan ||
-        hamilData.tinggi_badan ||
-        hamilData.lingkar_lengan
-      );
-
-      if (fieldName === 'ibu_id') {
-        if (!hamilData.ibu_id && hasSubsequent) {
-          return { isError: true, message: 'Kolom ini wajib dipilih terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'nama_ibu_baru') {
-        if (hamilData.ibu_id === 'baru' && !hamilData.nama_ibu_baru && hasSubsequent) {
-          return { isError: true, message: 'Nama ibu baru wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'usia_kehamilan_minggu') {
-        const hasAfterUsia = Boolean(hamilData.tekanan_darah || hamilData.berat_badan || hamilData.tinggi_badan || hamilData.lingkar_lengan);
-        if (!hamilData.usia_kehamilan_minggu && hasAfterUsia) {
-          return { isError: true, message: 'Kolom usia kehamilan wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'tekanan_darah') {
-        const hasAfterTD = Boolean(hamilData.berat_badan || hamilData.tinggi_badan || hamilData.lingkar_lengan);
-        if (!hamilData.tekanan_darah && hasAfterTD) {
-          return { isError: true, message: 'Kolom tensi darah wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'berat_badan') {
-        const hasAfterBB = Boolean(hamilData.tinggi_badan || hamilData.lingkar_lengan);
-        if (!hamilData.berat_badan && hasAfterBB) {
-          return { isError: true, message: 'Kolom berat badan wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'tinggi_badan') {
-        const hasAfterTB = Boolean(hamilData.lingkar_lengan);
-        if (!hamilData.tinggi_badan && hasAfterTB) {
-          return { isError: true, message: 'Kolom tinggi badan wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      }
-    } else if (kelompok === 'lansia') {
-      const hasSubsequent = Boolean(
-        lansiaData.gula_darah ||
-        lansiaData.tekanan_darah ||
-        lansiaData.berat_badan ||
-        lansiaData.tinggi_badan
-      );
-
-      if (fieldName === 'lansia_id') {
-        if (!lansiaData.lansia_id && hasSubsequent) {
-          return { isError: true, message: 'Kolom ini wajib dipilih terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'nama_lansia_baru') {
-        if (lansiaData.lansia_id === 'baru' && !lansiaData.nama_lansia_baru && hasSubsequent) {
-          return { isError: true, message: 'Nama lansia baru wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'gula_darah') {
-        const hasAfterGula = Boolean(lansiaData.tekanan_darah || lansiaData.berat_badan || lansiaData.tinggi_badan);
-        if (!lansiaData.gula_darah && hasAfterGula) {
-          return { isError: true, message: 'Kolom gula darah wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'tekanan_darah') {
-        const hasAfterTD = Boolean(lansiaData.berat_badan || lansiaData.tinggi_badan);
-        if (!lansiaData.tekanan_darah && hasAfterTD) {
-          return { isError: true, message: 'Kolom tekanan darah wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      } else if (fieldName === 'berat_badan') {
-        const hasAfterBB = Boolean(lansiaData.tinggi_badan);
-        if (!lansiaData.berat_badan && hasAfterBB) {
-          return { isError: true, message: 'Kolom berat badan wajib diisi terlebih dahulu dan tidak boleh kosong' };
-        }
-      }
-    }
-
+  // === VALIDASI FORM: Mengizinkan pengisian fleksibel tanpa error urutan ===
+  const getFieldValidation = () => {
     return { isError: false, message: '' };
   };
 
@@ -703,14 +584,16 @@ export default function KesehatanView() {
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
       let pesanError = err.response?.data?.message || err.response?.data?.pesan || err.message;
+      let errDetails = null;
       if (err.response?.data?.errors) {
-        const firstErrorKey = Object.keys(err.response.data.errors)[0];
-        pesanError = err.response.data.errors[firstErrorKey][0];
+        errDetails = Object.values(err.response.data.errors).flat();
+        pesanError = errDetails[0] || pesanError;
       }
       setErrorModal({
         isOpen: true,
-        title: 'Gagal Menyimpan Data',
-        message: pesanError || 'Terjadi kesalahan saat menyimpan data pemeriksaan. Silakan periksa kembali kelengkapan form.'
+        title: 'Gagal Menyimpan Data Pemeriksaan',
+        message: pesanError || 'Terjadi kesalahan saat menyimpan data pemeriksaan. Silakan periksa kembali kelengkapan form.',
+        details: errDetails && errDetails.length > 1 ? errDetails : null
       });
     } finally {
       setIsLoading(false);
@@ -740,14 +623,22 @@ export default function KesehatanView() {
     };
 
     if (kelompok === 'balita') {
-      if (statusForm === 'final' && !balitaData.anak_id) {
+      const missing = [];
+      if (!balitaData.anak_id) missing.push('Nama anak / balita belum dipilih');
+      if (!balitaData.berat_badan || Number(balitaData.berat_badan) <= 0) missing.push('Berat badan (kg) belum diisi');
+      if (!balitaData.tinggi_badan || Number(balitaData.tinggi_badan) <= 0) missing.push('Tinggi badan (cm) belum diisi');
+      if (!balitaData.umur_bulan) missing.push('Umur balita (bulan) belum diisi');
+
+      if (statusForm === 'final' && missing.length > 0) {
         setErrorModal({
           isOpen: true,
-          title: 'Nama Anak Belum Dipilih',
-          message: 'Silakan pilih nama anak / balita yang terdaftar sebelum menyimpan data final.'
+          title: 'Data Pemeriksaan Balita Belum Lengkap',
+          message: 'Mohon lengkapi parameter pemeriksaan fisik balita berikut:',
+          details: missing
         });
         return;
       }
+
       appendSafeData(balitaData, 'anak_id');
       imunisasi.forEach((item, index) => formData.append(`imunisasi[${index}]`, item));
       submitData('/api/pemeriksaan-balita', formData, () => {
@@ -768,14 +659,21 @@ export default function KesehatanView() {
         }
       }, isDraft);
     } else if (kelompok === 'remaja') {
-      if (statusForm === 'final' && !remajaData.remaja_id && !remajaData.nama_remaja_baru) {
+      const missing = [];
+      if (!remajaData.remaja_id && !remajaData.nama_remaja_baru?.trim()) missing.push('Nama remaja belum dipilih atau diisi');
+      if (!remajaData.berat_badan || Number(remajaData.berat_badan) <= 0) missing.push('Berat badan (kg) belum diisi');
+      if (!remajaData.tinggi_badan || Number(remajaData.tinggi_badan) <= 0) missing.push('Tinggi badan (cm) belum diisi');
+
+      if (statusForm === 'final' && missing.length > 0) {
         setErrorModal({
           isOpen: true,
-          title: 'Nama Remaja Belum Dipilih',
-          message: 'Silakan pilih nama remaja terdaftar atau masukkan nama baru sebelum menyimpan data final.'
+          title: 'Data Pemeriksaan Remaja Belum Lengkap',
+          message: 'Mohon lengkapi parameter pemeriksaan remaja berikut:',
+          details: missing
         });
         return;
       }
+
       appendSafeData(remajaData, 'remaja_id');
       submitData('/api/pemeriksaan-remaja', formData, () => {
         if (statusForm === 'final') {
@@ -794,14 +692,22 @@ export default function KesehatanView() {
         }
       }, isDraft);
     } else if (kelompok === 'hamil') {
-      if (statusForm === 'final' && !hamilData.ibu_id && !hamilData.nama_ibu_baru) {
+      const missing = [];
+      if (!hamilData.ibu_id && !hamilData.nama_ibu_baru?.trim()) missing.push('Nama ibu hamil belum dipilih atau diisi');
+      if (!hamilData.berat_badan || Number(hamilData.berat_badan) <= 0) missing.push('Berat badan (kg) belum diisi');
+      if (!hamilData.tinggi_badan || Number(hamilData.tinggi_badan) <= 0) missing.push('Tinggi badan (cm) belum diisi');
+      if (!hamilData.usia_kehamilan_minggu) missing.push('Usia kehamilan (minggu) belum diisi');
+
+      if (statusForm === 'final' && missing.length > 0) {
         setErrorModal({
           isOpen: true,
-          title: 'Nama Ibu Hamil Belum Dipilih',
-          message: 'Silakan pilih nama ibu hamil terdaftar atau masukkan nama baru sebelum menyimpan data final.'
+          title: 'Data Pemeriksaan Ibu Hamil Belum Lengkap',
+          message: 'Mohon lengkapi parameter pemeriksaan ibu hamil berikut:',
+          details: missing
         });
         return;
       }
+
       appendSafeData(hamilData, 'ibu_id');
       submitData('/api/pemeriksaan-hamil', formData, () => {
         if (statusForm === 'final') {
@@ -823,14 +729,22 @@ export default function KesehatanView() {
         }
       }, isDraft);
     } else if (kelompok === 'lansia') {
-      if (statusForm === 'final' && !lansiaData.lansia_id && !lansiaData.nama_lansia_baru) {
+      const missing = [];
+      if (!lansiaData.lansia_id && !lansiaData.nama_lansia_baru?.trim()) missing.push('Nama lansia belum dipilih atau diisi');
+      if (!lansiaData.berat_badan || Number(lansiaData.berat_badan) <= 0) missing.push('Berat badan (kg) belum diisi');
+      if (!lansiaData.tinggi_badan || Number(lansiaData.tinggi_badan) <= 0) missing.push('Tinggi badan (cm) belum diisi');
+      if (!lansiaData.tekanan_darah?.trim()) missing.push('Tekanan darah (mmHg) belum diisi');
+
+      if (statusForm === 'final' && missing.length > 0) {
         setErrorModal({
           isOpen: true,
-          title: 'Nama Lansia Belum Dipilih',
-          message: 'Silakan pilih nama orang tua / lansia terdaftar atau masukkan nama baru sebelum menyimpan data final.'
+          title: 'Data Pemeriksaan Lansia Belum Lengkap',
+          message: 'Mohon lengkapi parameter pemeriksaan lansia berikut:',
+          details: missing
         });
         return;
       }
+
       appendSafeData(lansiaData, 'lansia_id');
       submitData('/api/pemeriksaan-lansia', formData, () => {
         if (statusForm === 'final') {
@@ -874,7 +788,7 @@ export default function KesehatanView() {
   return (
     <>
       {/* POP-UP MODAL PILIH DRAF (SEMUA KATEGORI SASARAN) */}
-      {showDraftModal && (
+      {showDraftModal && createPortal(
         <div
           style={{
             position: 'fixed',
@@ -884,13 +798,15 @@ export default function KesehatanView() {
             bottom: 0,
             backgroundColor: 'rgba(15, 23, 42, 0.7)',
             backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 10000,
+            zIndex: 99999,
             padding: '16px'
           }}
           onClick={() => setShowDraftModal(false)}
+          onTouchMove={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
         >
           <div
             style={{
@@ -1042,7 +958,8 @@ export default function KesehatanView() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Universal Notification Modal untuk Draft / Success */}
@@ -1061,16 +978,19 @@ export default function KesehatanView() {
         type="error"
         title={errorModal.title || 'Gagal Menyimpan Data'}
         message={errorModal.message}
-        onClose={() => setErrorModal({ ...errorModal, isOpen: false })}
+        details={errorModal.details}
+        onClose={() => setErrorModal({ ...errorModal, isOpen: false, details: null })}
         confirmText="Tutup & Perbaiki Form"
       />
 
       {/* Universal Notification Modal untuk Pesan Sistem */}
       <NotificationModal
-        isOpen={Boolean(message.text)}
+        isOpen={Boolean(message.text || message.title)}
         type={message.type || 'success'}
+        title={message.title}
         message={message.text}
-        onClose={() => setMessage({ type: '', text: '' })}
+        details={message.details}
+        onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
       />
 
       {/* STYLES KHUSUS LAYOUT KESEHATAN */}
@@ -1173,7 +1093,7 @@ export default function KesehatanView() {
           border: '1.5px solid var(--line, #e2e8f0)'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
               style={{
@@ -1184,7 +1104,8 @@ export default function KesehatanView() {
                 color: 'var(--primary-teal, #008080)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                flexShrink: 0
               }}
             >
               <Activity01Icon size={20} />
@@ -1203,15 +1124,17 @@ export default function KesehatanView() {
             type="button"
             onClick={openDraftModal}
             style={{
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
-              padding: '8px 16px',
+              width: '100%',
+              padding: '12px 16px',
               borderRadius: '10px',
               backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
               border: '1.5px solid #99f6e4',
               color: 'var(--primary-teal, #008080)',
-              fontSize: '13px',
+              fontSize: '13.5px',
               fontWeight: 700,
               cursor: 'pointer',
               transition: 'all 0.15s ease'
@@ -1513,7 +1436,7 @@ export default function KesehatanView() {
                   disabled={isLoading}
                   style={{ flex: 1, minHeight: '44px', borderRadius: '10px', border: 'none', backgroundColor: 'var(--primary-teal, #008080)', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}
                 >
-                  {isLoading ? 'Menyimpan...' : 'Simpan Data Final'}
+                  {isLoading ? 'Menyimpan...' : 'Simpan Data'}
                 </button>
               </div>
             </div>
@@ -1708,7 +1631,7 @@ export default function KesehatanView() {
                   loadingText="Menyimpan..."
                   style={{ flex: 1 }}
                 >
-                  Simpan Data Final
+                  Simpan Data
                 </Button>
               </div>
             </div>
@@ -1911,7 +1834,7 @@ export default function KesehatanView() {
                   loadingText="Menyimpan..."
                   style={{ flex: 1 }}
                 >
-                  Simpan Data Final
+                  Simpan Data
                 </Button>
               </div>
             </div>
@@ -2106,7 +2029,7 @@ export default function KesehatanView() {
                   loadingText="Menyimpan..."
                   style={{ flex: 1 }}
                 >
-                  Simpan Data Final
+                  Simpan Data
                 </Button>
               </div>
             </div>

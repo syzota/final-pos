@@ -16,10 +16,66 @@ import {
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const PROFIL_TABS = [
-  { id: 'identitas', label: 'Identitas & Strata SIP', icon: Building01Icon },
-  { id: 'pengurus', label: 'Struktur Pengurus & Kader', icon: UserGroupIcon },
-  { id: 'sarana', label: 'Sarana & Alat Penimbangan', icon: Activity01Icon },
-  { id: 'lokasi', label: 'Dokumentasi & Lokasi G-Maps', icon: Image01Icon },
+  {
+    id: 'identitas',
+    title: 'Identitas SIP',
+    subtitle: 'Strata & Legalitas',
+    formTitle: 'Identitas Posyandu & Lembaga SIP',
+    icon: Building01Icon,
+    theme: {
+      primary: '#1d4ed8',
+      accent: '#3b82f6',
+      lightBg: '#eff6ff',
+      lightBorder: '#bfdbfe',
+      textColor: '#1e40af',
+      badgeBg: '#eff6ff'
+    }
+  },
+  {
+    id: 'pengurus',
+    title: 'Pengurus & Kader',
+    subtitle: 'Struktur & Tenaga Medis',
+    formTitle: 'Struktur Pengurus & Tenaga Pelaksana',
+    icon: UserGroupIcon,
+    theme: {
+      primary: '#7c3aed',
+      accent: '#8b5cf6',
+      lightBg: '#f5f3ff',
+      lightBorder: '#ddd6fe',
+      textColor: '#6d28d9',
+      badgeBg: '#f5f3ff'
+    }
+  },
+  {
+    id: 'sarana',
+    title: 'Sarana & Alat SIP',
+    subtitle: 'Timbangan, Dacin & APE',
+    formTitle: 'Sarana, Prasarana & Alat Penimbangan (SIP)',
+    icon: Activity01Icon,
+    theme: {
+      primary: '#d97706',
+      accent: '#f59e0b',
+      lightBg: '#fffbeb',
+      lightBorder: '#fde68a',
+      textColor: '#b45309',
+      badgeBg: '#fffbeb'
+    }
+  },
+  {
+    id: 'lokasi',
+    title: 'Dokumentasi & Lokasi',
+    subtitle: 'Foto Bangunan & G-Maps',
+    formTitle: 'Dokumentasi Bangunan & Titik Lokasi Google Maps',
+    icon: Image01Icon,
+    theme: {
+      primary: '#e11d48',
+      accent: '#f43f5e',
+      lightBg: '#fff1f2',
+      lightBorder: '#fecdd3',
+      textColor: '#be123c',
+      badgeBg: '#fff1f2'
+    }
+  },
 ];
 
 export default function ProfilView() {
@@ -50,28 +106,29 @@ export default function ProfilView() {
       try {
         const token = localStorage.getItem('auth_token');
         const response = await axios.get('/api/posyandu/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data.data) {
           const dataDariDb = response.data.data;
           setFormData(prev => ({ ...prev, ...dataDariDb }));
-          if (dataDariDb.foto) {
-            setFotoPreview(`/storage/${dataDariDb.foto}`);
+          if (dataDariDb.foto || dataDariDb.path_foto_bangunan) {
+            setFotoPreview(`/storage/${dataDariDb.foto || dataDariDb.path_foto_bangunan}`);
           }
         }
-      } catch (err) {
-        console.error('Gagal memuat profil posyandu', err);
+      } catch (error) {
+        console.error('Gagal mengambil data profil:', error);
       }
     };
     fetchProfil();
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files[0];
     if (file) {
       setFoto(file);
       setFotoPreview(URL.createObjectURL(file));
@@ -79,14 +136,13 @@ export default function ProfilView() {
   };
 
   const handleSave = async (e) => {
-    if (e) e.preventDefault();
+    e.preventDefault();
     setIsLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
       const token = localStorage.getItem('auth_token');
       const submitData = new FormData();
-
       const blacklist = ['jadwal', 'id', 'created_at', 'updated_at', 'foto', 'no_telepon'];
 
       Object.keys(formData).forEach(key => {
@@ -95,16 +151,21 @@ export default function ProfilView() {
         }
       });
 
-      if (foto) submitData.append('foto', foto);
+      if (foto) {
+        submitData.append('foto', foto);
+      }
 
-      await axios.post('/api/posyandu/me/update', submitData, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+      const response = await axios.post('/api/posyandu/me/update', submitData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
-      setMessage({ type: 'success', text: 'Seluruh data Profil, Sarana, dan Lokasi Posyandu berhasil disimpan!' });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) {
-      const errMsg = err.response?.data?.message || err.message;
-      setMessage({ type: 'error', text: `Gagal menyimpan profil: ${errMsg}` });
+
+      setMessage({ type: 'success', text: response.data.pesan || 'Data Profil & Sarana Posyandu berhasil disimpan!' });
+    } catch (error) {
+      console.error('Gagal menyimpan profil:', error);
+      setMessage({ type: 'error', text: error.response?.data?.pesan || error.response?.data?.message || 'Gagal menyimpan profil posyandu.' });
     } finally {
       setIsLoading(false);
     }
@@ -115,12 +176,11 @@ export default function ProfilView() {
     setIsPrinting(true);
     setTimeout(() => {
       window.print();
-      setTimeout(() => {
-        setIsPrinting(false);
-        setPrintSection(null);
-      }, 500);
-    }, 150);
+      setIsPrinting(false);
+    }, 400);
   };
+
+  const currentTab = PROFIL_TABS.find((t) => t.id === activeTab) || PROFIL_TABS[0];
 
   return (
     <>
@@ -147,27 +207,28 @@ export default function ProfilView() {
           .no-print { display: none !important; }
         }
 
-        .profil-tabs-grid {
+        .sasaran-tab-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 12px;
           width: 100%;
         }
-        @media (max-width: 900px) {
-          .profil-tabs-grid {
+        @media (max-width: 1080px) {
+          .sasaran-tab-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
           }
         }
-        @media (max-width: 520px) {
-          .profil-tabs-grid {
+        @media (max-width: 580px) {
+          .sasaran-tab-grid {
             grid-template-columns: 1fr !important;
           }
         }
-        .profil-tab-btn {
+        .sasaran-btn {
           min-width: 0;
+          width: 100%;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           padding: 12px 14px;
           border-radius: 12px;
           border-width: 1.5px;
@@ -175,11 +236,11 @@ export default function ProfilView() {
           cursor: pointer;
           text-align: left;
           outline: none;
-          min-height: 54px;
+          min-height: 60px;
           box-sizing: border-box;
-          transition: all 0.15s ease;
+          transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
         }
-        .profil-tab-btn:hover {
+        .sasaran-btn:hover {
           transform: translateY(-1px);
         }
       `}</style>
@@ -196,44 +257,48 @@ export default function ProfilView() {
             border: '1.5px solid var(--line, #e2e8f0)'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div
                 style={{
                   width: '38px',
                   height: '38px',
                   borderRadius: '10px',
-                  backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
-                  color: 'var(--primary-teal, #008080)',
+                  backgroundColor: '#eff6ff',
+                  color: '#1d4ed8',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}
               >
                 <Building01Icon size={20} />
               </div>
               <div>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--ink, #0f172a)', margin: 0 }}>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
                   Profil & Sarana Posyandu (SIP)
-                </h3>
-                <span style={{ fontSize: '12px', color: 'var(--ink-soft, #64748b)' }}>
-                  {formData.nama ? `${formData.nama} • Desa Loa Duri Ulu` : 'Kelola data identitas, sarana, dan pengurus posyandu'}
-                </span>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--ink-soft, #64748b)', fontWeight: 500, marginTop: '2px' }}>
+                  {formData.nama ? `${formData.nama} • Desa Loa Duri Ulu` : 'Kelola identitas, strata posyandu, struktur kepengurusan kader, dan sarana SIP'}
+                </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {/* Tombol Cetak Dokumen SIP menggunakan komponen Button standar */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
               <Button
-                variant="outline"
-                size="sm"
+                variant="secondary"
+                size="md"
+                fullWidth
                 icon={PrinterIcon}
                 onClick={() => handlePrint('profil')}
               >
                 Cetak Profil SIP
               </Button>
               <Button
-                variant="teal"
-                size="sm"
+                variant="secondary"
+                size="md"
+                fullWidth
                 icon={PrinterIcon}
                 onClick={() => handlePrint('sarana')}
               >
@@ -242,7 +307,8 @@ export default function ProfilView() {
             </div>
           </div>
 
-          <div className="profil-tabs-grid">
+          {/* TAB BUTTONS (4 Grid) */}
+          <div className="sasaran-tab-grid">
             {PROFIL_TABS.map((tab) => {
               const isSelected = activeTab === tab.id;
               const TabIcon = tab.icon;
@@ -250,32 +316,61 @@ export default function ProfilView() {
                 <button
                   key={tab.id}
                   type="button"
-                  className="profil-tab-btn"
-                  onClick={() => setActiveTab(tab.id)}
+                  className="sasaran-btn"
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setMessage({ type: '', text: '' });
+                  }}
                   style={{
-                    borderColor: isSelected ? 'var(--primary-teal, #008080)' : '#e2e8f0',
-                    backgroundColor: isSelected ? 'var(--primary-teal, #008080)' : '#ffffff',
-                    color: isSelected ? '#ffffff' : '#334155'
+                    borderColor: isSelected ? tab.theme.primary : tab.theme.lightBorder,
+                    backgroundColor: isSelected ? tab.theme.primary : tab.theme.lightBg,
+                    color: isSelected ? '#ffffff' : tab.theme.textColor
                   }}
                 >
                   <div
                     style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '8px',
-                      backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : 'var(--primary-teal-light, #e6f3f3)',
-                      color: isSelected ? '#ffffff' : 'var(--primary-teal, #008080)',
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '10px',
+                      backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.2)' : '#ffffff',
+                      color: isSelected ? '#ffffff' : tab.theme.primary,
+                      border: isSelected ? 'none' : `1px solid ${tab.theme.lightBorder}`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0
                     }}
                   >
-                    <TabIcon size={16} />
+                    <TabIcon size={20} />
                   </div>
-                  <span style={{ fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {tab.label}
-                  </span>
+                  <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        fontSize: '13.5px',
+                        fontWeight: 800,
+                        lineHeight: 1.25,
+                        color: isSelected ? '#ffffff' : tab.theme.textColor,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {tab.title}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '11.5px',
+                        fontWeight: 600,
+                        marginTop: '2px',
+                        color: isSelected ? 'rgba(255, 255, 255, 0.85)' : 'var(--ink-soft, #64748b)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {tab.subtitle}
+                    </div>
+                  </div>
                 </button>
               );
             })}
@@ -302,9 +397,39 @@ export default function ProfilView() {
                 border: '1.5px solid var(--line, #e2e8f0)'
               }}
             >
-              <h3 style={{ margin: '0 0 18px 0', fontSize: '16px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
-                Identitas Posyandu & Lembaga SIP
-              </h3>
+              {/* Eyebrow & Headline Form Header */}
+              <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: currentTab.theme.primary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Formulir Profil Posyandu Aktif
+                    </span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                    {currentTab.formTitle}
+                  </h3>
+                </div>
+                <span
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    borderRadius: '10px',
+                    backgroundColor: currentTab.theme.lightBg,
+                    color: currentTab.theme.textColor,
+                    border: `1px solid ${currentTab.theme.lightBorder}`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                  {currentTab.subtitle}
+                </span>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Kode Kecamatan</label>
@@ -368,9 +493,39 @@ export default function ProfilView() {
                 border: '1.5px solid var(--line, #e2e8f0)'
               }}
             >
-              <h3 style={{ margin: '0 0 18px 0', fontSize: '16px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
-                Struktur Pengurus & Tenaga Pelaksana
-              </h3>
+              {/* Eyebrow & Headline Form Header */}
+              <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: currentTab.theme.primary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Formulir Profil Posyandu Aktif
+                    </span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                    {currentTab.formTitle}
+                  </h3>
+                </div>
+                <span
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    borderRadius: '10px',
+                    backgroundColor: currentTab.theme.lightBg,
+                    color: currentTab.theme.textColor,
+                    border: `1px solid ${currentTab.theme.lightBorder}`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                  {currentTab.subtitle}
+                </span>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Penanggung Jawab Umum</label>
@@ -431,9 +586,39 @@ export default function ProfilView() {
                 border: '1.5px solid var(--line, #e2e8f0)'
               }}
             >
-              <h3 style={{ margin: '0 0 18px 0', fontSize: '16px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
-                Sarana, Prasarana & Alat Penimbangan (SIP)
-              </h3>
+              {/* Eyebrow & Headline Form Header */}
+              <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: currentTab.theme.primary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Formulir Profil Posyandu Aktif
+                    </span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                    {currentTab.formTitle}
+                  </h3>
+                </div>
+                <span
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    borderRadius: '10px',
+                    backgroundColor: currentTab.theme.lightBg,
+                    color: currentTab.theme.textColor,
+                    border: `1px solid ${currentTab.theme.lightBorder}`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                  {currentTab.subtitle}
+                </span>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tempat Pelayanan</label>
@@ -501,9 +686,39 @@ export default function ProfilView() {
                 border: '1.5px solid var(--line, #e2e8f0)'
               }}
             >
-              <h3 style={{ margin: '0 0 18px 0', fontSize: '16px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
-                Dokumentasi Bangunan & Titik Lokasi Google Maps
-              </h3>
+              {/* Eyebrow & Headline Form Header */}
+              <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: currentTab.theme.primary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Formulir Profil Posyandu Aktif
+                    </span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                    {currentTab.formTitle}
+                  </h3>
+                </div>
+                <span
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    borderRadius: '10px',
+                    backgroundColor: currentTab.theme.lightBg,
+                    color: currentTab.theme.textColor,
+                    border: `1px solid ${currentTab.theme.lightBorder}`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: currentTab.theme.primary }}></span>
+                  {currentTab.subtitle}
+                </span>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
                 <div>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Foto Bangunan Posyandu</label>
@@ -545,17 +760,18 @@ export default function ProfilView() {
             </div>
           )}
 
-          {/* ANCHORED SAVE BUTTON */}
-          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+          {/* FULL WIDTH SAVE BUTTON */}
+          <div style={{ marginTop: '24px' }}>
             <Button
               type="submit"
               variant="primary"
               size="lg"
               icon={FloppyDiskIcon}
               loading={isLoading}
-              loadingText="Menyimpan Perubahan..."
+              loadingText="Menyimpan Data..."
+              fullWidth
             >
-              Simpan Seluruh Data Posyandu
+              Simpan Data
             </Button>
           </div>
         </form>

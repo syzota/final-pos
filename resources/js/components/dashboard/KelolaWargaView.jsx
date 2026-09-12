@@ -104,40 +104,90 @@ export default function KelolaWargaView({ posyandu }) {
     setAnakList(newList);
   };
 
-  const handleResetPassword = async (id, nama) => {
-    if (window.confirm(`Reset PIN akun warga "${nama}" menjadi default (123456)?`)) {
-      try {
-        const token = localStorage.getItem('auth_token');
-        const response = await axios.post(`/api/warga/${id}/reset-password`, {}, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setMessage({ type: 'success', text: response.data.pesan || `PIN untuk ${nama} berhasil direset ke 123456.` });
-      } catch (err) {
-        setMessage({ type: 'error', text: 'Gagal mereset PIN warga.' });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger', confirmText: 'Ya, Lanjutkan' });
+
+  const handleResetPassword = (id, nama) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Konfirmasi Reset PIN',
+      message: `Apakah Anda yakin ingin mereset PIN akun warga "${nama}" kembali ke default (000000)?`,
+      confirmVariant: 'danger',
+      confirmText: 'Ya, Reset PIN',
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem('auth_token');
+          const response = await axios.put(`/api/warga/${id}/reset-password`, {}, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          setMessage({ type: 'success', title: 'Reset PIN Berhasil', text: response.data.pesan || `PIN untuk ${nama} berhasil direset ke 000000.` });
+        } catch (err) {
+          setMessage({ type: 'error', title: 'Gagal Reset PIN', text: err.response?.data?.pesan || 'Gagal mereset PIN akun warga.' });
+        }
       }
-    }
+    });
   };
 
-  const handleDeleteWarga = async (id, nama) => {
-    if (window.confirm(`Yakin ingin menghapus seluruh data keluarga "${nama}"? Tindakan ini tidak dapat dibatalkan.`)) {
-      try {
-        const token = localStorage.getItem('auth_token');
-        await axios.delete(`/api/warga/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setMessage({ type: 'success', text: `Data keluarga ${nama} berhasil dihapus.` });
-        fetchWarga();
-      } catch (err) {
-        setMessage({ type: 'error', text: 'Gagal menghapus data warga.' });
+  const handleDeleteWarga = (id, nama) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Konfirmasi Hapus Keluarga',
+      message: `Apakah Anda yakin ingin menghapus seluruh data keluarga "${nama}" secara permanen? Seluruh riwayat catatan kesehatan terkait juga akan terhapus.`,
+      confirmVariant: 'danger',
+      confirmText: 'Ya, Hapus Data',
+      onConfirm: async () => {
+        try {
+          const token = localStorage.getItem('auth_token');
+          await axios.delete(`/api/warga/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          setMessage({ type: 'success', title: 'Data Berhasil Dihapus', text: `Data keluarga ${nama} telah berhasil dihapus dari sistem.` });
+          fetchWarga();
+        } catch (err) {
+          setMessage({ type: 'error', title: 'Gagal Menghapus Data', text: 'Gagal menghapus data keluarga warga.' });
+        }
       }
-    }
+    });
   };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    setErrors({});
+
+    // Client-side completeness check
+    const missing = [];
+    if (!formData.nama_lengkap.trim()) missing.push('Nama Kepala Keluarga wajib diisi.');
+    if (!formData.no_kk.trim()) {
+      missing.push('No. Kartu Keluarga (KK) wajib diisi.');
+    } else if (formData.no_kk.trim().length !== 16 || isNaN(formData.no_kk.trim())) {
+      missing.push('No. Kartu Keluarga (KK) harus tepat 16 digit angka.');
+    }
+    if (formData.nik.trim() && (formData.nik.trim().length !== 16 || isNaN(formData.nik.trim()))) {
+      missing.push('NIK harus tepat 16 digit angka jika diisi.');
+    }
+
+    // Validasi data anak yang diisi
+    anakList.forEach((a, i) => {
+      const hasNama = Boolean(a.nama && a.nama.trim());
+      const hasTgl = Boolean(a.tanggal_lahir && a.tanggal_lahir.trim());
+      if (hasNama && !hasTgl) {
+        missing.push(`Data anak ke-${i + 1} (${a.nama}): Tanggal lahir wajib diisi.`);
+      } else if (!hasNama && hasTgl) {
+        missing.push(`Data anak ke-${i + 1}: Nama lengkap anak wajib diisi.`);
+      }
+    });
+
+    if (missing.length > 0) {
+      setMessage({
+        type: 'error',
+        title: 'Data Pendaftaran Belum Lengkap',
+        text: 'Mohon periksa dan lengkapi data formulir pendaftaran keluarga:',
+        details: missing
+      });
+      return;
+    }
+
     setIsLoading(true);
     setMessage({ type: '', text: '' });
-    setErrors({});
 
     try {
       const token = localStorage.getItem('auth_token');
@@ -151,7 +201,11 @@ export default function KelolaWargaView({ posyandu }) {
         headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
       });
 
-      setMessage({ type: 'success', text: response.data.pesan || 'Akun warga dan data keluarga berhasil dibuat.' });
+      setMessage({
+        type: 'success',
+        title: 'Pendaftaran Berhasil!',
+        text: response.data.pesan || `Akun keluarga atas nama ${formData.nama_lengkap} berhasil didaftarkan.`
+      });
       setFormData({
         nama_lengkap: '',
         jenis_kelamin: 'L',
@@ -167,16 +221,28 @@ export default function KelolaWargaView({ posyandu }) {
       if (err.response?.status === 422) {
         const backendErrors = err.response.data.errors || {};
         const localErrors = {};
+        const errorList = [];
         Object.keys(backendErrors).forEach((key) => {
+          const errItem = Array.isArray(backendErrors[key]) ? backendErrors[key][0] : backendErrors[key];
           if (FORM_FIELDS.includes(key)) {
-            localErrors[key] = Array.isArray(backendErrors[key]) ? backendErrors[key][0] : backendErrors[key];
+            localErrors[key] = errItem;
           }
+          errorList.push(errItem);
         });
         setErrors(localErrors);
-        setMessage({ type: 'error', text: 'Terdapat isian yang belum sesuai validasi.' });
+        setMessage({
+          type: 'error',
+          title: 'Validasi Data Gagal',
+          text: 'Terdapat isian yang belum sesuai dengan kriteria sistem:',
+          details: errorList
+        });
       } else {
-        const pesan = err.response?.data?.message || err.message;
-        setMessage({ type: 'error', text: `Gagal: ${pesan}` });
+        const pesan = err.response?.data?.pesan || err.response?.data?.message || err.message;
+        setMessage({
+          type: 'error',
+          title: 'Gagal Menyimpan Data',
+          text: `Terjadi kendala saat menyimpan data keluarga: ${pesan}`
+        });
       }
     } finally {
       setIsLoading(false);
@@ -211,10 +277,24 @@ export default function KelolaWargaView({ posyandu }) {
 
       <div style={{ animation: 'fadein 0.3s ease' }}>
         <NotificationModal
-          isOpen={Boolean(message.text)}
+          isOpen={Boolean(message.text || message.details)}
           type={message.type || 'success'}
+          title={message.title}
           message={message.text}
-          onClose={() => setMessage({ type: '', text: '' })}
+          details={message.details}
+          onClose={() => setMessage({ type: '', title: '', text: '', details: null })}
+        />
+
+        <NotificationModal
+          isOpen={confirmModal.isOpen}
+          type="confirm"
+          isConfirm={true}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmText={confirmModal.confirmText}
+          confirmVariant={confirmModal.confirmVariant}
+          onConfirm={confirmModal.onConfirm}
+          onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null })}
         />
 
         <div className="warga-grid-container">
@@ -495,7 +575,7 @@ export default function KelolaWargaView({ posyandu }) {
                   </div>
                 )}
 
-                <div className="form-field">
+                <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>NIK (16 Digit Angka)</label>
                   <input
                     type="text"
@@ -511,7 +591,7 @@ export default function KelolaWargaView({ posyandu }) {
                   {errors.nik && <span style={{ color: '#ef4444', fontSize: '11.5px', marginTop: '2px', display: 'block' }}>{errors.nik}</span>}
                 </div>
 
-                <div className="form-field">
+                <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>No. Kartu Keluarga (KK) *</label>
                   <input
                     type="text"
@@ -552,10 +632,10 @@ export default function KelolaWargaView({ posyandu }) {
                     variant="teal"
                     size="sm"
                     icon={Add01Icon}
+                    iconOnly
                     onClick={handleAddAnak}
-                  >
-                    Tambah Anak
-                  </Button>
+                    title="Tambah Data Anak"
+                  />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -591,19 +671,23 @@ export default function KelolaWargaView({ posyandu }) {
                         onChange={(e) => handleAnakChange(index, 'jenis_kelamin', e.target.value)}
                         style={{ width: '100%', minHeight: '38px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 8px', fontSize: '12.5px', backgroundColor: '#fff' }}
                       >
-                        <option value="L">L</option>
-                        <option value="P">P</option>
+                        <option value="L">Laki-Laki</option>
+                        <option value="P">Perempuan</option>
                       </select>
-                      {anakList.length > 1 && (
-                        <Button
-                          variant="danger-outline"
-                          size="sm"
-                          iconOnly
-                          icon={Cancel01Icon}
-                          onClick={() => handleRemoveAnak(index)}
-                          title="Hapus Anak"
-                        />
-                      )}
+                      <Button
+                        variant="danger-outline"
+                        size="sm"
+                        iconOnly
+                        icon={Cancel01Icon}
+                        onClick={() => {
+                          if (anakList.length > 1) {
+                            handleRemoveAnak(index);
+                          } else {
+                            setAnakList([{ nama: '', tanggal_lahir: '', jenis_kelamin: 'L' }]);
+                          }
+                        }}
+                        title={anakList.length > 1 ? "Hapus Baris Anak" : "Kosongkan Input Anak"}
+                      />
                     </div>
                   ))}
                 </div>
@@ -615,10 +699,10 @@ export default function KelolaWargaView({ posyandu }) {
                 size="md"
                 icon={UserAdd01Icon}
                 loading={isLoading}
-                loadingText="Mendaftarkan Akun..."
+                loadingText="Menyimpan..."
                 fullWidth
               >
-                Daftarkan Akun Warga
+                Simpan Data
               </Button>
             </form>
           </div>

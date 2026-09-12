@@ -27,6 +27,7 @@ class PemeriksaanRemajaController extends Controller
             'dokumentasi_foto.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        $posyanduId = in_array($request->user()->role, ['kader', 'ketua']) ? $request->user()->posyandu_id : null;
         $remajaId = $request->remaja_id;
 
         if (! $remajaId || $remajaId === 'baru' || $remajaId === 'null') {
@@ -38,6 +39,28 @@ class PemeriksaanRemajaController extends Controller
                 'keluarga_id' => null,
             ]);
             $remajaId = $remajaBaru->id;
+        } elseif ($posyanduId) {
+            $remajaValid = WargaRemaja::where('id', $remajaId)
+                ->where(function ($q) use ($posyanduId) {
+                    $q->whereNull('keluarga_id')
+                        ->orWhereHas('keluarga', fn ($k) => $k->where('posyandu_id', $posyanduId));
+                })
+                ->exists();
+            if (! $remajaValid) {
+                return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data remaja bukan dari Posyandu Anda.'], 403);
+            }
+        }
+
+        if ($posyanduId && $request->filled('pemeriksaan_id')) {
+            $pemeriksaanValid = PemeriksaanRemaja::where('id', $request->pemeriksaan_id)
+                ->where(function ($q) use ($posyanduId) {
+                    $q->whereHas('kader', fn ($k) => $k->where('posyandu_id', $posyanduId))
+                        ->orWhereHas('remaja.keluarga', fn ($k) => $k->where('posyandu_id', $posyanduId));
+                })
+                ->exists();
+            if (! $pemeriksaanValid) {
+                return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data pemeriksaan tidak ditemukan di Posyandu Anda.'], 403);
+            }
         }
 
         $fotoPaths = [];

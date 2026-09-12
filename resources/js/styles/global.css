@@ -73,6 +73,9 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -84,6 +87,20 @@ body {
   color: var(--color-dark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
+  position: relative;
+}
+
+#root, .app-container {
+  overflow-x: hidden;
+  max-width: 100vw;
+  min-height: 100vh;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
 }
 
 /* HEADLINE: Typography Hierarchy */
@@ -137,7 +154,42 @@ button {
   font-family: var(--font-body);
 }
 
-/* Animations */
+/* =========================================================
+   LIGHTWEIGHT REVEAL ANIMATIONS (Hardware-Accelerated)
+   ========================================================= */
+@keyframes pageReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sectionReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -152,8 +204,67 @@ button {
   50% { transform: scale(1.05); opacity: 0.85; }
 }
 
+/* Page Level Entrance */
+.page-reveal {
+  animation: pageReveal 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
 .page-fade-in {
-  animation: fadeIn 0.25s ease-out forwards;
+  animation: pageReveal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Dashboard View Switch Reveal */
+.dashboard-view-reveal {
+  animation: pageReveal 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+/* Section Level Reveal */
+.reveal-section {
+  animation: sectionReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+.reveal-card {
+  animation: cardReveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+/* Stagger Delays for Grid Elements */
+.reveal-delay-1 { animation-delay: 50ms; }
+.reveal-delay-2 { animation-delay: 100ms; }
+.reveal-delay-3 { animation-delay: 150ms; }
+.reveal-delay-4 { animation-delay: 200ms; }
+.reveal-delay-5 { animation-delay: 250ms; }
+.reveal-delay-6 { animation-delay: 300ms; }
+
+/* Scroll-triggered reveal */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .page-reveal,
+  .page-fade-in,
+  .dashboard-view-reveal,
+  .reveal-section,
+  .reveal-card,
+  .reveal-on-scroll {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
 }
 
 .animate-spin {
@@ -234,6 +345,15 @@ button {
 /* Universal Button Styles (.app-btn) */
 .app-btn {
   font-family: var(--font-body);
+  text-align: center;
+}
+
+.app-btn-full {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
 }
 
 .app-btn:hover:not(:disabled) {

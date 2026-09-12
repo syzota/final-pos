@@ -9,7 +9,8 @@ import {
     PrinterIcon,
     Book02Icon,
     File01Icon,
-    Search01Icon
+    Search01Icon,
+    Cancel01Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function PuskesmasView() {
@@ -53,6 +54,27 @@ export default function PuskesmasView() {
     useEffect(() => {
         setDataCetak(filteredData);
     }, [dataKesehatan, filterBulan]);
+
+    // Lock scroll and handle Escape key for detail modal
+    useEffect(() => {
+        if (selectedDetail) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && selectedDetail) {
+                setSelectedDetail(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.style.overflow = 'unset';
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [selectedDetail]);
 
     const fetchDataKesehatan = async () => {
         setIsLoading(true);
@@ -119,21 +141,45 @@ export default function PuskesmasView() {
 
         const namaPasien = getNamaPasien(selectedDetail);
 
-        return (
-            <div className="no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                <div className="card" style={{ width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', position: 'relative', backgroundColor: '#fff', borderRadius: '12px', padding: '24px' }}>
-                    <button onClick={() => setSelectedDetail(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#666' }}>&times;</button>
+        return ReactDOM.createPortal(
+            <div
+                className="no-print"
+                style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)',
+                    WebkitBackdropFilter: 'blur(4px)', zIndex: 99999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+                }}
+                onClick={() => setSelectedDetail(null)}
+                onTouchMove={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+            >
+                <div
+                    className="card"
+                    style={{
+                        width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
+                        position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <button
+                        type="button"
+                        onClick={() => setSelectedDetail(null)}
+                        style={{ position: 'absolute', top: '16px', right: '16px', background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', transition: 'all 0.15s ease' }}
+                        aria-label="Tutup"
+                    >
+                        <Cancel01Icon size={16} />
+                    </button>
 
                     <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
-                        <h3 style={{ color: 'var(--cyan-deep)' }}>Detail Pemeriksaan {SASARAN_NAMA[tab]}</h3>
-                        <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>Waktu Input: {formatWaktu(selectedDetail.created_at)}</p>
+                        <h3 style={{ color: 'var(--primary-teal, #008080)', margin: '0 0 4px', fontSize: '18px', fontWeight: 800 }}>Detail Pemeriksaan {SASARAN_NAMA[tab]}</h3>
+                        <p style={{ margin: 0, color: '#64748b', fontSize: '13.5px' }}>Waktu Input: {formatWaktu(selectedDetail.created_at)}</p>
                     </div>
 
                     <table className="table">
                         <tbody>
                         <tr>
-                            <td style={{ width: '40%', color: '#666', fontSize: '13px' }}>Nama Sasaran</td>
-                            <td style={{ fontWeight: 'bold', color: 'var(--cyan-deep)', fontSize: '15px' }}>{namaPasien}</td>
+                            <td style={{ width: '40%', color: '#64748b', fontSize: '13px' }}>Nama Sasaran</td>
+                            <td style={{ fontWeight: 'bold', color: 'var(--primary-teal, #008080)', fontSize: '15px' }}>{namaPasien}</td>
                         </tr>
                         {Object.entries(selectedDetail).map(([key, value], idx) => {
                             if (hiddenKeys.includes(key)) return null;
@@ -142,7 +188,7 @@ export default function PuskesmasView() {
 
                             return (
                                 <tr key={idx}>
-                                    <td style={{ width: '40%', color: '#666', textTransform: 'capitalize', fontSize: '13px' }}>{key.replace(/_/g, ' ')}</td>
+                                    <td style={{ width: '40%', color: '#64748b', textTransform: 'capitalize', fontSize: '13px' }}>{key.replace(/_/g, ' ')}</td>
                                     <td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontWeight: 'bold' }}>{displayVal}</td>
                                 </tr>
                             )
@@ -151,11 +197,11 @@ export default function PuskesmasView() {
                     </table>
 
                     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
-                        <h4 style={{ color: '#555', marginBottom: '12px' }}><Camera01Icon size={18} className="me-2" />Bukti Foto Pemeriksaan</h4>
+                        <h4 style={{ color: '#334155', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 700 }}><Camera01Icon size={18} />Bukti Foto Pemeriksaan</h4>
                         {fotoArray.length > 0 ? (
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                                 {fotoArray.map((path, idx) => (
-                                    <div key={idx} style={{ flex: '1 1 calc(50% - 12px)', minWidth: '150px', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+                                    <div key={idx} style={{ flex: '1 1 calc(50% - 12px)', minWidth: '150px', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
                                         <a href={`/storage/${path}`} target="_blank" rel="noreferrer" title="Klik untuk memperbesar">
                                             <img src={`/storage/${path}`} alt={`Foto ${idx + 1}`} style={{ width: '100%', height: '150px', objectFit: 'cover', display: 'block' }} />
                                         </a>
@@ -163,20 +209,21 @@ export default function PuskesmasView() {
                                 ))}
                             </div>
                         ) : (
-                            <div style={{ padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px', color: '#888', fontStyle: 'italic', textAlign: 'center' }}>
+                            <div style={{ padding: '16px', backgroundColor: '#f8fafc', borderRadius: '10px', color: '#64748b', fontStyle: 'italic', textAlign: 'center', border: '1px dashed #cbd5e1' }}>
                                 Kader tidak melampirkan foto pada pemeriksaan ini.
                             </div>
                         )}
                     </div>
 
-                    <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                        <Button variant="secondary" onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
-                            <PrinterIcon size={18} className="me-2" />Cetak Laporan Ini
+                    <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                        <Button variant="secondary" size="md" icon={PrinterIcon} onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
+                            Cetak Rekam Medis Ini
                         </Button>
-                        <Button variant="primary" onClick={() => setSelectedDetail(null)}>Tutup</Button>
+                        <Button variant="primary" size="md" onClick={() => setSelectedDetail(null)}>Tutup</Button>
                     </div>
                 </div>
-            </div>
+            </div>,
+            document.body
         );
     };
 
@@ -257,15 +304,15 @@ export default function PuskesmasView() {
                             <h3 style={{ margin: 0 }}><Book02Icon size={18} className="me-2" />Data Pemeriksaan — Posyandu {selectedPosyandu.nama}</h3>
 
                             {/* AREA PENYARING BULAN & EKSPOR */}
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>Filter Bulan:</span>
+                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>Filter Bulan:</span>
                                 <input
                                     type="month"
                                     value={filterBulan}
                                     onChange={(e) => setFilterBulan(e.target.value)}
-                                    style={{ padding: '6px 12px', minHeight: '38px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+                                    style={{ padding: '0 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#fff', fontSize: '13.5px' }}
                                 />
-                                <Button variant="primary" size="sm" icon={File01Icon} onClick={() => window.print()}>
+                                <Button variant="primary" size="md" icon={File01Icon} onClick={() => window.print()}>
                                     Ekspor Laporan (PDF)
                                 </Button>
                             </div>

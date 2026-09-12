@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../components/common/Header';
+import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
+import useScrollReveal from '../utils/useScrollReveal';
 import '../styles/jadwal.css';
 import { 
   Calendar01Icon, 
@@ -16,6 +17,7 @@ import {
 import Skeleton from '../components/common/Skeleton';
 
 export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
+  useScrollReveal();
   const [posyanduList, setPosyanduList] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,32 +35,36 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
 
   return (
     <div className="jadwal-page">
-      <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
+      <Navbar activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="jadwal-main" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 16px' }}>
         {/* UNIFIED HERO SECTION */}
-        <PageHero
-          badgeIcon={Calendar01Icon}
-          badgeText="Jadwal Kegiatan"
-          title="Jadwal Kegiatan Layanan"
-          titleHighlight="9 Posyandu"
-          description="Informasi jadwal penimbangan, imunisasi, dan pemeriksaan kesehatan di 9 posyandu desa."
-          stats={[
-            { icon: Clock01Icon, label: 'Layanan Rutin Setiap Bulan' },
-            { icon: Location01Icon, label: '9 Titik Posyandu Tersebar' },
-          ]}
-        />
+        <div className="reveal-section">
+          <PageHero
+            badgeIcon={Calendar01Icon}
+            badgeText="Jadwal Kegiatan"
+            title="Jadwal Kegiatan Layanan"
+            titleHighlight="9 Posyandu"
+            description="Informasi jadwal penimbangan, imunisasi, dan pemeriksaan kesehatan di 9 posyandu desa."
+            stats={[
+              { icon: Clock01Icon, label: 'Layanan Rutin Setiap Bulan' },
+              { icon: Location01Icon, label: '9 Titik Posyandu Tersebar' },
+            ]}
+          />
+        </div>
 
         {/* SECTION DAFTAR POSYANDU */}
-        <SectionHeader
-          eyebrow="Agenda Pelayanan"
-          title="Waktu & Lokasi Posyandu di Desa Loa Duri Ulu"
-          description="Silakan periksa jadwal dan lokasi posyandu terdekat di lingkungan rukun tetangga (RT) Anda."
-          align="left"
-        />
+        <div className="reveal-section reveal-delay-1">
+          <SectionHeader
+            eyebrow="Agenda Pelayanan"
+            title="Waktu & Lokasi Posyandu di Desa Loa Duri Ulu"
+            description="Silakan periksa jadwal dan lokasi posyandu terdekat di lingkungan rukun tetangga (RT) Anda."
+            align="left"
+          />
+        </div>
 
         {/* GRID DAFTAR POSYANDU */}
-        <div className="jadwal-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '60px' }}>
+        <div className="jadwal-cards-grid reveal-section reveal-delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '60px' }}>
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div className="jadwal-location-card" key={`skel-${i}`} style={{ padding: '24px', borderRadius: '16px', background: '#fff', border: '1px solid #e2e8f0' }}>
@@ -146,7 +152,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
 
         {/* SECTION PERSIAPAN SEBELUM DATANG */}
         <section
-          className="jadwal-prep-section"
+          className="jadwal-prep-section reveal-on-scroll"
           style={{
             backgroundColor: '#ffffff',
             padding: '36px 32px',
@@ -315,7 +321,7 @@ export default function JadwalKegiatan({ activePage, onNavigate, onDarurat }) {
         </section>
       </main>
 
-      <Footer />
+      <Footer onNavigate={onNavigate} />
     </div>
   );
 }

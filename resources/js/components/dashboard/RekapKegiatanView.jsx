@@ -21,9 +21,16 @@ export default function RekapKegiatanView() {
     });
 
     const [isPrinting, setIsPrinting] = useState(false);
-    const [printData, setPrintData] = useState(null); // STATE BARU: Untuk menampung data riwayat yang mau dicetak
+    const [printData, setPrintData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        confirmVariant: 'danger'
+    });
 
     const [riwayat, setRiwayat] = useState([]);
     const [isLoadingRiwayat, setIsLoadingRiwayat] = useState(true);
@@ -48,14 +55,33 @@ export default function RekapKegiatanView() {
     }, []);
 
     const handleSave = async () => {
+        const missing = [];
+        if (!formData.kd_kec?.trim()) missing.push('Kode Kecamatan belum diisi');
+        if (!formData.kd_desa?.trim()) missing.push('Kode Desa / Kelurahan belum diisi');
+        if (!formData.bulan_pendataan?.trim()) missing.push('Bulan Pendataan belum dipilih');
+
+        if (missing.length > 0) {
+            setMessage({
+                type: 'error',
+                title: 'Data Rekap Belum Lengkap',
+                text: 'Mohon lengkapi bagian identitas & waktu pendataan berikut:',
+                details: missing
+            });
+            return;
+        }
+
         setIsLoading(true);
-        setMessage({ type: '', text: '' });
+        setMessage({ type: '', text: '', title: '', details: null });
         try {
             const token = localStorage.getItem('auth_token');
             const response = await axios.post('/api/rekap-kegiatan', formData, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setMessage({ type: 'success', text: response.data.pesan });
+            setMessage({
+                type: 'success',
+                title: 'Rekap Berhasil Disimpan',
+                text: response.data.pesan || 'Data rekap kegiatan bulanan berhasil disimpan ke sistem.'
+            });
 
             setFormData({
                 kd_kec: '', kd_desa: '', rt: '', no_posyandu: '', bulan_pendataan: '', jumlah: '',
@@ -69,26 +95,45 @@ export default function RekapKegiatanView() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             fetchRiwayat();
         } catch (error) {
-            const errMsg = error.response?.data?.pesan || error.message;
-            setMessage({ type: 'error', text: `Gagal menyimpan: ${errMsg}` });
+            const errMsg = error.response?.data?.pesan || error.response?.data?.message || 'Gagal menyimpan data rekap kegiatan.';
+            setMessage({
+                type: 'error',
+                title: 'Gagal Menyimpan Rekap',
+                text: errMsg
+            });
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data rekap ini secara permanen?")) return;
-
-        try {
-            const token = localStorage.getItem('auth_token');
-            await axios.delete(`/api/rekap-kegiatan/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            setMessage({ type: 'success', text: 'Data rekap berhasil dihapus!' });
-            fetchRiwayat();
-        } catch (error) {
-            setMessage({ type: 'error', text: 'Gagal menghapus data rekap.' });
-        }
+    const handleDelete = (id, bulan) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Konfirmasi Hapus Rekap Kegiatan',
+            message: `Apakah Anda yakin ingin menghapus data rekap kegiatan ${bulan ? `periode "${bulan}"` : ''} secara permanen? Data yang telah dihapus tidak dapat dipulihkan.`,
+            confirmVariant: 'danger',
+            onConfirm: async () => {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    await axios.delete(`/api/rekap-kegiatan/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    setMessage({
+                        type: 'success',
+                        title: 'Rekap Dihapus',
+                        text: 'Data rekap kegiatan bulanan berhasil dihapus.'
+                    });
+                    fetchRiwayat();
+                } catch (error) {
+                    const errMsg = error.response?.data?.pesan || error.response?.data?.message || 'Gagal menghapus data rekap.';
+                    setMessage({
+                        type: 'error',
+                        title: 'Gagal Menghapus Rekap',
+                        text: errMsg
+                    });
+                }
+            }
+        });
     };
 
     const handleChange = (e) => {
@@ -176,20 +221,53 @@ export default function RekapKegiatanView() {
           TAMPILAN MONITOR (INPUT UNTUK KADER/KETUA)
           ========================================================= */}
             <div className="no-print">
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <Button variant="secondary" onClick={() => handlePrint(null)}>
-                        <PrinterIcon size={16} className="me-2" /> Ekspor Kertas PDF
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', width: '100%' }}>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        fullWidth
+                        icon={FloppyDiskIcon}
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        loading={isLoading}
+                        loadingText="Menyimpan..."
+                    >
+                        Simpan Data
                     </Button>
-                    <Button variant="primary" onClick={handleSave} disabled={isLoading}>
-                        <FloppyDiskIcon size={16} className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                    <Button
+                        variant="secondary"
+                        size="md"
+                        fullWidth
+                        icon={PrinterIcon}
+                        onClick={() => handlePrint(null)}
+                    >
+                        Ekspor PDF Kertas
                     </Button>
                 </div>
 
                 <NotificationModal
-                    isOpen={Boolean(message.text)}
+                    isOpen={Boolean(message.text || message.title)}
                     type={message.type || 'success'}
+                    title={message.title}
                     message={message.text}
-                    onClose={() => setMessage({ type: '', text: '' })}
+                    details={message.details}
+                    onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
+                />
+
+                <NotificationModal
+                    isOpen={confirmModal.isOpen}
+                    type="confirm"
+                    title={confirmModal.title}
+                    message={confirmModal.message}
+                    confirmVariant={confirmModal.confirmVariant || 'danger'}
+                    isConfirm
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                    onConfirm={() => {
+                        if (confirmModal.onConfirm) confirmModal.onConfirm();
+                        setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' });
+                    }}
+                    onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' })}
                 />
 
                 {/* --- KELOMPOK 1 & 2 --- */}
@@ -338,17 +416,19 @@ export default function RekapKegiatanView() {
                                                     <Button
                                                         variant="secondary"
                                                         size="sm"
+                                                        icon={PrinterIcon}
                                                         onClick={() => handlePrint(item)}
                                                     >
-                                                        <PrinterIcon size={14} className="me-1" /> Cetak
+                                                        Cetak
                                                     </Button>
                                                     <Button
-                                                        variant="danger-outline"
-                                                        size="sm"
-                                                        onClick={() => handleDelete(item.id)}
-                                                    >
-                                                        <Delete02Icon size={14} className="me-1" /> Hapus
-                                                    </Button>
+                                                         variant="danger-outline"
+                                                         size="sm"
+                                                         icon={Delete02Icon}
+                                                         onClick={() => handleDelete(item.id, item.bulan_pendataan)}
+                                                     >
+                                                         Hapus
+                                                     </Button>
                                                 </div>
                                             </td>
                                         </tr>

@@ -24,7 +24,7 @@ export default function AdminArsipLaporanView() {
 
     const [laporanData, setLaporanData] = useState({ rekap46: [], rekap13: [], dataUmum: [] });
     const [isLoadingLaporan, setIsLoadingLaporan] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
 
     // Target Cetak Laporan Administratif
     const [printLaporanTarget, setPrintLaporanTarget] = useState({ type: '', data: null });
@@ -185,10 +185,12 @@ export default function AdminArsipLaporanView() {
 
             <div className="no-print">
                 <NotificationModal
-                    isOpen={Boolean(message.text)}
+                    isOpen={Boolean(message.text || message.title)}
                     type={message.type || 'success'}
+                    title={message.title}
                     message={message.text}
-                    onClose={() => setMessage({ type: '', text: '' })}
+                    details={message.details}
+                    onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
                 />
 
                 {/* =========================================
@@ -216,8 +218,13 @@ export default function AdminArsipLaporanView() {
                                         <td><b>{posyandu.nama}</b></td>
                                         <td>{posyandu.jadwal}</td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <Button variant="primary" size="sm" onClick={() => openDetailPosyandu(posyandu)}>
-                                                <FolderOpenIcon size={16} className="me-1" />Buka Arsip
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                icon={FolderOpenIcon}
+                                                onClick={() => openDetailPosyandu(posyandu)}
+                                            >
+                                                Buka Arsip
                                             </Button>
                                         </td>
                                     </tr>
@@ -234,8 +241,13 @@ export default function AdminArsipLaporanView() {
                 {viewMode === 'detail' && selectedPosyandu && (
                     <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                            <Button variant="secondary" onClick={closeDetail}>
-                                <ArrowLeft01Icon size={18} className="me-2" />Kembali ke Daftar Posyandu
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                icon={ArrowLeft01Icon}
+                                onClick={closeDetail}
+                            >
+                                Kembali ke Daftar Posyandu
                             </Button>
                         </div>
 
@@ -246,25 +258,42 @@ export default function AdminArsipLaporanView() {
                             <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px' }}>Pilih kategori laporan untuk melihat riwayat bulan-bulan sebelumnya dan mencetaknya.</p>
 
                             {/* TABS MENU */}
-                            <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '24px', borderBottom: '2px solid #e2e8f0' }}>
-                                <button
-                                    className={`tab-btn ${activeTab === 0 ? 'active' : ''}`}
-                                    onClick={() => setActiveTab(0)}
-                                    style={{ borderBottom: activeTab === 0 ? '2px solid var(--violet-deep)' : 'none', color: activeTab === 0 ? 'var(--violet-deep)' : '#666' }}>
-                                    <File01Icon size={16} className="me-2" />Register Kegiatan (46 Kolom)
-                                </button>
-                                <button
-                                    className={`tab-btn ${activeTab === 1 ? 'active' : ''}`}
-                                    onClick={() => setActiveTab(1)}
-                                    style={{ borderBottom: activeTab === 1 ? '2px solid var(--violet-deep)' : 'none', color: activeTab === 1 ? 'var(--violet-deep)' : '#666' }}>
-                                    <CheckListIcon size={16} className="me-2" />Pencatatan 13 Poin (TTD)
-                                </button>
-                                <button
-                                    className={`tab-btn ${activeTab === 2 ? 'active' : ''}`}
-                                    onClick={() => setActiveTab(2)}
-                                    style={{ borderBottom: activeTab === 2 ? '2px solid var(--violet-deep)' : 'none', color: activeTab === 2 ? 'var(--violet-deep)' : '#666' }}>
-                                    <CheckListIcon size={16} className="me-2" />Data Umum Posyandu
-                                </button>
+                            <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '20px' }}>
+                                {[
+                                    { id: 0, label: 'Register Kegiatan (46 Kolom)', icon: File01Icon },
+                                    { id: 1, label: 'Pencatatan 13 Poin (TTD)', icon: CheckListIcon },
+                                    { id: 2, label: 'Data Umum Posyandu', icon: CheckListIcon }
+                                ].map((tabItem) => {
+                                    const TabIcon = tabItem.icon;
+                                    const isSelected = activeTab === tabItem.id;
+                                    return (
+                                        <button
+                                            key={tabItem.id}
+                                            type="button"
+                                            className={`tab-btn ${isSelected ? 'active' : ''}`}
+                                            onClick={() => setActiveTab(tabItem.id)}
+                                            style={{
+                                                minHeight: '40px',
+                                                padding: '8px 16px',
+                                                borderRadius: '10px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                fontSize: '13px',
+                                                fontWeight: 700,
+                                                border: '1px solid',
+                                                borderColor: isSelected ? 'var(--primary-teal, #008080)' : '#cbd5e1',
+                                                backgroundColor: isSelected ? 'var(--primary-teal, #008080)' : '#ffffff',
+                                                color: isSelected ? '#ffffff' : '#334155',
+                                                cursor: 'pointer',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            <TabIcon size={15} />
+                                            {tabItem.label}
+                                        </button>
+                                    );
+                                })}
                             </div>
 
                             {/* ISI KONTEN TAB */}
@@ -297,8 +326,13 @@ export default function AdminArsipLaporanView() {
                                                                 <td>{item.skdn_s || 0} Anak</td>
                                                                 <td>{item.skdn_d || 0} Anak</td>
                                                                 <td style={{ textAlign: 'center' }}>
-                                                                    <Button variant="secondary" size="sm" onClick={() => handleCetakLaporan('rekap46', item)}>
-                                                                        <PrinterIcon size={16} className="me-1" />Cetak PDF
+                                                                    <Button
+                                                                        variant="secondary"
+                                                                        size="sm"
+                                                                        icon={PrinterIcon}
+                                                                        onClick={() => handleCetakLaporan('rekap46', item)}
+                                                                    >
+                                                                        Cetak PDF
                                                                     </Button>
                                                                 </td>
                                                             </tr>
@@ -338,8 +372,13 @@ export default function AdminArsipLaporanView() {
                                                                     {item.signature_data ? <span className="badge badge-green">Tersedia</span> : <span className="badge badge-rose">Kosong</span>}
                                                                 </td>
                                                                 <td style={{ textAlign: 'center' }}>
-                                                                    <Button variant="secondary" size="sm" onClick={() => handleCetakLaporan('rekap13', item)}>
-                                                                        <PrinterIcon size={16} className="me-1" />Cetak PDF
+                                                                    <Button
+                                                                        variant="secondary"
+                                                                        size="sm"
+                                                                        icon={PrinterIcon}
+                                                                        onClick={() => handleCetakLaporan('rekap13', item)}
+                                                                    >
+                                                                        Cetak PDF
                                                                     </Button>
                                                                 </td>
                                                             </tr>
@@ -376,8 +415,13 @@ export default function AdminArsipLaporanView() {
                                                                 <td>{item.pengunjung_ibu_hamil || 0} Orang</td>
                                                                 <td>{item.petugas_kader || 0} Orang</td>
                                                                 <td style={{ textAlign: 'center' }}>
-                                                                    <Button variant="secondary" size="sm" onClick={() => handleCetakLaporan('dataUmum', item)}>
-                                                                        <PrinterIcon size={16} className="me-1" />Cetak PDF
+                                                                    <Button
+                                                                        variant="secondary"
+                                                                        size="sm"
+                                                                        icon={PrinterIcon}
+                                                                        onClick={() => handleCetakLaporan('dataUmum', item)}
+                                                                    >
+                                                                        Cetak PDF
                                                                     </Button>
                                                                 </td>
                                                             </tr>

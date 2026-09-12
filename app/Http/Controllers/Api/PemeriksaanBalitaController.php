@@ -31,6 +31,25 @@ class PemeriksaanBalitaController extends Controller
             'dokumentasi_foto.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        $posyanduId = in_array($request->user()->role, ['kader', 'ketua']) ? $request->user()->posyandu_id : null;
+        if ($posyanduId) {
+            $anakValid = \App\Models\WargaAnak::where('id', $request->anak_id)
+                ->whereHas('keluarga', fn ($q) => $q->where('posyandu_id', $posyanduId))
+                ->exists();
+            if (! $anakValid) {
+                return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data anak bukan dari Posyandu Anda.'], 403);
+            }
+
+            if ($request->filled('pemeriksaan_id')) {
+                $pemeriksaanValid = PemeriksaanBalita::where('id', $request->pemeriksaan_id)
+                    ->whereHas('anak.keluarga', fn ($q) => $q->where('posyandu_id', $posyanduId))
+                    ->exists();
+                if (! $pemeriksaanValid) {
+                    return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data pemeriksaan tidak ditemukan di Posyandu Anda.'], 403);
+                }
+            }
+        }
+
         // 2. Tangani Proses Unggah Foto (Jika ada)
         $fotoPaths = [];
         if ($request->hasFile('dokumentasi_foto')) {
@@ -43,7 +62,7 @@ class PemeriksaanBalitaController extends Controller
 
         // 3. Simpan semua data ke database
         $pemeriksaan = PemeriksaanBalita::updateOrCreate(
-            ['id' => $request->pemeriksaan_id], // Kunci pencarian: Jika null, buat baru. Jika ada, update.
+            ['id' => $request->pemeriksaan_id],
             [
                 'anak_id' => $request->anak_id,
                 'kader_id' => $request->user()->id,

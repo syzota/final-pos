@@ -1,7 +1,9 @@
 import React from 'react';
 import { Menu01Icon } from '@theexperiencecompany/gaia-icons/stroke-rounded';
 
-export default function DashboardNavbar({ title, onOpenSidebar }) {
+export default function DashboardNavbar({ title, userAuth, roleLabel, onOpenSidebar }) {
+  const displayName = userAuth?.name || userAuth?.username || '';
+
   return (
     <header
       className="topbar"
@@ -9,7 +11,7 @@ export default function DashboardNavbar({ title, onOpenSidebar }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 20px',
+        padding: '0 16px',
         height: '64px',
         minHeight: '64px',
         backgroundColor: '#ffffff',
@@ -21,20 +23,19 @@ export default function DashboardNavbar({ title, onOpenSidebar }) {
         boxSizing: 'border-box',
       }}
     >
-      <div className="topbar-left" style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0, height: '100%' }}>
+      <div className="topbar-left" style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, height: '100%', flex: 1 }}>
         <button
           className="icon-btn hamburger-btn"
           onClick={onOpenSidebar}
           aria-label="Buka menu navigasi"
           style={{
-            minWidth: '40px',
-            minHeight: '40px',
-            width: '40px',
-            height: '40px',
+            minWidth: '38px',
+            minHeight: '38px',
+            width: '38px',
+            height: '38px',
             borderRadius: '10px',
             border: '1px solid #e2e8f0',
             backgroundColor: '#ffffff',
-            display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
@@ -54,13 +55,13 @@ export default function DashboardNavbar({ title, onOpenSidebar }) {
             e.currentTarget.style.borderColor = '#e2e8f0';
           }}
         >
-          <Menu01Icon size={22} />
+          <Menu01Icon size={20} />
         </button>
         <div className="topbar-title-wrapper" style={{ minWidth: 0, display: 'flex', alignItems: 'center' }}>
           <span
             id="pageTitle"
             style={{
-              fontSize: '15px',
+              fontSize: '14.5px',
               fontWeight: 800,
               color: '#0f172a',
               letterSpacing: '-0.01em',
@@ -78,6 +79,7 @@ export default function DashboardNavbar({ title, onOpenSidebar }) {
           </span>
         </div>
       </div>
+
     </header>
   );
 }

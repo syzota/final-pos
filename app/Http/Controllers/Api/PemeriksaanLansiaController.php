@@ -30,9 +30,10 @@ class PemeriksaanLansiaController extends Controller
             'dokumentasi_foto.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        $posyanduId = in_array($request->user()->role, ['kader', 'ketua']) ? $request->user()->posyandu_id : null;
         $lansiaId = $request->lansia_id;
 
-        // LOGIKA BARU: Hanya simpan nama untuk riwayat periksa, TANPA buat akun/keluarga
+        // LOGIKA: Simpan nama untuk riwayat periksa
         if (! $lansiaId || $lansiaId === 'baru' || $lansiaId === 'null') {
             $tanggalLahirPerkiraan = date('Y-m-d', strtotime('-60 years'));
 
@@ -44,6 +45,28 @@ class PemeriksaanLansiaController extends Controller
             ]);
 
             $lansiaId = $lansiaBaru->id;
+        } elseif ($posyanduId) {
+            $lansiaValid = WargaDewasa::where('id', $lansiaId)
+                ->where(function ($q) use ($posyanduId) {
+                    $q->whereNull('keluarga_id')
+                        ->orWhereHas('keluarga', fn ($k) => $k->where('posyandu_id', $posyanduId));
+                })
+                ->exists();
+            if (! $lansiaValid) {
+                return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data lansia bukan dari Posyandu Anda.'], 403);
+            }
+        }
+
+        if ($posyanduId && $request->filled('pemeriksaan_id')) {
+            $pemeriksaanValid = PemeriksaanLansia::where('id', $request->pemeriksaan_id)
+                ->where(function ($q) use ($posyanduId) {
+                    $q->whereHas('kader', fn ($k) => $k->where('posyandu_id', $posyanduId))
+                        ->orWhereHas('lansia.keluarga', fn ($k) => $k->where('posyandu_id', $posyanduId));
+                })
+                ->exists();
+            if (! $pemeriksaanValid) {
+                return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data pemeriksaan tidak ditemukan di Posyandu Anda.'], 403);
+            }
         }
 
         // Proses unggah foto

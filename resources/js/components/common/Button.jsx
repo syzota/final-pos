@@ -151,9 +151,10 @@ export default function Button({
   const variantStyles = getVariantStyles();
 
   const combinedStyles = {
-    display: 'inline-flex',
+    display: fullWidth ? 'flex' : 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center',
     fontWeight: 700,
     fontFamily: 'inherit',
     cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -176,7 +177,7 @@ export default function Button({
       type={Tag === 'button' ? type : undefined}
       disabled={Tag === 'button' ? isDisabled : undefined}
       onClick={isDisabled ? (e) => e.preventDefault() : onClick}
-      className={`app-btn app-btn-${variant} app-btn-${size} ${className}`}
+      className={`app-btn app-btn-${variant} app-btn-${size} ${fullWidth ? 'app-btn-full' : ''} ${className}`}
       style={combinedStyles}
       aria-busy={loading ? 'true' : undefined}
       {...rest}
