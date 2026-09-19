@@ -82,7 +82,7 @@ export default function DashboardHome({ role, onViewChange }) {
           </div>
           <div>
             <div style={{ fontSize: '26px', fontWeight: 900, color: '#0f766e', lineHeight: 1 }}>{stats.top_stats.total_warga}</div>
-            <div style={{ fontSize: '13px', color: '#115e59', fontWeight: 600, marginTop: '4px' }}>Total Warga Sasaran</div>
+            <div style={{ fontSize: '13px', color: '#115e59', fontWeight: 600, marginTop: '4px' }}>Total Warga Terdaftar</div>
           </div>
         </div>
 
@@ -184,7 +184,7 @@ export default function DashboardHome({ role, onViewChange }) {
                   <div key={item.key}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                       <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#334155' }}>{item.label}</span>
-                      <span style={{ fontSize: '12.5px', fontWeight: 700, color: item.color }}>{diperiksa} / {total} sasaran ({persen}%)</span>
+                      <span style={{ fontSize: '12.5px', fontWeight: 700, color: item.color }}>{diperiksa} dari {total} orang ({persen}%)</span>
                     </div>
                     <div style={{ width: '100%', height: '8px', background: item.bg, borderRadius: '4px', overflow: 'hidden' }}>
                       <div style={{ width: `${persen}%`, height: '100%', background: item.color, borderRadius: '4px', transition: 'width 0.5s ease' }}></div>
@@ -243,9 +243,14 @@ export default function DashboardHome({ role, onViewChange }) {
                     <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1e293b' }}>
                       {formatBidang(bidang)}
                     </span>
-                    <span style={{ fontSize: '12.5px', fontWeight: 700, color: dataBidang.aduan > 0 ? '#dc2626' : '#059669' }}>
-                      {dataBidang.form} Formulir / {dataBidang.aduan} Pengaduan
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: '#e0f2fe', color: '#0369a1' }}>
+                        {dataBidang.form} Input Form
+                      </span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', backgroundColor: dataBidang.aduan > 0 ? '#fee2e2' : '#f1f5f9', color: dataBidang.aduan > 0 ? '#b91c1c' : '#64748b' }}>
+                        {dataBidang.aduan} Aduan
+                      </span>
+                    </div>
                   </div>
                 );
               })}

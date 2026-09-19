@@ -44,18 +44,22 @@ class DraftController extends Controller
 
             $balita = $balitaQuery->latest('updated_at')->get()->map(function ($item) {
                 $item->kategori = 'balita';
+
                 return $item;
             });
             $remaja = $remajaQuery->latest('updated_at')->get()->map(function ($item) {
                 $item->kategori = 'remaja';
+
                 return $item;
             });
             $hamil = $hamilQuery->latest('updated_at')->get()->map(function ($item) {
                 $item->kategori = 'hamil';
+
                 return $item;
             });
             $lansia = $lansiaQuery->latest('updated_at')->get()->map(function ($item) {
                 $item->kategori = 'lansia';
+
                 return $item;
             });
 
@@ -75,6 +79,7 @@ class DraftController extends Controller
                     }
                     $data = $query->latest('updated_at')->get()->map(function ($item) {
                         $item->kategori = 'balita';
+
                         return $item;
                     });
                     break;
@@ -88,6 +93,7 @@ class DraftController extends Controller
                     }
                     $data = $query->latest('updated_at')->get()->map(function ($item) {
                         $item->kategori = 'remaja';
+
                         return $item;
                     });
                     break;
@@ -102,6 +108,7 @@ class DraftController extends Controller
                     }
                     $data = $query->latest('updated_at')->get()->map(function ($item) {
                         $item->kategori = 'hamil';
+
                         return $item;
                     });
                     break;
@@ -115,6 +122,7 @@ class DraftController extends Controller
                     }
                     $data = $query->latest('updated_at')->get()->map(function ($item) {
                         $item->kategori = 'lansia';
+
                         return $item;
                     });
                     break;

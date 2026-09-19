@@ -327,7 +327,7 @@ export default function AdminArsipLaporanView() {
                                                                 <td>{item.skdn_d || 0} Anak</td>
                                                                 <td style={{ textAlign: 'center' }}>
                                                                     <Button
-                                                                        variant="secondary"
+                                                                        variant="primary"
                                                                         size="sm"
                                                                         icon={PrinterIcon}
                                                                         onClick={() => handleCetakLaporan('rekap46', item)}
@@ -373,7 +373,7 @@ export default function AdminArsipLaporanView() {
                                                                 </td>
                                                                 <td style={{ textAlign: 'center' }}>
                                                                     <Button
-                                                                        variant="secondary"
+                                                                        variant="primary"
                                                                         size="sm"
                                                                         icon={PrinterIcon}
                                                                         onClick={() => handleCetakLaporan('rekap13', item)}
@@ -416,7 +416,7 @@ export default function AdminArsipLaporanView() {
                                                                 <td>{item.petugas_kader || 0} Orang</td>
                                                                 <td style={{ textAlign: 'center' }}>
                                                                     <Button
-                                                                        variant="secondary"
+                                                                        variant="primary"
                                                                         size="sm"
                                                                         icon={PrinterIcon}
                                                                         onClick={() => handleCetakLaporan('dataUmum', item)}
@@ -642,7 +642,7 @@ export default function AdminArsipLaporanView() {
                 <div id="dokumen-cetak-dataumum">
                     <div className="header-posyandu">
                         <div><span>Posyandu</span>: {printLaporanTarget.data.nama_posyandu}</div>
-                        <div><span>Rukun Warga</span>: {printLaporanTarget.data.rukun_warga}</div>
+                        <div><span>Wilayah RT</span>: {printLaporanTarget.data.rukun_warga || '-'}</div>
                         <div><span>Desa/Kelurahan</span>: {printLaporanTarget.data.desa}</div>
                         <div><span>Kecamatan</span>: {printLaporanTarget.data.kecamatan}</div>
                     </div>

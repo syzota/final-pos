@@ -119,16 +119,17 @@ export default function PengaduanView() {
   // === STATE UNTUK API ===
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [viewFilter, setViewFilter] = useState('all'); // 'all', 'form', 'aduan'
 
   // State Dinamis untuk Formulir Identifikasi (Kiri)
   const [formIden, setFormIden] = useState({});
-  const [fotoIden, setFotoIden] = useState(null);
+  const [fotoIden, setFotoIden] = useState([]);
 
   // State untuk Pengaduan Masyarakat (Kanan)
   const [formPengaduan, setFormPengaduan] = useState({
     nama_pelapor: '', jenis_kelamin: 'L', nik: '', no_hp: '', alamat: '', isi_keluhan: '', lokasi_masalah: ''
   });
-  const [lampiranPengaduan, setLampiranPengaduan] = useState(null);
+  const [lampiranPengaduan, setLampiranPengaduan] = useState([]);
 
   // === STATE UNTUK REKAP TABEL & MODAL ===
   const [rekapPengaduan, setRekapPengaduan] = useState([]);
@@ -180,7 +181,13 @@ export default function PengaduanView() {
   // VALIDASI INPUT & FILE
   // =========================================================================
   const handleIdenChange = (e) => {
-    setFormIden({ ...formIden, [e.target.name]: e.target.value });
+    let { name, value } = e.target;
+    // Paksa Nomor HP / Telp hanya menerima digit
+    if (name.includes('hp') || name.includes('telp') || name.includes('telepon') || name.includes('kontak')) {
+      value = value.replace(/\D/g, '');
+      if (value.length > 15) value = value.substring(0, 15);
+    }
+    setFormIden({ ...formIden, [name]: value });
   };
 
   const handlePengaduanChange = (e) => {
@@ -192,7 +199,7 @@ export default function PengaduanView() {
       if (value.length > 16) value = value.substring(0, 16);
     }
     // Paksa No HP hanya menerima Angka & Maksimal 15 Digit
-    if (name === 'no_hp') {
+    if (name === 'no_hp' || name === 'telepon' || name === 'kontak') {
       value = value.replace(/\D/g, '');
       if (value.length > 15) value = value.substring(0, 15);
     }
@@ -200,13 +207,10 @@ export default function PengaduanView() {
     setFormPengaduan({ ...formPengaduan, [name]: value });
   };
 
-  // Pengecek File (Cegah format aneh & ukuran terlalu besar)
-  const handleFileChange = (e, setFileState) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) {
-      setFileState(null);
-      return;
-    }
+  // Pengecek File & Append (Dukungan pemilihan file bertahap / tombol '+')
+  const handleFileAppend = (e, setFileState) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
 
     const allowedTypes = [
       'image/jpeg',
@@ -215,32 +219,38 @@ export default function PengaduanView() {
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
-    const maxSize = 2 * 1024 * 1024; // 2MB
+    const maxSize = 5 * 1024 * 1024; // 5MB per file
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    const validFiles = [];
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
       if (!allowedTypes.includes(file.type)) {
-        setMessage({ type: 'error', text: `Gagal: File "${file.name}" ditolak! Hanya boleh format JPG, PNG, PDF, DOC, atau DOCX.` });
-        e.target.value = '';
-        setFileState(null);
-        return;
+        setMessage({ type: 'error', text: `File "${file.name}" ditolak! Hanya boleh format JPG, PNG, PDF, DOC, atau DOCX.` });
+        continue;
       }
       if (file.size > maxSize) {
-        setMessage({ type: 'error', text: `Gagal: Ukuran file "${file.name}" terlalu besar! Maksimal 2MB.` });
-        e.target.value = '';
-        setFileState(null);
-        return;
+        setMessage({ type: 'error', text: `Ukuran file "${file.name}" terlalu besar! Maksimal 5MB per file.` });
+        continue;
       }
+      validFiles.push(file);
     }
 
-    setMessage({ type: '', text: '' });
-    setFileState(files);
+    if (validFiles.length > 0) {
+      setFileState(prev => {
+        const current = Array.isArray(prev) ? prev : [];
+        const existingKeys = new Set(current.map(f => `${f.name}_${f.size}`));
+        const toAdd = validFiles.filter(f => !existingKeys.has(`${f.name}_${f.size}`));
+        return [...current, ...toAdd];
+      });
+      setMessage({ type: '', text: '' });
+    }
+    e.target.value = '';
   };
 
   // Reset form saat ganti sub-tab atau tab
   const resetFormIden = () => {
     setFormIden({});
-    setFotoIden(null);
+    setFotoIden([]);
     setMessage({ type: '', text: '' });
     if (fileInputIdenRef.current) fileInputIdenRef.current.value = '';
   };
@@ -296,9 +306,15 @@ export default function PengaduanView() {
   // === SUBMIT FORMULIR IDENTIFIKASI ===
   const submitIdentifikasi = async () => {
     // Validasi apakah form identifikasi masih kosong
-    const hasValues = formIden && Object.keys(formIden).some(k => formIden[k] !== '' && formIden[k] !== null && formIden[k] !== undefined && String(formIden[k]).trim() !== '');
-    if (!hasValues) {
-      setMessage({ type: 'error', text: 'Formulir masih kosong. Mohon lengkapi data identifikasi lapangan sebelum menyimpan.' });
+    const filledEntries = Object.entries(formIden || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
+    if (filledEntries.length === 0) {
+      setMessage({ type: 'error', text: 'Formulir masih kosong! Mohon isi data identifikasi lapangan sebelum menyimpan.' });
+      return;
+    }
+
+    const hasIdentifier = formIden.nama_petugas?.trim() || formIden.nama_warga?.trim() || formIden.nama_anak?.trim() || formIden.pemilik?.trim() || formIden.nama_korban?.trim() || formIden.nama_kegiatan?.trim() || formIden.lokasi?.trim() || formIden.lokasi_ruas_jalan?.trim();
+    if (!hasIdentifier) {
+      setMessage({ type: 'error', text: 'Mohon lengkapi nama petugas, nama subjek, atau lokasi peninjauan.' });
       return;
     }
 
@@ -311,7 +327,7 @@ export default function PengaduanView() {
       formData.append('sub_bidang', getSubBidangName());
       formData.append('data_formulir', JSON.stringify(formIden));
 
-      if (fotoIden) {
+      if (fotoIden && fotoIden.length > 0) {
         for (let i = 0; i < fotoIden.length; i++) formData.append(`dokumentasi_foto[${i}]`, fotoIden[i]);
       }
 
@@ -321,6 +337,8 @@ export default function PengaduanView() {
 
       resetFormIden();
       setMessage({ type: 'success', text: response.data.pesan || 'Formulir identifikasi berhasil disimpan.' });
+      localStorage.removeItem(`posyandu_draft_iden_${tab}`);
+      setDraftRefreshKey(prev => prev + 1);
       fetchRekap();
 
     } catch (err) {
@@ -358,7 +376,7 @@ export default function PengaduanView() {
         }
       });
 
-      if (lampiranPengaduan) {
+      if (lampiranPengaduan && lampiranPengaduan.length > 0) {
         for (let i = 0; i < lampiranPengaduan.length; i++) formData.append(`lampiran[${i}]`, lampiranPengaduan[i]);
       }
 
@@ -368,9 +386,11 @@ export default function PengaduanView() {
 
       setMessage({ type: 'success', text: response.data.pesan || 'Aspirasi / pengaduan warga berhasil dikirim.' });
       setFormPengaduan({ nama_pelapor: '', jenis_kelamin: 'L', nik: '', no_hp: '', alamat: '', isi_keluhan: '', lokasi_masalah: '' });
-      setLampiranPengaduan(null);
+      setLampiranPengaduan([]);
       if (fileInputPengaduanRef.current) fileInputPengaduanRef.current.value = '';
 
+      localStorage.removeItem(`posyandu_draft_aduan_${tab}`);
+      setDraftRefreshKey(prev => prev + 1);
       fetchRekap();
     } catch (err) {
       const pesanAsli = err.response?.data?.pesan || err.response?.data?.message || err.message;
@@ -380,12 +400,146 @@ export default function PengaduanView() {
     }
   };
 
-  // === RENDER DROPZONE UPLOAD FILE STANDAR TINGGI ===
-  const renderUploadBox = (fileState, setFileState, inputRef, label, note, extraReqs = null) => {
-    const hasFiles = fileState && fileState.length > 0;
+  // === FITUR DRAF LOKAL FORMULIR & PENGADUAN (Poin 1 Page 8) ===
+  const [draftRefreshKey, setDraftRefreshKey] = useState(0);
+
+  const handleSaveDraftIden = () => {
+    const filledEntries = Object.entries(formIden || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
+    if (filledEntries.length === 0) {
+      setMessage({ type: 'error', text: 'Formulir masih kosong! Belum ada data untuk disimpan sebagai draf.' });
+      return;
+    }
+    localStorage.setItem(`posyandu_draft_iden_${tab}`, JSON.stringify({
+      formIden,
+      subTab: [subTab0, subTab1, subTab2, subTab3, subTab4][tab],
+      updated_at: new Date().toISOString()
+    }));
+    setDraftRefreshKey(prev => prev + 1);
+    setMessage({ type: 'success', text: 'Draf isian formulir identifikasi berhasil disimpan di perangkat ini.' });
+  };
+
+  const handleLoadDraftIden = () => {
+    try {
+      const raw = localStorage.getItem(`posyandu_draft_iden_${tab}`);
+      if (!raw) {
+        setMessage({ type: 'error', text: 'Tidak ada draf tersimpan untuk formulir bidang ini.' });
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (parsed.formIden) {
+        setFormIden(parsed.formIden);
+        if (parsed.subTab !== undefined) {
+          if (tab === 0) setSubTab0(parsed.subTab);
+          if (tab === 1) setSubTab1(parsed.subTab);
+          if (tab === 2) setSubTab2(parsed.subTab);
+          if (tab === 3) setSubTab3(parsed.subTab);
+          if (tab === 4) setSubTab4(parsed.subTab);
+        }
+        setMessage({ type: 'success', text: 'Draf isian formulir berhasil dimuat kembali!' });
+      }
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Gagal membaca data draf.' });
+    }
+  };
+
+  const handleSaveDraftPengaduan = () => {
+    const filledEntries = Object.entries(formPengaduan || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
+    if (filledEntries.length === 0) {
+      setMessage({ type: 'error', text: 'Formulir pengaduan masih kosong! Belum ada data untuk disimpan sebagai draf.' });
+      return;
+    }
+    localStorage.setItem(`posyandu_draft_aduan_${tab}`, JSON.stringify({
+      formPengaduan,
+      updated_at: new Date().toISOString()
+    }));
+    setDraftRefreshKey(prev => prev + 1);
+    setMessage({ type: 'success', text: 'Draf aspirasi / pengaduan warga berhasil disimpan di perangkat ini.' });
+  };
+
+  const handleLoadDraftPengaduan = () => {
+    try {
+      const raw = localStorage.getItem(`posyandu_draft_aduan_${tab}`);
+      if (!raw) {
+        setMessage({ type: 'error', text: 'Tidak ada draf pengaduan tersimpan untuk bidang ini.' });
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (parsed.formPengaduan) {
+        setFormPengaduan(parsed.formPengaduan);
+        setMessage({ type: 'success', text: 'Draf aspirasi pengaduan berhasil dimuat kembali!' });
+      }
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Gagal membaca data draf.' });
+    }
+  };
+
+  const renderActionButtons = (type = 'iden') => {
+    const draftKey = type === 'iden' ? `posyandu_draft_iden_${tab}` : `posyandu_draft_aduan_${tab}`;
+    const hasLocalDraft = Boolean(localStorage.getItem(draftKey));
 
     return (
-      <div className="form-field full" style={{ marginTop: '6px' }}>
+      <div style={{ marginTop: '20px' }}>
+        {hasLocalDraft && (
+          <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderRadius: '10px', padding: '8px 12px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ fontSize: '12px', color: '#92400e', fontWeight: 600 }}>
+              Draf tersimpan di perangkat ini
+            </span>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                type="button"
+                onClick={type === 'iden' ? handleLoadDraftIden : handleLoadDraftPengaduan}
+                style={{ backgroundColor: '#f59e0b', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Muat Draf
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem(draftKey);
+                  setDraftRefreshKey(prev => prev + 1);
+                  setMessage({ type: 'success', text: 'Draf tersimpan berhasil dibersihkan.' });
+                }}
+                style={{ backgroundColor: 'transparent', color: '#b45309', border: '1px solid #fcd34d', borderRadius: '6px', padding: '4px 8px', fontSize: '11.5px', cursor: 'pointer' }}
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={type === 'iden' ? handleSaveDraftIden : handleSaveDraftPengaduan}
+            style={{ flex: 1 }}
+          >
+            Simpan Draf
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
+            onClick={type === 'iden' ? submitIdentifikasi : submitPengaduan}
+            disabled={isLoading}
+            loading={isLoading}
+            loadingText={type === 'iden' ? 'Menyimpan...' : 'Mengirim...'}
+            style={{ flex: 1 }}
+          >
+            {type === 'iden' ? 'Simpan Data' : 'Kirim Pengaduan'}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // === RENDER DROPZONE UPLOAD FILE DENGAN TOMBOL TAMBAH DOKUMEN & HAPUS INDIVIDUAL ===
+  const renderUploadBox = (fileState, setFileState, inputRef, label, note, extraReqs = null) => {
+    const files = Array.isArray(fileState) ? fileState : (fileState ? Array.from(fileState) : []);
+    const hasFiles = files.length > 0;
+
+    return (
+      <div className="form-field full" style={{ marginTop: '10px' }}>
         <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
           {label}
         </label>
@@ -394,63 +548,102 @@ export default function PengaduanView() {
           ref={inputRef}
           multiple
           accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-          onChange={(e) => handleFileChange(e, setFileState)}
+          onChange={(e) => handleFileAppend(e, setFileState)}
           style={{ display: 'none' }}
         />
 
-        <div
-          onClick={() => inputRef.current?.click()}
-          style={{
-            border: hasFiles ? '2px solid var(--primary-teal, #008080)' : '2px dashed #cbd5e1',
-            borderRadius: '12px',
-            padding: '16px 14px',
-            textAlign: 'center',
-            backgroundColor: hasFiles ? '#f0fdfa' : '#f8fafc',
-            cursor: 'pointer',
-            transition: 'all 0.15s ease'
-          }}
-        >
-          {hasFiles ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: 'var(--primary-teal-light, #e6f3f3)', color: 'var(--primary-teal, #008080)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CheckmarkCircle01Icon size={20} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-                    {fileState.length} File Terpilih
-                  </div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                    {Array.from(fileState).map(f => f.name).join(', ').substring(0, 45)}
-                    {Array.from(fileState).map(f => f.name).join(', ').length > 45 ? '...' : ''}
-                  </div>
-                </div>
-              </div>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                icon={Delete02Icon}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setFileState(null);
-                  if (inputRef.current) inputRef.current.value = '';
+        {hasFiles && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '10px' }}>
+            {files.map((file, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: '#f0fdfa',
+                  border: '1px solid #99f6e4',
+                  fontSize: '12.5px'
                 }}
               >
-                Hapus / Ganti
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Upload01Icon size={22} color="var(--primary-teal, #008080)" style={{ margin: '0 auto 6px', display: 'block' }} />
-              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary-teal, #008080)' }}>
-                Klik untuk unggah berkas / foto
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                  <File01Icon size={16} color="var(--primary-teal, #008080)" style={{ flexShrink: 0 }} />
+                  <span style={{ fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {file.name}
+                  </span>
+                  <span style={{ color: '#64748b', fontSize: '11px', flexShrink: 0 }}>
+                    ({(file.size / 1024).toFixed(0)} KB)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFileState(files.filter((_, i) => i !== idx));
+                  }}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  title="Hapus file ini"
+                >
+                  <Cancel01Icon size={14} />
+                </button>
               </div>
-              <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
-                {note || 'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'}
-              </div>
-            </>
+            ))}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            style={{
+              flex: 1,
+              border: '2px dashed #cbd5e1',
+              borderRadius: '10px',
+              padding: hasFiles ? '10px 14px' : '16px 14px',
+              textAlign: 'center',
+              backgroundColor: '#f8fafc',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              color: 'var(--primary-teal, #008080)',
+              fontWeight: 700,
+              fontSize: '13px'
+            }}
+          >
+            <Upload01Icon size={18} />
+            <span>{hasFiles ? '+ Tambah File Lainnya' : 'Klik untuk Unggah Berkas / Foto'}</span>
+          </button>
+          {hasFiles && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              icon={Delete02Icon}
+              onClick={() => {
+                setFileState([]);
+                if (inputRef.current) inputRef.current.value = '';
+              }}
+              title="Reset Semua File"
+            >
+              Reset
+            </Button>
           )}
+        </div>
+
+        <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>
+          {note || 'Format: JPG, PNG, PDF, DOC (Maks. 5MB per file)'}
         </div>
 
         {extraReqs && (
@@ -460,6 +653,11 @@ export default function PengaduanView() {
         )}
       </div>
     );
+  };
+
+  const getFormulirSubjek = (item) => {
+    const data = getSafeObject(item.data_formulir);
+    return data.nama_petugas || data.nama_warga || data.nama_anak || data.pemilik || data.nama_korban || data.nama_kegiatan || data.lokasi || data.lokasi_ruas_jalan || data.lokasi_embung || '-';
   };
 
   const currentCategory = SPM_CATEGORIES[tab] || SPM_CATEGORIES[0];
@@ -518,39 +716,158 @@ export default function PengaduanView() {
         .spm-tab-btn:hover {
           transform: translateY(-1px);
         }
-        .spm-sub-pills {
+        /* Fokus Tampilan Formulir Selector */
+        .spm-focus-bar {
           display: flex;
-          gap: 6px;
+          justifyContent: space-between;
+          align-items: center;
           flex-wrap: wrap;
-          background-color: #f1f5f9;
-          padding: 5px;
-          border-radius: 12px;
-          margin-bottom: 20px;
+          gap: 14px;
+          margin-bottom: 22px;
+          padding: 16px 20px;
+          background-color: #ffffff;
+          border-radius: 16px;
+          border: 1.5px solid #cbd5e1;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
-        .spm-sub-pill {
-          padding: 8px 14px;
-          border-radius: 8px;
-          font-size: 12.5px;
-          font-weight: 600;
-          color: #64748b;
-          background: transparent;
-          border: none;
+        .spm-focus-title {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0f172a;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .spm-focus-buttons {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .spm-focus-btn {
+          border: 1.5px solid #cbd5e1;
+          border-radius: 10px;
+          padding: 10px 18px;
+          font-size: 13.5px;
+          font-weight: 700;
           cursor: pointer;
-          transition: all 0.15s ease;
+          min-height: 44px;
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          min-height: 36px;
+          justify-content: center;
+          gap: 8px;
+          background-color: #f8fafc;
+          color: #1e293b;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+          box-sizing: border-box;
+          outline: none;
+        }
+        .spm-focus-btn:hover {
+          background-color: #ffffff;
+          border-color: #94a3b8;
+          color: #0f172a;
+          transform: translateY(-1px);
+        }
+        .spm-focus-btn.active-all {
+          background-color: #0f172a;
+          border-color: #0f172a;
+          color: #ffffff;
+          box-shadow: 0 3px 10px rgba(15, 23, 42, 0.25);
+          transform: translateY(-1px);
+        }
+        .spm-focus-btn.active-form {
+          background-color: var(--primary-teal, #008080);
+          border-color: var(--primary-teal, #008080);
+          color: #ffffff;
+          box-shadow: 0 3px 10px rgba(0, 128, 128, 0.28);
+          transform: translateY(-1px);
+        }
+        .spm-focus-btn.active-aduan {
+          background-color: var(--orange-deep, #B5650C);
+          border-color: var(--orange-deep, #B5650C);
+          color: #ffffff;
+          box-shadow: 0 3px 10px rgba(181, 101, 12, 0.28);
+          transform: translateY(-1px);
+        }
+        @media (max-width: 768px) {
+          .spm-focus-bar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 14px;
+            gap: 12px;
+          }
+          .spm-focus-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+            gap: 8px;
+          }
+          .spm-focus-btn {
+            width: 100%;
+            min-height: 48px;
+            font-size: 14px;
+            justify-content: center;
+          }
+        }
+
+        /* Sub-Tabs Pills */
+        .spm-sub-pills {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          background-color: #f8fafc;
+          padding: 8px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 14px;
+          margin-bottom: 22px;
+        }
+        .spm-sub-pill {
+          padding: 10px 18px;
+          border-radius: 10px;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #1e293b;
+          background-color: #ffffff;
+          border: 1.5px solid #cbd5e1;
+          cursor: pointer;
+          transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 44px;
+          box-sizing: border-box;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          line-height: 1.3;
+          outline: none;
         }
         .spm-sub-pill:hover {
           color: #0f172a;
-          background-color: rgba(255, 255, 255, 0.6);
+          border-color: #94a3b8;
+          background-color: #f1f5f9;
+          transform: translateY(-1px);
         }
         .spm-sub-pill.active {
-          background-color: #ffffff;
-          color: var(--primary-teal, #008080);
+          background-color: var(--primary-teal, #008080);
+          border-color: var(--primary-teal, #008080);
+          color: #ffffff !important;
           font-weight: 800;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 3px 10px rgba(0, 128, 128, 0.28);
+          transform: translateY(-1px);
+        }
+        @media (max-width: 640px) {
+          .spm-sub-pills {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            padding: 10px;
+          }
+          .spm-sub-pill {
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            min-height: 48px;
+          }
         }
         .spm-form-card {
           padding: 24px;
@@ -586,6 +903,8 @@ export default function PengaduanView() {
         }
         .spm-form-card .form-field textarea {
           width: 100%;
+          min-height: 90px;
+          resize: vertical;
           border-radius: 10px;
           border: 1px solid #cbd5e1;
           padding: 10px 12px;
@@ -593,11 +912,23 @@ export default function PengaduanView() {
           background-color: #ffffff;
           box-sizing: border-box;
           outline: none;
+          line-height: 1.5;
           transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .spm-form-card .form-field textarea:focus {
           border-color: var(--primary-teal, #008080);
           box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.12);
+        }
+        .spm-work-grid.spm-mode-form > div:nth-child(2) {
+          display: none !important;
+        }
+        .spm-work-grid.spm-mode-aduan > div:nth-child(1) {
+          display: none !important;
+        }
+        .spm-work-grid.spm-mode-form > div:nth-child(1),
+        .spm-work-grid.spm-mode-aduan > div:nth-child(2) {
+          width: 100% !important;
+          max-width: 100% !important;
         }
       `}</style>
 
@@ -724,11 +1055,46 @@ export default function PengaduanView() {
         onClose={() => setMessage({ type: '', text: '' })}
       />
 
-      {/* 2. MIDDLE WORKING AREA: 2-COLUMN GRID (IDENTIFIKASI LAPANGAN + ASPIRASI WARGA) */}
+      {/* 2. MIDDLE WORKING AREA: (IDENTIFIKASI LAPANGAN + ASPIRASI WARGA) */}
       <div style={{ marginBottom: '28px' }}>
+        {/* Selector Mode Tampilan (Point 8) */}
+        {/* Selector Mode Tampilan */}
+        <div className="spm-focus-bar">
+          <div className="spm-focus-title">
+            <ViewIcon size={18} color="var(--primary-teal, #008080)" />
+            <span>Fokus Tampilan Formulir:</span>
+          </div>
+          <div className="spm-focus-buttons">
+            <button
+              type="button"
+              onClick={() => setViewFilter('all')}
+              className={`spm-focus-btn ${viewFilter === 'all' ? 'active-all' : ''}`}
+            >
+              <span>👁️</span>
+              <span>Semua (Berdampingan)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewFilter('form')}
+              className={`spm-focus-btn ${viewFilter === 'form' ? 'active-form' : ''}`}
+            >
+              <span>📝</span>
+              <span>Formulir Identifikasi Lapangan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewFilter('aduan')}
+              className={`spm-focus-btn ${viewFilter === 'aduan' ? 'active-aduan' : ''}`}
+            >
+              <span>📢</span>
+              <span>Pengaduan &amp; Aspirasi Warga</span>
+            </button>
+          </div>
+        </div>
+
         {/* ===== 0. PENDIDIKAN ===== */}
         {tab === 0 && (
-          <div className="grid grid-2" style={{ gap: '24px', alignItems: 'start' }}>
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
             {/* KIRI: FORMULIR IDENTIFIKASI PENDIDIKAN */}
             <div className="spm-form-card">
               <div className="section-head" style={{ marginBottom: '16px' }}>
@@ -856,17 +1222,7 @@ export default function PengaduanView() {
                 'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
               )}
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitIdentifikasi}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Menyimpan..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Simpan Data
-              </Button>
+              {renderActionButtons('iden')}
             </div>
 
             {/* KANAN: ASPIRASI MASYARAKAT BIDANG PENDIDIKAN */}
@@ -963,24 +1319,14 @@ export default function PengaduanView() {
                 )}
               </div>
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitPengaduan}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Mengirim..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Kirim Pengaduan
-              </Button>
+              {renderActionButtons('aduan')}
             </div>
           </div>
         )}
 
         {/* ===== 1. PEKERJAAN UMUM ===== */}
         {tab === 1 && (
-          <div className="grid grid-2" style={{ gap: '24px', alignItems: 'start' }}>
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
             {/* KIRI: FORMULIR IDENTIFIKASI PEKERJAAN UMUM */}
             <div className="spm-form-card">
               <div className="section-head" style={{ marginBottom: '16px' }}>
@@ -1073,17 +1419,7 @@ export default function PengaduanView() {
                 'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
               )}
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitIdentifikasi}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Menyimpan..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Simpan Data
-              </Button>
+              {renderActionButtons('iden')}
             </div>
 
             {/* KANAN: PENGADUAN MASYARAKAT PEKERJAAN UMUM */}
@@ -1138,24 +1474,14 @@ export default function PengaduanView() {
                 )}
               </div>
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitPengaduan}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Mengirim..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Kirim Pengaduan
-              </Button>
+              {renderActionButtons('aduan')}
             </div>
           </div>
         )}
 
         {/* ===== 2. PERUMAHAN RAKYAT ===== */}
         {tab === 2 && (
-          <div className="grid grid-2" style={{ gap: '24px', alignItems: 'start' }}>
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
             {/* KIRI: FORMULIR IDENTIFIKASI PERUMAHAN */}
             <div className="spm-form-card">
               <div className="section-head" style={{ marginBottom: '16px' }}>
@@ -1236,17 +1562,7 @@ export default function PengaduanView() {
                 'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
               )}
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitIdentifikasi}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Menyimpan..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Simpan Data
-              </Button>
+              {renderActionButtons('iden')}
             </div>
 
             {/* KANAN: PENGADUAN MASYARAKAT PERUMAHAN RAKYAT */}
@@ -1308,24 +1624,14 @@ export default function PengaduanView() {
                 )}
               </div>
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitPengaduan}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Mengirim..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Kirim Pengaduan
-              </Button>
+              {renderActionButtons('aduan')}
             </div>
           </div>
         )}
 
         {/* ===== 3. TRANTIBUMLINMAS ===== */}
         {tab === 3 && (
-          <div className="grid grid-2" style={{ gap: '24px', alignItems: 'start' }}>
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
             {/* KIRI: FORMULIR IDENTIFIKASI TRANTIBUM */}
             <div className="spm-form-card">
               <div className="section-head" style={{ marginBottom: '16px' }}>
@@ -1447,17 +1753,7 @@ export default function PengaduanView() {
                 'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
               )}
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitIdentifikasi}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Menyimpan..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Simpan Data
-              </Button>
+              {renderActionButtons('iden')}
             </div>
 
             {/* KANAN: PENGADUAN MASYARAKAT TRANTIBUMLINMAS */}
@@ -1517,24 +1813,14 @@ export default function PengaduanView() {
                 )}
               </div>
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitPengaduan}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Mengirim..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Kirim Pengaduan
-              </Button>
+              {renderActionButtons('aduan')}
             </div>
           </div>
         )}
 
         {/* ===== 4. SOSIAL ===== */}
         {tab === 4 && (
-          <div className="grid grid-2" style={{ gap: '24px', alignItems: 'start' }}>
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
             {/* KIRI: FORMULIR IDENTIFIKASI SOSIAL */}
             <div className="spm-form-card">
               <div className="section-head" style={{ marginBottom: '16px' }}>
@@ -1615,17 +1901,7 @@ export default function PengaduanView() {
                 'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
               )}
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitIdentifikasi}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Menyimpan..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Simpan Data
-              </Button>
+              {renderActionButtons('iden')}
             </div>
 
             {/* KANAN: PENGADUAN MASYARAKAT SOSIAL */}
@@ -1683,17 +1959,7 @@ export default function PengaduanView() {
                 )}
               </div>
 
-              <Button
-                variant="primary"
-                size="md"
-                onClick={submitPengaduan}
-                disabled={isLoading}
-                loading={isLoading}
-                loadingText="Mengirim..."
-                style={{ marginTop: '20px', width: '100%' }}
-              >
-                Kirim Pengaduan
-              </Button>
+              {renderActionButtons('aduan')}
             </div>
           </div>
         )}
@@ -1751,6 +2017,7 @@ export default function PengaduanView() {
                   <tr>
                     <th>Tanggal</th>
                     <th>Sub-Bidang</th>
+                    <th>Petugas / Subjek</th>
                     <th style={{ textAlign: 'right' }}>Aksi</th>
                   </tr>
                 </thead>
@@ -1760,6 +2027,7 @@ export default function PengaduanView() {
                       <tr key={idx}>
                         <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
                         <td><span style={{ fontWeight: 600, color: '#1e293b' }}>{item.sub_bidang || '-'}</span></td>
+                        <td><span style={{ color: '#475569', fontWeight: 600 }}>{getFormulirSubjek(item)}</span></td>
                         <td style={{ textAlign: 'right' }}>
                           <Button
                             type="button"
@@ -1775,7 +2043,7 @@ export default function PengaduanView() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" style={{ textAlign: 'center', padding: '24px 16px', color: '#94a3b8' }}>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '24px 16px', color: '#94a3b8' }}>
                         <File01Icon size={24} style={{ margin: '0 auto 6px', display: 'block', color: '#cbd5e1' }} />
                         Belum ada formulir identifikasi di bidang ini.
                       </td>

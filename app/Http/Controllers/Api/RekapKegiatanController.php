@@ -27,6 +27,12 @@ class RekapKegiatanController extends Controller
     // === FUNGSI SIMPAN DATA (POST) ===
     public function store(Request $request)
     {
+        $request->validate([
+            'kd_kec' => 'required',
+            'kd_desa' => 'required',
+            'bulan_pendataan' => 'required',
+        ]);
+
         $posyanduId = $request->user()->posyandu_id;
         $data = $request->all();
         $data['posyandu_id'] = $posyanduId;

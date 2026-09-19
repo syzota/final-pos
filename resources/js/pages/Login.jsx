@@ -279,10 +279,10 @@ export default function Login({ onNavigate, onLogin }) {
             variant="primary"
             size="lg"
             loading={isLoading}
-            loadingText="Memverifikasi Akun..."
+            loadingText=""
             fullWidth
           >
-            Masuk ke Sistem
+            Masuk
           </Button>
         </form>
       </div>

@@ -19,7 +19,6 @@ import {
   DeliveryBox01Icon, 
   Location01Icon, 
   Call02Icon, 
-  Directions01Icon, 
   Cancel01Icon 
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../components/common/Skeleton';
@@ -334,7 +333,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
                     <span style={{ lineHeight: '1.4' }}>{posyandu.kontak_darurat || posyandu.no_telp || '0812-5000-100' + ((idx % 9) + 1)}</span>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
+                  <div style={{ marginTop: 'auto' }}>
                     <Button
                       variant="primary"
                       size="md"
@@ -343,16 +342,6 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
                       onClick={() => setSelectedDetailPosyandu(posyandu)}
                     >
                       Lihat Detail Posyandu
-                    </Button>
-
-                    <Button
-                      variant="secondary"
-                      size="md"
-                      fullWidth
-                      icon={Directions01Icon}
-                      onClick={() => window.open(posyandu.link_gmaps || `https://maps.google.com/?q=Loa+Duri+Ulu+Posyandu+${posyandu.nama}`, '_blank')}
-                    >
-                      Buka di Google Maps
                     </Button>
                   </div>
                 </div>

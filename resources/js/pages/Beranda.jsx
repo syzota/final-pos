@@ -33,6 +33,7 @@ export default function Beranda({ activePage = 'beranda', onNavigate, onDarurat 
             eyebrow="Edukasi & Informasi Terkini"
             title="Artikel Kesehatan Terbaru"
             description="Informasi terpercaya seputar tumbuh kembang balita, pola gizi keluarga, dan tips kesehatan dari kader Posyandu terpercaya."
+            align="left"
           />
 
           {/* Grid Kartu Artikel */}

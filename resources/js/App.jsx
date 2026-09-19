@@ -29,6 +29,8 @@ function App() {
   const getPageFromHash = () => {
     const rawHash = window.location.hash.replace('#', '').trim();
     if (!rawHash || rawHash === '' || rawHash === 'beranda') return 'beranda';
+    if (rawHash.startsWith('dashboard')) return 'dashboard';
+    if (rawHash === 'login' && localStorage.getItem('auth_token')) return 'dashboard';
     const VALID_PAGES = ['profil', 'artikel', 'detail-artikel', 'jadwal', 'kalkulator', 'kontak', 'login', 'dashboard'];
     if (VALID_PAGES.includes(rawHash)) return rawHash;
     return '404';
@@ -168,7 +170,11 @@ function App() {
     <div className="app-container">
       <div key={activePage} className="page-reveal" style={{ width: '100%' }}>
         {activePage === 'login' ? (
-          <Login onNavigate={handleNavigate} onLogin={(user) => { setUserAuth(user); handleNavigate('dashboard'); }} />
+          <Login onNavigate={handleNavigate} onLogin={(user) => {
+            setUserAuth(user);
+            window.location.replace('#dashboard');
+            setActivePage('dashboard');
+          }} />
         ) : activePage === 'dashboard' ? (
           <DashboardApp userAuth={userAuth} onLogout={handleLogout} />
         ) : activePage === 'profil' ? (

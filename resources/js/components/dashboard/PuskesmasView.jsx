@@ -22,6 +22,8 @@ export default function PuskesmasView() {
 
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [dataCetak, setDataCetak] = useState([]);
+    const [isPrintingAll, setIsPrintingAll] = useState(false);
+    const [printSubtitle, setPrintSubtitle] = useState('');
 
     // STATE BARU: Untuk filter bulan (Format: "YYYY-MM")
     const [filterBulan, setFilterBulan] = useState('');
@@ -116,10 +118,64 @@ export default function PuskesmasView() {
 
     const cetakIndividu = (item) => {
         setDataCetak([item]);
+        setPrintSubtitle(`Rekam Medis Individu: ${getNamaPasien(item)}`);
         setTimeout(() => {
             window.print();
-            setTimeout(() => setDataCetak(filteredData), 1000);
+            setTimeout(() => {
+                setDataCetak(filteredData);
+                setPrintSubtitle('');
+            }, 1000);
         }, 150);
+    };
+
+    const cetakKategoriIni = () => {
+        setDataCetak(filteredData);
+        setPrintSubtitle(`Kategori: ${SASARAN_NAMA[tab]}`);
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => setPrintSubtitle(''), 1000);
+        }, 150);
+    };
+
+    const cetakSemuaSasaran = async () => {
+        if (!selectedPosyandu) return;
+        setIsPrintingAll(true);
+        try {
+            const token = localStorage.getItem('auth_token');
+            const requests = SASARAN.map(s =>
+                axios.get(`/api/puskesmas/pemeriksaan/${s}?posyandu_id=${selectedPosyandu.id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            );
+            const responses = await Promise.all(requests);
+            let allData = [];
+            responses.forEach((res, idx) => {
+                const items = (res.data?.data || []).map(item => ({
+                    ...item,
+                    _kategoriNama: SASARAN_NAMA[idx]
+                }));
+                allData = allData.concat(items);
+            });
+
+            if (filterBulan) {
+                allData = allData.filter(item => item.created_at && item.created_at.startsWith(filterBulan));
+            }
+
+            setDataCetak(allData);
+            setPrintSubtitle('Semua Kategori Sasaran (Lengkap)');
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    setDataCetak(filteredData);
+                    setPrintSubtitle('');
+                }, 1000);
+            }, 300);
+        } catch (err) {
+            console.error(err);
+            setMessage({ type: 'error', text: 'Gagal memuat seluruh sasaran untuk dicetak.' });
+        } finally {
+            setIsPrintingAll(false);
+        }
     };
 
     // Teks untuk Judul Bulan di PDF
@@ -175,26 +231,28 @@ export default function PuskesmasView() {
                         <p style={{ margin: 0, color: '#64748b', fontSize: '13.5px' }}>Waktu Input: {formatWaktu(selectedDetail.created_at)}</p>
                     </div>
 
-                    <table className="table">
-                        <tbody>
-                        <tr>
-                            <td style={{ width: '40%', color: '#64748b', fontSize: '13px' }}>Nama Sasaran</td>
-                            <td style={{ fontWeight: 'bold', color: 'var(--primary-teal, #008080)', fontSize: '15px' }}>{namaPasien}</td>
-                        </tr>
-                        {Object.entries(selectedDetail).map(([key, value], idx) => {
-                            if (hiddenKeys.includes(key)) return null;
-                            let displayVal = value !== null ? String(value) : '-';
-                            if (key.includes('tanggal') && value) displayVal = new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    <div className="table-responsive">
+                        <table className="table">
+                            <tbody>
+                            <tr>
+                                <td style={{ width: '40%', color: '#64748b', fontSize: '13px' }}>Nama Sasaran</td>
+                                <td style={{ fontWeight: 'bold', color: 'var(--primary-teal, #008080)', fontSize: '15px' }}>{namaPasien}</td>
+                            </tr>
+                            {Object.entries(selectedDetail).map(([key, value], idx) => {
+                                if (hiddenKeys.includes(key)) return null;
+                                let displayVal = value !== null ? String(value) : '-';
+                                if (key.includes('tanggal') && value) displayVal = new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-                            return (
-                                <tr key={idx}>
-                                    <td style={{ width: '40%', color: '#64748b', textTransform: 'capitalize', fontSize: '13px' }}>{key.replace(/_/g, ' ')}</td>
-                                    <td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontWeight: 'bold' }}>{displayVal}</td>
-                                </tr>
-                            )
-                        })}
-                        </tbody>
-                    </table>
+                                return (
+                                    <tr key={idx}>
+                                        <td style={{ width: '40%', color: '#64748b', textTransform: 'capitalize', fontSize: '13px' }}>{key.replace(/_/g, ' ')}</td>
+                                        <td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontWeight: 'bold' }}>{displayVal}</td>
+                                    </tr>
+                                )
+                            })}
+                            </tbody>
+                        </table>
+                    </div>
 
                     <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
                         <h4 style={{ color: '#334155', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 700 }}><Camera01Icon size={18} />Bukti Foto Pemeriksaan</h4>
@@ -216,10 +274,10 @@ export default function PuskesmasView() {
                     </div>
 
                     <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                        <Button variant="secondary" size="md" icon={PrinterIcon} onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
+                        <Button variant="primary" size="md" icon={PrinterIcon} onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}>
                             Cetak Rekam Medis Ini
                         </Button>
-                        <Button variant="primary" size="md" onClick={() => setSelectedDetail(null)}>Tutup</Button>
+                        <Button variant="secondary" size="md" onClick={() => setSelectedDetail(null)}>Tutup</Button>
                     </div>
                 </div>
             </div>,
@@ -312,8 +370,11 @@ export default function PuskesmasView() {
                                     onChange={(e) => setFilterBulan(e.target.value)}
                                     style={{ padding: '0 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', backgroundColor: '#fff', fontSize: '13.5px' }}
                                 />
-                                <Button variant="primary" size="md" icon={File01Icon} onClick={() => window.print()}>
-                                    Ekspor Laporan (PDF)
+                                <Button variant="secondary" size="md" icon={PrinterIcon} onClick={cetakKategoriIni}>
+                                    Cetak {SASARAN_NAMA[tab]} (PDF)
+                                </Button>
+                                <Button variant="primary" size="md" icon={File01Icon} onClick={cetakSemuaSasaran} disabled={isPrintingAll} loading={isPrintingAll} loadingText="Menyiapkan...">
+                                    Cetak Semua Sasaran (Lengkap)
                                 </Button>
                             </div>
                         </div>
@@ -354,7 +415,7 @@ export default function PuskesmasView() {
                                             <td>
                                                 <div style={{ display: 'flex', gap: '6px' }}>
                                                     <Button variant="secondary" size="sm" onClick={() => setSelectedDetail(item)} title="Lihat Rekam Medis"><Search01Icon size={14} className="me-1" /> Detail</Button>
-                                                    <Button variant="secondary" size="sm" onClick={() => cetakIndividu(item)} title="Cetak Rekam Medis Ini"><PrinterIcon size={16} /></Button>
+                                                    <Button variant="primary" size="sm" onClick={() => cetakIndividu(item)} title="Cetak Rekam Medis Ini"><PrinterIcon size={16} /></Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -381,7 +442,7 @@ export default function PuskesmasView() {
                 <div id="dokumen-cetak">
                     <h2 style={{ textAlign: 'center', marginBottom: '5px' }}>Laporan Resmi Pemeriksaan Kesehatan</h2>
                     <h4 style={{ textAlign: 'center', color: '#555', marginTop: 0, marginBottom: '24px' }}>
-                        Fasilitas: Posyandu {selectedPosyandu.nama} | Kategori: {SASARAN_NAMA[tab]} <br />
+                        Fasilitas: Posyandu {selectedPosyandu.nama} | {printSubtitle || `Kategori: ${SASARAN_NAMA[tab]}`} <br />
                         Periode Laporan: {getNamaBulanCetak()}
                     </h4>
                     <hr style={{ borderTop: '2px solid #000', marginBottom: '24px' }} />
@@ -399,6 +460,7 @@ export default function PuskesmasView() {
                                 <div key={item.id} style={{ marginBottom: '40px', pageBreakInside: 'avoid' }}>
                                     <p style={{ fontWeight: 'bold', margin: '0 0 8px 0', fontSize: '15px' }}>
                                         {dataCetak.length > 1 ? `${idx + 1}. ` : ''} Pasien: {namaPasien}
+                                        {item._kategoriNama && <span style={{ color: '#008080', marginLeft: '8px' }}>[{item._kategoriNama}]</span>}
                                         <span style={{ fontWeight: 'normal', color: '#555', fontSize: '13px' }}> (Dicatat: {formatWaktu(item.created_at)})</span>
                                     </p>
 

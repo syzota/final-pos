@@ -122,12 +122,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
     });
 
-    // ----------------------------------------------------
-    // GRUP B: Khusus KETUA POSYANDU
-    // (Akses manajerial profil posyandu)
-    // ----------------------------------------------------
-    Route::middleware('role:ketua')->group(function () {
+    Route::middleware('role:kader,ketua,superadmin')->group(function () {
         Route::get('/posyandu/me', [PosyanduController::class, 'getMe']);
+    });
+
+    Route::middleware('role:ketua,superadmin')->group(function () {
         Route::post('/posyandu/me/update', [PosyanduController::class, 'updateMe']);
     });
 

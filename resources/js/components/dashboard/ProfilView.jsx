@@ -122,9 +122,19 @@ export default function ProfilView() {
     fetchProfil();
   }, []);
 
+  const blockInvalidChars = (e) => {
+    if (['-', '+', 'e', 'E'].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let finalVal = value;
+    if (name === 'no_telepon' || name === 'kontak_darurat') {
+      finalVal = value.replace(/\D/g, '');
+    }
+    setFormData(prev => ({ ...prev, [name]: finalVal }));
   };
 
   const handleFileChange = (e) => {
@@ -143,7 +153,7 @@ export default function ProfilView() {
     try {
       const token = localStorage.getItem('auth_token');
       const submitData = new FormData();
-      const blacklist = ['jadwal', 'id', 'created_at', 'updated_at', 'foto', 'no_telepon'];
+      const blacklist = ['jadwal', 'id', 'created_at', 'updated_at', 'foto'];
 
       Object.keys(formData).forEach(key => {
         if (!blacklist.includes(key)) {
@@ -287,7 +297,7 @@ export default function ProfilView() {
             {/* Tombol Cetak Dokumen SIP menggunakan komponen Button standar */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
               <Button
-                variant="secondary"
+                variant="primary"
                 size="md"
                 fullWidth
                 icon={PrinterIcon}
@@ -296,7 +306,7 @@ export default function ProfilView() {
                 Cetak Profil SIP
               </Button>
               <Button
-                variant="secondary"
+                variant="primary"
                 size="md"
                 fullWidth
                 icon={PrinterIcon}
@@ -478,6 +488,14 @@ export default function ProfilView() {
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Program Terintegrasi Lainnya</label>
                   <input name="program_terintegrasi" value={formData.program_terintegrasi || ''} onChange={handleChange} placeholder="Contoh: Posbindu / Lansia" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
+                <div className="form-field">
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Nomor Telepon Posyandu</label>
+                  <input name="no_telepon" value={formData.no_telepon || ''} onChange={handleChange} placeholder="Contoh: 08115567967" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                </div>
+                <div className="form-field">
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Kontak Darurat / Pengurus</label>
+                  <input name="kontak_darurat" value={formData.kontak_darurat || ''} onChange={handleChange} placeholder="Contoh: 082254785400" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                </div>
               </div>
             </div>
           )}
@@ -528,16 +546,8 @@ export default function ProfilView() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div className="form-field">
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Penanggung Jawab Umum</label>
-                  <input name="pj_umum" value={formData.pj_umum || ''} onChange={handleChange} placeholder="Nama Kepala Desa / Tokoh" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
-                </div>
-                <div className="form-field">
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>PJ Operasional</label>
-                  <input name="pj_operasional" value={formData.pj_operasional || ''} onChange={handleChange} placeholder="Nama PJ Operasional" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
-                </div>
-                <div className="form-field">
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Ketua Pelaksana</label>
-                  <input name="ketua_pelaksana" value={formData.ketua_pelaksana || ''} onChange={handleChange} placeholder="Nama Ketua Posyandu" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Ketua Posyandu</label>
+                  <input name="ketua_pelaksana" value={formData.ketua_pelaksana || ''} onChange={handleChange} placeholder="Nama Ketua" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Sekretaris</label>
@@ -549,11 +559,11 @@ export default function ProfilView() {
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Jumlah Kader Aktif</label>
-                  <input type="number" inputMode="numeric" name="jml_kader_aktif" value={formData.jml_kader_aktif || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input type="number" inputMode="numeric" min="0" onKeyDown={blockInvalidChars} name="jml_kader_aktif" value={formData.jml_kader_aktif || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Jumlah Kader Tidak Aktif</label>
-                  <input type="number" inputMode="numeric" name="jml_kader_tidak_aktif" value={formData.jml_kader_tidak_aktif || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input type="number" inputMode="numeric" min="0" onKeyDown={blockInvalidChars} name="jml_kader_tidak_aktif" value={formData.jml_kader_tidak_aktif || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Bidan Desa</label>
@@ -569,7 +579,7 @@ export default function ProfilView() {
                 </div>
                 <div className="form-field" style={{ gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Keterangan Tambahan Pengurus</label>
-                  <textarea rows="2" name="keterangan_profil" value={formData.keterangan_profil || ''} onChange={handleChange} placeholder="Catatan kepengurusan posyandu..." style={{ width: '100%', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px' }}></textarea>
+                  <textarea rows="2" name="keterangan_profil" value={formData.keterangan_profil || ''} onChange={handleChange} placeholder="Catatan kepengurusan posyandu..." style={{ width: '100%', minHeight: '80px', resize: 'vertical', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px' }}></textarea>
                 </div>
               </div>
             </div>
@@ -637,19 +647,19 @@ export default function ProfilView() {
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Jumlah Dacin (Unit)</label>
-                  <input type="number" inputMode="numeric" name="jml_dacin" value={formData.jml_dacin || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input type="number" inputMode="numeric" min="0" onKeyDown={blockInvalidChars} name="jml_dacin" value={formData.jml_dacin || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Jumlah Timbangan Bayi</label>
-                  <input type="number" inputMode="numeric" name="timbangan_bayi" value={formData.timbangan_bayi || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input type="number" inputMode="numeric" min="0" onKeyDown={blockInvalidChars} name="timbangan_bayi" value={formData.timbangan_bayi || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Jumlah Timbangan Balita</label>
-                  <input type="number" inputMode="numeric" name="timbangan_balita" value={formData.timbangan_balita || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input type="number" inputMode="numeric" min="0" onKeyDown={blockInvalidChars} name="timbangan_balita" value={formData.timbangan_balita || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Jumlah Timbangan Dewasa / Ibu</label>
-                  <input type="number" inputMode="numeric" name="timbangan_ibu" value={formData.timbangan_ibu || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                  <input type="number" inputMode="numeric" min="0" onKeyDown={blockInvalidChars} name="timbangan_ibu" value={formData.timbangan_ibu || ''} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
                 </div>
                 <div className="form-field">
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Buku KIA</label>

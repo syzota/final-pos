@@ -283,30 +283,6 @@ export default function PencatatanKegiatanView() {
       `}</style>
 
             <div className="no-print">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', width: '100%' }}>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        fullWidth
-                        icon={FloppyDiskIcon}
-                        onClick={handleSave}
-                        disabled={isLoading}
-                        loading={isLoading}
-                        loadingText="Menyimpan..."
-                    >
-                        Simpan Data
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        size="md"
-                        fullWidth
-                        icon={PrinterIcon}
-                        onClick={() => handlePrint(null)}
-                    >
-                        Ekspor PDF Kertas
-                    </Button>
-                </div>
-
                 <NotificationModal
                     isOpen={Boolean(message.text || message.title)}
                     type={message.type || 'success'}
@@ -453,6 +429,40 @@ export default function PencatatanKegiatanView() {
                     </div>
                 </div>
 
+                {/* --- TOMBOL AKSI FORMULIR (DI BAWAH FORMULIR) --- */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', marginTop: '20px', marginBottom: '12px', width: '100%' }}>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        icon={FloppyDiskIcon}
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        loading={isLoading}
+                        loadingText="Menyimpan..."
+                        fullWidth
+                        style={{
+                            fontWeight: 800,
+                            minHeight: '44px',
+                            boxShadow: '0 3px 10px rgba(0, 128, 128, 0.25)'
+                        }}
+                    >
+                        Simpan Data
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        icon={PrinterIcon}
+                        onClick={() => handlePrint(null)}
+                        fullWidth
+                        style={{
+                            fontWeight: 700,
+                            minHeight: '44px'
+                        }}
+                    >
+                        Ekspor PDF Kertas
+                    </Button>
+                </div>
+
                 {/* --- TABEL RIWAYAT --- */}
                 <div className="card" style={{ marginTop: '24px' }}>
                     <div className="section-head">
@@ -487,7 +497,7 @@ export default function PencatatanKegiatanView() {
                                             <td style={{ textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                                     <Button
-                                                        variant="secondary"
+                                                        variant="primary"
                                                         size="sm"
                                                         icon={PrinterIcon}
                                                         onClick={() => handlePrint(item)}

@@ -32,7 +32,7 @@ class ArtikelController extends Controller
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('judul', 'like', "%{$search}%")
-                  ->orWhere('isi_artikel', 'like', "%{$search}%");
+                    ->orWhere('isi_artikel', 'like', "%{$search}%");
             });
         }
 

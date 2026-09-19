@@ -102,11 +102,11 @@
 }
 .logout-btn:hover { border-color: var(--rose-deep); }
 
-.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: var(--space-1-5) var(--space-3); min-height: 60px; border-bottom: 1px solid var(--line); background: var(--surface);
-  position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  padding: var(--space-1-5) var(--space-3); min-height: 64px; border-bottom: 1px solid var(--line); background: var(--surface);
+  position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.03);
   box-sizing: border-box;
 }
 .topbar h2 { font-size: var(--font-base); font-weight: 800; color: var(--ink); line-height: 1.2; margin: 0; }
@@ -212,6 +212,8 @@
 }
 .form-field textarea {
   width: 100%;
+  min-height: 80px;
+  resize: vertical;
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid #cbd5e1;
@@ -267,6 +269,26 @@
 .article-form-hint.active { display: flex; }
 .article-form-hint button { margin-left: auto; background: none; border: none; color: var(--violet-deep); font-weight: 800; cursor: pointer; font-size: var(--font-xs); text-decoration: underline; }
 
+/* ---------- WARGA CARD ---------- */
+.warga-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+  margin-top: 2px;
+  gap: 8px;
+}
+.warga-card-meta {
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+.warga-card-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 .progress-track { height: var(--space-1); border-radius: 100px; background: var(--line); overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--violet-deep), var(--magenta-deep)); }
 
@@ -288,10 +310,35 @@
 
 .table-responsive {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
   border-radius: var(--radius-md);
   margin-bottom: var(--space-1-5);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.table-responsive > table,
+.table-responsive > .table {
+  min-width: 580px;
 }
 
 @media(max-width:900px) {
@@ -451,6 +498,29 @@
     font-size: var(--font-base);
     line-height: 1.35;
     word-break: break-word;
+  }
+
+  .warga-card-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .warga-card-actions {
+    display: flex !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  .warga-card-actions > * {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .warga-card-actions > * span {
+    white-space: nowrap !important;
+    font-size: 11.5px !important;
   }
 }
 

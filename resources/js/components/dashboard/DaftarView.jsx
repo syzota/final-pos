@@ -265,7 +265,7 @@ export default function DaftarView() {
           </span>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table className="table" style={{ width: '100%', fontSize: '13px' }}>
             <thead>
               <tr>

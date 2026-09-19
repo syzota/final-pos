@@ -468,6 +468,26 @@ export default function KesehatanView() {
     return 'Normal';
   };
 
+  const blockInvalidNumberChars = (e) => {
+    if (['e', 'E', '+', '-'].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const getStatusStyle = (statusStr) => {
+    const s = (statusStr || '').toLowerCase();
+    if (s.includes('normal') || s.includes('baik')) {
+      return { bg: '#f0fdf4', text: '#15803d', border: '#86efac', labelColor: '#166534' };
+    }
+    if (s.includes('kurus') || s.includes('kurang') || s.includes('kek') || s.includes('wasted') || s.includes('rendah')) {
+      return { bg: '#fffbeb', text: '#b45309', border: '#fde68a', labelColor: '#92400e' };
+    }
+    if (s.includes('lebih') || s.includes('gemuk') || s.includes('obes') || s.includes('tinggi') || s.includes('berisiko')) {
+      return { bg: '#fef2f2', text: '#dc2626', border: '#fecaca', labelColor: '#991b1b' };
+    }
+    return { bg: '#f8fafc', text: currentTargetGroup.theme.primary, border: currentTargetGroup.theme.lightBorder, labelColor: '#64748b' };
+  };
+
   // === HANDLERS INPUT FORM ===
   const handleBalitaChange = (e) => {
     const { name, value } = e.target;
@@ -627,7 +647,7 @@ export default function KesehatanView() {
       if (!balitaData.anak_id) missing.push('Nama anak / balita belum dipilih');
       if (!balitaData.berat_badan || Number(balitaData.berat_badan) <= 0) missing.push('Berat badan (kg) belum diisi');
       if (!balitaData.tinggi_badan || Number(balitaData.tinggi_badan) <= 0) missing.push('Tinggi badan (cm) belum diisi');
-      if (!balitaData.umur_bulan) missing.push('Umur balita (bulan) belum diisi');
+      if (balitaData.umur_bulan === '' || balitaData.umur_bulan === null || balitaData.umur_bulan === undefined) missing.push('Umur balita (bulan) belum diisi');
 
       if (statusForm === 'final' && missing.length > 0) {
         setErrorModal({
@@ -1321,9 +1341,9 @@ export default function KesehatanView() {
                   type="number"
                   name="umur_bulan"
                   value={balitaData.umur_bulan}
-                  onChange={handleBalitaChange}
+                  readOnly
                   placeholder="Otomatis..."
-                  style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }}
+                  style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#f1f5f9', color: '#334155', cursor: 'not-allowed' }}
                 />
               </div>
 
@@ -1332,6 +1352,8 @@ export default function KesehatanView() {
                 <input
                   type="number"
                   step="0.1"
+                  min="0"
+                  onKeyDown={blockInvalidNumberChars}
                   name="berat_badan"
                   value={balitaData.berat_badan}
                   onChange={handleBalitaChange}
@@ -1360,6 +1382,8 @@ export default function KesehatanView() {
                 <input
                   type="number"
                   step="0.1"
+                  min="0"
+                  onKeyDown={blockInvalidNumberChars}
                   name="tinggi_badan"
                   value={balitaData.tinggi_badan}
                   onChange={handleBalitaChange}
@@ -1385,11 +1409,11 @@ export default function KesehatanView() {
 
               <div className="form-field">
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Lingkar Kepala (cm)</label>
-                <input type="number" step="0.1" name="lingkar_kepala" value={balitaData.lingkar_kepala} onChange={handleBalitaChange} placeholder="Contoh: 45" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" min="0" onKeyDown={blockInvalidNumberChars} name="lingkar_kepala" value={balitaData.lingkar_kepala} onChange={handleBalitaChange} placeholder="Contoh: 45" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
               <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Catatan Perkembangan Anak</label>
-                <textarea rows="2" name="catatan_perkembangan" value={balitaData.catatan_perkembangan} onChange={handleBalitaChange} placeholder="Catatan nafsu makan, keaktifan motorik..." style={{ width: '100%', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px' }}></textarea>
+                <textarea rows="2" name="catatan_perkembangan" value={balitaData.catatan_perkembangan} onChange={handleBalitaChange} placeholder="Catatan nafsu makan, keaktifan motorik..." style={{ width: '100%', minHeight: '80px', resize: 'vertical', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px' }}></textarea>
               </div>
 
               <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
@@ -1585,6 +1609,8 @@ export default function KesehatanView() {
                 <input
                   type="number"
                   step="0.1"
+                  min="0"
+                  onKeyDown={blockInvalidNumberChars}
                   name="berat_badan"
                   value={remajaData.berat_badan}
                   onChange={handleRemajaChange}
@@ -1610,7 +1636,7 @@ export default function KesehatanView() {
 
               <div className="form-field">
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                <input type="number" step="0.1" name="tinggi_badan" value={remajaData.tinggi_badan} onChange={handleRemajaChange} placeholder="Contoh: 155" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" min="0" onKeyDown={blockInvalidNumberChars} name="tinggi_badan" value={remajaData.tinggi_badan} onChange={handleRemajaChange} placeholder="Contoh: 155" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
 
               <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
@@ -1760,6 +1786,8 @@ export default function KesehatanView() {
                 <input
                   type="number"
                   step="0.1"
+                  min="0"
+                  onKeyDown={blockInvalidNumberChars}
                   name="berat_badan"
                   value={hamilData.berat_badan}
                   onChange={handleHamilChange}
@@ -1788,6 +1816,8 @@ export default function KesehatanView() {
                 <input
                   type="number"
                   step="0.1"
+                  min="0"
+                  onKeyDown={blockInvalidNumberChars}
                   name="tinggi_badan"
                   value={hamilData.tinggi_badan}
                   onChange={handleHamilChange}
@@ -1813,7 +1843,7 @@ export default function KesehatanView() {
 
               <div className="form-field full" style={{ gridColumn: '1 / -1' }}>
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Lingkar Lengan / LILA (cm)</label>
-                <input type="number" step="0.1" name="lingkar_lengan" value={hamilData.lingkar_lengan} onChange={handleHamilChange} placeholder="Contoh: 24.5" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" min="0" onKeyDown={blockInvalidNumberChars} name="lingkar_lengan" value={hamilData.lingkar_lengan} onChange={handleHamilChange} placeholder="Contoh: 24.5" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
 
               <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
@@ -1928,6 +1958,8 @@ export default function KesehatanView() {
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Gula Darah (mg/dL)</label>
                 <input
                   type="number"
+                  min="0"
+                  onKeyDown={blockInvalidNumberChars}
                   name="gula_darah"
                   value={lansiaData.gula_darah}
                   onChange={handleLansiaChange}
@@ -1983,6 +2015,8 @@ export default function KesehatanView() {
                 <input
                   type="number"
                   step="0.1"
+                  min="0"
+                  onKeyDown={blockInvalidNumberChars}
                   name="berat_badan"
                   value={lansiaData.berat_badan}
                   onChange={handleLansiaChange}
@@ -2008,7 +2042,7 @@ export default function KesehatanView() {
 
               <div className="form-field">
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                <input type="number" step="0.1" name="tinggi_badan" value={lansiaData.tinggi_badan} onChange={handleLansiaChange} placeholder="Contoh: 160" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
+                <input type="number" step="0.1" min="0" onKeyDown={blockInvalidNumberChars} name="tinggi_badan" value={lansiaData.tinggi_badan} onChange={handleLansiaChange} placeholder="Contoh: 160" style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px' }} />
               </div>
 
               <div className="form-field full" style={{ gridColumn: '1 / -1', display: 'flex', gap: '12px', marginTop: '16px' }}>
@@ -2062,17 +2096,24 @@ export default function KesehatanView() {
               <b>Apa itu IMT?</b> Indeks Massa Tubuh (IMT) adalah rasio perbandingan berat terhadap tinggi badan yang digunakan untuk mendeteksi dini risiko stunting, gizi kurang, atau obesitas.
             </p>
 
-            <div style={{ padding: '18px', background: '#ffffff', borderRadius: '12px', border: `1px solid ${currentTargetGroup.theme.lightBorder}`, textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--ink-faint, #717783)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' }}>
-                Hasil Penilaian Otomatis
-              </div>
-              <div style={{ fontSize: '24px', fontWeight: 900, color: currentTargetGroup.theme.primary, marginBottom: '4px' }}>
-                {getKalkulatorResult()}
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--ink-soft, #414751)', fontWeight: 600 }}>
-                {KELOMPOK_CALC[target].label}
-              </div>
-            </div>
+            {/* Kotak Hasil Penilaian Otomatis dengan Warna Dinamis (Poin 21) */}
+            {(() => {
+              const res = getKalkulatorResult();
+              const style = getStatusStyle(res);
+              return (
+                <div style={{ padding: '18px', background: style.bg, borderRadius: '14px', border: `1.5px solid ${style.border}`, textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s ease' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 800, color: style.labelColor, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' }}>
+                    Hasil Penilaian Otomatis
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: style.text, marginBottom: '4px' }}>
+                    {res}
+                  </div>
+                  <div style={{ fontSize: '12px', color: style.labelColor, fontWeight: 600 }}>
+                    {KELOMPOK_CALC[target].label}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Box Upload & Preview Dokumentasi Foto (Hanya 1 Foto) */}

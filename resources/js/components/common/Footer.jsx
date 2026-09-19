@@ -4,8 +4,6 @@ import logoFooter from '../../assets/images/common/logo-footer.jpeg';
 import { 
   Call02Icon, 
   Location01Icon, 
-  Mail01Icon, 
-  Globe02Icon, 
   BubbleChatIcon 
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
@@ -28,21 +26,27 @@ export default function Footer({ onNavigate }) {
             <div 
               className="footer-brand-title" 
               onClick={(e) => handleLinkClick(e, 'beranda')}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', marginBottom: '12px', cursor: 'pointer' }}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}
             >
-              <img
-                src={logoFooter}
-                alt="Logo Posyandu Loa Duri Ulu"
-                className="footer-logo"
-                loading="lazy"
-                style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }}
+              <img 
+                src={logoFooter} 
+                alt="Logo Posyandu" 
+                style={{ width: '44px', height: '44px', objectFit: 'contain', borderRadius: '10px', backgroundColor: '#ffffff', padding: '4px' }} 
               />
-              <span style={{ fontSize: '18px', fontWeight: 800 }}>Posyandu Loa Duri Ulu</span>
+              <div>
+                <span style={{ fontSize: '18px', fontWeight: 800, color: '#f8fafc', display: 'block', letterSpacing: '-0.01em' }}>
+                  Posyandu Loa Duri Ulu
+                </span>
+                <span style={{ fontSize: '12.5px', color: '#94a3b8', fontWeight: 500 }}>
+                  Kecamatan Kutai Kartanegara
+                </span>
+              </div>
             </div>
-            <p className="footer-desc" style={{ maxWidth: '420px', lineHeight: '1.6', color: '#94a3b8' }}>
-              Pusat pelayanan kesehatan primer terpadu bagi keluarga di Desa Loa Duri Ulu, Kecamatan Kutai Kartanegara. Melayani balita, remaja, ibu hamil, hingga lansia.
+            <p className="footer-brand-desc" style={{ fontSize: '13.5px', color: '#94a3b8', lineHeight: '1.6', maxWidth: '340px', margin: 0 }}>
+              Pusat layanan pemantauan tumbuh kembang balita, imunisasi, dan edukasi kesehatan keluarga di 9 Posyandu Desa Loa Duri Ulu.
             </p>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+            
+            <div className="footer-social-links" style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
               <a
                 href="https://wa.me/6281250001001"
                 target="_blank"
@@ -64,46 +68,6 @@ export default function Footer({ onNavigate }) {
               >
                 <BubbleChatIcon size={18} />
               </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-social-btn"
-                aria-label="Facebook Posyandu"
-                title="Kunjungi Facebook Posyandu"
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  backgroundColor: 'rgba(255,255,255,0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#60a5fa',
-                  transition: 'background 0.2s ease'
-                }}
-              >
-                <Globe02Icon size={18} />
-              </a>
-              <a
-                href="tel:081250001001"
-                className="footer-social-btn"
-                aria-label="Telepon Layanan"
-                title="Panggilan Telepon Langsung"
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  backgroundColor: 'rgba(255,255,255,0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#38bdf8',
-                  transition: 'background 0.2s ease'
-                }}
-              >
-                <Call02Icon size={18} />
-              </a>
             </div>
           </div>
 
@@ -124,26 +88,12 @@ export default function Footer({ onNavigate }) {
               <div className="footer-col-title" style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc', marginBottom: '14px' }}>
                 Wilayah Pelayanan
               </div>
-              <a 
-                href="https://maps.google.com/?q=Desa+Loa+Duri+Ulu+Kutai+Kartanegara" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', transition: 'color 0.15s ease' }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
+              <div 
+                style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <Location01Icon size={16} style={{ flexShrink: 0, color: '#38bdf8' }} />
                 <span>Desa Loa Duri Ulu, Kutai Kartanegara</span>
-              </a>
-              <a 
-                href="mailto:posyanduloaduriulu@gmail.com"
-                style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', transition: 'color 0.15s ease' }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
-              >
-                <Mail01Icon size={16} style={{ flexShrink: 0, color: '#38bdf8' }} />
-                <span>posyanduloaduriulu@gmail.com</span>
-              </a>
+              </div>
               <a 
                 href="tel:081250001001"
                 style={{ fontSize: '13.5px', color: '#94a3b8', margin: '0', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', transition: 'color 0.15s ease' }}

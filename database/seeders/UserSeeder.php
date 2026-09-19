@@ -52,11 +52,87 @@ class UserSeeder extends Seeder
 
         $posyanduData = [];
 
+        $posyanduMeta = [
+            'Melati' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => '082254785400',
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.587910,117.061170',
+                'foto' => 'profil_posyandu/posyandu-melati.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Rukun Lestari' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => '082220917146',
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.590050,117.053150',
+                'foto' => 'profil_posyandu/posyandu-rukun-lestari.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Mawar' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => '081352749095',
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.605280,117.048430',
+                'foto' => 'profil_posyandu/posyandu-mawar.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Bina Putra' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => '081350272329',
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.591351,117.063864',
+                'foto' => 'profil_posyandu/posyandu-bina-putra.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Nusa Indah' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => '081254231480',
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.588640,117.055510',
+                'foto' => 'profil_posyandu/posyandu-nusa-indah.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Cempaka' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => null,
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.575500,117.043630',
+                'foto' => 'profil_posyandu/posyandu-cempaka.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Tunas Mulya' => [
+                'alamat' => 'Loa Duri Ulu, Kec. Loa Janan, Kabupaten Kutai Kartanegara, Kalimantan Timur 75391',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => null,
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.587190,117.048890',
+                'foto' => 'profil_posyandu/posyandu-tunas-mulia.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Surya' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => '082137618893',
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.579550,117.057760',
+                'foto' => 'profil_posyandu/posyandu-surya.png',
+                'jml_kader_aktif' => 5,
+            ],
+            'Terkini' => [
+                'alamat' => 'Desa Loa Duri Ulu',
+                'no_telepon' => '08115567967',
+                'kontak_darurat' => null,
+                'link_gmaps' => 'https://www.google.com/maps?q=-0.589430,117.061800',
+                'foto' => 'profil_posyandu/posyandu-terkini.png',
+                'jml_kader_aktif' => 5,
+            ],
+        ];
+
         // 1. Loop 9 Posyandu
         foreach ($kredensial as $nama => $roles) {
+            $meta = $posyanduMeta[$nama] ?? ['alamat' => 'Desa Loa Duri Ulu'];
             $posyandu = Posyandu::updateOrCreate(
                 ['nama' => $nama],
-                ['alamat' => 'Desa Loa Duri Ulu']
+                $meta
             );
             $posyanduData[$nama] = $posyandu->id;
 

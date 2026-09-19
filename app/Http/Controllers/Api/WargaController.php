@@ -26,16 +26,27 @@ class WargaController extends Controller
 
     public function store(Request $request)
     {
-        // 1. VALIDASI DIPERBARUI: Tangkap status pernikahan dan istri
         $request->validate([
             'nama_lengkap' => 'required|string',
             'jenis_kelamin' => 'required|in:L,P',
             'nik' => 'required|string|size:16|unique:warga_keluarga,nik_kepala_keluarga',
             'no_kk' => 'required|string|size:16',
             'no_hp' => 'nullable|string',
-            'status_pernikahan' => 'required|in:Menikah,Duda,Janda',
+            'status_pernikahan' => 'required|in:Menikah,Belum Menikah,Cerai,Duda,Janda',
             'nama_istri' => 'required_if:status_pernikahan,Menikah|string|nullable',
             'anak' => 'nullable|array',
+        ], [
+            'nama_lengkap.required' => 'Nama Kepala Keluarga wajib diisi.',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
+            'jenis_kelamin.in' => 'Pilihan jenis kelamin harus Laki-laki (L) atau Perempuan (P).',
+            'nik.required' => 'NIK Kepala Keluarga wajib diisi.',
+            'nik.size' => 'NIK harus tepat 16 digit angka.',
+            'nik.unique' => 'NIK Kepala Keluarga ini sudah terdaftar sebelumnya.',
+            'no_kk.required' => 'Nomor KK wajib diisi.',
+            'no_kk.size' => 'Nomor KK harus tepat 16 digit angka.',
+            'status_pernikahan.required' => 'Status pernikahan wajib dipilih.',
+            'status_pernikahan.in' => 'Pilihan status pernikahan belum sesuai dengan kriteria sistem.',
+            'nama_istri.required_if' => 'Nama istri/pasangan wajib diisi apabila status pernikahan Menikah.',
         ]);
 
         $posyanduId = $this->getPosyanduId();
@@ -124,7 +135,7 @@ class WargaController extends Controller
 
     public function index()
     {
-        $query = WargaKeluarga::withCount('anak')->latest();
+        $query = WargaKeluarga::with(['anak', 'dewasa'])->withCount('anak')->latest();
         $posyanduId = $this->getPosyanduId();
         if ($posyanduId) {
             $query->where('posyandu_id', $posyanduId);

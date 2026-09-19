@@ -13,7 +13,8 @@ import {
   Cancel01Icon,
   CheckmarkCircle01Icon,
   UserCheck01Icon,
-  Baby01Icon
+  Baby01Icon,
+  ViewIcon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const FORM_FIELDS = [
@@ -29,6 +30,7 @@ const FORM_FIELDS = [
 export default function KelolaWargaView({ posyandu }) {
   const [wargaList, setWargaList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [detailKeluarga, setDetailKeluarga] = useState(null);
   const [formData, setFormData] = useState({
     nama_lengkap: '',
     jenis_kelamin: 'L',
@@ -268,9 +270,51 @@ export default function KelolaWargaView({ posyandu }) {
           align-items: start;
           width: 100%;
         }
+        .warga-card-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid #f1f5f9;
+          padding-top: 8px;
+          margin-top: 2px;
+          gap: 8px;
+        }
+        .warga-card-meta {
+          font-size: 11.5px;
+          color: #94a3b8;
+        }
+        .warga-card-actions {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+        }
         @media (max-width: 1024px) {
           .warga-grid-container {
             grid-template-columns: 1fr !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .warga-card-footer {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+          }
+          .warga-card-actions {
+            display: flex !important;
+            width: 100% !important;
+            gap: 6px !important;
+          }
+          .warga-card-actions > * {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+            justify-content: center !important;
+            text-align: center !important;
+          }
+          .warga-card-actions > * span {
+            white-space: nowrap !important;
+            font-size: 11.5px !important;
           }
         }
       `}</style>
@@ -296,6 +340,147 @@ export default function KelolaWargaView({ posyandu }) {
           onConfirm={confirmModal.onConfirm}
           onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null })}
         />
+
+        {/* MODAL DETAIL ANGGOTA KELUARGA (Poin 18) */}
+        {detailKeluarga && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              padding: '16px'
+            }}
+            onClick={() => setDetailKeluarga(null)}
+          >
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '20px',
+                width: '100%',
+                maxWidth: '560px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                border: '1px solid #e2e8f0',
+                padding: '24px'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#e6f3f3', color: '#008080', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <UserGroupIcon size={22} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                      Detail Anggota Keluarga
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      Kepala Keluarga: <b>{detailKeluarga.nama_kepala_keluarga}</b>
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDetailKeluarga(null)}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}
+                  title="Tutup Modal"
+                >
+                  <Cancel01Icon size={20} />
+                </button>
+              </div>
+
+              {/* INFO KK & NIK */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', padding: '12px 14px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: '18px' }}>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block', fontWeight: 600 }}>Nomor KK</span>
+                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>{detailKeluarga.no_kk || '-'}</span>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block', fontWeight: 600 }}>NIK Kepala Keluarga</span>
+                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>{detailKeluarga.nik_kepala_keluarga || detailKeluarga.nik || '-'}</span>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block', fontWeight: 600 }}>Kontak / WhatsApp</span>
+                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#008080' }}>{detailKeluarga.no_hp || '-'}</span>
+                </div>
+              </div>
+
+              {/* ANGGOTA DEWASA / PASANGAN */}
+              <div style={{ marginBottom: '18px' }}>
+                <h4 style={{ fontSize: '12.5px', fontWeight: 800, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <UserCheck01Icon size={14} color="#008080" />
+                  Anggota Dewasa / Pasangan
+                </h4>
+                {(!detailKeluarga.dewasa || detailKeluarga.dewasa.length === 0) ? (
+                  <div style={{ padding: '12px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', fontSize: '12px', color: '#64748b', textAlign: 'center' }}>
+                    Belum ada rincian pasangan tercatat.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {detailKeluarga.dewasa.map((dew, i) => (
+                      <div key={dew.id || i} style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0', backgroundColor: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>{dew.nama_lengkap}</span>
+                          <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>
+                            {dew.nama_lengkap === detailKeluarga.nama_kepala_keluarga ? 'Kepala Keluarga' : 'Pasangan / Istri'}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '11.5px', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', backgroundColor: dew.jenis_kelamin === 'L' ? '#e0f2fe' : '#fce7f3', color: dew.jenis_kelamin === 'L' ? '#0369a1' : '#be185d' }}>
+                          {dew.jenis_kelamin === 'L' ? 'L (Laki-laki)' : 'P (Perempuan)'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ANGGOTA ANAK */}
+              <div style={{ marginBottom: '18px' }}>
+                <h4 style={{ fontSize: '12.5px', fontWeight: 800, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Baby01Icon size={14} color="#0284c7" />
+                  Daftar Anggota Anak ({detailKeluarga.anak ? detailKeluarga.anak.length : 0})
+                </h4>
+                {(!detailKeluarga.anak || detailKeluarga.anak.length === 0) ? (
+                  <div style={{ padding: '12px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', fontSize: '12px', color: '#64748b', textAlign: 'center' }}>
+                    Belum ada data anak terdaftar dalam keluarga ini.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {detailKeluarga.anak.map((ank, i) => (
+                      <div key={ank.id || i} style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0', backgroundColor: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>{ank.nama_anak}</span>
+                          <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>
+                            Tgl Lahir: {ank.tanggal_lahir ? new Date(ank.tanggal_lahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '11.5px', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', backgroundColor: ank.jenis_kelamin === 'L' ? '#e0f2fe' : '#fce7f3', color: ank.jenis_kelamin === 'L' ? '#0369a1' : '#be185d' }}>
+                          {ank.jenis_kelamin === 'L' ? 'L (Laki-laki)' : 'P (Perempuan)'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ textAlign: 'right', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
+                <Button variant="secondary" size="sm" onClick={() => setDetailKeluarga(null)}>
+                  Tutup
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="warga-grid-container">
           {/* KOLOM KIRI: DAFTAR AKUN & KELUARGA WARGA */}
@@ -402,7 +587,11 @@ export default function KelolaWargaView({ posyandu }) {
                         transition: 'all 0.15s ease'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                      <div
+                        onClick={() => setDetailKeluarga(warga)}
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', cursor: 'pointer' }}
+                        title="Klik untuk melihat detail anggota keluarga"
+                      >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <div
                             style={{
@@ -448,12 +637,21 @@ export default function KelolaWargaView({ posyandu }) {
                         </span>
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '8px', marginTop: '2px' }}>
-                        <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>
+                      <div className="warga-card-footer">
+                        <span className="warga-card-meta">
                           NIK: {warga.nik || '-'} • HP: {warga.no_hp || '-'}
                         </span>
 
-                        <div style={{ display: 'flex', gap: '6px' }}>
+                        <div className="warga-card-actions">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            icon={ViewIcon}
+                            onClick={() => setDetailKeluarga(warga)}
+                            title="Lihat detail anggota keluarga"
+                          >
+                            Detail
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -558,6 +756,8 @@ export default function KelolaWargaView({ posyandu }) {
                     <option value="Menikah">Menikah</option>
                     <option value="Belum Menikah">Belum Menikah</option>
                     <option value="Cerai">Cerai</option>
+                    <option value="Duda">Duda</option>
+                    <option value="Janda">Janda</option>
                   </select>
                 </div>
 
@@ -638,47 +838,98 @@ export default function KelolaWargaView({ posyandu }) {
                   />
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {anakList.map((anak, index) => (
                     <div
                       key={index}
                       style={{
-                        padding: '12px',
+                        padding: '14px',
                         borderRadius: '10px',
                         backgroundColor: '#ffffff',
                         border: '1px solid #cbd5e1',
-                        display: 'grid',
-                        gridTemplateColumns: '1.2fr 1fr 0.8fr auto',
-                        gap: '8px',
-                        alignItems: 'center'
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px'
                       }}
                     >
-                      <input
-                        type="text"
-                        placeholder="Nama Anak"
-                        value={anak.nama}
-                        onChange={(e) => handleAnakChange(index, 'nama', e.target.value)}
-                        style={{ width: '100%', minHeight: '38px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12.5px' }}
-                      />
-                      <input
-                        type="date"
-                        value={anak.tanggal_lahir}
-                        onChange={(e) => handleAnakChange(index, 'tanggal_lahir', e.target.value)}
-                        style={{ width: '100%', minHeight: '38px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 10px', fontSize: '12px' }}
-                      />
-                      <select
-                        value={anak.jenis_kelamin}
-                        onChange={(e) => handleAnakChange(index, 'jenis_kelamin', e.target.value)}
-                        style={{ width: '100%', minHeight: '38px', borderRadius: '8px', border: '1px solid #cbd5e1', padding: '0 8px', fontSize: '12.5px', backgroundColor: '#fff' }}
-                      >
-                        <option value="L">Laki-Laki</option>
-                        <option value="P">Perempuan</option>
-                      </select>
+                      {anakList.length > 1 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                          <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155' }}>
+                            Data Anak #{index + 1}
+                          </span>
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                          Nama Lengkap Anak
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Masukkan nama lengkap anak"
+                          value={anak.nama}
+                          onChange={(e) => handleAnakChange(index, 'nama', e.target.value)}
+                          style={{
+                            width: '100%',
+                            minHeight: '42px',
+                            borderRadius: '8px',
+                            border: '1px solid #cbd5e1',
+                            padding: '0 12px',
+                            fontSize: '13px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                          Tanggal Lahir
+                        </label>
+                        <input
+                          type="date"
+                          value={anak.tanggal_lahir}
+                          max={new Date().toISOString().split('T')[0]}
+                          onChange={(e) => handleAnakChange(index, 'tanggal_lahir', e.target.value)}
+                          style={{
+                            width: '100%',
+                            minHeight: '42px',
+                            borderRadius: '8px',
+                            border: '1px solid #cbd5e1',
+                            padding: '0 12px',
+                            fontSize: '13px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                          Jenis Kelamin
+                        </label>
+                        <select
+                          value={anak.jenis_kelamin}
+                          onChange={(e) => handleAnakChange(index, 'jenis_kelamin', e.target.value)}
+                          style={{
+                            width: '100%',
+                            minHeight: '42px',
+                            borderRadius: '8px',
+                            border: '1px solid #cbd5e1',
+                            padding: '0 12px',
+                            fontSize: '13px',
+                            backgroundColor: '#fff',
+                            boxSizing: 'border-box'
+                          }}
+                        >
+                          <option value="L">Laki-laki</option>
+                          <option value="P">Perempuan</option>
+                        </select>
+                      </div>
+
                       <Button
                         variant="danger-outline"
                         size="sm"
-                        iconOnly
                         icon={Cancel01Icon}
+                        fullWidth
                         onClick={() => {
                           if (anakList.length > 1) {
                             handleRemoveAnak(index);
@@ -686,8 +937,10 @@ export default function KelolaWargaView({ posyandu }) {
                             setAnakList([{ nama: '', tanggal_lahir: '', jenis_kelamin: 'L' }]);
                           }
                         }}
-                        title={anakList.length > 1 ? "Hapus Baris Anak" : "Kosongkan Input Anak"}
-                      />
+                        style={{ marginTop: '2px' }}
+                      >
+                        {anakList.length > 1 ? 'Hapus Data Anak' : 'Kosongkan Data'}
+                      </Button>
                     </div>
                   ))}
                 </div>

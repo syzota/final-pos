@@ -1,9 +1,7 @@
 import React from 'react';
 import { Menu01Icon } from '@theexperiencecompany/gaia-icons/stroke-rounded';
 
-export default function DashboardNavbar({ title, userAuth, roleLabel, onOpenSidebar }) {
-  const displayName = userAuth?.name || userAuth?.username || '';
-
+export default function DashboardNavbar({ title, onOpenSidebar }) {
   return (
     <header
       className="topbar"
@@ -11,15 +9,15 @@ export default function DashboardNavbar({ title, userAuth, roleLabel, onOpenSide
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 16px',
+        padding: '0 20px',
         height: '64px',
         minHeight: '64px',
         backgroundColor: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
         position: 'sticky',
         top: 0,
-        zIndex: 100,
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
+        zIndex: 1000,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
         boxSizing: 'border-box',
       }}
     >
@@ -61,7 +59,7 @@ export default function DashboardNavbar({ title, userAuth, roleLabel, onOpenSide
           <span
             id="pageTitle"
             style={{
-              fontSize: '14.5px',
+              fontSize: '15px',
               fontWeight: 800,
               color: '#0f172a',
               letterSpacing: '-0.01em',
@@ -79,7 +77,6 @@ export default function DashboardNavbar({ title, userAuth, roleLabel, onOpenSide
           </span>
         </div>
       </div>
-
     </header>
   );
 }

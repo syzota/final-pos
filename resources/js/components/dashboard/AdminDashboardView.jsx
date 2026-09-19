@@ -430,21 +430,38 @@ export default function AdminDashboardView() {
                         >
                             Kembali ke Daftar
                         </Button>
-                        <Button
-                            variant="primary"
-                            size="md"
-                            icon={File01Icon}
-                            onClick={() => {
-                                setPrintTarget({ type: 'all', data: null });
-                                setIsPrinting(true);
-                                setTimeout(() => {
-                                    window.print();
-                                    setTimeout(() => setIsPrinting(false), 500);
-                                }, 150);
-                            }}
-                        >
-                            Ekspor PDF Lengkap
-                        </Button>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                icon={PrinterIcon}
+                                onClick={() => {
+                                    setPrintTarget({ type: 'all', data: null });
+                                    setIsPrinting(true);
+                                    setTimeout(() => {
+                                        window.print();
+                                        setTimeout(() => setIsPrinting(false), 500);
+                                    }, 150);
+                                }}
+                            >
+                                Ekspor Bidang {BIDANG_NAMA[tab]}
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="md"
+                                icon={File01Icon}
+                                onClick={() => {
+                                    setPrintTarget({ type: 'all_bidang', data: null });
+                                    setIsPrinting(true);
+                                    setTimeout(() => {
+                                        window.print();
+                                        setTimeout(() => setIsPrinting(false), 500);
+                                    }, 150);
+                                }}
+                            >
+                                Ekspor Semua Bidang (Lengkap)
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="card" style={{ backgroundColor: '#f8f9fa' }}>
@@ -506,7 +523,7 @@ export default function AdminDashboardView() {
                                                     <td style={{ textAlign: 'right' }}>
                                                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                                                             <Button variant="secondary" size="sm" icon={ViewIcon} iconOnly title="Lihat Detail" onClick={() => setSelectedForm(item)} />
-                                                            <Button variant="secondary" size="sm" icon={PrinterIcon} iconOnly title="Cetak Data Ini" onClick={() => handleCetakIndividu('form', item)} />
+                                                            <Button variant="primary" size="sm" icon={PrinterIcon} iconOnly title="Cetak Data Ini" onClick={() => handleCetakIndividu('form', item)} />
                                                             <Button variant="danger-outline" size="sm" icon={Delete02Icon} iconOnly title="Hapus" onClick={() => handleHapusFormulir(item.id)} />
                                                         </div>
                                                     </td>
@@ -540,7 +557,7 @@ export default function AdminDashboardView() {
                                                     <td style={{ textAlign: 'right' }}>
                                                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                                                             <Button variant="secondary" size="sm" icon={ViewIcon} iconOnly title="Lihat Detail" onClick={() => setSelectedPengaduan(item)} />
-                                                            <Button variant="secondary" size="sm" icon={PrinterIcon} iconOnly title="Cetak Pengaduan Ini" onClick={() => handleCetakIndividu('pengaduan', item)} />
+                                                            <Button variant="primary" size="sm" icon={PrinterIcon} iconOnly title="Cetak Pengaduan Ini" onClick={() => handleCetakIndividu('pengaduan', item)} />
                                                             {item.status === 'selesai' && (
                                                                 <Button variant="danger-outline" size="sm" icon={Delete02Icon} iconOnly title="Hapus" onClick={() => handleHapusPengaduan(item.id)} />
                                                             )}
@@ -634,7 +651,7 @@ export default function AdminDashboardView() {
 
                         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                             <Button
-                                variant="secondary"
+                                variant="primary"
                                 size="md"
                                 icon={PrinterIcon}
                                 onClick={() => { setSelectedForm(null); handleCetakIndividu('form', selectedForm); }}
@@ -642,7 +659,7 @@ export default function AdminDashboardView() {
                                 Cetak Ini
                             </Button>
                             <Button
-                                variant="primary"
+                                variant="secondary"
                                 size="md"
                                 onClick={() => setSelectedForm(null)}
                             >
@@ -733,7 +750,7 @@ export default function AdminDashboardView() {
 
                         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                             <Button
-                                variant="secondary"
+                                variant="primary"
                                 size="md"
                                 icon={PrinterIcon}
                                 onClick={() => { setSelectedPengaduan(null); handleCetakIndividu('pengaduan', selectedPengaduan); }}
@@ -741,7 +758,7 @@ export default function AdminDashboardView() {
                                 Cetak Ini
                             </Button>
                             <Button
-                                variant="primary"
+                                variant="secondary"
                                 size="md"
                                 onClick={() => setSelectedPengaduan(null)}
                             >
@@ -756,88 +773,152 @@ export default function AdminDashboardView() {
             {isPrinting && viewMode === 'detail' && selectedPosyandu && ReactDOM.createPortal(
                 <div id="dokumen-cetak">
                     <h2 style={{ textAlign: 'center', marginBottom: '5px' }}>Laporan Detail Posyandu {selectedPosyandu.nama}</h2>
-                    <h4 style={{ textAlign: 'center', color: '#555', marginTop: 0, marginBottom: '24px' }}>Bidang: {BIDANG_NAMA[tab]}</h4>
+                    <h4 style={{ textAlign: 'center', color: '#555', marginTop: 0, marginBottom: '24px' }}>
+                        {printTarget.type === 'all_bidang' ? 'Laporan Terpadu 5 Bidang Standar Pelayanan Minimal (SPM)' : `Bidang: ${BIDANG_NAMA[tab]}`}
+                    </h4>
                     <hr style={{ borderTop: '2px solid #000', marginBottom: '24px' }} />
 
-                    {formsToPrint.length > 0 && (
-                        <>
-                            <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>A. Data Pemetaan Identifikasi</h3>
-                            {formsToPrint.map((item, idx) => {
-                                const fotoArr = getArrayData(item.dokumentasi_foto);
-                                const amanFormulir = getSafeObject(item.data_formulir);
+                    {printTarget.type === 'all_bidang' ? (
+                        BIDANG_MAP.map((bKey, bIdx) => {
+                            const bForms = formulirList.filter(f => f.bidang === bKey);
+                            const bAduan = pengaduanList.filter(a => a.bidang === bKey);
+                            if (bForms.length === 0 && bAduan.length === 0) return null;
 
-                                return (
-                                    <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
-                                        <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{formsToPrint.length > 1 ? `${idx + 1}. ` : ''}Sub-Bidang: {item.sub_bidang || '-'} <span style={{ fontWeight: 'normal', color: '#555', fontSize: '13px' }}>(Tgl: {new Date(item.created_at).toLocaleDateString('id-ID')})</span></p>
-                                        <table className="tabel-cetak">
-                                            <tbody>
-                                            {Object.entries(amanFormulir).map(([k, v], i) => (
-                                                <tr key={i}>
-                                                    <th style={{ width: '35%', textTransform: 'capitalize' }}>{k.replace(/_/g, ' ')}</th>
-                                                    <td style={{ whiteSpace: 'pre-wrap' }}>{v || '-'}</td>
-                                                </tr>
+                            return (
+                                <div key={bKey} style={{ marginBottom: '32px', pageBreakInside: 'avoid' }}>
+                                    <h3 style={{ backgroundColor: '#f1f5f9', padding: '8px 14px', borderLeft: '4px solid #008080', margin: '0 0 16px 0', fontSize: '16px' }}>
+                                        Bidang {bIdx + 1}: {BIDANG_NAMA[bIdx]}
+                                    </h3>
+                                    {bForms.length > 0 && (
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <h4 style={{ borderBottom: '1px solid #ccc', paddingBottom: '6px', margin: '10px 0' }}>A. Data Pemetaan Identifikasi</h4>
+                                            {bForms.map((item, idx) => {
+                                                const fotoArr = getArrayData(item.dokumentasi_foto);
+                                                const amanFormulir = getSafeObject(item.data_formulir);
+                                                return (
+                                                    <div key={idx} style={{ marginBottom: '16px', pageBreakInside: 'avoid' }}>
+                                                        <p style={{ fontWeight: 'bold', margin: '0 0 6px 0', fontSize: '13px' }}>
+                                                            {idx + 1}. Sub-Bidang: {item.sub_bidang || '-'} <span style={{ fontWeight: 'normal', color: '#555' }}>(Tgl: {new Date(item.created_at).toLocaleDateString('id-ID')})</span>
+                                                        </p>
+                                                        <table className="tabel-cetak">
+                                                            <tbody>
+                                                            {Object.entries(amanFormulir).map(([k, v], i) => (
+                                                                <tr key={i}>
+                                                                    <th style={{ width: '35%', textTransform: 'capitalize' }}>{k.replace(/_/g, ' ')}</th>
+                                                                    <td style={{ whiteSpace: 'pre-wrap' }}>{v || '-'}</td>
+                                                                </tr>
+                                                            ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                    {bAduan.length > 0 && (
+                                        <div>
+                                            <h4 style={{ borderBottom: '1px solid #ccc', paddingBottom: '6px', margin: '14px 0 10px' }}>B. Laporan Pengaduan Masyarakat</h4>
+                                            {bAduan.map((item, idx) => (
+                                                <div key={idx} style={{ marginBottom: '16px', pageBreakInside: 'avoid' }}>
+                                                    <p style={{ fontWeight: 'bold', margin: '0 0 6px 0', fontSize: '13px' }}>{idx + 1}. Laporan dari: {item.nama_pelapor}</p>
+                                                    <table className="tabel-cetak">
+                                                        <tbody>
+                                                        <tr><th style={{ width: '35%' }}>Tanggal & Status</th><td>{new Date(item.created_at).toLocaleDateString('id-ID')} — <b>{(item.status || '').toUpperCase()}</b></td></tr>
+                                                        <tr><th>NIK / No. HP</th><td>{item.nik} / {item.no_hp || '-'}</td></tr>
+                                                        <tr><th>Alamat & Lokasi Masalah</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.alamat || '-'} <br /><b>Lokasi:</b> {item.lokasi_masalah || '-'}</td></tr>
+                                                        <tr><th>Isi Keluhan Lengkap</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.isi_keluhan}</td></tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             ))}
-                                            </tbody>
-                                        </table>
-
-                                        {fotoArr.length > 0 && (
-                                            <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
-                                                <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Dokumentasi:</p>
-                                                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                                                    {fotoArr.map((fPath, fIdx) => {
-                                                        const isImage = fPath.match(/\.(jpeg|jpg|png|gif)$/i);
-                                                        const fileUrl = getFileUrl(fPath);
-                                                        if (isImage) {
-                                                            return <img key={fIdx} src={fileUrl} alt="Foto Bukti" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
-                                                        } else {
-                                                            return <div key={fIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
-                                                        }
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </>
-                    )}
-
-                    {pengaduansToPrint.length > 0 && (
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
+                    ) : (
                         <>
-                            <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px', marginTop: '32px' }}>B. Laporan Pengaduan Masyarakat</h3>
-                            {pengaduansToPrint.map((item, idx) => {
-                                const lampiranArr = getArrayData(item.lampiran);
-                                return (
-                                    <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
-                                        <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{pengaduansToPrint.length > 1 ? `${idx + 1}. ` : ''}Laporan dari: {item.nama_pelapor}</p>
-                                        <table className="tabel-cetak">
-                                            <tbody>
-                                            <tr><th style={{ width: '35%' }}>Tanggal & Status</th><td>{new Date(item.created_at).toLocaleDateString('id-ID')} — <b>{(item.status || '').toUpperCase()}</b></td></tr>
-                                            <tr><th>NIK / No. HP</th><td>{item.nik} / {item.no_hp || '-'}</td></tr>
-                                            <tr><th>Alamat & Lokasi Masalah</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.alamat || '-'} <br /><b>Lokasi Masalah:</b> {item.lokasi_masalah || '-'}</td></tr>
-                                            <tr><th>Isi Keluhan Lengkap</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.isi_keluhan}</td></tr>
-                                            </tbody>
-                                        </table>
+                            {formsToPrint.length > 0 && (
+                                <>
+                                    <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>A. Data Pemetaan Identifikasi</h3>
+                                    {formsToPrint.map((item, idx) => {
+                                        const fotoArr = getArrayData(item.dokumentasi_foto);
+                                        const amanFormulir = getSafeObject(item.data_formulir);
 
-                                        {lampiranArr.length > 0 && (
-                                            <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
-                                                <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Aduan:</p>
-                                                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                                                    {lampiranArr.map((lPath, lIdx) => {
-                                                        const isImage = lPath.match(/\.(jpeg|jpg|png|gif)$/i);
-                                                        const fileUrl = getFileUrl(lPath);
-                                                        if (isImage) {
-                                                            return <img key={lIdx} src={fileUrl} alt="Foto Lampiran" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
-                                                        } else {
-                                                            return <div key={lIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
-                                                        }
-                                                    })}
-                                                </div>
+                                        return (
+                                            <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
+                                                <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{formsToPrint.length > 1 ? `${idx + 1}. ` : ''}Sub-Bidang: {item.sub_bidang || '-'} <span style={{ fontWeight: 'normal', color: '#555', fontSize: '13px' }}>(Tgl: {new Date(item.created_at).toLocaleDateString('id-ID')})</span></p>
+                                                <table className="tabel-cetak">
+                                                    <tbody>
+                                                    {Object.entries(amanFormulir).map(([k, v], i) => (
+                                                        <tr key={i}>
+                                                            <th style={{ width: '35%', textTransform: 'capitalize' }}>{k.replace(/_/g, ' ')}</th>
+                                                            <td style={{ whiteSpace: 'pre-wrap' }}>{v || '-'}</td>
+                                                        </tr>
+                                                    ))}
+                                                    </tbody>
+                                                </table>
+
+                                                {fotoArr.length > 0 && (
+                                                    <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
+                                                        <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Dokumentasi:</p>
+                                                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                                            {fotoArr.map((fPath, fIdx) => {
+                                                                const isImage = fPath.match(/\.(jpeg|jpg|png|gif)$/i);
+                                                                const fileUrl = getFileUrl(fPath);
+                                                                if (isImage) {
+                                                                    return <img key={fIdx} src={fileUrl} alt="Foto Bukti" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
+                                                                } else {
+                                                                    return <div key={fIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
+                                                                }
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                        );
+                                    })}
+                                </>
+                            )}
+
+                            {pengaduansToPrint.length > 0 && (
+                                <>
+                                    <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px', marginTop: '32px' }}>B. Laporan Pengaduan Masyarakat</h3>
+                                    {pengaduansToPrint.map((item, idx) => {
+                                        const lampiranArr = getArrayData(item.lampiran);
+                                        return (
+                                            <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
+                                                <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{pengaduansToPrint.length > 1 ? `${idx + 1}. ` : ''}Laporan dari: {item.nama_pelapor}</p>
+                                                <table className="tabel-cetak">
+                                                    <tbody>
+                                                    <tr><th style={{ width: '35%' }}>Tanggal & Status</th><td>{new Date(item.created_at).toLocaleDateString('id-ID')} — <b>{(item.status || '').toUpperCase()}</b></td></tr>
+                                                    <tr><th>NIK / No. HP</th><td>{item.nik} / {item.no_hp || '-'}</td></tr>
+                                                    <tr><th>Alamat & Lokasi Masalah</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.alamat || '-'} <br /><b>Lokasi Masalah:</b> {item.lokasi_masalah || '-'}</td></tr>
+                                                    <tr><th>Isi Keluhan Lengkap</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.isi_keluhan}</td></tr>
+                                                    </tbody>
+                                                </table>
+
+                                                {lampiranArr.length > 0 && (
+                                                    <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
+                                                        <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Aduan:</p>
+                                                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                                            {lampiranArr.map((lPath, lIdx) => {
+                                                                const isImage = lPath.match(/\.(jpeg|jpg|png|gif)$/i);
+                                                                const fileUrl = getFileUrl(lPath);
+                                                                if (isImage) {
+                                                                    return <img key={lIdx} src={fileUrl} alt="Foto Lampiran" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
+                                                                } else {
+                                                                    return <div key={lIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
+                                                                }
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </>
+                            )}
                         </>
                     )}
                 </div>,

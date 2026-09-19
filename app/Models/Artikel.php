@@ -41,4 +41,3 @@ class Artikel extends Model
         return $this->belongsTo(Posyandu::class, 'posyandu_id');
     }
 }
-

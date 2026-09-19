@@ -26,6 +26,12 @@ const ACTIVITY_FACTOR = {
   berat: { label: 'Berat (olahraga 6–7 hari/minggu)', factor: 1.725 },
 };
 
+const blockInvalidNumberChars = (e) => {
+  if (['e', 'E', '+', '-'].includes(e.key)) {
+    e.preventDefault();
+  }
+};
+
 export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat }) {
   useScrollReveal();
   // IMT STATE
@@ -205,15 +211,15 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Usia (Tahun)</label>
-                  <input type="number" placeholder="Contoh: 28" value={imiUmur} onChange={(e) => setImiUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 28" value={imiUmur} onChange={(e) => setImiUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
-                  <input type="number" placeholder="Contoh: 55" value={imiBerat} onChange={(e) => setImiBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 55" value={imiBerat} onChange={(e) => setImiBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                  <input type="number" placeholder="Contoh: 160" value={imiTinggi} onChange={(e) => setImiTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 160" value={imiTinggi} onChange={(e) => setImiTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
@@ -275,15 +281,15 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Usia (Tahun)</label>
-                  <input type="number" placeholder="Contoh: 25" value={kalUmur} onChange={(e) => setKalUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 25" value={kalUmur} onChange={(e) => setKalUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
-                  <input type="number" placeholder="Contoh: 60" value={kalBerat} onChange={(e) => setKalBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 60" value={kalBerat} onChange={(e) => setKalBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                  <input type="number" placeholder="Contoh: 165" value={kalTinggi} onChange={(e) => setKalTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 165" value={kalTinggi} onChange={(e) => setKalTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field full" style={{ gridColumn: '1 / -1', minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Aktivitas Fisik</label>

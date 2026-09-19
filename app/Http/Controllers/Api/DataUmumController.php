@@ -23,6 +23,12 @@ class DataUmumController extends Controller
     // Simpan data baru
     public function store(Request $request)
     {
+        $request->validate([
+            'nama_posyandu' => 'required',
+            'tahun' => 'required',
+            'bulan' => 'required',
+        ]);
+
         $posyanduId = $request->user()->posyandu_id;
         $data = $request->all();
         $data['posyandu_id'] = $posyanduId;

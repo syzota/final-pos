@@ -252,30 +252,6 @@ export default function PencatatanDataUmumView() {
           TAMPILAN MONITOR (INPUT UNTUK KADER/KETUA)
           ========================================================= */}
             <div className="no-print">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', width: '100%' }}>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        fullWidth
-                        icon={FloppyDiskIcon}
-                        onClick={handleSave}
-                        disabled={isLoading}
-                        loading={isLoading}
-                        loadingText="Menyimpan..."
-                    >
-                        Simpan Data
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        size="md"
-                        fullWidth
-                        icon={PrinterIcon}
-                        onClick={() => handlePrint(null)}
-                    >
-                        Ekspor PDF Kertas
-                    </Button>
-                </div>
-
                 <NotificationModal
                     isOpen={Boolean(message.text || message.title)}
                     type={message.type || 'success'}
@@ -302,19 +278,34 @@ export default function PencatatanDataUmumView() {
                 />
 
                 <div className="grid grid-2" style={{ marginBottom: '16px' }}>
-                    {/* KIRI */}
+                    {/* KIRI: Identitas & Poin 1 s/d 4 */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div className="card">
                             <div className="section-head"><h3>Identitas & Poin 1 - 2</h3></div>
                             <div className="form-grid">
                                 <div className="form-field full"><label>Posyandu</label><input name="nama_posyandu" value={formData.nama_posyandu} onChange={handleChange} placeholder="Nama Posyandu" /></div>
-                                <div className="form-field full"><label>Rukun Warga (RW)</label><input name="rukun_warga" value={formData.rukun_warga} onChange={handleChange} placeholder="Contoh: 05" /></div>
+                                <div className="form-field full"><label>Wilayah RT yang Dilayani</label><input name="rukun_warga" value={formData.rukun_warga} onChange={handleChange} placeholder="Contoh: RT 01, RT 02 (Bisa lebih dari 1 RT)" /></div>
                                 <div className="form-field"><label>Desa/Kelurahan</label><input name="desa" value={formData.desa} onChange={handleChange} /></div>
                                 <div className="form-field"><label>Kecamatan</label><input name="kecamatan" value={formData.kecamatan} onChange={handleChange} /></div>
 
                                 <div className="form-field full" style={{ borderBottom: '1px solid #eee', paddingBottom: '4px', marginTop: '8px' }}><b>Waktu Pendataan</b></div>
-                                <div className="form-field"><label>1. Tahun</label><input type="number" name="tahun" value={formData.tahun} onChange={handleChange} placeholder="Contoh: 2026" /></div>
-                                <div className="form-field"><label>2. Bulan</label><input name="bulan" value={formData.bulan} onChange={handleChange} placeholder="Contoh: Agustus" /></div>
+                                <div className="form-field">
+                                    <label>1. Tahun</label>
+                                    <select name="tahun" value={formData.tahun} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff' }}>
+                                        {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map(y => (
+                                            <option key={y} value={y.toString()}>{y}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-field">
+                                    <label>2. Bulan</label>
+                                    <select name="bulan" value={formData.bulan} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff' }}>
+                                        <option value="">-- Pilih Bulan --</option>
+                                        {['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'].map(m => (
+                                            <option key={m} value={m}>{m}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -340,17 +331,9 @@ export default function PencatatanDataUmumView() {
                                 <div className="form-field"><label>Bayi Meninggal</label><input name="bayi_meninggal" value={formData.bayi_meninggal} onChange={handleChange} placeholder="0" /></div>
                             </div>
                         </div>
-
-                        <div className="card">
-                            <div className="section-head"><h3>9. Jumlah Pengunjung (Berdasarkan Gender)</h3></div>
-                            <div className="form-grid">
-                                <div className="form-field"><label>Laki-laki</label><input name="pengunjung_l" value={formData.pengunjung_l} onChange={handleChange} placeholder="0" /></div>
-                                <div className="form-field"><label>Perempuan</label><input name="pengunjung_p" value={formData.pengunjung_p} onChange={handleChange} placeholder="0" /></div>
-                            </div>
-                        </div>
                     </div>
 
-                    {/* KANAN */}
+                    {/* KANAN: Poin 5 s/d 12 */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div className="card">
                             <div className="section-head"><h3>Kematian Ibu & Petugas Hadir (Poin 5 & 6)</h3></div>
@@ -378,6 +361,14 @@ export default function PencatatanDataUmumView() {
                         </div>
 
                         <div className="card">
+                            <div className="section-head"><h3>9. Jumlah Pengunjung (Berdasarkan Gender)</h3></div>
+                            <div className="form-grid">
+                                <div className="form-field"><label>Laki-laki</label><input name="pengunjung_l" value={formData.pengunjung_l} onChange={handleChange} placeholder="0" /></div>
+                                <div className="form-field"><label>Perempuan</label><input name="pengunjung_p" value={formData.pengunjung_p} onChange={handleChange} placeholder="0" /></div>
+                            </div>
+                        </div>
+
+                        <div className="card">
                             <div className="section-head"><h3>Keluarga & Kematian Ibu (Poin 10 - 12)</h3></div>
                             <div className="form-grid">
                                 <div className="form-field full"><label>10. Jumlah Kepala Keluarga (KK)</label><input name="jml_kk" value={formData.jml_kk} onChange={handleChange} placeholder="0" /></div>
@@ -390,6 +381,40 @@ export default function PencatatanDataUmumView() {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* --- TOMBOL AKSI FORMULIR (DI BAWAH FORMULIR) --- */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', marginTop: '20px', marginBottom: '12px', width: '100%' }}>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        icon={FloppyDiskIcon}
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        loading={isLoading}
+                        loadingText="Menyimpan..."
+                        fullWidth
+                        style={{
+                            fontWeight: 800,
+                            minHeight: '44px',
+                            boxShadow: '0 3px 10px rgba(0, 128, 128, 0.25)'
+                        }}
+                    >
+                        Simpan Data
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        icon={PrinterIcon}
+                        onClick={() => handlePrint(null)}
+                        fullWidth
+                        style={{
+                            fontWeight: 700,
+                            minHeight: '44px'
+                        }}
+                    >
+                        Ekspor PDF Kertas
+                    </Button>
                 </div>
 
                 {/* --- TABEL RIWAYAT DARI DATABASE --- */}
@@ -419,7 +444,7 @@ export default function PencatatanDataUmumView() {
                                         <td style={{ textAlign: 'center' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                                 <Button
-                                                    variant="secondary"
+                                                    variant="primary"
                                                     size="sm"
                                                     icon={PrinterIcon}
                                                     onClick={() => handlePrint(item)}
@@ -457,7 +482,7 @@ export default function PencatatanDataUmumView() {
                 <div id="dokumen-cetak-data-umum">
                     <div className="header-posyandu">
                         <div><span>Posyandu</span>: {dataToPrint.nama_posyandu}</div>
-                        <div><span>Rukun Warga</span>: {dataToPrint.rukun_warga}</div>
+                        <div><span>Wilayah RT</span>: {dataToPrint.rukun_warga || '-'}</div>
                         <div><span>Desa/Kelurahan</span>: {dataToPrint.desa}</div>
                         <div><span>Kecamatan</span>: {dataToPrint.kecamatan}</div>
                     </div>

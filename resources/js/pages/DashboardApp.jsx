@@ -140,7 +140,7 @@ const NAV = {
       group: 'Posyandu Loa Duri Ulu',
       items: [
         { id: 'warga-anak', label: 'Rapor Kesehatan Keluarga', ico: UserCheck01Icon },
-        { id: 'warga-kalkulator', label: 'Kalkulator Gizi Mandiri', ico: Calculator01Icon },
+        { id: 'warga-kalkulator', label: 'Kalkulator Kesehatan', ico: Calculator01Icon },
       ]
     },
     {
@@ -167,7 +167,7 @@ const TITLES = {
   'superadmin-analitik': ['Dashboard Analitik 6 Bidang SPM', 'Visualisasi data tren kesehatan, pendidikan, dan kesejahteraan masyarakat', 'ANALITIK DESA'],
   'superadmin-ekspor': ['Ekspor Data Gabungan 9 Posyandu', 'Unduh berkas rekapitulasi format Excel/CSV untuk arsip kedinasan', 'EKSPOR LAPORAN'],
   'warga-anak': ['Rapor Kesehatan Keluarga', 'Pantau grafik pertumbuhan balita, status imunisasi, dan riwayat kesehatan keluarga', 'RAPOR KESEHATAN'],
-  'warga-kalkulator': ['Kalkulator Gizi & Energi Mandiri', 'Hitung indeks massa tubuh (IMT) dan estimasi kebutuhan kalori harian', 'LAYANAN MANDIRI'],
+  'warga-kalkulator': ['Kalkulator Kesehatan', 'Hitung indeks massa tubuh (IMT), estimasi kalori harian, dan pantau kesehatan', 'LAYANAN MANDIRI'],
   'pencatatan-kegiatan': ['Laporan 13 Poin Kegiatan', 'Formulir evaluasi pencatatan kegiatan rutin posyandu tingkat desa', 'LAPORAN BULANAN'],
   'data-umum': ['Data Umum Posyandu', 'Statistik kependudukan, sarana, dan profil posyandu setempat', 'STATISTIK POSYANDU'],
   'data-tambahan': ['Data Sasaran Tambahan', 'Rekapitulasi kondisi sasaran khusus ibu hamil risiko tinggi dan nifas', 'DATA KHUSUS'],
@@ -191,7 +191,17 @@ export default function DashboardApp({ userAuth, onLogout }) {
 
   const role = userAuth.role || 'kader';
   const namaPosyandu = userAuth.posyandu ? (userAuth.posyandu.nama || userAuth.posyandu) : '';
-  const [currentView, setCurrentView] = useState(ROLE_HOME[role] || 'dashboard');
+
+  const getViewFromHash = () => {
+    const rawHash = window.location.hash.replace('#', '').trim();
+    if (rawHash.startsWith('dashboard/')) {
+      const v = rawHash.replace('dashboard/', '').trim();
+      if (v && TITLES[v]) return v;
+    }
+    return ROLE_HOME[role] || 'dashboard';
+  };
+
+  const [currentView, setCurrentView] = useState(getViewFromHash());
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Helper untuk reset scroll ke paling atas secara instan & menyeluruh
@@ -213,9 +223,24 @@ export default function DashboardApp({ userAuth, onLogout }) {
 
   const handleNavClick = (id) => {
     setCurrentView(id);
+    window.location.hash = `dashboard/${id}`;
     setSidebarOpen(false);
     scrollToTop();
   };
+
+  useEffect(() => {
+    const handleHash = () => {
+      const raw = window.location.hash.replace('#', '').trim();
+      if (raw.startsWith('dashboard/')) {
+        const v = raw.replace('dashboard/', '').trim();
+        if (v && TITLES[v]) setCurrentView(v);
+      } else if (raw === 'dashboard') {
+        setCurrentView(ROLE_HOME[role] || 'dashboard');
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [role]);
 
   useEffect(() => {
     if (sidebarOpen) {

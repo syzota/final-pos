@@ -86,6 +86,15 @@ export default function WargaAnakView() {
   // === FUNGSI SUBMIT ANAK BARU ===
   const handleAddAnak = async (e) => {
     e.preventDefault();
+    if (!newAnak.nama_anak?.trim()) {
+      setErrorMsg('Nama lengkap anak wajib diisi.');
+      return;
+    }
+    if (!newAnak.tanggal_lahir) {
+      setErrorMsg('Tanggal lahir anak wajib diisi.');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMsg('');
     setSuccessMsg('');
@@ -96,7 +105,7 @@ export default function WargaAnakView() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      setSuccessMsg(response.data.pesan);
+      setSuccessMsg(response.data.pesan || 'Data anak berhasil ditambahkan.');
       setShowAddModal(false);
       setNewAnak({ nama_anak: '', tanggal_lahir: '', jenis_kelamin: 'L' }); // Reset form
 
@@ -105,7 +114,6 @@ export default function WargaAnakView() {
     } catch (error) {
       const pesanAsli = error.response?.data?.message || error.message;
       setErrorMsg(`Gagal menambah data anak: ${pesanAsli}`);
-      setShowAddModal(false);
     } finally {
       setIsSubmitting(false);
     }

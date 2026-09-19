@@ -122,26 +122,21 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
                   <div className="meta-author-avatar">{getInitials(artikel.penulis?.name)}</div>
                   <div className="meta-author-info">
                     <span className="meta-author-name">{artikel.penulis?.name || 'Kader Posyandu'}</span>
-                    <span className="meta-author-role" style={{ textTransform: 'capitalize' }}>
-                      {artikel.posyandu?.nama ? `Posyandu ${artikel.posyandu.nama}` : (artikel.penulis?.role || 'Pengurus Posyandu')}
-                    </span>
+                    <div className="meta-author-sub">
+                      <span className="meta-author-role" style={{ textTransform: 'capitalize' }}>
+                        {artikel.posyandu?.nama ? `Posyandu ${artikel.posyandu.nama}` : (artikel.penulis?.role || 'Pengurus Posyandu')}
+                      </span>
+                      <span className="meta-dot">•</span>
+                      <span className="meta-date">{formatDate(artikel.published_at || artikel.created_at)}</span>
+                      <span className="meta-dot">•</span>
+                      <span className="meta-readtime" style={{ textTransform: 'uppercase' }}>{artikel.kategori}</span>
+                    </div>
                   </div>
-                  <span className="meta-dot">•</span>
-                  <span className="meta-date">{formatDate(artikel.published_at || artikel.created_at)}</span>
-                  <span className="meta-dot">•</span>
-                  <span className="meta-readtime" style={{ textTransform: 'uppercase' }}>{artikel.kategori}</span>
                 </div>
 
-                {/* Body Text */}
-                <div
-                  className="detail-artikel-paragraph"
-                  style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8' }}
-                >
-                  {artikel.isi_artikel}
-                </div>
-
+                {/* Featured Cover Image */}
                 {artikel.path_foto && (
-                  <div className="detail-artikel-closing-img" style={{ marginTop: '32px' }}>
+                  <div className="detail-artikel-cover-img" style={{ margin: '20px 0 24px' }}>
                     <img
                       src={getImageUrl(artikel.path_foto)}
                       alt={artikel.judul}
@@ -153,6 +148,14 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
                     <span className="closing-img-tag">{artikel.kategori}</span>
                   </div>
                 )}
+
+                {/* Body Text */}
+                <div
+                  className="detail-artikel-paragraph"
+                  style={{ whiteSpace: 'pre-wrap', lineHeight: '1.85' }}
+                >
+                  {artikel.isi_artikel}
+                </div>
               </>
             )}
           </article>

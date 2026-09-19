@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PemeriksaanBalita;
+use App\Models\WargaAnak;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -33,7 +34,7 @@ class PemeriksaanBalitaController extends Controller
 
         $posyanduId = in_array($request->user()->role, ['kader', 'ketua']) ? $request->user()->posyandu_id : null;
         if ($posyanduId) {
-            $anakValid = \App\Models\WargaAnak::where('id', $request->anak_id)
+            $anakValid = WargaAnak::where('id', $request->anak_id)
                 ->whereHas('keluarga', fn ($q) => $q->where('posyandu_id', $posyanduId))
                 ->exists();
             if (! $anakValid) {

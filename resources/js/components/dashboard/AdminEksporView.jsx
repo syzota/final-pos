@@ -33,6 +33,7 @@ export default function AdminEksporView() {
 
     // STATE BARU: Untuk menyimpan data mana yang akan dicetak (Semua atau Individu)
     const [dataCetak, setDataCetak] = useState([]);
+    const [isAllCategoryPrint, setIsAllCategoryPrint] = useState(false);
 
     const daftarPosyandu = [
         { id: 'all', nama: 'Semua Posyandu (9 Titik Desa)' },
@@ -154,6 +155,7 @@ export default function AdminEksporView() {
     // --- FUNGSI CETAK INDIVIDU ---
     const cetakIndividu = (item) => {
         // 1. Ubah data cetak hanya menjadi 1 orang ini saja
+        setIsAllCategoryPrint(false);
         setDataCetak([item]);
         // 2. Beri jeda sangat sebentar agar React merender data baru, lalu buka menu print
         setTimeout(() => {
@@ -161,6 +163,53 @@ export default function AdminEksporView() {
             // 3. Kembalikan data cetak ke semua orang setelah menu print tertutup
             setTimeout(() => setDataCetak(dataKesehatan), 1000);
         }, 150);
+    };
+
+    // --- FUNGSI CETAK SEMUA KATEGORI (BALITA, REMAJA, IBU HAMIL, LANSIA) ---
+    const handleCetakSemuaKategori = async () => {
+        setIsLoading(true);
+        setMessage({ type: '', text: '', title: '', details: null });
+        try {
+            const token = localStorage.getItem('auth_token');
+            const posParam = selectedPosyandu.id === 'all' ? '' : `?posyandu_id=${selectedPosyandu.id}`;
+            const [resBalita, resRemaja, resHamil, resLansia] = await Promise.all([
+                axios.get(`/api/admin/pemeriksaan/balita${posParam}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                axios.get(`/api/admin/pemeriksaan/remaja${posParam}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                axios.get(`/api/admin/pemeriksaan/ibu-hamil${posParam}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                axios.get(`/api/admin/pemeriksaan/lansia${posParam}`, { headers: { 'Authorization': `Bearer ${token}` } })
+            ]);
+            const allItems = [
+                ...(resBalita.data?.data || []).map(d => ({ ...d, _kategori: 'Balita' })),
+                ...(resRemaja.data?.data || []).map(d => ({ ...d, _kategori: 'Remaja' })),
+                ...(resHamil.data?.data || []).map(d => ({ ...d, _kategori: 'Ibu Hamil' })),
+                ...(resLansia.data?.data || []).map(d => ({ ...d, _kategori: 'Lansia' }))
+            ];
+            if (allItems.length === 0) {
+                setMessage({
+                    type: 'error',
+                    title: 'Tidak Ada Data',
+                    text: 'Tidak ada data pencatatan kesehatan ditemukan untuk dicetak.'
+                });
+                return;
+            }
+            setIsAllCategoryPrint(true);
+            setDataCetak(allItems);
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    setIsAllCategoryPrint(false);
+                    setDataCetak(dataKesehatan);
+                }, 1000);
+            }, 200);
+        } catch (err) {
+            setMessage({
+                type: 'error',
+                title: 'Gagal Menyiapkan Data',
+                text: 'Gagal memuat seluruh kategori data pemeriksaan untuk ekspor.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const renderDetailModal = () => {
@@ -255,7 +304,7 @@ export default function AdminEksporView() {
 
                     <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                         <Button
-                            variant="secondary"
+                            variant="primary"
                             size="md"
                             icon={PrinterIcon}
                             onClick={() => { setSelectedDetail(null); cetakIndividu(selectedDetail); }}
@@ -263,7 +312,7 @@ export default function AdminEksporView() {
                             Cetak Laporan Ini
                         </Button>
                         <Button
-                            variant="primary"
+                            variant="secondary"
                             size="md"
                             onClick={() => setSelectedDetail(null)}
                         >
@@ -371,15 +420,29 @@ export default function AdminEksporView() {
                     <div className="card">
                         <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                             <h3 style={{ margin: 0 }}><Building01Icon size={18} className="me-2" />Data Kesehatan — Posyandu {selectedPosyandu.nama}</h3>
-                            {/* TOMBOL CETAK SEMUA */}
-                            <Button
-                                variant="primary"
-                                size="md"
-                                icon={File01Icon}
-                                onClick={() => window.print()}
-                            >
-                                Cetak Semua Halaman Ini
-                            </Button>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    icon={PrinterIcon}
+                                    onClick={() => {
+                                        setIsAllCategoryPrint(false);
+                                        setDataCetak(dataKesehatan);
+                                        setTimeout(() => window.print(), 100);
+                                    }}
+                                >
+                                    Cetak Kategori {SASARAN_NAMA[tab]}
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    icon={File01Icon}
+                                    onClick={handleCetakSemuaKategori}
+                                    loading={isLoading}
+                                >
+                                    Cetak Semua Kategori (Lengkap)
+                                </Button>
+                            </div>
                         </div>
 
                         <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '16px' }}>
@@ -430,7 +493,7 @@ export default function AdminEksporView() {
                                                 <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                                                     <Button variant="secondary" size="sm" icon={ViewIcon} iconOnly onClick={() => setSelectedDetail(item)} title="Lihat Detail" />
                                                     {/* TOMBOL CETAK PER INDIVIDU */}
-                                                    <Button variant="secondary" size="sm" icon={PrinterIcon} iconOnly onClick={() => cetakIndividu(item)} title="Cetak Laporan Pasien Ini" />
+                                                    <Button variant="primary" size="sm" icon={PrinterIcon} iconOnly onClick={() => cetakIndividu(item)} title="Cetak Laporan Pasien Ini" />
                                                     <Button variant="danger-outline" size="sm" icon={Delete02Icon} iconOnly onClick={() => handleHapusData(item.id, getNamaPasien(item))} title="Hapus Data" />
                                                 </div>
                                             </td>
@@ -458,7 +521,7 @@ export default function AdminEksporView() {
                 <div id="dokumen-cetak">
                     <h2 style={{ textAlign: 'center', marginBottom: '5px' }}>Laporan Pencatatan Kesehatan</h2>
                     <h4 style={{ textAlign: 'center', color: '#555', marginTop: 0, marginBottom: '24px' }}>
-                        Posyandu: {selectedPosyandu.nama} | Sasaran Pemeriksaan: {SASARAN_NAMA[tab]}
+                        Posyandu: {selectedPosyandu.nama} | Sasaran: {isAllCategoryPrint ? 'Semua Kategori (Balita, Remaja, Ibu Hamil, Lansia)' : SASARAN_NAMA[tab]}
                     </h4>
                     <hr style={{ borderTop: '2px solid #000', marginBottom: '24px' }} />
 
@@ -476,7 +539,7 @@ export default function AdminEksporView() {
                             return (
                                 <div key={item.id} style={{ marginBottom: '40px', pageBreakInside: 'avoid' }}>
                                     <p style={{ fontWeight: 'bold', margin: '0 0 8px 0', fontSize: '15px' }}>
-                                        {dataCetak.length > 1 ? `${idx + 1}. ` : ''} Nama Pasien: {namaPasien}
+                                        {item._kategori ? `[${item._kategori}] ` : ''}{dataCetak.length > 1 ? `${idx + 1}. ` : ''} Nama Pasien: {namaPasien}
                                         <span style={{ fontWeight: 'normal', color: '#555', fontSize: '13px' }}> (Waktu Input: {formatWaktu(item.created_at)})</span>
                                     </p>
 

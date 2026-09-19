@@ -748,7 +748,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                 }}
               />
               <Button
-                variant="secondary"
+                variant="primary"
                 size="md"
                 fullWidth
                 icon={PrinterIcon}
@@ -951,7 +951,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                   onChange={handleCommonChange}
                   rows="2"
                   placeholder="Keterangan tambahan atau tindakan kader..."
-                  style={{ width: '100%', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px', outline: 'none' }}
+                  style={{ width: '100%', minHeight: '80px', resize: 'vertical', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px', outline: 'none' }}
                 ></textarea>
               </div>
 

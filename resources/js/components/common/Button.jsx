@@ -189,15 +189,15 @@ export default function Button({
               display: 'inline-block',
               width: `${sizeStyles.iconSize}px`,
               height: `${sizeStyles.iconSize}px`,
-              border: '2px solid currentColor',
+              border: '2.5px solid currentColor',
               borderRightColor: 'transparent',
               borderRadius: '50%',
               animation: 'spin 0.6s linear infinite',
               flexShrink: 0,
             }}
           />
-          {!iconOnly && (
-            <span>{loadingText || (children ? 'Memproses...' : '')}</span>
+          {!iconOnly && Boolean(loadingText !== undefined ? loadingText : (children ? 'Memproses...' : '')) && (
+            <span>{loadingText !== undefined ? loadingText : 'Memproses...'}</span>
           )}
         </>
       ) : (

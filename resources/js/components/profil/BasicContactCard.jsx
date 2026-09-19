@@ -22,11 +22,11 @@ export default function BasicContactCard({ data, defaultProfil }) {
       value: info.no_telepon || info.no_telp || info.kontak_darurat || '0812-5000-1001',
       icon: <Call02Icon size={18} />
     },
-    {
+    ...(info.email ? [{
       label: 'SUREL RESMI',
-      value: info.email || 'posyanduloaduriulu@gmail.com',
+      value: info.email,
       icon: <Mail01Icon size={18} />
-    },
+    }] : []),
     {
       label: 'JAM OPERASIONAL',
       value: 'Senin–Jumat (Sesuai Jadwal Kegiatan)',
