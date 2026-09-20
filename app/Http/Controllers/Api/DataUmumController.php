@@ -34,8 +34,8 @@ class DataUmumController extends Controller
         $data['posyandu_id'] = $posyanduId;
 
         // Daftar kolom yang berupa teks
-        $textFields = ['nama_posyandu', 'rukun_warga', 'desa', 'kecamatan', 'tahun', 'bulan'];
-
+        $textFields = ['nama_posyandu', 'wilayah_rt', 'desa', 'kecamatan', 'tahun', 'bulan'];
+        
         // Jika kolom angka kosong, ubah jadi 0
         foreach ($data as $key => $value) {
             if (! in_array($key, $textFields) && $key !== 'posyandu_id') {

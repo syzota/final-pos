@@ -642,7 +642,7 @@ export default function AdminArsipLaporanView() {
                 <div id="dokumen-cetak-dataumum">
                     <div className="header-posyandu">
                         <div><span>Posyandu</span>: {printLaporanTarget.data.nama_posyandu}</div>
-                        <div><span>Wilayah RT</span>: {printLaporanTarget.data.rukun_warga || '-'}</div>
+                        <div><span>Wilayah RT</span>: {printLaporanTarget.data.wilayah_rt || '-'}</div>
                         <div><span>Desa/Kelurahan</span>: {printLaporanTarget.data.desa}</div>
                         <div><span>Kecamatan</span>: {printLaporanTarget.data.kecamatan}</div>
                     </div>

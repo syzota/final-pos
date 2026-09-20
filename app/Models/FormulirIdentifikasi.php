@@ -18,6 +18,8 @@ class FormulirIdentifikasi extends Model
         'sub_bidang',
         'data_formulir',
         'dokumentasi_foto',
+        'status_form',
+        'identitas',
     ];
 
     // Otomatis convert JSON ke Array saat ditarik dari database

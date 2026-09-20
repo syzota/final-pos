@@ -52,7 +52,7 @@ class AdminAnalitikController extends Controller
             if ($b == 'kesehatan') {
                 $tot = DB::table('pemeriksaan_balita')->count() + DB::table('pemeriksaan_remaja')->count() + DB::table('pemeriksaan_hamil')->count() + DB::table('pemeriksaan_lansia')->count();
             } else {
-                $tot = DB::table('pengaduan_masyarakat')->where('bidang', $b)->count() + DB::table('formulir_identifikasi')->where('bidang', $b)->count();
+                $tot = DB::table('pengaduan_masyarakat')->where('bidang', $b)->where('status_form', 'final')->count() + DB::table('formulir_identifikasi')->where('bidang', $b)->where('status_form', 'final')->count();
             }
             $capaianRaw[$b] = $tot;
             if ($tot > $maxCapaian) {

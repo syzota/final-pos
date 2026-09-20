@@ -50,8 +50,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // Formulir & Pengaduan (Warga / Kader)
     Route::post('/formulir-identifikasi', [FormulirIdentifikasiController::class, 'store']);
     Route::get('/formulir-identifikasi', [FormulirIdentifikasiController::class, 'index']);
+    Route::get('/formulir-identifikasi/draft', [FormulirIdentifikasiController::class, 'getDraft']);
+    Route::delete('/formulir-identifikasi/draft/{id}', [FormulirIdentifikasiController::class, 'deleteDraft']);
+    Route::delete('/formulir-identifikasi/{id}', [FormulirIdentifikasiController::class, 'deleteFinal']);
+
     Route::post('/pengaduan-masyarakat', [PengaduanMasyarakatController::class, 'store']);
     Route::get('/pengaduan-masyarakat', [PengaduanMasyarakatController::class, 'index']);
+    Route::get('/pengaduan-masyarakat/draft', [PengaduanMasyarakatController::class, 'getDraft']);
+    Route::delete('/pengaduan-masyarakat/draft/{id}', [PengaduanMasyarakatController::class, 'deleteDraft']);
+    Route::delete('/pengaduan-masyarakat/{id}', [PengaduanMasyarakatController::class, 'deleteFinal']);
 
     // Akun & Sesi Pengguna
     Route::post('/logout', [AuthController::class, 'logout']);

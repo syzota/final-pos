@@ -57,14 +57,15 @@ class DashboardController extends Controller
         $pengaduanBaru = DB::table('pengaduan_masyarakat')
             ->where('posyandu_id', $posyanduId)
             ->where('status', 'menunggu')
+            ->where('status_form', 'final')
             ->count();
 
         $bidangList = ['pendidikan', 'pekerjaan_umum', 'perumahan_rakyat', 'trantibumlinmas', 'sosial'];
         $lingkungan = [];
         foreach ($bidangList as $b) {
             $lingkungan[$b] = [
-                'aduan' => DB::table('pengaduan_masyarakat')->where('posyandu_id', $posyanduId)->where('bidang', $b)->count(),
-                'form' => DB::table('formulir_identifikasi')->where('posyandu_id', $posyanduId)->where('bidang', $b)->count(),
+                'aduan' => DB::table('pengaduan_masyarakat')->where('posyandu_id', $posyanduId)->where('bidang', $b)->where('status_form', 'final')->count(),
+                'form' => DB::table('formulir_identifikasi')->where('posyandu_id', $posyanduId)->where('bidang', $b)->where('status_form', 'final')->count(),
             ];
         }
 
@@ -85,13 +86,13 @@ class DashboardController extends Controller
         }
 
         // Memantau Pengaduan Masuk
-        $latestPengaduan = DB::table('pengaduan_masyarakat')->where('posyandu_id', $posyanduId)->latest('created_at')->first();
+        $latestPengaduan = DB::table('pengaduan_masyarakat')->where('posyandu_id', $posyanduId)->where('status_form', 'final')->latest('created_at')->first();
         if ($latestPengaduan) {
             $aktivitas->push(['judul' => 'Pengaduan masyarakat baru masuk', 'waktu' => $latestPengaduan->created_at, 'warna' => '#db2777']);
         }
 
         // Memantau Formulir Baru
-        $latestForm = DB::table('formulir_identifikasi')->where('posyandu_id', $posyanduId)->latest('created_at')->first();
+        $latestForm = DB::table('formulir_identifikasi')->where('posyandu_id', $posyanduId)->where('status_form', 'final')->latest('created_at')->first();
         if ($latestForm) {
             $aktivitas->push(['judul' => 'Formulir identifikasi desa ditambahkan', 'waktu' => $latestForm->created_at, 'warna' => '#f59e0b']);
         }

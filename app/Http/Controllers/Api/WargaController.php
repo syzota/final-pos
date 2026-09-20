@@ -29,9 +29,9 @@ class WargaController extends Controller
         $request->validate([
             'nama_lengkap' => 'required|string',
             'jenis_kelamin' => 'required|in:L,P',
-            'nik' => 'required|string|size:16|unique:warga_keluarga,nik_kepala_keluarga',
-            'no_kk' => 'required|string|size:16',
-            'no_hp' => 'nullable|string',
+            'nik' => 'required|digits:16',
+            'no_kk' => 'required|digits:16',
+            'no_hp' => ['nullable', 'regex:/^[0-9]{8,15}$/'],
             'status_pernikahan' => 'required|in:Menikah,Belum Menikah,Cerai,Duda,Janda',
             'nama_istri' => 'required_if:status_pernikahan,Menikah|string|nullable',
             'anak' => 'nullable|array',

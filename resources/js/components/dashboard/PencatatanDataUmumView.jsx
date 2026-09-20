@@ -32,7 +32,7 @@ export default function PencatatanDataUmumView() {
 
     // === STATE DATA SESUAI KERTAS ===
     const [formData, setFormData] = useState({
-        nama_posyandu: initialInfo.nama_posyandu, rukun_warga: '', desa: initialInfo.desa, kecamatan: initialInfo.kecamatan,
+        nama_posyandu: initialInfo.nama_posyandu, wilayah_rt: '', desa: initialInfo.desa, kecamatan: initialInfo.kecamatan,
         tahun: new Date().getFullYear().toString(), bulan: '',
         pengunjung_bayi: '', pengunjung_baduta: '', pengunjung_balita: '', pengunjung_wus: '', pengunjung_pus: '', pengunjung_ibu_hamil: '', pengunjung_ibu_menyusui: '',
         bayi_lahir: '', bayi_meninggal: '',
@@ -84,8 +84,7 @@ export default function PencatatanDataUmumView() {
     // === HANDLER INPUT ===
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const textFields = ['nama_posyandu', 'rukun_warga', 'desa', 'kecamatan', 'bulan'];
-
+        const textFields = ['nama_posyandu', 'wilayah_rt', 'desa', 'kecamatan', 'bulan'];
         if (!textFields.includes(name)) {
             const onlyNums = value.replace(/[^0-9]/g, '');
             setFormData({ ...formData, [name]: onlyNums });
@@ -283,8 +282,15 @@ export default function PencatatanDataUmumView() {
                         <div className="card">
                             <div className="section-head"><h3>Identitas & Poin 1 - 2</h3></div>
                             <div className="form-grid">
-                                <div className="form-field full"><label>Posyandu</label><input name="nama_posyandu" value={formData.nama_posyandu} onChange={handleChange} placeholder="Nama Posyandu" /></div>
-                                <div className="form-field full"><label>Wilayah RT yang Dilayani</label><input name="rukun_warga" value={formData.rukun_warga} onChange={handleChange} placeholder="Contoh: RT 01, RT 02 (Bisa lebih dari 1 RT)" /></div>
+                                <div className="form-field full">
+                                <label>Wilayah RT yang Dilayani</label>
+                                <input
+                                    name="wilayah_rt"
+                                    value={formData.wilayah_rt}
+                                    onChange={handleChange}
+                                    placeholder="Contoh: RT 01, RT 02 (Bisa lebih dari 1 RT)"
+                                />
+                                </div>
                                 <div className="form-field"><label>Desa/Kelurahan</label><input name="desa" value={formData.desa} onChange={handleChange} /></div>
                                 <div className="form-field"><label>Kecamatan</label><input name="kecamatan" value={formData.kecamatan} onChange={handleChange} /></div>
 
@@ -482,7 +488,7 @@ export default function PencatatanDataUmumView() {
                 <div id="dokumen-cetak-data-umum">
                     <div className="header-posyandu">
                         <div><span>Posyandu</span>: {dataToPrint.nama_posyandu}</div>
-                        <div><span>Wilayah RT</span>: {dataToPrint.rukun_warga || '-'}</div>
+                        <div><span>Wilayah RT</span>: {dataToPrint.wilayah_rt || '-'}</div>
                         <div><span>Desa/Kelurahan</span>: {dataToPrint.desa}</div>
                         <div><span>Kecamatan</span>: {dataToPrint.kecamatan}</div>
                     </div>

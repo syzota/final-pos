@@ -19,13 +19,21 @@ class PengaduanMasyarakat extends Model
         'nik',
         'no_hp',
         'alamat',
+        'tanggal_penyampaian',
+        'penerima_aspirasi',
+        'jenis_aspirasi',
         'isi_keluhan',
         'lokasi_masalah',
+        'urgensi',
+        'rekomendasi',
+        'tindak_lanjut',
         'lampiran',
         'status',
+        'status_form',
     ];
 
     protected $casts = [
         'lampiran' => 'array',
+        'tanggal_penyampaian' => 'date',
     ];
 }

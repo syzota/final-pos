@@ -20,7 +20,8 @@ import {
   File01Icon,
   Delete02Icon,
   CheckmarkCircle01Icon,
-  Activity01Icon
+  Activity01Icon,
+  Add01Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 // === KONFIGURASI 5 BIDANG SPM SESUAI STANDAR DESA ===
@@ -138,6 +139,24 @@ export default function PengaduanView() {
   const [selectedPengaduan, setSelectedPengaduan] = useState(null);
   const [showAllRekap, setShowAllRekap] = useState(false);
 
+  // Hak akses hapus data yang sudah disubmit
+  let currentAuthUser = {};
+  try {
+    currentAuthUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
+  } catch (e) {
+    currentAuthUser = {};
+  }
+
+  const currentRole = currentAuthUser?.role || '';
+  const currentUserId = currentAuthUser?.id || null;
+
+  // Kader boleh hapus Formulir miliknya sendiri (backend tetap memverifikasi).
+  // Ketua / Superadmin dapat menghapus Formulir.
+  const canDeleteFinalForm = ['kader', 'ketua', 'superadmin'].includes(currentRole);
+
+  // Pengaduan belum punya kader_id pembuat, jadi hapus final dibatasi Ketua/Superadmin.
+  const canDeleteFinalPengaduan = ['ketua', 'superadmin'].includes(currentRole);
+
   useEffect(() => {
     if (selectedForm || selectedPengaduan) {
       document.body.style.overflow = 'hidden';
@@ -176,6 +195,66 @@ export default function PengaduanView() {
   useEffect(() => {
     fetchRekap();
   }, []);
+
+  // Hapus data yang sudah disubmit / final.
+  const handleDeleteFinal = async (type, item) => {
+    const isForm = type === 'form';
+    const namaData = isForm
+      ? `Formulir ${item?.sub_bidang || ''}`
+      : `Pengaduan ${item?.nama_pelapor || ''}`;
+
+    const yakin = window.confirm(
+      `Yakin ingin menghapus ${namaData.trim()}?\n\nData dan lampiran akan dihapus permanen dan tidak dapat dipulihkan.`
+    );
+
+    if (!yakin) return;
+
+    setIsLoading(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const token = localStorage.getItem('auth_token');
+
+      const endpoint = isForm
+        ? `/api/formulir-identifikasi/${item.id}`
+        : `/api/pengaduan-masyarakat/${item.id}`;
+
+      const response = await axios.delete(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (isForm && selectedForm?.id === item.id) {
+        setSelectedForm(null);
+      }
+
+      if (!isForm && selectedPengaduan?.id === item.id) {
+        setSelectedPengaduan(null);
+      }
+
+      setMessage({
+        type: 'success',
+        text:
+          response.data?.pesan ||
+          (isForm
+            ? 'Data formulir berhasil dihapus.'
+            : 'Pengaduan berhasil dihapus.')
+      });
+
+      await fetchRekap();
+    } catch (err) {
+      setMessage({
+        type: 'error',
+        text:
+          err.response?.data?.pesan ||
+          err.response?.data?.message ||
+          'Gagal menghapus data.'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // =========================================================================
   // VALIDASI INPUT & FILE
@@ -219,7 +298,7 @@ export default function PengaduanView() {
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
-    const maxSize = 5 * 1024 * 1024; // 5MB per file
+    const maxSize = 2 * 1024 * 1024; // 2MB per file, sama dengan backend
 
     const validFiles = [];
     for (let i = 0; i < selectedFiles.length; i++) {
@@ -229,7 +308,7 @@ export default function PengaduanView() {
         continue;
       }
       if (file.size > maxSize) {
-        setMessage({ type: 'error', text: `Ukuran file "${file.name}" terlalu besar! Maksimal 5MB per file.` });
+        setMessage({ type: 'error', text: `Ukuran file "${file.name}" terlalu besar! Maksimal 2MB per file.` });
         continue;
       }
       validFiles.push(file);
@@ -251,6 +330,7 @@ export default function PengaduanView() {
   const resetFormIden = () => {
     setFormIden({});
     setFotoIden([]);
+    setLoadedDraftIdenId(null);
     setMessage({ type: '', text: '' });
     if (fileInputIdenRef.current) fileInputIdenRef.current.value = '';
   };
@@ -294,31 +374,108 @@ export default function PengaduanView() {
   // === MAP NAMA BIDANG & SUB-BIDANG UNTUK BACKEND ===
   const BIDANG_MAP = ['pendidikan', 'pekerjaan_umum', 'perumahan_rakyat', 'trantibumlinmas', 'sosial'];
 
-  const getSubBidangName = () => {
-    if (tab === 0) return ['Anak Usia Dini (0-6 th)', 'Perpustakaan / Pojok Baca', 'Literasi Digital Ortu', 'Inventaris APE'][subTab0];
-    if (tab === 1) return ['Edukasi Air Bersih & Limbah', 'Identifikasi Embung Air Baku', 'Jaringan Air Perdesaan', 'Sumur Air Tanah', 'Pembangunan Jalan Desa'][subTab1];
-    if (tab === 2) return ['Rumah Tidak Layak Huni', 'KIE Lingkungan Bersih & Sehat', 'Pemanfaatan Pekarangan', 'Biopori Rumah Tangga'][subTab2];
-    if (tab === 3) return ['Korban Trauma & Psikososial', 'Penyuluhan & Evaluasi Trauma', 'KIE & Simulasi Bencana', 'Insiden Kamtibmas', 'Sosialisasi Pencegahan', 'Patroli Keamanan'][subTab3];
-    if (tab === 4) return ['KIE Gender & Inklusi Sosial', 'Pendataan Fakir Miskin', 'Verifikasi Sosial-Ekonomi', 'Penyaluran Bantuan Sosial'][subTab4];
-    return 'Lainnya';
-  };
+  const SUB_BIDANG_MAP = [
+  [
+    'Anak Usia Dini (0-6 th)',
+    'Perpustakaan / Pojok Baca',
+    'Literasi Digital Ortu',
+    'Inventaris APE'
+  ],
+  [
+    'Edukasi Air Bersih & Limbah',
+    'Identifikasi Embung Air Baku',
+    'Jaringan Air Perdesaan',
+    'Sumur Air Tanah',
+    'Pembangunan Jalan Desa'
+  ],
+  [
+    'Rumah Tidak Layak Huni',
+    'KIE Lingkungan Bersih & Sehat',
+    'Pemanfaatan Pekarangan',
+    'Biopori Rumah Tangga'
+  ],
+  [
+    'Korban Trauma & Psikososial',
+    'Penyuluhan & Evaluasi Trauma',
+    'KIE & Simulasi Bencana',
+    'Insiden Kamtibmas',
+    'Sosialisasi Pencegahan',
+    'Patroli Keamanan'
+  ],
+  [
+    'KIE Gender & Inklusi Sosial',
+    'Pendataan Fakir Miskin',
+    'Verifikasi Sosial-Ekonomi',
+    'Penyaluran Bantuan Sosial'
+  ]
+];
+const getSubBidangName = () => {
+  const currentSubTabs = [
+    subTab0,
+    subTab1,
+    subTab2,
+    subTab3,
+    subTab4
+  ];
+
+  return (
+    SUB_BIDANG_MAP[tab]?.[
+      currentSubTabs[tab]
+    ] || 'Lainnya'
+  );
+};
 
   // === SUBMIT FORMULIR IDENTIFIKASI ===
   const submitIdentifikasi = async () => {
-    // Validasi apakah form identifikasi masih kosong
-    const filledEntries = Object.entries(formIden || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
+    const filledEntries = Object.entries(formIden || {}).filter(
+      ([, value]) =>
+        value !== null &&
+        value !== undefined &&
+        String(value).trim().length > 0
+    );
+
     if (filledEntries.length === 0) {
-      setMessage({ type: 'error', text: 'Formulir masih kosong! Mohon isi data identifikasi lapangan sebelum menyimpan.' });
+      setMessage({
+        type: 'error',
+        text: 'Formulir masih kosong! Mohon isi data identifikasi lapangan sebelum menyimpan.'
+      });
       return;
     }
 
-    const hasIdentifier = formIden.nama_petugas?.trim() || formIden.nama_warga?.trim() || formIden.nama_anak?.trim() || formIden.pemilik?.trim() || formIden.nama_korban?.trim() || formIden.nama_kegiatan?.trim() || formIden.lokasi?.trim() || formIden.lokasi_ruas_jalan?.trim();
+    const hasIdentifier =
+      formIden.nama_anak?.trim() ||
+      formIden.nama_warga?.trim() ||
+      formIden.nama_kk?.trim() ||
+      formIden.nama_korban?.trim() ||
+      formIden.nama_peserta?.trim() ||
+      formIden.nama_penerima?.trim() ||
+      formIden.nama_ortu?.trim() ||
+      formIden.pemilik?.trim() ||
+      formIden.nama_fasilitas?.trim() ||
+      formIden.nama_kegiatan?.trim() ||
+      formIden.nama_paud?.trim() ||
+      formIden.jenis_ape?.trim() ||
+      formIden.lokasi_embung?.trim() ||
+      formIden.lokasi_pipa?.trim() ||
+      formIden.lokasi_jalan?.trim() ||
+      formIden.lokasi?.trim() ||
+      formIden.wilayah?.trim() ||
+      formIden.pengelola?.trim() ||
+      formIden.petugas?.trim() ||
+      formIden.fasilitator?.trim() ||
+      formIden.nama_petugas?.trim();
+
     if (!hasIdentifier) {
-      setMessage({ type: 'error', text: 'Mohon lengkapi nama petugas, nama subjek, atau lokasi peninjauan.' });
+      setMessage({
+        type: 'error',
+        text: 'Mohon lengkapi nama subjek, kegiatan, fasilitas, petugas, atau lokasi peninjauan.'
+      });
       return;
     }
 
-    setIsLoading(true); setMessage({ type: '', text: '' });
+    setIsLoading(true);
+    setMessage({ type: '', text: '' });
+
     try {
       const token = localStorage.getItem('auth_token');
       const formData = new FormData();
@@ -326,24 +483,50 @@ export default function PengaduanView() {
       formData.append('bidang', BIDANG_MAP[tab]);
       formData.append('sub_bidang', getSubBidangName());
       formData.append('data_formulir', JSON.stringify(formIden));
+      formData.append('status_form', 'final');
 
-      if (fotoIden && fotoIden.length > 0) {
-        for (let i = 0; i < fotoIden.length; i++) formData.append(`dokumentasi_foto[${i}]`, fotoIden[i]);
+      // Jika berasal dari draf yang dimuat, ubah draf tersebut menjadi final.
+      if (loadedDraftIdenId) {
+        formData.append('draft_id', loadedDraftIdenId);
       }
 
-      const response = await axios.post('/api/formulir-identifikasi', formData, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+      if (fotoIden?.length > 0) {
+        fotoIden.forEach((file, index) => {
+          formData.append(`dokumentasi_foto[${index}]`, file);
+        });
+      }
+
+      const response = await axios.post(
+        '/api/formulir-identifikasi',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      setLoadedDraftIdenId(null);
+      setDraftRefreshKey(prev => prev + 1);
+      resetFormIden();
+
+      setMessage({
+        type: 'success',
+        text: response.data.pesan || 'Formulir identifikasi berhasil disimpan.'
       });
 
-      resetFormIden();
-      setMessage({ type: 'success', text: response.data.pesan || 'Formulir identifikasi berhasil disimpan.' });
-      localStorage.removeItem(`posyandu_draft_iden_${tab}`);
-      setDraftRefreshKey(prev => prev + 1);
       fetchRekap();
-
     } catch (err) {
-      const pesanAsli = err.response?.data?.pesan || err.response?.data?.message || err.message;
-      setMessage({ type: 'error', text: `Gagal menyimpan formulir: ${pesanAsli}` });
+      const pesanAsli =
+        err.response?.data?.pesan ||
+        err.response?.data?.message ||
+        err.message;
+
+      setMessage({
+        type: 'error',
+        text: `Gagal menyimpan formulir: ${pesanAsli}`
+      });
     } finally {
       setIsLoading(false);
     }
@@ -352,181 +535,779 @@ export default function PengaduanView() {
   // === SUBMIT PENGADUAN MASYARAKAT ===
   const submitPengaduan = async () => {
     if (!formPengaduan.nama_pelapor?.trim()) {
-      setMessage({ type: 'error', text: 'Gagal: Nama Pelapor wajib diisi.' });
-      return;
-    }
-    if (!formPengaduan.isi_keluhan?.trim()) {
-      setMessage({ type: 'error', text: 'Gagal: Isi Aspirasi / Keluhan wajib diisi.' });
-      return;
-    }
-    if (formPengaduan.nik && formPengaduan.nik.length !== 16) {
-      setMessage({ type: 'error', text: 'Gagal: NIK Pelapor harus tepat 16 digit angka!' });
+      setMessage({
+        type: 'error',
+        text: 'Gagal: Nama Pelapor wajib diisi.'
+      });
       return;
     }
 
-    setIsLoading(true); setMessage({ type: '', text: '' });
+    if (!formPengaduan.nik?.trim()) {
+      setMessage({
+        type: 'error',
+        text: 'Gagal: NIK Pelapor wajib diisi.'
+      });
+      return;
+    }
+
+    if (formPengaduan.nik.length !== 16) {
+      setMessage({
+        type: 'error',
+        text: 'Gagal: NIK Pelapor harus tepat 16 digit angka!'
+      });
+      return;
+    }
+
+    if (!formPengaduan.alamat?.trim()) {
+      setMessage({
+        type: 'error',
+        text: 'Gagal: Alamat Pelapor wajib diisi.'
+      });
+      return;
+    }
+
+    if (!formPengaduan.isi_keluhan?.trim()) {
+      setMessage({
+        type: 'error',
+        text: 'Gagal: Isi Aspirasi / Keluhan wajib diisi.'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage({ type: '', text: '' });
+
     try {
       const token = localStorage.getItem('auth_token');
       const formData = new FormData();
 
       formData.append('bidang', BIDANG_MAP[tab]);
+      formData.append('status_form', 'final');
+
+      // Jika berasal dari draf yang dimuat, ubah draf tersebut menjadi final.
+      if (loadedDraftPengaduanId) {
+        formData.append('draft_id', loadedDraftPengaduanId);
+      }
+
       Object.keys(formPengaduan).forEach(key => {
-        if (formPengaduan[key] !== undefined && formPengaduan[key] !== null) {
-          formData.append(key, formPengaduan[key]);
+        const value = formPengaduan[key];
+
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== ''
+        ) {
+          formData.append(key, value);
         }
       });
 
-      if (lampiranPengaduan && lampiranPengaduan.length > 0) {
-        for (let i = 0; i < lampiranPengaduan.length; i++) formData.append(`lampiran[${i}]`, lampiranPengaduan[i]);
+      if (lampiranPengaduan?.length > 0) {
+        lampiranPengaduan.forEach((file, index) => {
+          formData.append(`lampiran[${index}]`, file);
+        });
       }
 
-      const response = await axios.post('/api/pengaduan-masyarakat', formData, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+      const response = await axios.post(
+        '/api/pengaduan-masyarakat',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      setLoadedDraftPengaduanId(null);
+      setDraftRefreshKey(prev => prev + 1);
+
+      setFormPengaduan({
+        nama_pelapor: '',
+        jenis_kelamin: 'L',
+        nik: '',
+        no_hp: '',
+        alamat: '',
+        isi_keluhan: '',
+        lokasi_masalah: ''
       });
 
-      setMessage({ type: 'success', text: response.data.pesan || 'Aspirasi / pengaduan warga berhasil dikirim.' });
-      setFormPengaduan({ nama_pelapor: '', jenis_kelamin: 'L', nik: '', no_hp: '', alamat: '', isi_keluhan: '', lokasi_masalah: '' });
       setLampiranPengaduan([]);
-      if (fileInputPengaduanRef.current) fileInputPengaduanRef.current.value = '';
 
-      localStorage.removeItem(`posyandu_draft_aduan_${tab}`);
-      setDraftRefreshKey(prev => prev + 1);
+      if (fileInputPengaduanRef.current) {
+        fileInputPengaduanRef.current.value = '';
+      }
+
+      setMessage({
+        type: 'success',
+        text: response.data.pesan || 'Aspirasi / pengaduan warga berhasil dikirim.'
+      });
+
       fetchRekap();
     } catch (err) {
-      const pesanAsli = err.response?.data?.pesan || err.response?.data?.message || err.message;
-      setMessage({ type: 'error', text: `Gagal mengirim pengaduan: ${pesanAsli}` });
+      const pesanAsli =
+        err.response?.data?.pesan ||
+        err.response?.data?.message ||
+        err.message;
+
+      setMessage({
+        type: 'error',
+        text: `Gagal mengirim pengaduan: ${pesanAsli}`
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // === FITUR DRAF LOKAL FORMULIR & PENGADUAN (Poin 1 Page 8) ===
+  // ============================================================
+  // MULTI DRAFT DATABASE FORMULIR & PENGADUAN
+  // ============================================================
   const [draftRefreshKey, setDraftRefreshKey] = useState(0);
+  const [draftIdenDb, setDraftIdenDb] = useState([]);
+  const [draftPengaduanDb, setDraftPengaduanDb] = useState([]);
+  const [loadedDraftIdenId, setLoadedDraftIdenId] = useState(null);
+  const [loadedDraftPengaduanId, setLoadedDraftPengaduanId] = useState(null);
 
-  const handleSaveDraftIden = () => {
-    const filledEntries = Object.entries(formIden || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
-    if (filledEntries.length === 0) {
-      setMessage({ type: 'error', text: 'Formulir masih kosong! Belum ada data untuk disimpan sebagai draf.' });
-      return;
+  const fetchDraftStatus = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+
+      const [resIden, resPengaduan] = await Promise.all([
+        axios.get('/api/formulir-identifikasi/draft', {
+          params: {
+            bidang: BIDANG_MAP[tab]
+          },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }),
+
+        axios.get('/api/pengaduan-masyarakat/draft', {
+          params: {
+            bidang: BIDANG_MAP[tab]
+          },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+      ]);
+
+      setDraftIdenDb(
+        Array.isArray(resIden.data?.data)
+          ? resIden.data.data
+          : []
+      );
+
+      setDraftPengaduanDb(
+        Array.isArray(resPengaduan.data?.data)
+          ? resPengaduan.data.data
+          : []
+      );
+    } catch (err) {
+      console.error('Gagal mengambil draf:', err);
     }
-    localStorage.setItem(`posyandu_draft_iden_${tab}`, JSON.stringify({
-      formIden,
-      subTab: [subTab0, subTab1, subTab2, subTab3, subTab4][tab],
-      updated_at: new Date().toISOString()
-    }));
-    setDraftRefreshKey(prev => prev + 1);
-    setMessage({ type: 'success', text: 'Draf isian formulir identifikasi berhasil disimpan di perangkat ini.' });
   };
 
-  const handleLoadDraftIden = () => {
+  // Saat pindah bidang, draft yang sedang dibuka dilepas.
+  useEffect(() => {
+    setLoadedDraftIdenId(null);
+    setLoadedDraftPengaduanId(null);
+  }, [tab]);
+
+  // Refresh daftar draft tanpa melepas draft yang sedang dibuka.
+  // Ini mencegah klik "Update Draf" membuat record baru/duplikat.
+  useEffect(() => {
+    fetchDraftStatus();
+  }, [tab, draftRefreshKey]);
+
+  const handleNewDraftIden = () => {
+    setLoadedDraftIdenId(null);
+    setFormIden({});
+    setFotoIden([]);
+
+    if (fileInputIdenRef.current) {
+      fileInputIdenRef.current.value = '';
+    }
+
+    setMessage({
+      type: '',
+      text: ''
+    });
+  };
+
+  const handleNewDraftPengaduan = () => {
+    setLoadedDraftPengaduanId(null);
+
+    setFormPengaduan({
+      nama_pelapor: '',
+      jenis_kelamin: 'L',
+      nik: '',
+      no_hp: '',
+      alamat: '',
+      isi_keluhan: '',
+      lokasi_masalah: ''
+    });
+
+    setLampiranPengaduan([]);
+
+    if (fileInputPengaduanRef.current) {
+      fileInputPengaduanRef.current.value = '';
+    }
+
+    setMessage({
+      type: '',
+      text: ''
+    });
+  };
+
+  // =============================
+  // SIMPAN / UPDATE DRAF FORMULIR
+  // =============================
+  const handleSaveDraftIden = async () => {
+    const filledEntries = Object.entries(formIden || {}).filter(
+      ([, value]) =>
+        value !== null &&
+        value !== undefined &&
+        String(value).trim().length > 0
+    );
+
+    if (
+      filledEntries.length === 0 &&
+      fotoIden.length === 0
+    ) {
+      setMessage({
+        type: 'error',
+        text: 'Formulir masih kosong! Belum ada data untuk disimpan sebagai draf.'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      const raw = localStorage.getItem(`posyandu_draft_iden_${tab}`);
-      if (!raw) {
-        setMessage({ type: 'error', text: 'Tidak ada draf tersimpan untuk formulir bidang ini.' });
-        return;
+      const token = localStorage.getItem('auth_token');
+      const formData = new FormData();
+
+      formData.append('bidang', BIDANG_MAP[tab]);
+      formData.append('sub_bidang', getSubBidangName());
+      formData.append('data_formulir', JSON.stringify(formIden));
+      formData.append('status_form', 'draft');
+
+      // Ada ID = update draf yang sedang dibuka.
+      // Tidak ada ID = buat draf baru.
+      if (loadedDraftIdenId) {
+        formData.append('draft_id', loadedDraftIdenId);
       }
-      const parsed = JSON.parse(raw);
-      if (parsed.formIden) {
-        setFormIden(parsed.formIden);
-        if (parsed.subTab !== undefined) {
-          if (tab === 0) setSubTab0(parsed.subTab);
-          if (tab === 1) setSubTab1(parsed.subTab);
-          if (tab === 2) setSubTab2(parsed.subTab);
-          if (tab === 3) setSubTab3(parsed.subTab);
-          if (tab === 4) setSubTab4(parsed.subTab);
+
+      fotoIden.forEach((file, index) => {
+        formData.append(`dokumentasi_foto[${index}]`, file);
+      });
+
+      const response = await axios.post(
+        '/api/formulir-identifikasi',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
         }
-        setMessage({ type: 'success', text: 'Draf isian formulir berhasil dimuat kembali!' });
-      }
-    } catch (e) {
-      setMessage({ type: 'error', text: 'Gagal membaca data draf.' });
+      );
+
+      setLoadedDraftIdenId(
+        response.data?.data?.id || null
+      );
+
+      setDraftRefreshKey(prev => prev + 1);
+
+      setMessage({
+        type: 'success',
+        text: loadedDraftIdenId
+          ? 'Draf formulir berhasil diperbarui.'
+          : 'Draf formulir baru berhasil disimpan.'
+      });
+    } catch (err) {
+      setMessage({
+        type: 'error',
+        text:
+          err.response?.data?.pesan ||
+          err.response?.data?.message ||
+          'Gagal menyimpan draf formulir.'
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSaveDraftPengaduan = () => {
-    const filledEntries = Object.entries(formPengaduan || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
-    if (filledEntries.length === 0) {
-      setMessage({ type: 'error', text: 'Formulir pengaduan masih kosong! Belum ada data untuk disimpan sebagai draf.' });
+  // =============================
+  // MUAT DRAF FORMULIR
+  // =============================
+  const handleLoadDraftIden = (draft) => {
+    const data = getSafeObject(
+      draft.data_formulir
+    );
+
+    const indexSub =
+      SUB_BIDANG_MAP[tab]?.indexOf(
+        draft.sub_bidang
+      );
+
+    if (indexSub >= 0) {
+      if (tab === 0) setSubTab0(indexSub);
+      if (tab === 1) setSubTab1(indexSub);
+      if (tab === 2) setSubTab2(indexSub);
+      if (tab === 3) setSubTab3(indexSub);
+      if (tab === 4) setSubTab4(indexSub);
+    }
+
+    setFormIden(data);
+    setFotoIden([]);
+    setLoadedDraftIdenId(draft.id);
+
+    if (fileInputIdenRef.current) {
+      fileInputIdenRef.current.value = '';
+    }
+
+    setMessage({
+      type: 'success',
+      text: 'Draf formulir berhasil dimuat.'
+    });
+  };
+
+  // =============================
+  // SIMPAN / UPDATE DRAF PENGADUAN
+  // =============================
+  const handleSaveDraftPengaduan = async () => {
+    const filledEntries = Object.entries(
+      formPengaduan || {}
+    ).filter(
+      ([key, value]) =>
+        key !== 'jenis_kelamin' &&
+        value !== null &&
+        value !== undefined &&
+        String(value).trim().length > 0
+    );
+
+    if (
+      filledEntries.length === 0 &&
+      lampiranPengaduan.length === 0
+    ) {
+      setMessage({
+        type: 'error',
+        text: 'Formulir pengaduan masih kosong! Belum ada data untuk disimpan sebagai draf.'
+      });
       return;
     }
-    localStorage.setItem(`posyandu_draft_aduan_${tab}`, JSON.stringify({
-      formPengaduan,
-      updated_at: new Date().toISOString()
-    }));
-    setDraftRefreshKey(prev => prev + 1);
-    setMessage({ type: 'success', text: 'Draf aspirasi / pengaduan warga berhasil disimpan di perangkat ini.' });
-  };
 
-  const handleLoadDraftPengaduan = () => {
+    setIsLoading(true);
+
     try {
-      const raw = localStorage.getItem(`posyandu_draft_aduan_${tab}`);
-      if (!raw) {
-        setMessage({ type: 'error', text: 'Tidak ada draf pengaduan tersimpan untuk bidang ini.' });
-        return;
+      const token = localStorage.getItem('auth_token');
+      const formData = new FormData();
+
+      formData.append('bidang', BIDANG_MAP[tab]);
+      formData.append('status_form', 'draft');
+
+      if (loadedDraftPengaduanId) {
+        formData.append(
+          'draft_id',
+          loadedDraftPengaduanId
+        );
       }
-      const parsed = JSON.parse(raw);
-      if (parsed.formPengaduan) {
-        setFormPengaduan(parsed.formPengaduan);
-        setMessage({ type: 'success', text: 'Draf aspirasi pengaduan berhasil dimuat kembali!' });
-      }
-    } catch (e) {
-      setMessage({ type: 'error', text: 'Gagal membaca data draf.' });
+
+      Object.keys(formPengaduan).forEach(key => {
+        const value = formPengaduan[key];
+
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== ''
+        ) {
+          formData.append(key, value);
+        }
+      });
+
+      lampiranPengaduan.forEach(
+        (file, index) => {
+          formData.append(
+            `lampiran[${index}]`,
+            file
+          );
+        }
+      );
+
+      const response = await axios.post(
+        '/api/pengaduan-masyarakat',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      setLoadedDraftPengaduanId(
+        response.data?.data?.id || null
+      );
+
+      setDraftRefreshKey(prev => prev + 1);
+
+      setMessage({
+        type: 'success',
+        text: loadedDraftPengaduanId
+          ? 'Draf pengaduan berhasil diperbarui.'
+          : 'Draf pengaduan baru berhasil disimpan.'
+      });
+    } catch (err) {
+      setMessage({
+        type: 'error',
+        text:
+          err.response?.data?.pesan ||
+          err.response?.data?.message ||
+          'Gagal menyimpan draf pengaduan.'
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const renderActionButtons = (type = 'iden') => {
-    const draftKey = type === 'iden' ? `posyandu_draft_iden_${tab}` : `posyandu_draft_aduan_${tab}`;
-    const hasLocalDraft = Boolean(localStorage.getItem(draftKey));
+  // =============================
+  // MUAT DRAF PENGADUAN
+  // =============================
+  const handleLoadDraftPengaduan = (draft) => {
+    setFormPengaduan({
+      nama_pelapor: draft.nama_pelapor || '',
+      jenis_kelamin: draft.jenis_kelamin || 'L',
+      nik: draft.nik || '',
+      no_hp: draft.no_hp || '',
+      alamat: draft.alamat || '',
+      tanggal_penyampaian: draft.tanggal_penyampaian
+        ? String(draft.tanggal_penyampaian).substring(0, 10)
+        : '',
+      penerima_aspirasi: draft.penerima_aspirasi || '',
+      jenis_aspirasi: draft.jenis_aspirasi || '',
+      // Empat bidang memakai nama field "jenis_pengaduan" di UI.
+      // Nilainya tetap berasal dari kolom jenis_aspirasi di database.
+      jenis_pengaduan: draft.jenis_aspirasi || '',
+      isi_keluhan: draft.isi_keluhan || '',
+      lokasi_masalah: draft.lokasi_masalah || '',
+      urgensi: draft.urgensi || 'Sedang',
+      rekomendasi: draft.rekomendasi || '',
+      tindak_lanjut: draft.tindak_lanjut || ''
+    });
+
+    setLampiranPengaduan([]);
+    setLoadedDraftPengaduanId(draft.id);
+
+    if (fileInputPengaduanRef.current) {
+      fileInputPengaduanRef.current.value = '';
+    }
+
+    setMessage({
+      type: 'success',
+      text: 'Draf pengaduan berhasil dimuat.'
+    });
+  };
+
+  // =============================
+  // HAPUS SATU DRAF
+  // =============================
+  const handleDeleteDraft = async (
+    type,
+    draft
+  ) => {
+    try {
+      const token =
+        localStorage.getItem('auth_token');
+
+      const endpoint =
+        type === 'iden'
+          ? `/api/formulir-identifikasi/draft/${draft.id}`
+          : `/api/pengaduan-masyarakat/draft/${draft.id}`;
+
+      await axios.delete(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (
+        type === 'iden' &&
+        loadedDraftIdenId === draft.id
+      ) {
+        handleNewDraftIden();
+      }
+
+      if (
+        type === 'aduan' &&
+        loadedDraftPengaduanId === draft.id
+      ) {
+        handleNewDraftPengaduan();
+      }
+
+      setDraftRefreshKey(prev => prev + 1);
+
+      setMessage({
+        type: 'success',
+        text: 'Draf berhasil dihapus.'
+      });
+    } catch (err) {
+      setMessage({
+        type: 'error',
+        text:
+          err.response?.data?.pesan ||
+          err.response?.data?.message ||
+          'Gagal menghapus draf.'
+      });
+    }
+  };
+
+  // =============================
+  // TOMBOL ACTION + DAFTAR DRAF
+  // =============================
+  const renderActionButtons = (
+    type = 'iden'
+  ) => {
+    const drafts =
+      type === 'iden'
+        ? draftIdenDb
+        : draftPengaduanDb;
+
+    const loadedId =
+      type === 'iden'
+        ? loadedDraftIdenId
+        : loadedDraftPengaduanId;
 
     return (
       <div style={{ marginTop: '20px' }}>
-        {hasLocalDraft && (
-          <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderRadius: '10px', padding: '8px 12px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <span style={{ fontSize: '12px', color: '#92400e', fontWeight: 600 }}>
-              Draf tersimpan di perangkat ini
-            </span>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                type="button"
-                onClick={type === 'iden' ? handleLoadDraftIden : handleLoadDraftPengaduan}
-                style={{ backgroundColor: '#f59e0b', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer' }}
-              >
-                Muat Draf
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  localStorage.removeItem(draftKey);
-                  setDraftRefreshKey(prev => prev + 1);
-                  setMessage({ type: 'success', text: 'Draf tersimpan berhasil dibersihkan.' });
-                }}
-                style={{ backgroundColor: 'transparent', color: '#b45309', border: '1px solid #fcd34d', borderRadius: '6px', padding: '4px 8px', fontSize: '11.5px', cursor: 'pointer' }}
-              >
-                Hapus
-              </button>
-            </div>
+        {drafts.length > 0 && (
+          <div
+            style={{
+              marginBottom: '12px',
+              maxHeight: '240px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '7px'
+            }}
+          >
+            {drafts.map((draft, index) => {
+              const isLoaded =
+                loadedId === draft.id;
+
+              const title =
+                type === 'iden'
+                  ? (
+                      draft.identitas ||
+                      draft.sub_bidang ||
+                      `Draf ${index + 1}`
+                    )
+                  : (
+                      draft.nama_pelapor ||
+                      draft.isi_keluhan?.substring(0, 45) ||
+                      `Draf ${index + 1}`
+                    );
+
+              return (
+                <div
+                  key={draft.id}
+                  style={{
+                    backgroundColor:
+                      isLoaded
+                        ? '#ecfdf5'
+                        : '#fffbeb',
+                    border:
+                      isLoaded
+                        ? '1px solid #86efac'
+                        : '1px solid #fde68a',
+                    borderRadius: '9px',
+                    padding: '8px 10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '8px'
+                  }}
+                >
+                  <div
+                    style={{
+                      minWidth: 0,
+                      flex: 1
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: '#334155',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {title}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: '10.5px',
+                        color: '#64748b',
+                        marginTop: '2px'
+                      }}
+                    >
+                      {type === 'iden'
+                        ? draft.sub_bidang
+                        : 'Pengaduan'}
+
+                      {' • '}
+
+                      {draft.updated_at
+                        ? new Date(
+                            draft.updated_at
+                          ).toLocaleString(
+                            'id-ID'
+                          )
+                        : ''}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '5px',
+                      flexShrink: 0
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        type === 'iden'
+                          ? handleLoadDraftIden(
+                              draft
+                            )
+                          : handleLoadDraftPengaduan(
+                              draft
+                            )
+                      }
+                      disabled={isLoaded}
+                      style={{
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        backgroundColor:
+                          isLoaded
+                            ? '#16a34a'
+                            : '#f59e0b',
+                        color: '#fff',
+                        fontSize: '11px',
+                        cursor:
+                          isLoaded
+                            ? 'default'
+                            : 'pointer',
+                        fontWeight: 700
+                      }}
+                    >
+                      {isLoaded
+                        ? 'Sedang Dibuka'
+                        : 'Muat'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDeleteDraft(
+                          type,
+                          draft
+                        )
+                      }
+                      style={{
+                        border:
+                          '1px solid #fecaca',
+                        borderRadius: '6px',
+                        padding: '4px 7px',
+                        backgroundColor: '#fff',
+                        color: '#dc2626',
+                        fontSize: '11px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
-        <div style={{ display: 'flex', gap: '10px' }}>
+
+        {loadedId && (
+          <button
+            type="button"
+            onClick={
+              type === 'iden'
+                ? handleNewDraftIden
+                : handleNewDraftPengaduan
+            }
+            style={{
+              width: '100%',
+              marginBottom: '8px',
+              border: '1px dashed #94a3b8',
+              backgroundColor: '#f8fafc',
+              color: '#334155',
+              borderRadius: '8px',
+              padding: '8px 10px',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            + Buat Draf Baru
+          </button>
+        )}
+
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px'
+          }}
+        >
           <Button
             type="button"
             variant="secondary"
             size="md"
-            onClick={type === 'iden' ? handleSaveDraftIden : handleSaveDraftPengaduan}
+            disabled={isLoading}
+            onClick={
+              type === 'iden'
+                ? handleSaveDraftIden
+                : handleSaveDraftPengaduan
+            }
             style={{ flex: 1 }}
           >
-            Simpan Draf
+            {loadedId
+              ? 'Update Draf'
+              : 'Simpan Draf Baru'}
           </Button>
+
           <Button
             type="button"
             variant="primary"
             size="md"
-            onClick={type === 'iden' ? submitIdentifikasi : submitPengaduan}
+            onClick={
+              type === 'iden'
+                ? submitIdentifikasi
+                : submitPengaduan
+            }
             disabled={isLoading}
             loading={isLoading}
-            loadingText={type === 'iden' ? 'Menyimpan...' : 'Mengirim...'}
+            loadingText={
+              type === 'iden'
+                ? 'Menyimpan...'
+                : 'Mengirim...'
+            }
             style={{ flex: 1 }}
           >
-            {type === 'iden' ? 'Simpan Data' : 'Kirim Pengaduan'}
+            {type === 'iden'
+              ? 'Simpan Data'
+              : 'Kirim Pengaduan'}
           </Button>
         </div>
       </div>
@@ -622,8 +1403,8 @@ export default function PengaduanView() {
               fontSize: '13px'
             }}
           >
-            <Upload01Icon size={18} />
-            <span>{hasFiles ? '+ Tambah File Lainnya' : 'Klik untuk Unggah Berkas / Foto'}</span>
+            {hasFiles ? <Add01Icon size={18} /> : <Upload01Icon size={18} />}
+            <span>{hasFiles ? '+ Tambah File' : 'Klik untuk Unggah Berkas / Foto'}</span>
           </button>
           {hasFiles && (
             <Button
@@ -656,8 +1437,34 @@ export default function PengaduanView() {
   };
 
   const getFormulirSubjek = (item) => {
+    // Prioritas utama: kolom identitas dari database
+    if (item?.identitas && String(item.identitas).trim() !== '') {
+      return item.identitas;
+    }
+
+    // Fallback untuk data lama yang belum punya kolom identitas
     const data = getSafeObject(item.data_formulir);
-    return data.nama_petugas || data.nama_warga || data.nama_anak || data.pemilik || data.nama_korban || data.nama_kegiatan || data.lokasi || data.lokasi_ruas_jalan || data.lokasi_embung || '-';
+
+    return (
+      data.nama_anak ||
+      data.nama_warga ||
+      data.nama_kk ||
+      data.nama_korban ||
+      data.nama_peserta ||
+      data.nama_penerima ||
+      data.nama_ortu ||
+      data.pemilik ||
+      data.nama_fasilitas ||
+      data.nama_kegiatan ||
+      data.jenis_ape ||
+      data.lokasi_embung ||
+      data.lokasi_pipa ||
+      data.lokasi_jalan ||
+      data.lokasi ||
+      data.pengelola ||
+      data.nama_petugas ||
+      '-'
+    );
   };
 
   const currentCategory = SPM_CATEGORIES[tab] || SPM_CATEGORIES[0];
@@ -1270,8 +2077,16 @@ export default function PengaduanView() {
 
                 <div className="form-field">
                   <label>No. HP / WhatsApp (Opsional)</label>
-                  <input name="no_hp" value={formPengaduan.no_hp || ''} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" />
-                </div>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={15}
+                    name="no_hp"
+                    value={formPengaduan.no_hp || ''}
+                    onChange={handlePengaduanChange}
+                    placeholder="081234567890"
+                  /></div>
 
                 <div className="form-field full">
                   <label>Alamat Lengkap Warga</label>
@@ -1444,7 +2259,16 @@ export default function PengaduanView() {
                     <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
                   </div>
                 </div>
-                <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
+                <div className="form-field"><label>No. HP (Opsional)</label><input
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={15}
+                  name="no_hp"
+                  value={formPengaduan.no_hp || ''}
+                  onChange={handlePengaduanChange}
+                  placeholder="081234567890"
+                /></div>
                 <div className="form-field full"><label>Alamat Warga Pelapor</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
@@ -1587,7 +2411,16 @@ export default function PengaduanView() {
                     <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
                   </div>
                 </div>
-                <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
+                  <div className="form-field"><label>No. HP (Opsional)</label><input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={15}
+                    name="no_hp"
+                    value={formPengaduan.no_hp || ''}
+                    onChange={handlePengaduanChange}
+                    placeholder="081234567890"
+                  /></div>
                 <div className="form-field full"><label>Alamat Lengkap Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
@@ -1778,7 +2611,16 @@ export default function PengaduanView() {
                     <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
                   </div>
                 </div>
-                <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
+                <div className="form-field"><label>No. HP (Opsional)</label><input
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={15}
+                  name="no_hp"
+                  value={formPengaduan.no_hp || ''}
+                  onChange={handlePengaduanChange}
+                  placeholder="081234567890"
+                /></div>
                 <div className="form-field full"><label>Alamat Warga Pelapor</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
@@ -1850,7 +2692,19 @@ export default function PengaduanView() {
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Peserta</label><input name="nama_peserta" value={formIden.nama_peserta || ''} onChange={handleIdenChange} placeholder="Tulis nama lengkap sesuai identitas" /></div>
                   <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formIden.jenis_kelamin || 'P'} onChange={handleIdenChange}><option value="P">Perempuan</option><option value="L">Laki-laki</option></select></div>
-                  <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formIden.no_hp || ''} onChange={handleIdenChange} placeholder="Contoh: 0812... (Tulis '-' jika tak punya)" /></div>
+                  <div className="form-field">
+                    <label>No. HP (Opsional)</label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={15}
+                      name="no_hp"
+                      value={formIden.no_hp || ''}
+                      onChange={handleIdenChange}
+                      placeholder="081234567890"
+                    />
+                  </div>
                   <div className="form-field full"><label>Kelompok Rentan</label><input name="kelompok_rentan" value={formIden.kelompok_rentan || ''} onChange={handleIdenChange} placeholder="Contoh: Lansia, Disabilitas, Ibu Hamil, Anak Yatim" /></div>
                 </div>
               )}
@@ -1926,7 +2780,16 @@ export default function PengaduanView() {
                     <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
                   </div>
                 </div>
-                <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
+                <div className="form-field"><label>No. HP (Opsional)</label><input
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={15}
+                  name="no_hp"
+                  value={formPengaduan.no_hp || ''}
+                  onChange={handlePengaduanChange}
+                  placeholder="081234567890"
+                /></div>
                 <div className="form-field full"><label>Alamat Warga Pelapor</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
@@ -2017,7 +2880,7 @@ export default function PengaduanView() {
                   <tr>
                     <th>Tanggal</th>
                     <th>Sub-Bidang</th>
-                    <th>Petugas / Subjek</th>
+                    <th>Identitas / Subjek</th>
                     <th style={{ textAlign: 'right' }}>Aksi</th>
                   </tr>
                 </thead>
@@ -2038,6 +2901,30 @@ export default function PengaduanView() {
                           >
                             Detail
                           </Button>
+                          {canDeleteFinalForm && (
+                            <button
+                              type="button"
+                              disabled={isLoading}
+                              onClick={() => handleDeleteFinal('form', item)}
+                              style={{
+                                marginLeft: '6px',
+                                border: '1px solid #fecaca',
+                                backgroundColor: '#fff',
+                                color: '#dc2626',
+                                borderRadius: '7px',
+                                padding: '6px 9px',
+                                fontSize: '11.5px',
+                                fontWeight: 700,
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <Delete02Icon size={14} />
+                              Hapus
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -2096,6 +2983,30 @@ export default function PengaduanView() {
                           >
                             Detail
                           </Button>
+                          {canDeleteFinalPengaduan && (
+                            <button
+                              type="button"
+                              disabled={isLoading}
+                              onClick={() => handleDeleteFinal('pengaduan', item)}
+                              style={{
+                                marginLeft: '6px',
+                                border: '1px solid #fecaca',
+                                backgroundColor: '#fff',
+                                color: '#dc2626',
+                                borderRadius: '7px',
+                                padding: '6px 9px',
+                                fontSize: '11.5px',
+                                fontWeight: 700,
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <Delete02Icon size={14} />
+                              Hapus
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
