@@ -138,7 +138,14 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    confirmVariant: 'danger'
+  });
   const [printRows, setPrintRows] = useState([]);
 
   const token = localStorage.getItem('auth_token');
@@ -159,7 +166,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
       tanggal: today(),
     });
     setDetail({ ...emptyDetail[type] });
-    setMessage({ type: '', text: '' });
+    setMessage({ type: '', text: '', title: '', details: null });
   };
 
   const fetchRows = async () => {
@@ -176,10 +183,11 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
       console.error('Gagal memuat Data Tambahan', error);
       setMessage({
         type: 'error',
+        title: 'Gagal Memuat Data',
         text:
           error.response?.data?.pesan ||
           error.response?.data?.message ||
-          'Gagal mengambil data.',
+          'Gagal mengambil data sasaran khusus.',
       });
     } finally {
       setLoading(false);
@@ -218,8 +226,38 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    
+    const missing = [];
+    if (!common.nama?.trim()) missing.push('Nama sasaran / warga belum diisi');
+    if (!common.umur || Number(common.umur) <= 0) missing.push('Umur sasaran belum diisi dengan nilai yang valid (> 0)');
+    if (!common.tanggal) missing.push('Tanggal pencatatan belum ditentukan');
+
+    if (activeType === 'ibu_hamil') {
+      if (!detail.usia_kehamilan_minggu || Number(detail.usia_kehamilan_minggu) <= 0) {
+        missing.push('Usia kehamilan (minggu) wajib diisi');
+      }
+    } else if (activeType === 'kematian_nifas') {
+      if (!detail.penyebab?.trim()) {
+        missing.push('Penyebab kematian ibu nifas wajib diisi');
+      }
+    } else if (activeType === 'diare') {
+      if (!detail.lama_hari || Number(detail.lama_hari) <= 0) {
+        missing.push('Lama diare (hari) wajib diisi');
+      }
+    }
+
+    if (missing.length > 0) {
+      setMessage({
+        type: 'error',
+        title: 'Data Sasaran Belum Lengkap',
+        text: 'Mohon periksa dan lengkapi isian formulir berikut sebelum menyimpan:',
+        details: missing
+      });
+      return;
+    }
+
     setSaving(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: '', text: '', title: '', details: null });
 
     try {
       const payload = {
@@ -240,7 +278,8 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
 
       setMessage({
         type: 'success',
-        text: response.data.pesan || 'Data sasaran khusus berhasil disimpan.',
+        title: 'Data Berhasil Disimpan',
+        text: response.data.pesan || 'Data sasaran khusus berhasil disimpan ke register SIP Posyandu.',
       });
 
       resetForm();
@@ -248,39 +287,49 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
     } catch (error) {
       console.error('Gagal menyimpan Data Tambahan', error);
       const validation = error.response?.data?.errors;
-      const firstValidation =
-        validation && Object.values(validation)?.[0]?.[0];
+      let errDetails = null;
+      let firstValidation = '';
+      if (validation && typeof validation === 'object') {
+        errDetails = Object.values(validation).flat();
+        firstValidation = errDetails[0];
+      }
 
       setMessage({
         type: 'error',
-        text:
-          firstValidation ||
-          error.response?.data?.pesan ||
-          error.response?.data?.message ||
-          'Data gagal disimpan. Pastikan isian form lengkap.',
+        title: 'Gagal Menyimpan Data Sasaran',
+        text: firstValidation || error.response?.data?.pesan || error.response?.data?.message || 'Data gagal disimpan. Pastikan isian formulir sesuai.',
+        details: errDetails && errDetails.length > 1 ? errDetails : null
       });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus data sasaran ini?')) return;
-
-    try {
-      await axios.delete(`/api/data-tambahan-individu/${id}`, config);
-      setMessage({
-        type: 'success',
-        text: 'Data berhasil dihapus dari sistem.',
-      });
-      await fetchRows();
-    } catch (error) {
-      console.error('Gagal menghapus data', error);
-      setMessage({
-        type: 'error',
-        text: 'Data gagal dihapus.',
-      });
-    }
+  const handleDelete = (id, nama) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Konfirmasi Hapus Data Sasaran',
+      message: `Apakah Anda yakin ingin menghapus data sasaran ${nama ? `"${nama}"` : ''} dari sistem register?`,
+      confirmVariant: 'danger',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`/api/data-tambahan-individu/${id}`, config);
+          setMessage({
+            type: 'success',
+            title: 'Data Dihapus',
+            text: 'Data sasaran khusus berhasil dihapus dari sistem.'
+          });
+          await fetchRows();
+        } catch (error) {
+          console.error('Gagal menghapus data', error);
+          setMessage({
+            type: 'error',
+            title: 'Gagal Menghapus Data',
+            text: error.response?.data?.pesan || error.response?.data?.message || 'Data gagal dihapus.'
+          });
+        }
+      }
+    });
   };
 
   const generateReport = async () => {
@@ -326,7 +375,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="usia_kehamilan_minggu"
               value={detail.usia_kehamilan_minggu}
               onChange={handleDetailChange}
-              placeholder="mis. 28"
+              placeholder="Contoh: 28"
               required
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
@@ -344,7 +393,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="tekanan_darah"
               value={detail.tekanan_darah}
               onChange={handleDetailChange}
-              placeholder="mis. 120/80 atau 140/90"
+              placeholder="Contoh: 120/80 atau 140/90"
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
             <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
@@ -398,7 +447,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="hari_nifas"
               value={detail.hari_nifas}
               onChange={handleDetailChange}
-              placeholder="mis. 7"
+              placeholder="Contoh: 7"
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
             <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
@@ -451,7 +500,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="hari_nifas"
               value={detail.hari_nifas}
               onChange={handleDetailChange}
-              placeholder="mis. 3"
+              placeholder="Contoh: 3"
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
           </div>
@@ -465,7 +514,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               name="penyebab"
               value={detail.penyebab}
               onChange={handleDetailChange}
-              placeholder="mis. Perdarahan post-partum / Eklampsia / Infeksi"
+              placeholder="Contoh: Perdarahan post-partum / Eklampsia / Infeksi"
               required
               style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
             />
@@ -487,7 +536,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
             name="lama_hari"
             value={detail.lama_hari}
             onChange={handleDetailChange}
-            placeholder="mis. 2"
+            placeholder="Contoh: 2"
             required
             style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
           />
@@ -614,6 +663,33 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
       `}</style>
 
       <div className="dti-no-print">
+        {/* Modal Notifikasi */}
+        <NotificationModal
+          isOpen={Boolean(message.text || message.title)}
+          type={message.type || 'success'}
+          title={message.title}
+          message={message.text}
+          details={message.details}
+          onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
+        />
+
+        {/* Modal Konfirmasi Hapus */}
+        <NotificationModal
+          isOpen={confirmModal.isOpen}
+          type="confirm"
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmVariant={confirmModal.confirmVariant || 'danger'}
+          isConfirm
+          confirmText="Ya, Hapus"
+          cancelText="Batal"
+          onConfirm={() => {
+            if (confirmModal.onConfirm) confirmModal.onConfirm();
+            setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' });
+          }}
+          onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' })}
+        />
+
         {/* 1. HEADER: SEGMENTED TABS KATEGORI SASARAN KHUSUS */}
         <div
           className="card"
@@ -625,7 +701,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
             border: '1.5px solid var(--line, #e2e8f0)'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div
                 style={{
@@ -636,7 +712,8 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                   color: 'var(--primary-teal, #008080)',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}
               >
                 <Activity01Icon size={20} />
@@ -651,25 +728,29 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
               <input
                 type="month"
                 value={filterMonth}
                 onChange={(e) => setFilterMonth(e.target.value)}
                 style={{
-                  minHeight: '38px',
-                  padding: '0 12px',
+                  width: '100%',
+                  minHeight: '44px',
+                  height: '44px',
+                  padding: '0 14px',
                   borderRadius: '10px',
                   border: '1.5px solid #cbd5e1',
-                  fontSize: '13px',
+                  fontSize: '13.5px',
                   fontWeight: 600,
                   backgroundColor: '#ffffff',
-                  outline: 'none'
+                  outline: 'none',
+                  boxSizing: 'border-box'
                 }}
               />
               <Button
-                variant="outline"
-                size="sm"
+                variant="primary"
+                size="md"
+                fullWidth
                 icon={PrinterIcon}
                 onClick={generateReport}
               >
@@ -805,7 +886,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                     name="nama"
                     value={common.nama}
                     onChange={handleCommonChange}
-                    placeholder="mis. Ibu Siti Rahmawati"
+                    placeholder="Contoh: Ibu Siti Rahmawati"
                     required
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
@@ -821,7 +902,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                     name="umur"
                     value={common.umur}
                     onChange={handleCommonChange}
-                    placeholder="mis. 28"
+                    placeholder="Contoh: 28"
                     required
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
@@ -846,7 +927,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                     name="alamat"
                     value={common.alamat}
                     onChange={handleCommonChange}
-                    placeholder="mis. RT 03 Dusun Karya Bersama"
+                    placeholder="Contoh: RT 03 Dusun Karya Bersama"
                     style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', fontSize: '14px' }}
                   />
                 </div>
@@ -870,20 +951,11 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                   onChange={handleCommonChange}
                   rows="2"
                   placeholder="Keterangan tambahan atau tindakan kader..."
-                  style={{ width: '100%', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px', outline: 'none' }}
+                  style={{ width: '100%', minHeight: '80px', resize: 'vertical', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '10px 12px', outline: 'none' }}
                 ></textarea>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={resetForm}
-                  disabled={saving}
-                  style={{ flex: '0 0 100px' }}
-                >
-                  Reset
-                </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <Button
                   type="submit"
                   variant="primary"
@@ -893,7 +965,17 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                   loadingText="Menyimpan..."
                   fullWidth
                 >
-                  Simpan Data Sasaran
+                  Simpan Data
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  onClick={resetForm}
+                  disabled={saving}
+                  fullWidth
+                >
+                  Reset
                 </Button>
               </div>
             </form>
@@ -992,7 +1074,7 @@ export default function DataTambahanIndividuView({ posyandu = '' }) {
                           variant="danger-outline"
                           size="sm"
                           icon={Delete02Icon}
-                          onClick={() => handleDelete(row.id)}
+                          onClick={() => handleDelete(row.id, row.nama)}
                         >
                           Hapus
                         </Button>

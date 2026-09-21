@@ -10,19 +10,30 @@ import KalkulatorKesehatan from './pages/KalkulatorKesehatan';
 import KontakDarurat from './pages/KontakDarurat';
 import Login from './pages/Login';
 import DashboardApp from './pages/DashboardApp';
+import NotFound from './pages/NotFound';
+
+const PAGE_TITLES = {
+  beranda: 'Beranda | Posyandu Loa Duri Ulu',
+  profil: 'Profil Posyandu | Posyandu Loa Duri Ulu',
+  artikel: 'Artikel & Edukasi Kesehatan | Posyandu Loa Duri Ulu',
+  'detail-artikel': 'Detail Artikel Kesehatan | Posyandu Loa Duri Ulu',
+  jadwal: 'Jadwal Penimbangan & Kegiatan | Posyandu Loa Duri Ulu',
+  kalkulator: 'Kalkulator Gizi & IMT | Posyandu Loa Duri Ulu',
+  kontak: 'Kontak Darurat Medis | Posyandu Loa Duri Ulu',
+  login: 'Masuk Akun Kader & Pengurus | Posyandu Loa Duri Ulu',
+  dashboard: 'Dashboard Manajemen Posyandu | Posyandu Loa Duri Ulu',
+  404: '404 - Halaman Tidak Ditemukan | Posyandu Loa Duri Ulu',
+};
 
 function App() {
   const getPageFromHash = () => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash === 'profil') return 'profil';
-    if (hash === 'artikel') return 'artikel';
-    if (hash === 'detail-artikel') return 'detail-artikel';
-    if (hash === 'jadwal') return 'jadwal';
-    if (hash === 'kalkulator') return 'kalkulator';
-    if (hash === 'kontak') return 'kontak';
-    if (hash === 'login') return 'login';
-    if (hash === 'dashboard') return 'dashboard';
-    return 'beranda';
+    const rawHash = window.location.hash.replace('#', '').trim();
+    if (!rawHash || rawHash === '' || rawHash === 'beranda') return 'beranda';
+    if (rawHash.startsWith('dashboard')) return 'dashboard';
+    if (rawHash === 'login' && localStorage.getItem('auth_token')) return 'dashboard';
+    const VALID_PAGES = ['profil', 'artikel', 'detail-artikel', 'jadwal', 'kalkulator', 'kontak', 'login', 'dashboard'];
+    if (VALID_PAGES.includes(rawHash)) return rawHash;
+    return '404';
   };
 
   const [activePage, setActivePage] = useState(getPageFromHash());
@@ -38,6 +49,11 @@ function App() {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   };
+
+  // Update dynamic page title on navigation
+  useEffect(() => {
+    document.title = PAGE_TITLES[activePage] || 'Posyandu Loa Duri Ulu | Layanan Kesehatan Masyarakat';
+  }, [activePage]);
 
   useEffect(() => {
     scrollToTop();
@@ -151,26 +167,34 @@ function App() {
   }
 
   return (
-    <div className="app-container page-fade-in">
-      {activePage === 'login' ? (
-        <Login onNavigate={handleNavigate} onLogin={(user) => { setUserAuth(user); handleNavigate('dashboard'); }} />
-      ) : activePage === 'dashboard' ? (
-        <DashboardApp userAuth={userAuth} onLogout={handleLogout} />
-      ) : activePage === 'profil' ? (
-        <ProfilPosyandu {...pageProps} />
-      ) : activePage === 'artikel' ? (
-        <ArtikelKesehatan {...pageProps} />
-      ) : activePage === 'detail-artikel' ? (
-        <DetailArtikel {...pageProps} />
-      ) : activePage === 'jadwal' ? (
-        <JadwalKegiatan {...pageProps} />
-      ) : activePage === 'kalkulator' ? (
-        <KalkulatorKesehatan {...pageProps} />
-      ) : activePage === 'kontak' ? (
-        <KontakDarurat {...pageProps} />
-      ) : (
-        <Beranda {...pageProps} />
-      )}
+    <div className="app-container">
+      <div key={activePage} className="page-reveal" style={{ width: '100%' }}>
+        {activePage === 'login' ? (
+          <Login onNavigate={handleNavigate} onLogin={(user) => {
+            setUserAuth(user);
+            window.location.replace('#dashboard');
+            setActivePage('dashboard');
+          }} />
+        ) : activePage === 'dashboard' ? (
+          <DashboardApp userAuth={userAuth} onLogout={handleLogout} />
+        ) : activePage === 'profil' ? (
+          <ProfilPosyandu {...pageProps} />
+        ) : activePage === 'artikel' ? (
+          <ArtikelKesehatan {...pageProps} />
+        ) : activePage === 'detail-artikel' ? (
+          <DetailArtikel {...pageProps} />
+        ) : activePage === 'jadwal' ? (
+          <JadwalKegiatan {...pageProps} />
+        ) : activePage === 'kalkulator' ? (
+          <KalkulatorKesehatan {...pageProps} />
+        ) : activePage === 'kontak' ? (
+          <KontakDarurat {...pageProps} />
+        ) : activePage === '404' ? (
+          <NotFound {...pageProps} />
+        ) : (
+          <Beranda {...pageProps} />
+        )}
+      </div>
     </div>
   );
 }

@@ -10,22 +10,38 @@ use Illuminate\Support\Str;
 
 class ArtikelController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $artikels = Artikel::with('penulis:id,name,role')
-            ->where('status', 'dipublikasikan')
-            ->latest()
-            ->get();
+        $query = Artikel::with(['penulis:id,name,role,posyandu_id', 'posyandu:id,nama'])
+            ->where('status', 'dipublikasikan');
+
+        if ($request->filled('posyandu_id') && $request->posyandu_id !== 'all') {
+            $query->where('posyandu_id', $request->posyandu_id);
+        }
+
+        if ($request->filled('kategori') && $request->kategori !== 'Semua Topik' && $request->kategori !== 'all') {
+            $query->where('kategori', $request->kategori);
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                    ->orWhere('isi_artikel', 'like', "%{$search}%");
+            });
+        }
+
+        $artikels = $query->latest()->get();
 
         return response()->json([
             'status' => 'sukses',
-            'data' => $artikels
+            'data' => $artikels,
         ]);
     }
 
     public function show($id)
     {
-        $artikel = Artikel::with('penulis:id,name,role')->find($id);
+        $artikel = Artikel::with(['penulis:id,name,role,posyandu_id', 'posyandu:id,nama'])->find($id);
 
         if (!$artikel) {
             return response()->json([
@@ -69,12 +85,14 @@ class ArtikelController extends Controller
             'kategori' => 'required|string',
             'isi_artikel' => 'required|string',
             'status' => 'required|in:draf,dipublikasikan',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'posyandu_id' => 'nullable|exists:posyandus,id',
         ]);
 
         $user = $request->user();
+        $posyanduId = $request->posyandu_id ?? $user->posyandu_id ?? null;
 
-        if (!$user->posyandu_id) {
+        if (!$posyanduId && $user->role !== 'superadmin') {
             return response()->json([
                 'status' => 'gagal',
                 'pesan' => 'Akun Anda tidak terikat pada Posyandu.'
@@ -93,7 +111,7 @@ class ArtikelController extends Controller
 
         $artikel = Artikel::create([
             'penulis_id' => $user->id,
-            'posyandu_id' => $user->posyandu_id,
+            'posyandu_id' => $posyanduId,
             'judul' => $request->judul,
             'kategori' => $request->kategori,
             'slug' => $slug,
@@ -109,7 +127,7 @@ class ArtikelController extends Controller
         return response()->json([
             'status' => 'sukses',
             'pesan' => 'Artikel berhasil disimpan',
-            'data' => $artikel,
+            'data' => $artikel->load(['penulis:id,name,role,posyandu_id', 'posyandu:id,nama']),
         ], 201);
     }
 
@@ -124,11 +142,11 @@ class ArtikelController extends Controller
             ], 404);
         }
 
-        // Cek apakah artikel milik Posyandu user
+        // Cek otorisasi
         if (!$this->canManageArtikel($request, $artikel)) {
             return response()->json([
                 'status' => 'gagal',
-                'pesan' => 'Anda tidak memiliki akses untuk mengubah artikel ini.'
+                'pesan' => 'Akses ditolak: Anda hanya dapat mengubah artikel yang berkaitan dengan posyandu Anda atau yang Anda tulis sendiri.'
             ], 403);
         }
 
@@ -137,7 +155,8 @@ class ArtikelController extends Controller
             'kategori' => 'sometimes|required|string',
             'isi_artikel' => 'sometimes|required|string',
             'status' => 'sometimes|required|in:draf,dipublikasikan',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'posyandu_id' => 'nullable|exists:posyandus,id',
         ]);
 
         // Jika ada foto baru
@@ -172,21 +191,13 @@ class ArtikelController extends Controller
             $artikel->published_at = now();
         }
 
-        $artikel->update(
-            $request->only([
-                'judul',
-                'kategori',
-                'isi_artikel',
-                'status'
-            ])
-        );
-
+        $artikel->update($request->only(['judul', 'kategori', 'isi_artikel', 'status', 'posyandu_id']));
         $artikel->save();
 
         return response()->json([
             'status' => 'sukses',
             'pesan' => 'Artikel berhasil diperbarui',
-            'data' => $artikel,
+            'data' => $artikel->load(['penulis:id,name,role,posyandu_id', 'posyandu:id,nama']),
         ]);
     }
 
@@ -201,18 +212,15 @@ class ArtikelController extends Controller
             ], 404);
         }
 
-        // Cek apakah artikel milik Posyandu user
+        // Cek otorisasi
         if (!$this->canManageArtikel($request, $artikel)) {
             return response()->json([
                 'status' => 'gagal',
-                'pesan' => 'Anda tidak memiliki akses untuk menghapus artikel ini.'
+                'pesan' => 'Akses ditolak: Anda hanya dapat menghapus artikel yang berkaitan dengan posyandu Anda atau yang Anda tulis sendiri.'
             ], 403);
         }
 
-        if (
-            $artikel->path_foto &&
-            Storage::disk('public')->exists($artikel->path_foto)
-        ) {
+        if ($artikel->path_foto && Storage::disk('public')->exists($artikel->path_foto)) {
             Storage::disk('public')->delete($artikel->path_foto);
         }
 
@@ -230,24 +238,27 @@ class ArtikelController extends Controller
     ): bool {
         $user = $request->user();
 
-        if (!$user || !$user->posyandu_id) {
+        if (!$user) {
             return false;
         }
 
-        /*
-         * Artikel baru menggunakan posyandu_id langsung.
-         *
-         * Artikel lama mungkin posyandu_id masih null,
-         * jadi sementara fallback ke Posyandu penulis.
-         */
-        $artikelPosyanduId = $artikel->posyandu_id;
-
-        if (!$artikelPosyanduId) {
-            $artikelPosyanduId =
-                $artikel->penulis?->posyandu_id;
+        if (in_array($user->role, ['superadmin'])) {
+            return true;
         }
 
-        return (int) $artikelPosyanduId ===
-            (int) $user->posyandu_id;
+        if ($artikel->penulis_id === $user->id) {
+            return true;
+        }
+
+        if (!$user->posyandu_id) {
+            return false;
+        }
+
+        $artikelPosyanduId = $artikel->posyandu_id;
+        if (!$artikelPosyanduId) {
+            $artikelPosyanduId = $artikel->penulis?->posyandu_id;
+        }
+
+        return (int) $artikelPosyanduId === (int) $user->posyandu_id;
     }
 }

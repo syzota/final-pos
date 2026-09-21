@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\PosyanduController;
 use App\Http\Controllers\Api\ReferensiMakananController;
 use App\Http\Controllers\Api\RekapKegiatanController;
 use App\Http\Controllers\Api\WargaController;
+use App\Http\Middleware\CheckRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -100,7 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // ----------------------------------------------------
-    // GRUP A: Khusus KADER dan KETUA POSYANDU
+    // GRUP A: Khusus KADER & KETUA POSYANDU
     // (Akses operasional posyandu harian & Artikel)
     // ----------------------------------------------------
     Route::middleware(CheckRole::class . ':kader,ketua')->group(function () {
@@ -342,14 +343,11 @@ Route::middleware('auth:sanctum')->group(function () {
         );
     });
 
-
     // ----------------------------------------------------
     // GRUP B: Khusus KETUA POSYANDU
     // (Akses manajerial profil posyandu)
     // ----------------------------------------------------
     Route::middleware(CheckRole::class . ':ketua')->group(function () {
-
-        // Nanti rute untuk edit profil & jadwal posyandu ditaruh di sini
         Route::get(
             '/posyandu/me',
             [\App\Http\Controllers\Api\PosyanduController::class, 'getMe']

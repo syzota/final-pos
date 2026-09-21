@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../components/common/Header';
-import Footer from '../components/common/Footer';
+import Navbar from '../components/common/Navbar';
+ import Footer from '../components/common/Footer';
 import PageHero from '../components/common/PageHero';
 import SectionHeader from '../components/common/SectionHeader';
 import Button from '../components/common/Button';
+import NotificationModal from '../components/common/NotificationModal';
+import useScrollReveal from '../utils/useScrollReveal';
 import '../styles/kalkulator.css';
 import caltBg from '../assets/images/common/calt.jpg';
 
@@ -24,14 +26,20 @@ const ACTIVITY_FACTOR = {
   berat: { label: 'Berat (olahraga 6–7 hari/minggu)', factor: 1.725 },
 };
 
+const blockInvalidNumberChars = (e) => {
+  if (['e', 'E', '+', '-'].includes(e.key)) {
+    e.preventDefault();
+  }
+};
+
 export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat }) {
+  useScrollReveal();
   // IMT STATE
   const [imiGender, setImiGender] = useState('Perempuan');
   const [imiUmur, setImiUmur] = useState('');
   const [imiBerat, setImiBerat] = useState('');
   const [imiTinggi, setImiTinggi] = useState('');
   const [imiResult, setImiResult] = useState(null);
-  const [imiError, setImiError] = useState('');
 
   // KALORI STATE
   const [kalGender, setKalGender] = useState('Perempuan');
@@ -40,16 +48,28 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
   const [kalTinggi, setKalTinggi] = useState('');
   const [kalAktivitas, setKalAktivitas] = useState('sedang');
   const [kalResult, setKalResult] = useState(null);
-  const [kalError, setKalError] = useState('');
+
+  // MODAL STATE
+  const [modal, setModal] = useState({ isOpen: false, type: 'error', title: '', message: '', details: null });
 
   const handleCalcIMT = () => {
     const bb = parseFloat(imiBerat);
     const tb = parseFloat(imiTinggi);
-    if (!bb || !tb || tb <= 0 || bb <= 0) {
-      setImiError('Mohon masukkan berat badan dan tinggi badan yang valid terlebih dahulu.');
+    const missing = [];
+
+    if (!imiBerat || isNaN(bb) || bb <= 0) missing.push('Berat Badan wajib diisi dengan angka lebih dari 0 kg.');
+    if (!imiTinggi || isNaN(tb) || tb <= 0) missing.push('Tinggi Badan wajib diisi dengan angka lebih dari 0 cm.');
+
+    if (missing.length > 0) {
+      setModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Data Pengukuran Belum Lengkap',
+        message: 'Mohon lengkapi parameter pengukuran berikut untuk menghitung IMT:',
+        details: missing
+      });
       return;
     }
-    setImiError('');
 
     const imt = bb / Math.pow(tb / 100, 2);
     let status = 'Normal (Gizi Ideal)';
@@ -95,11 +115,22 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
     const bb = parseFloat(kalBerat);
     const tb = parseFloat(kalTinggi);
     const umur = parseFloat(kalUmur);
-    if (!bb || !tb || !umur || bb <= 0 || tb <= 0 || umur <= 0) {
-      setKalError('Mohon lengkapi usia, berat badan, dan tinggi badan dengan benar.');
+    const missing = [];
+
+    if (!kalUmur || isNaN(umur) || umur <= 0) missing.push('Usia wajib diisi dengan angka yang valid.');
+    if (!kalBerat || isNaN(bb) || bb <= 0) missing.push('Berat Badan wajib diisi dengan angka lebih dari 0 kg.');
+    if (!kalTinggi || isNaN(tb) || tb <= 0) missing.push('Tinggi Badan wajib diisi dengan angka lebih dari 0 cm.');
+
+    if (missing.length > 0) {
+      setModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Data Kalori Belum Lengkap',
+        message: 'Mohon lengkapi parameter berikut untuk menghitung kebutuhan kalori harian:',
+        details: missing
+      });
       return;
     }
-    setKalError('');
 
     const bmr = kalGender === 'Perempuan'
       ? (10 * bb) + (6.25 * tb) - (5 * umur) - 161
@@ -118,40 +149,44 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
 
   return (
     <div className="kalkulator-page">
-      <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
+      <Navbar activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="kalkulator-main">
         {/* UNIFIED HERO SECTION */}
-        <PageHero
-          badgeIcon={Calculator01Icon}
-          badgeText="Kalkulator Gizi"
-          title="Kenali Kondisi Tubuh Anda"
-          titleHighlight="dengan Kalkulator Kesehatan Praktis"
-          description="Periksa status gizi, Indeks Massa Tubuh (IMT), dan kebutuhan kalori harian Anda."
-          primaryAction={{
-            label: 'Mulai Hitung IMT',
-            icon: ArrowDown01Icon,
-            onClick: () =>
-              document.getElementById('calc-imt-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-          }}
-          secondaryAction={{
-            label: 'Kalkulator Kalori',
-            onClick: () =>
-              document.getElementById('calc-kalori-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-          }}
-          bgImage={caltBg}
-        />
+        <div className="reveal-section">
+          <PageHero
+            badgeIcon={Calculator01Icon}
+            badgeText="Kalkulator Gizi"
+            title="Kenali Kondisi Tubuh Anda"
+            titleHighlight="dengan Kalkulator Kesehatan Praktis"
+            description="Periksa status gizi, Indeks Massa Tubuh (IMT), dan kebutuhan kalori harian Anda."
+            primaryAction={{
+              label: 'Mulai Hitung IMT',
+              icon: ArrowDown01Icon,
+              onClick: () =>
+                document.getElementById('calc-imt-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+            }}
+            secondaryAction={{
+              label: 'Kalkulator Kalori',
+              onClick: () =>
+                document.getElementById('calc-kalori-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+            }}
+            bgImage={caltBg}
+          />
+        </div>
 
         {/* SECTION KALKULATOR UTAMA */}
         <div style={{ maxWidth: '1200px', margin: '40px auto', padding: '0 16px' }}>
-          <SectionHeader
-            eyebrow="FITUR KALKULATOR"
-            title="Alat Pengukuran Gizi & Pola Makan"
-            description="Gunakan fitur di bawah ini untuk memantau indeks massa tubuh dan kebutuhan energi harian keluarga Anda."
-            align="left"
-          />
+          <div className="reveal-section reveal-delay-1">
+            <SectionHeader
+              eyebrow="FITUR KALKULATOR"
+              title="Alat Pengukuran Gizi & Pola Makan"
+              description="Gunakan fitur di bawah ini untuk memantau indeks massa tubuh dan kebutuhan energi harian keluarga Anda."
+              align="left"
+            />
+          </div>
 
-          <div className="kalkulator-calc-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '28px', width: '100%', boxSizing: 'border-box' }}>
+          <div className="kalkulator-calc-grid reveal-section reveal-delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '28px', width: '100%', boxSizing: 'border-box' }}>
             {/* KALKULATOR 1: IMT */}
             <div id="calc-imt-card" className="card" style={{ padding: 'clamp(20px, 4vw, 32px)', borderRadius: '20px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.03)', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
@@ -176,15 +211,15 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Usia (Tahun)</label>
-                  <input type="number" placeholder="mis. 28" value={imiUmur} onChange={(e) => setImiUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 28" value={imiUmur} onChange={(e) => setImiUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
-                  <input type="number" placeholder="mis. 55" value={imiBerat} onChange={(e) => setImiBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 55" value={imiBerat} onChange={(e) => setImiBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                  <input type="number" placeholder="mis. 160" value={imiTinggi} onChange={(e) => setImiTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 160" value={imiTinggi} onChange={(e) => setImiTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
@@ -199,25 +234,6 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                   Hitung IMT & Berat Ideal
                 </Button>
               </div>
-
-              {imiError && (
-                <div style={{
-                  marginTop: '14px',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  backgroundColor: '#fee2e2',
-                  border: '1.5px solid #fecaca',
-                  color: '#991b1b',
-                  fontSize: '13px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontWeight: 600
-                }}>
-                  <AlertCircleIcon size={16} color="#ef4444" style={{ flexShrink: 0 }} />
-                  <span>{imiError}</span>
-                </div>
-              )}
 
               {imiResult && (
                 <div style={{ marginTop: '24px', padding: '22px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
@@ -265,15 +281,15 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Usia (Tahun)</label>
-                  <input type="number" placeholder="mis. 25" value={kalUmur} onChange={(e) => setKalUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 25" value={kalUmur} onChange={(e) => setKalUmur(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Berat Badan (kg)</label>
-                  <input type="number" placeholder="mis. 60" value={kalBerat} onChange={(e) => setKalBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 60" value={kalBerat} onChange={(e) => setKalBerat(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field" style={{ minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Tinggi Badan (cm)</label>
-                  <input type="number" placeholder="mis. 165" value={kalTinggi} onChange={(e) => setKalTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
+                  <input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="Contoh: 165" value={kalTinggi} onChange={(e) => setKalTinggi(e.target.value)} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', boxSizing: 'border-box' }} />
                 </div>
                 <div className="form-field full" style={{ gridColumn: '1 / -1', minWidth: 0 }}>
                   <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>Aktivitas Fisik</label>
@@ -297,24 +313,14 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
                 </Button>
               </div>
 
-              {kalError && (
-                <div style={{
-                  marginTop: '14px',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  backgroundColor: '#fee2e2',
-                  border: '1.5px solid #fecaca',
-                  color: '#991b1b',
-                  fontSize: '13px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  fontWeight: 600
-                }}>
-                  <AlertCircleIcon size={16} color="#ef4444" style={{ flexShrink: 0 }} />
-                  <span>{kalError}</span>
-                </div>
-              )}
+              <NotificationModal
+                isOpen={modal.isOpen}
+                type={modal.type}
+                title={modal.title}
+                message={modal.message}
+                details={modal.details}
+                onClose={() => setModal({ isOpen: false, type: 'error', title: '', message: '', details: null })}
+              />
 
               {kalResult && (
                 <div style={{ marginTop: '24px', padding: '22px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
@@ -336,7 +342,7 @@ export default function KalkulatorKesehatan({ activePage, onNavigate, onDarurat 
         </div>
       </main>
 
-      <Footer />
+      <Footer onNavigate={onNavigate} />
     </div>
   );
 }

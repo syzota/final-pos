@@ -18,10 +18,10 @@ export default function SectionHeader({
   return (
     <div
       className={`section-header ${isCenter ? 'section-header--center' : 'section-header--left'} ${className}`}
-      style={style}
+      style={{ width: '100%', ...(isCenter ? { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' } : {}), ...style }}
     >
-      <div style={{ display: 'flex', justifyContent: isCenter ? 'center' : 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ maxWidth: isCenter ? '100%' : '720px' }}>
+      <div style={{ display: 'flex', flexDirection: isCenter ? 'column' : 'row', justifyContent: isCenter ? 'center' : 'space-between', alignItems: isCenter ? 'center' : 'flex-end', flexWrap: 'wrap', gap: '16px', width: '100%', textAlign: isCenter ? 'center' : 'left' }}>
+        <div style={{ maxWidth: isCenter ? '100%' : '720px', width: isCenter ? '100%' : 'auto', display: isCenter ? 'flex' : 'block', flexDirection: 'column', alignItems: isCenter ? 'center' : 'flex-start' }}>
           {eyebrow && (
             <span className="section-header__eyebrow">
               {eyebrow}

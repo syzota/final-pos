@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import Button from '../common/Button';
+import NotificationModal from '../common/NotificationModal';
 
 import {
     Megaphone01Icon,
@@ -17,7 +18,8 @@ import {
     ViewIcon,
     PrinterIcon,
     Delete02Icon,
-    Image01Icon
+    Image01Icon,
+    Cancel01Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../common/Skeleton';
 
@@ -33,7 +35,14 @@ export default function AdminDashboardView() {
     const [stats, setStats] = useState({ pengaduan: [], formulir: [] });
 
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        confirmVariant: 'danger'
+    });
 
     const [selectedForm, setSelectedForm] = useState(null);
     const [selectedPengaduan, setSelectedPengaduan] = useState(null);
@@ -74,6 +83,28 @@ export default function AdminDashboardView() {
             fetchDataAwal();
         }
     }, [viewMode]);
+
+    // Lock scroll and handle Escape key for detail modals
+    useEffect(() => {
+        if (selectedForm || selectedPengaduan) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                if (selectedForm) setSelectedForm(null);
+                if (selectedPengaduan) setSelectedPengaduan(null);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.style.overflow = 'unset';
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [selectedForm, selectedPengaduan]);
 
     const formatWaktu = (waktuISO) => {
         if (!waktuISO) return '—';
@@ -131,30 +162,58 @@ export default function AdminDashboardView() {
         }
     };
 
-    const handleHapusFormulir = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data formulir ini secara permanen?")) return;
-        try {
-            const token = localStorage.getItem('auth_token');
-            await axios.delete(`/api/admin/formulir/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            setFormulirList(formulirList.filter(item => item.id !== id));
-            setMessage({ type: 'success', text: 'Data formulir berhasil dihapus.' });
-            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-        } catch (err) {
-            setMessage({ type: 'error', text: 'Gagal menghapus data formulir.' });
-        }
+    const handleHapusFormulir = (id) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Konfirmasi Hapus Formulir',
+            message: 'Apakah Anda yakin ingin menghapus data formulir ini secara permanen? Data yang telah dihapus tidak dapat dipulihkan.',
+            confirmVariant: 'danger',
+            onConfirm: async () => {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    await axios.delete(`/api/admin/formulir/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    setFormulirList(formulirList.filter(item => item.id !== id));
+                    setMessage({
+                        type: 'success',
+                        title: 'Formulir Dihapus',
+                        text: 'Data formulir SPM desa berhasil dihapus.'
+                    });
+                } catch (err) {
+                    setMessage({
+                        type: 'error',
+                        title: 'Gagal Menghapus Formulir',
+                        text: err.response?.data?.pesan || err.response?.data?.message || 'Gagal menghapus data formulir.'
+                    });
+                }
+            }
+        });
     };
 
-    const handleHapusPengaduan = async (id) => {
-        if (!window.confirm("Apakah Anda yakin ingin menghapus data pengaduan ini secara permanen?")) return;
-        try {
-            const token = localStorage.getItem('auth_token');
-            await axios.delete(`/api/admin/pengaduan/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            setPengaduanList(pengaduanList.filter(item => item.id !== id));
-            setMessage({ type: 'success', text: 'Data pengaduan berhasil dihapus.' });
-            setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-        } catch (err) {
-            setMessage({ type: 'error', text: err.response?.data?.pesan || 'Gagal menghapus data pengaduan.' });
-        }
+    const handleHapusPengaduan = (id) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Konfirmasi Hapus Pengaduan',
+            message: 'Apakah Anda yakin ingin menghapus data laporan pengaduan ini secara permanen? Data yang telah dihapus tidak dapat dipulihkan.',
+            confirmVariant: 'danger',
+            onConfirm: async () => {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    await axios.delete(`/api/admin/pengaduan/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    setPengaduanList(pengaduanList.filter(item => item.id !== id));
+                    setMessage({
+                        type: 'success',
+                        title: 'Pengaduan Dihapus',
+                        text: 'Data laporan pengaduan berhasil dihapus.'
+                    });
+                } catch (err) {
+                    setMessage({
+                        type: 'error',
+                        title: 'Gagal Menghapus Pengaduan',
+                        text: err.response?.data?.pesan || err.response?.data?.message || 'Gagal menghapus data pengaduan.'
+                    });
+                }
+            }
+        });
     };
 
     const getArrayData = (rawData) => {
@@ -242,11 +301,30 @@ export default function AdminDashboardView() {
         }
       `}</style>
 
-            {message.text && (
-                <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '14px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-                    <b>Info Sistem:</b> {message.text}
-                </div>
-            )}
+            <NotificationModal
+                isOpen={Boolean(message.text || message.title)}
+                type={message.type || 'success'}
+                title={message.title}
+                message={message.text}
+                details={message.details}
+                onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
+            />
+
+            <NotificationModal
+                isOpen={confirmModal.isOpen}
+                type="confirm"
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmVariant={confirmModal.confirmVariant || 'danger'}
+                isConfirm
+                confirmText="Ya, Hapus"
+                cancelText="Batal"
+                onConfirm={() => {
+                    if (confirmModal.onConfirm) confirmModal.onConfirm();
+                    setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' });
+                }}
+                onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' })}
+            />
 
             {viewMode === 'list' && (
                 <div>
@@ -323,8 +401,13 @@ export default function AdminDashboardView() {
                                         <td>{posyandu.jadwal}</td>
                                         <td>{formatWaktu((waktuUpdates || {})[posyandu.id])}</td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <Button variant="secondary" size="sm" onClick={() => openDetail(posyandu)}>
-                                                <Search01Icon size={16} className="me-1" />Cek Laporan Warga
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                icon={Search01Icon}
+                                                onClick={() => openDetail(posyandu)}
+                                            >
+                                                Cek Laporan Warga
                                             </Button>
                                         </td>
                                     </tr>
@@ -339,19 +422,46 @@ export default function AdminDashboardView() {
             {viewMode === 'detail' && selectedPosyandu && (
                 <div className="no-print">
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                        <Button variant="secondary" onClick={closeDetail}>
-                            <ArrowLeft01Icon size={18} className="me-2" />Kembali ke Daftar
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            icon={ArrowLeft01Icon}
+                            onClick={closeDetail}
+                        >
+                            Kembali ke Daftar
                         </Button>
-                        <Button variant="primary" onClick={() => {
-                            setPrintTarget({ type: 'all', data: null });
-                            setIsPrinting(true);
-                            setTimeout(() => {
-                                window.print();
-                                setTimeout(() => setIsPrinting(false), 500);
-                            }, 150);
-                        }}>
-                            <File01Icon size={18} className="me-2" />Ekspor PDF Lengkap
-                        </Button>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                icon={PrinterIcon}
+                                onClick={() => {
+                                    setPrintTarget({ type: 'all', data: null });
+                                    setIsPrinting(true);
+                                    setTimeout(() => {
+                                        window.print();
+                                        setTimeout(() => setIsPrinting(false), 500);
+                                    }, 150);
+                                }}
+                            >
+                                Ekspor Bidang {BIDANG_NAMA[tab]}
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="md"
+                                icon={File01Icon}
+                                onClick={() => {
+                                    setPrintTarget({ type: 'all_bidang', data: null });
+                                    setIsPrinting(true);
+                                    setTimeout(() => {
+                                        window.print();
+                                        setTimeout(() => setIsPrinting(false), 500);
+                                    }, 150);
+                                }}
+                            >
+                                Ekspor Semua Bidang (Lengkap)
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="card" style={{ backgroundColor: '#f8f9fa' }}>
@@ -360,11 +470,42 @@ export default function AdminDashboardView() {
                         </div>
 
                         <div className="tabs" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginBottom: '16px' }}>
-                            <button className={`tab-btn ${tab === 0 ? 'active' : ''}`} onClick={() => setTab(0)}><Book02Icon size={16} className="me-1" />Pendidikan</button>
-                            <button className={`tab-btn ${tab === 1 ? 'active' : ''}`} onClick={() => setTab(1)}><DropletIcon size={16} className="me-1" />Pekerjaan Umum</button>
-                            <button className={`tab-btn ${tab === 2 ? 'active' : ''}`} onClick={() => setTab(2)}><Home01Icon size={16} className="me-1" />Perumahan Rakyat</button>
-                            <button className={`tab-btn ${tab === 3 ? 'active' : ''}`} onClick={() => setTab(3)}><Shield01Icon size={16} className="me-1" />Trantibumlinmas</button>
-                            <button className={`tab-btn ${tab === 4 ? 'active' : ''}`} onClick={() => setTab(4)}><FavouriteIcon size={16} className="me-1" />Sosial</button>
+                            {[
+                                { id: 0, label: 'Pendidikan', icon: Book02Icon },
+                                { id: 1, label: 'Pekerjaan Umum', icon: DropletIcon },
+                                { id: 2, label: 'Perumahan Rakyat', icon: Home01Icon },
+                                { id: 3, label: 'Trantibumlinmas', icon: Shield01Icon },
+                                { id: 4, label: 'Sosial', icon: FavouriteIcon }
+                            ].map((b) => {
+                                const Icon = b.icon;
+                                return (
+                                    <button
+                                        key={b.id}
+                                        type="button"
+                                        className={`tab-btn ${tab === b.id ? 'active' : ''}`}
+                                        onClick={() => setTab(b.id)}
+                                        style={{
+                                            minHeight: '40px',
+                                            padding: '8px 16px',
+                                            borderRadius: '10px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            fontSize: '13px',
+                                            fontWeight: 700,
+                                            border: '1px solid',
+                                            borderColor: tab === b.id ? 'var(--primary-teal, #008080)' : '#cbd5e1',
+                                            backgroundColor: tab === b.id ? 'var(--primary-teal, #008080)' : '#ffffff',
+                                            color: tab === b.id ? '#ffffff' : '#334155',
+                                            cursor: 'pointer',
+                                            whiteSpace: 'nowrap'
+                                        }}
+                                    >
+                                        <Icon size={15} />
+                                        {b.label}
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         <div className="grid grid-2">
@@ -372,18 +513,18 @@ export default function AdminDashboardView() {
                                 <div className="section-head"><h3 style={{ color: 'var(--violet-deep)' }}><Book02Icon size={18} className="me-2" />Data Identifikasi</h3></div>
                                 <div className="table-responsive">
                                     <table className="table">
-                                        <thead><tr><th>Tgl</th><th>Sub-Bidang</th><th>Aksi</th></tr></thead>
+                                        <thead><tr><th>Tgl</th><th>Sub-Bidang</th><th style={{ textAlign: 'right' }}>Aksi</th></tr></thead>
                                         <tbody>
                                         {isLoading ? <Skeleton type="table-row" rows={3} cols={3} /> : dataFormulirAktif.length > 0 ? (
                                             dataFormulirAktif.map((item, idx) => (
                                                 <tr key={idx}>
                                                     <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
                                                     <td><span style={{ fontWeight: '600', color: '#333' }}>{item.sub_bidang || '-'}</span></td>
-                                                    <td>
-                                                        <div style={{ display: 'flex', gap: '6px' }}>
-                                                            <Button variant="secondary" size="sm" title="Lihat Detail" onClick={() => setSelectedForm(item)}><ViewIcon size={16} /></Button>
-                                                            <Button variant="secondary" size="sm" title="Cetak Data Ini" onClick={() => handleCetakIndividu('form', item)}><PrinterIcon size={16} /></Button>
-                                                            <Button variant="danger-outline" size="sm" title="Hapus" onClick={() => handleHapusFormulir(item.id)}><Delete02Icon size={16} /></Button>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                                                            <Button variant="secondary" size="sm" icon={ViewIcon} iconOnly title="Lihat Detail" onClick={() => setSelectedForm(item)} />
+                                                            <Button variant="primary" size="sm" icon={PrinterIcon} iconOnly title="Cetak Data Ini" onClick={() => handleCetakIndividu('form', item)} />
+                                                            <Button variant="danger-outline" size="sm" icon={Delete02Icon} iconOnly title="Hapus" onClick={() => handleHapusFormulir(item.id)} />
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -398,7 +539,7 @@ export default function AdminDashboardView() {
                                 <div className="section-head"><h3 style={{ color: 'var(--magenta-deep)' }}><Megaphone01Icon size={18} className="me-2" />Pengaduan Warga</h3></div>
                                 <div className="table-responsive">
                                     <table className="table">
-                                        <thead><tr><th>Pelapor / Isi</th><th>Status</th><th>Aksi</th></tr></thead>
+                                        <thead><tr><th>Pelapor / Isi</th><th>Status</th><th style={{ textAlign: 'right' }}>Aksi</th></tr></thead>
                                         <tbody>
                                         {isLoading ? <Skeleton type="table-row" rows={3} cols={3} /> : dataPengaduanAktif.length > 0 ? (
                                             dataPengaduanAktif.map((item) => (
@@ -409,16 +550,16 @@ export default function AdminDashboardView() {
                                                     </td>
                                                     <td>
                                                         <select value={item.status || 'menunggu'} onChange={(e) => handleUbahStatus(item.id, e.target.value)}
-                                                                style={{ padding: '4px 8px', borderRadius: '12px', border: '1px solid #ddd', outline: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', backgroundColor: item.status === 'menunggu' ? '#ffeaea' : item.status === 'diproses' ? '#fff4e5' : '#e1fce8', color: item.status === 'menunggu' ? '#c81e1e' : item.status === 'diproses' ? '#b55a00' : '#036c2a' }}>
+                                                                style={{ padding: '4px 8px', borderRadius: '8px', border: '1px solid #ddd', outline: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px', backgroundColor: item.status === 'menunggu' ? '#ffeaea' : item.status === 'diproses' ? '#fff4e5' : '#e1fce8', color: item.status === 'menunggu' ? '#c81e1e' : item.status === 'diproses' ? '#b55a00' : '#036c2a' }}>
                                                             <option value="menunggu">Baru</option><option value="diproses">Diproses</option><option value="selesai">Selesai</option>
                                                         </select>
                                                     </td>
-                                                    <td>
-                                                        <div style={{ display: 'flex', gap: '6px' }}>
-                                                            <Button variant="secondary" size="sm" title="Lihat Detail" onClick={() => setSelectedPengaduan(item)}><ViewIcon size={16} /></Button>
-                                                            <Button variant="secondary" size="sm" title="Cetak Pengaduan Ini" onClick={() => handleCetakIndividu('pengaduan', item)}><PrinterIcon size={16} /></Button>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                                                            <Button variant="secondary" size="sm" icon={ViewIcon} iconOnly title="Lihat Detail" onClick={() => setSelectedPengaduan(item)} />
+                                                            <Button variant="primary" size="sm" icon={PrinterIcon} iconOnly title="Cetak Pengaduan Ini" onClick={() => handleCetakIndividu('pengaduan', item)} />
                                                             {item.status === 'selesai' && (
-                                                                <Button variant="danger-outline" size="sm" title="Hapus" onClick={() => handleHapusPengaduan(item.id)}><Delete02Icon size={16} /></Button>
+                                                                <Button variant="danger-outline" size="sm" icon={Delete02Icon} iconOnly title="Hapus" onClick={() => handleHapusPengaduan(item.id)} />
                                                             )}
                                                         </div>
                                                     </td>
@@ -434,10 +575,39 @@ export default function AdminDashboardView() {
                 </div>
             )}
 
-            {selectedForm && (
-                <div className="no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', position: 'relative', backgroundColor: '#fff', borderRadius: '12px', padding: '24px' }}>
-                        <button onClick={() => setSelectedForm(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#666' }}>&times;</button>
+            {selectedForm && ReactDOM.createPortal(
+                <div
+                    className="no-print"
+                    style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)',
+                        WebkitBackdropFilter: 'blur(4px)', zIndex: 99999,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+                    }}
+                    onClick={() => setSelectedForm(null)}
+                    onTouchMove={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+                >
+                    <div
+                        className="card"
+                        style={{
+                            width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
+                            position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => setSelectedForm(null)}
+                            style={{
+                                position: 'absolute', top: '16px', right: '16px',
+                                background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', cursor: 'pointer', color: '#64748b', zIndex: 10
+                            }}
+                            aria-label="Tutup"
+                        >
+                            <Cancel01Icon size={16} />
+                        </button>
                         <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
                             <h3 style={{ color: 'var(--violet-deep)' }}>Detail Formulir Identifikasi</h3>
                             <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>{selectedForm.sub_bidang}</p>
@@ -459,9 +629,19 @@ export default function AdminDashboardView() {
                                         <div style={{ color: '#666', fontSize: '13px', marginBottom: '8px' }}><b>Bukti Dokumentasi:</b></div>
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             {fotoArr.map((file_path, idx) => (
-                                                <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                                                    <Image01Icon size={16} className="me-1" />Lihat File {idx + 1}
-                                                </a>
+                                                <Button
+                                                    key={idx}
+                                                    as="a"
+                                                    href={getFileUrl(file_path)}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    icon={Image01Icon}
+                                                    style={{ textDecoration: 'none' }}
+                                                >
+                                                    Lihat File {idx + 1}
+                                                </Button>
                                             ))}
                                         </div>
                                     </div>
@@ -470,19 +650,60 @@ export default function AdminDashboardView() {
                         })()}
 
                         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                            <Button variant="secondary" onClick={() => { setSelectedForm(null); handleCetakIndividu('form', selectedForm); }}>
-                                <PrinterIcon size={18} className="me-2" />Cetak Ini
+                            <Button
+                                variant="primary"
+                                size="md"
+                                icon={PrinterIcon}
+                                onClick={() => { setSelectedForm(null); handleCetakIndividu('form', selectedForm); }}
+                            >
+                                Cetak Ini
                             </Button>
-                            <Button variant="primary" onClick={() => setSelectedForm(null)}>Tutup Rincian</Button>
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                onClick={() => setSelectedForm(null)}
+                            >
+                                Tutup Rincian
+                            </Button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
-            {selectedPengaduan && (
-                <div className="no-print" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', position: 'relative', backgroundColor: '#fff', borderRadius: '12px', padding: '24px' }}>
-                        <button onClick={() => setSelectedPengaduan(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#666' }}>&times;</button>
+            {selectedPengaduan && ReactDOM.createPortal(
+                <div
+                    className="no-print"
+                    style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)',
+                        WebkitBackdropFilter: 'blur(4px)', zIndex: 99999,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+                    }}
+                    onClick={() => setSelectedPengaduan(null)}
+                    onTouchMove={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+                >
+                    <div
+                        className="card"
+                        style={{
+                            width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
+                            position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => setSelectedPengaduan(null)}
+                            style={{
+                                position: 'absolute', top: '16px', right: '16px',
+                                background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', cursor: 'pointer', color: '#64748b', zIndex: 10
+                            }}
+                            aria-label="Tutup"
+                        >
+                            <Cancel01Icon size={16} />
+                        </button>
                         <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
                             <h3 style={{ color: 'var(--magenta-deep)' }}>Detail Pengaduan Masyarakat</h3>
                             <p style={{ margin: 0, color: '#666', fontSize: '14px', textTransform: 'capitalize' }}>Bidang: {(selectedPengaduan.bidang || '').replace(/_/g, ' ')}</p>
@@ -507,9 +728,19 @@ export default function AdminDashboardView() {
                                         <div style={{ color: '#666', fontSize: '13px', marginBottom: '8px' }}><b>Bukti Lampiran:</b></div>
                                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             {lampiranArr.map((file_path, idx) => (
-                                                <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                                                    <Image01Icon size={16} className="me-1" />Lihat File {idx + 1}
-                                                </a>
+                                                <Button
+                                                    key={idx}
+                                                    as="a"
+                                                    href={getFileUrl(file_path)}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    icon={Image01Icon}
+                                                    style={{ textDecoration: 'none' }}
+                                                >
+                                                    Lihat File {idx + 1}
+                                                </Button>
                                             ))}
                                         </div>
                                     </div>
@@ -518,100 +749,176 @@ export default function AdminDashboardView() {
                         })()}
 
                         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                            <Button variant="secondary" onClick={() => { setSelectedPengaduan(null); handleCetakIndividu('pengaduan', selectedPengaduan); }}>
-                                <PrinterIcon size={18} className="me-2" />Cetak Ini
+                            <Button
+                                variant="primary"
+                                size="md"
+                                icon={PrinterIcon}
+                                onClick={() => { setSelectedPengaduan(null); handleCetakIndividu('pengaduan', selectedPengaduan); }}
+                            >
+                                Cetak Ini
                             </Button>
-                            <Button variant="primary" onClick={() => setSelectedPengaduan(null)}>Tutup Rincian</Button>
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                onClick={() => setSelectedPengaduan(null)}
+                            >
+                                Tutup Rincian
+                            </Button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {isPrinting && viewMode === 'detail' && selectedPosyandu && ReactDOM.createPortal(
                 <div id="dokumen-cetak">
                     <h2 style={{ textAlign: 'center', marginBottom: '5px' }}>Laporan Detail Posyandu {selectedPosyandu.nama}</h2>
-                    <h4 style={{ textAlign: 'center', color: '#555', marginTop: 0, marginBottom: '24px' }}>Bidang: {BIDANG_NAMA[tab]}</h4>
+                    <h4 style={{ textAlign: 'center', color: '#555', marginTop: 0, marginBottom: '24px' }}>
+                        {printTarget.type === 'all_bidang' ? 'Laporan Terpadu 5 Bidang Standar Pelayanan Minimal (SPM)' : `Bidang: ${BIDANG_NAMA[tab]}`}
+                    </h4>
                     <hr style={{ borderTop: '2px solid #000', marginBottom: '24px' }} />
 
-                    {formsToPrint.length > 0 && (
-                        <>
-                            <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>A. Data Pemetaan Identifikasi</h3>
-                            {formsToPrint.map((item, idx) => {
-                                const fotoArr = getArrayData(item.dokumentasi_foto);
-                                const amanFormulir = getSafeObject(item.data_formulir);
+                    {printTarget.type === 'all_bidang' ? (
+                        BIDANG_MAP.map((bKey, bIdx) => {
+                            const bForms = formulirList.filter(f => f.bidang === bKey);
+                            const bAduan = pengaduanList.filter(a => a.bidang === bKey);
+                            if (bForms.length === 0 && bAduan.length === 0) return null;
 
-                                return (
-                                    <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
-                                        <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{formsToPrint.length > 1 ? `${idx + 1}. ` : ''}Sub-Bidang: {item.sub_bidang || '-'} <span style={{ fontWeight: 'normal', color: '#555', fontSize: '13px' }}>(Tgl: {new Date(item.created_at).toLocaleDateString('id-ID')})</span></p>
-                                        <table className="tabel-cetak">
-                                            <tbody>
-                                            {Object.entries(amanFormulir).map(([k, v], i) => (
-                                                <tr key={i}>
-                                                    <th style={{ width: '35%', textTransform: 'capitalize' }}>{k.replace(/_/g, ' ')}</th>
-                                                    <td style={{ whiteSpace: 'pre-wrap' }}>{v || '-'}</td>
-                                                </tr>
+                            return (
+                                <div key={bKey} style={{ marginBottom: '32px', pageBreakInside: 'avoid' }}>
+                                    <h3 style={{ backgroundColor: '#f1f5f9', padding: '8px 14px', borderLeft: '4px solid #008080', margin: '0 0 16px 0', fontSize: '16px' }}>
+                                        Bidang {bIdx + 1}: {BIDANG_NAMA[bIdx]}
+                                    </h3>
+                                    {bForms.length > 0 && (
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <h4 style={{ borderBottom: '1px solid #ccc', paddingBottom: '6px', margin: '10px 0' }}>A. Data Pemetaan Identifikasi</h4>
+                                            {bForms.map((item, idx) => {
+                                                const fotoArr = getArrayData(item.dokumentasi_foto);
+                                                const amanFormulir = getSafeObject(item.data_formulir);
+                                                return (
+                                                    <div key={idx} style={{ marginBottom: '16px', pageBreakInside: 'avoid' }}>
+                                                        <p style={{ fontWeight: 'bold', margin: '0 0 6px 0', fontSize: '13px' }}>
+                                                            {idx + 1}. Sub-Bidang: {item.sub_bidang || '-'} <span style={{ fontWeight: 'normal', color: '#555' }}>(Tgl: {new Date(item.created_at).toLocaleDateString('id-ID')})</span>
+                                                        </p>
+                                                        <table className="tabel-cetak">
+                                                            <tbody>
+                                                            {Object.entries(amanFormulir).map(([k, v], i) => (
+                                                                <tr key={i}>
+                                                                    <th style={{ width: '35%', textTransform: 'capitalize' }}>{k.replace(/_/g, ' ')}</th>
+                                                                    <td style={{ whiteSpace: 'pre-wrap' }}>{v || '-'}</td>
+                                                                </tr>
+                                                            ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                    {bAduan.length > 0 && (
+                                        <div>
+                                            <h4 style={{ borderBottom: '1px solid #ccc', paddingBottom: '6px', margin: '14px 0 10px' }}>B. Laporan Pengaduan Masyarakat</h4>
+                                            {bAduan.map((item, idx) => (
+                                                <div key={idx} style={{ marginBottom: '16px', pageBreakInside: 'avoid' }}>
+                                                    <p style={{ fontWeight: 'bold', margin: '0 0 6px 0', fontSize: '13px' }}>{idx + 1}. Laporan dari: {item.nama_pelapor}</p>
+                                                    <table className="tabel-cetak">
+                                                        <tbody>
+                                                        <tr><th style={{ width: '35%' }}>Tanggal & Status</th><td>{new Date(item.created_at).toLocaleDateString('id-ID')} — <b>{(item.status || '').toUpperCase()}</b></td></tr>
+                                                        <tr><th>NIK / No. HP</th><td>{item.nik} / {item.no_hp || '-'}</td></tr>
+                                                        <tr><th>Alamat & Lokasi Masalah</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.alamat || '-'} <br /><b>Lokasi:</b> {item.lokasi_masalah || '-'}</td></tr>
+                                                        <tr><th>Isi Keluhan Lengkap</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.isi_keluhan}</td></tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             ))}
-                                            </tbody>
-                                        </table>
-
-                                        {fotoArr.length > 0 && (
-                                            <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
-                                                <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Dokumentasi:</p>
-                                                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                                                    {fotoArr.map((fPath, fIdx) => {
-                                                        const isImage = fPath.match(/\.(jpeg|jpg|png|gif)$/i);
-                                                        const fileUrl = getFileUrl(fPath);
-                                                        if (isImage) {
-                                                            return <img key={fIdx} src={fileUrl} alt="Foto Bukti" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
-                                                        } else {
-                                                            return <div key={fIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
-                                                        }
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </>
-                    )}
-
-                    {pengaduansToPrint.length > 0 && (
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
+                    ) : (
                         <>
-                            <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px', marginTop: '32px' }}>B. Laporan Pengaduan Masyarakat</h3>
-                            {pengaduansToPrint.map((item, idx) => {
-                                const lampiranArr = getArrayData(item.lampiran);
-                                return (
-                                    <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
-                                        <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{pengaduansToPrint.length > 1 ? `${idx + 1}. ` : ''}Laporan dari: {item.nama_pelapor}</p>
-                                        <table className="tabel-cetak">
-                                            <tbody>
-                                            <tr><th style={{ width: '35%' }}>Tanggal & Status</th><td>{new Date(item.created_at).toLocaleDateString('id-ID')} — <b>{(item.status || '').toUpperCase()}</b></td></tr>
-                                            <tr><th>NIK / No. HP</th><td>{item.nik} / {item.no_hp || '-'}</td></tr>
-                                            <tr><th>Alamat & Lokasi Masalah</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.alamat || '-'} <br /><b>Lokasi Masalah:</b> {item.lokasi_masalah || '-'}</td></tr>
-                                            <tr><th>Isi Keluhan Lengkap</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.isi_keluhan}</td></tr>
-                                            </tbody>
-                                        </table>
+                            {formsToPrint.length > 0 && (
+                                <>
+                                    <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px' }}>A. Data Pemetaan Identifikasi</h3>
+                                    {formsToPrint.map((item, idx) => {
+                                        const fotoArr = getArrayData(item.dokumentasi_foto);
+                                        const amanFormulir = getSafeObject(item.data_formulir);
 
-                                        {lampiranArr.length > 0 && (
-                                            <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
-                                                <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Aduan:</p>
-                                                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                                                    {lampiranArr.map((lPath, lIdx) => {
-                                                        const isImage = lPath.match(/\.(jpeg|jpg|png|gif)$/i);
-                                                        const fileUrl = getFileUrl(lPath);
-                                                        if (isImage) {
-                                                            return <img key={lIdx} src={fileUrl} alt="Foto Lampiran" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
-                                                        } else {
-                                                            return <div key={lIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
-                                                        }
-                                                    })}
-                                                </div>
+                                        return (
+                                            <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
+                                                <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{formsToPrint.length > 1 ? `${idx + 1}. ` : ''}Sub-Bidang: {item.sub_bidang || '-'} <span style={{ fontWeight: 'normal', color: '#555', fontSize: '13px' }}>(Tgl: {new Date(item.created_at).toLocaleDateString('id-ID')})</span></p>
+                                                <table className="tabel-cetak">
+                                                    <tbody>
+                                                    {Object.entries(amanFormulir).map(([k, v], i) => (
+                                                        <tr key={i}>
+                                                            <th style={{ width: '35%', textTransform: 'capitalize' }}>{k.replace(/_/g, ' ')}</th>
+                                                            <td style={{ whiteSpace: 'pre-wrap' }}>{v || '-'}</td>
+                                                        </tr>
+                                                    ))}
+                                                    </tbody>
+                                                </table>
+
+                                                {fotoArr.length > 0 && (
+                                                    <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
+                                                        <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Dokumentasi:</p>
+                                                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                                            {fotoArr.map((fPath, fIdx) => {
+                                                                const isImage = fPath.match(/\.(jpeg|jpg|png|gif)$/i);
+                                                                const fileUrl = getFileUrl(fPath);
+                                                                if (isImage) {
+                                                                    return <img key={fIdx} src={fileUrl} alt="Foto Bukti" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
+                                                                } else {
+                                                                    return <div key={fIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
+                                                                }
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                        );
+                                    })}
+                                </>
+                            )}
+
+                            {pengaduansToPrint.length > 0 && (
+                                <>
+                                    <h3 style={{ borderBottom: '1px solid #ccc', paddingBottom: '8px', marginTop: '32px' }}>B. Laporan Pengaduan Masyarakat</h3>
+                                    {pengaduansToPrint.map((item, idx) => {
+                                        const lampiranArr = getArrayData(item.lampiran);
+                                        return (
+                                            <div key={idx} style={{ marginBottom: '24px', pageBreakInside: 'avoid' }}>
+                                                <p style={{ fontWeight: 'bold', margin: '0 0 8px 0' }}>{pengaduansToPrint.length > 1 ? `${idx + 1}. ` : ''}Laporan dari: {item.nama_pelapor}</p>
+                                                <table className="tabel-cetak">
+                                                    <tbody>
+                                                    <tr><th style={{ width: '35%' }}>Tanggal & Status</th><td>{new Date(item.created_at).toLocaleDateString('id-ID')} — <b>{(item.status || '').toUpperCase()}</b></td></tr>
+                                                    <tr><th>NIK / No. HP</th><td>{item.nik} / {item.no_hp || '-'}</td></tr>
+                                                    <tr><th>Alamat & Lokasi Masalah</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.alamat || '-'} <br /><b>Lokasi Masalah:</b> {item.lokasi_masalah || '-'}</td></tr>
+                                                    <tr><th>Isi Keluhan Lengkap</th><td style={{ whiteSpace: 'pre-wrap' }}>{item.isi_keluhan}</td></tr>
+                                                    </tbody>
+                                                </table>
+
+                                                {lampiranArr.length > 0 && (
+                                                    <div style={{ marginTop: '10px', padding: '10px', border: '1px dashed #999', backgroundColor: '#f9f9f9' }}>
+                                                        <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0 0 8px 0' }}>Lampiran Aduan:</p>
+                                                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                                            {lampiranArr.map((lPath, lIdx) => {
+                                                                const isImage = lPath.match(/\.(jpeg|jpg|png|gif)$/i);
+                                                                const fileUrl = getFileUrl(lPath);
+                                                                if (isImage) {
+                                                                    return <img key={lIdx} src={fileUrl} alt="Foto Lampiran" style={{ display: 'block', maxHeight: '350px', width: 'auto', maxWidth: '100%', objectFit: 'contain', border: '1px solid #ccc', backgroundColor: '#fff', padding: '4px' }} />;
+                                                                } else {
+                                                                    return <div key={lIdx} style={{ fontSize: '13px', border: '1px solid #ccc', padding: '6px', background: '#fff' }}>📄 Dokumen PDF/Word Terlampir</div>;
+                                                                }
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </>
+                            )}
                         </>
                     )}
                 </div>,

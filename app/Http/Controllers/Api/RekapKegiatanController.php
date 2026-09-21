@@ -23,7 +23,6 @@ class RekapKegiatanController extends Controller
         return response()->json([
             'status' => 'sukses',
             'data' => $riwayat,
-            'data' => $riwayat,
         ], 200);
     }
 
@@ -32,11 +31,11 @@ class RekapKegiatanController extends Controller
     {
         $validated = $request->validate([
             // Identitas & waktu
-            'kd_kec' => ['nullable', 'string'],
-            'kd_desa' => ['nullable', 'string'],
+            'kd_kec' => ['required', 'string'],
+            'kd_desa' => ['required', 'string'],
             'rt' => ['nullable', 'string'],
             'no_posyandu' => ['nullable', 'string'],
-            'bulan_pendataan' => ['nullable', 'string'],
+            'bulan_pendataan' => ['required', 'string'],
 
             'jumlah' => ['nullable', 'integer'],
 
@@ -112,17 +111,12 @@ class RekapKegiatanController extends Controller
         /*
          * Posyandu selalu berasal dari user login.
          */
-        $validated['posyandu_id'] =
-            $request->user()->posyandu_id;
+        $validated['posyandu_id'] = $request->user()->posyandu_id;
 
-        $rekap = RekapKegiatan::create(
-            $validated
-        );
+        $rekap = RekapKegiatan::create($validated);
 
         return response()->json([
             'status' => 'sukses',
-            'pesan' => 'Data Hasil Kegiatan Posyandu berhasil disimpan!',
-            'data' => $rekap,
             'pesan' => 'Data Hasil Kegiatan Posyandu berhasil disimpan!',
             'data' => $rekap,
         ], 201);
@@ -133,20 +127,13 @@ class RekapKegiatanController extends Controller
     {
         $posyanduId = $request->user()->posyandu_id;
 
-        $rekap = RekapKegiatan::where(
-            'id',
-            $id
-        )
-            ->where(
-                'posyandu_id',
-                $posyanduId
-            )
+        $rekap = RekapKegiatan::where('id', $id)
+            ->where('posyandu_id', $posyanduId)
             ->first();
 
         if (! $rekap) {
             return response()->json([
-                'pesan' =>
-                    'Data tidak ditemukan atau Anda tidak memiliki akses.',
+                'pesan' => 'Data tidak ditemukan atau Anda tidak memiliki akses.',
             ], 404);
         }
 
@@ -154,7 +141,6 @@ class RekapKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'pesan' => 'Data rekap berhasil dihapus.',
             'pesan' => 'Data rekap berhasil dihapus.',
         ], 200);
     }

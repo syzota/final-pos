@@ -27,17 +27,10 @@ class PencatatanKegiatanController extends Controller
 
     public function store(Request $request)
     {
-        /*
-         * Hanya field yang memang dikenal aplikasi/database
-         * yang boleh diteruskan ke model.
-         *
-         * Field asing dari client otomatis tidak akan masuk
-         * ke $validated.
-         */
         $validated = $request->validate([
-            // Field teks
-            'nama_posyandu' => ['nullable', 'string'],
-            'ketua_pelaksana' => ['nullable', 'string'],
+            // Field teks wajib
+            'nama_posyandu' => ['required', 'string'],
+            'ketua_pelaksana' => ['required', 'string'],
             'signature_data' => ['nullable', 'string'],
 
             // Ibu Hamil & Menyusui
@@ -92,10 +85,12 @@ class PencatatanKegiatanController extends Controller
             'kematian_balita' => ['nullable', 'integer'],
         ]);
 
+        $textFields = ['nama_posyandu', 'ketua_pelaksana', 'signature_data'];
+
         // Ubah string kosong jadi 0 untuk input angka
-        foreach ($data as $key => $value) {
-            if (! in_array($key, $textFields) && $key !== 'posyandu_id') {
-                $data[$key] = empty($value) ? 0 : (int) $value;
+        foreach ($validated as $key => $value) {
+            if (! in_array($key, $textFields, true)) {
+                $validated[$key] = $value === null || $value === '' ? 0 : (int) $value;
             }
         }
 
@@ -103,12 +98,9 @@ class PencatatanKegiatanController extends Controller
          * posyandu_id selalu berasal dari user login,
          * bukan dari request client.
          */
-        $validated['posyandu_id'] =
-            $request->user()->posyandu_id;
+        $validated['posyandu_id'] = $request->user()->posyandu_id;
 
-        $pencatatan = PencatatanKegiatan::create(
-            $validated
-        );
+        $pencatatan = PencatatanKegiatan::create($validated);
 
         return response()->json([
             'status' => 'sukses',
@@ -121,14 +113,8 @@ class PencatatanKegiatanController extends Controller
     {
         $posyanduId = $request->user()->posyandu_id;
 
-        $pencatatan = PencatatanKegiatan::where(
-            'id',
-            $id
-        )
-            ->where(
-                'posyandu_id',
-                $posyanduId
-            )
+        $pencatatan = PencatatanKegiatan::where('id', $id)
+            ->where('posyandu_id', $posyanduId)
             ->first();
 
         if (! $pencatatan) {

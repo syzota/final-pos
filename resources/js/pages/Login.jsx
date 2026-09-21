@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axiosClient from '../api/axiosClient';
 import logo from '../assets/images/common/logo-header.jpeg';
 import Button from '../components/common/Button';
+import NotificationModal from '../components/common/NotificationModal';
 import { 
   ArrowLeft01Icon, 
   UserIcon, 
@@ -16,19 +17,27 @@ export default function Login({ onNavigate, onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [errorModal, setErrorModal] = useState({ isOpen: false, title: '', message: '', details: null });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
 
     if (!username.trim() || !password) {
-      setError('Username / NIK dan kata sandi wajib diisi.');
+      const missing = [];
+      if (!username.trim()) missing.push('Kolom Username atau NIK belum diisi.');
+      if (!password) missing.push('Kolom Kata Sandi belum diisi.');
+
+      setErrorModal({
+        isOpen: true,
+        title: 'Data Masuk Belum Lengkap',
+        message: 'Mohon lengkapi data akun Anda untuk dapat masuk ke dalam sistem:',
+        details: missing
+      });
       return;
     }
 
     setIsLoading(true);
-    setError('');
 
     try {
       const response = await axiosClient.post('/login', {
@@ -47,16 +56,25 @@ export default function Login({ onNavigate, onLogin }) {
       }
     } catch (err) {
       console.error('Gagal Login:', err);
-      if (err.response && err.response.data && err.response.data.pesan) {
-        setError(err.response.data.pesan);
-      } else if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else if (err.response && err.response.data && err.response.data.errors) {
-        const firstErr = Object.values(err.response.data.errors)[0];
-        setError(Array.isArray(firstErr) ? firstErr[0] : firstErr);
-      } else {
-        setError('Koneksi ke server gagal atau Username / NIK dan Kata Sandi tidak cocok.');
+      let errMsg = 'Koneksi ke server gagal atau Username / NIK dan Kata Sandi tidak cocok.';
+      let errTitle = 'Gagal Masuk Akun';
+      let errDetails = null;
+
+      if (err.response?.data?.pesan) {
+        errMsg = err.response.data.pesan;
+      } else if (err.response?.data?.message) {
+        errMsg = err.response.data.message;
+      } else if (err.response?.data?.errors) {
+        errDetails = Object.values(err.response.data.errors).flat();
+        errMsg = 'Terdapat data yang belum sesuai dengan format yang diminta:';
       }
+
+      setErrorModal({
+        isOpen: true,
+        title: errTitle,
+        message: errMsg,
+        details: errDetails
+      });
     } finally {
       setIsLoading(false);
     }
@@ -74,8 +92,17 @@ export default function Login({ onNavigate, onLogin }) {
         background: 'linear-gradient(135deg, #f0fdfa 0%, #e2e8f0 100%)'
       }}
     >
+      <NotificationModal
+        isOpen={errorModal.isOpen}
+        type="error"
+        title={errorModal.title}
+        message={errorModal.message}
+        details={errorModal.details}
+        onClose={() => setErrorModal({ isOpen: false, title: '', message: '', details: null })}
+      />
+
       <div
-        className="login-card"
+        className="login-card reveal-section"
         style={{
           position: 'relative',
           width: '100%',
@@ -101,8 +128,12 @@ export default function Login({ onNavigate, onLogin }) {
           />
         </div>
 
-        {/* Brand Header */}
-        <div style={{ textAlign: 'center', marginTop: '12px', marginBottom: '28px' }}>
+        {/* Brand Header (Clickable to Home) */}
+        <div 
+          onClick={() => onNavigate && onNavigate('beranda')}
+          style={{ textAlign: 'center', marginTop: '12px', marginBottom: '28px', cursor: 'pointer' }}
+          title="Kembali ke Beranda"
+        >
           <div
             style={{
               width: '64px',
@@ -110,7 +141,8 @@ export default function Login({ onNavigate, onLogin }) {
               borderRadius: '16px',
               overflow: 'hidden',
               margin: '0 auto 14px',
-              boxShadow: '0 4px 12px rgba(0, 128, 128, 0.15)'
+              boxShadow: '0 4px 12px rgba(0, 128, 128, 0.15)',
+              transition: 'transform 0.15s ease'
             }}
           >
             <img
@@ -178,7 +210,7 @@ export default function Login({ onNavigate, onLogin }) {
 
           <div className="field" style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-              Kata Sandi / PIN
+              Kata Sandi
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <div
@@ -197,7 +229,7 @@ export default function Login({ onNavigate, onLogin }) {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Masukkan kata sandi atau 6 digit PIN"
+                placeholder="Masukkan kata sandi akun"
                 disabled={isLoading}
                 autoComplete="current-password"
                 style={{
@@ -205,7 +237,7 @@ export default function Login({ onNavigate, onLogin }) {
                   minHeight: '46px',
                   borderRadius: '12px',
                   border: '1px solid #cbd5e1',
-                  padding: '0 44px 0 42px',
+                  padding: '0 42px 0 42px',
                   fontSize: '14px',
                   backgroundColor: '#ffffff',
                   outline: 'none',
@@ -241,37 +273,16 @@ export default function Login({ onNavigate, onLogin }) {
             </div>
           </div>
 
-          {error && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px',
-                padding: '12px 14px',
-                borderRadius: '10px',
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#b91c1c',
-                fontSize: '13px',
-                marginBottom: '18px',
-                lineHeight: '1.4'
-              }}
-            >
-              <AlertCircleIcon size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <span>{error}</span>
-            </div>
-          )}
-
           {/* Submit Button with Animated Loading State */}
           <Button
             type="submit"
             variant="primary"
             size="lg"
             loading={isLoading}
-            loadingText="Memverifikasi Akun..."
+            loadingText=""
             fullWidth
           >
-            Masuk ke Sistem
+            Masuk
           </Button>
         </form>
       </div>

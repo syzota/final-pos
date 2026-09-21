@@ -41,6 +41,8 @@ export default function GantiPasswordView() {
   const [message, setMessage] = useState({
     type: '',
     text: '',
+    title: '',
+    details: null
   });
 
   useEffect(() => {
@@ -57,7 +59,8 @@ export default function GantiPasswordView() {
         console.error('Gagal memuat akun:', error);
         setMessage({
           type: 'error',
-          text: 'Data akun pengguna gagal dimuat.',
+          title: 'Gagal Memuat Profil Akun',
+          text: 'Data profil akun pengguna gagal dimuat dari server.',
         });
       } finally {
         setIsLoadingAccount(false);
@@ -85,42 +88,43 @@ export default function GantiPasswordView() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setMessage({ type: '', text: '' });
-
-    if (formData.current_password.length !== 6) {
-      setMessage({
-        type: 'error',
-        text: 'PIN saat ini harus tepat 6 digit angka.',
-      });
-      return;
+    
+    const missing = [];
+    if (!formData.current_password) {
+      missing.push('PIN saat ini belum diisi');
+    } else if (formData.current_password.length !== 6) {
+      missing.push('PIN saat ini harus tepat 6 digit angka');
     }
 
-    if (formData.new_password.length !== 6) {
-      setMessage({
-        type: 'error',
-        text: 'PIN baru harus tepat 6 digit angka.',
-      });
-      return;
+    if (!formData.new_password) {
+      missing.push('PIN baru belum diisi');
+    } else if (formData.new_password.length !== 6) {
+      missing.push('PIN baru harus tepat 6 digit angka');
     }
 
-    if (formData.new_password !== formData.new_password_confirmation) {
-      setMessage({
-        type: 'error',
-        text: 'Konfirmasi PIN baru tidak cocok.',
-      });
-      return;
+    if (!formData.new_password_confirmation) {
+      missing.push('Konfirmasi PIN baru belum diisi');
+    } else if (formData.new_password !== formData.new_password_confirmation) {
+      missing.push('Konfirmasi PIN baru tidak sesuai dengan PIN baru');
     }
 
-    if (formData.current_password === formData.new_password) {
+    if (formData.current_password && formData.new_password && formData.current_password === formData.new_password) {
+      missing.push('PIN baru tidak boleh sama persis dengan PIN lama saat ini');
+    }
+
+    if (missing.length > 0) {
       setMessage({
         type: 'error',
-        text: 'PIN baru harus berbeda dari PIN saat ini.',
+        title: 'Validasi PIN Keamanan Gagal',
+        text: 'Mohon periksa dan perbaiki ketentuan PIN berikut:',
+        details: missing
       });
       return;
     }
 
     try {
       setIsSaving(true);
+      setMessage({ type: '', text: '', title: '', details: null });
       const token = localStorage.getItem('auth_token');
 
       const response = await axios.put(
@@ -135,7 +139,8 @@ export default function GantiPasswordView() {
 
       setMessage({
         type: 'success',
-        text: response.data.pesan || 'PIN akun Anda berhasil diperbarui!',
+        title: 'PIN Berhasil Diperbarui',
+        text: response.data.pesan || 'PIN akun Anda berhasil diperbarui! Silakan gunakan PIN baru untuk login selanjutnya.',
       });
 
       setFormData({
@@ -152,17 +157,22 @@ export default function GantiPasswordView() {
     } catch (error) {
       console.error('Gagal mengganti PIN:', error);
       const validationErrors = error.response?.data?.errors;
-      const firstValidationError = validationErrors
-        ? Object.values(validationErrors)?.[0]?.[0]
-        : null;
+      let errDetails = null;
+      let firstValidationError = '';
+      if (validationErrors && typeof validationErrors === 'object') {
+        errDetails = Object.values(validationErrors).flat();
+        firstValidationError = errDetails[0];
+      }
 
       setMessage({
         type: 'error',
+        title: 'Gagal Memperbarui PIN',
         text:
           firstValidationError ||
           error.response?.data?.message ||
           error.response?.data?.pesan ||
-          'PIN gagal diperbarui. Pastikan PIN saat ini benar.',
+          'PIN gagal diperbarui. Pastikan PIN saat ini yang Anda masukkan sudah benar.',
+        details: errDetails && errDetails.length > 1 ? errDetails : null
       });
     } finally {
       setIsSaving(false);
@@ -191,10 +201,12 @@ export default function GantiPasswordView() {
 
       <div style={{ animation: 'fadein 0.3s ease' }}>
         <NotificationModal
-          isOpen={Boolean(message.text)}
+          isOpen={Boolean(message.text || message.title)}
           type={message.type || 'success'}
+          title={message.title}
           message={message.text}
-          onClose={() => setMessage({ type: '', text: '' })}
+          details={message.details}
+          onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
         />
 
         <div className="pin-grid-layout">
@@ -345,7 +357,6 @@ export default function GantiPasswordView() {
                       border: '1.5px solid #cbd5e1',
                       padding: '0 44px 0 14px',
                       fontSize: '15px',
-                      letterSpacing: showPin.current ? 'normal' : '0.2em',
                       backgroundColor: '#ffffff'
                     }}
                   />
@@ -371,8 +382,6 @@ export default function GantiPasswordView() {
                 </div>
               </div>
 
-              <div style={{ height: '1px', backgroundColor: '#f1f5f9', margin: '20px 0' }}></div>
-
               {/* PIN BARU */}
               <div style={{ marginBottom: '18px' }}>
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
@@ -396,7 +405,6 @@ export default function GantiPasswordView() {
                       border: '1.5px solid #cbd5e1',
                       padding: '0 44px 0 14px',
                       fontSize: '15px',
-                      letterSpacing: showPin.new ? 'normal' : '0.2em',
                       backgroundColor: '#ffffff'
                     }}
                   />
@@ -423,7 +431,7 @@ export default function GantiPasswordView() {
               </div>
 
               {/* KONFIRMASI PIN BARU */}
-              <div style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '18px' }}>
                 <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
                   Konfirmasi PIN Baru *
                 </label>
@@ -445,7 +453,6 @@ export default function GantiPasswordView() {
                       border: '1.5px solid #cbd5e1',
                       padding: '0 44px 0 14px',
                       fontSize: '15px',
-                      letterSpacing: showPin.confirmation ? 'normal' : '0.2em',
                       backgroundColor: '#ffffff'
                     }}
                   />

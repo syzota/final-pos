@@ -23,7 +23,6 @@ class DataUmumController extends Controller
         return response()->json([
             'status' => 'sukses',
             'data' => $riwayat,
-            'data' => $riwayat,
         ], 200);
     }
 
@@ -32,12 +31,12 @@ class DataUmumController extends Controller
     {
         $validated = $request->validate([
             // Header / teks
-            'nama_posyandu' => ['nullable', 'string'],
+            'nama_posyandu' => ['required', 'string'],
             'rukun_warga' => ['nullable', 'string'],
             'desa' => ['nullable', 'string'],
             'kecamatan' => ['nullable', 'string'],
-            'tahun' => ['nullable', 'string'],
-            'bulan' => ['nullable', 'string'],
+            'tahun' => ['required', 'string'],
+            'bulan' => ['required', 'string'],
 
             // Pengunjung
             'pengunjung_bayi' => ['nullable', 'integer'],
@@ -91,7 +90,7 @@ class DataUmumController extends Controller
         ];
 
         /*
-         * Pertahankan behavior frontend lama:
+         * Pertahankan behavior frontend:
          * input angka kosong/null menjadi 0.
          */
         foreach ($validated as $key => $value) {
@@ -105,17 +104,12 @@ class DataUmumController extends Controller
         /*
          * Client tidak boleh menentukan Posyandu sendiri.
          */
-        $validated['posyandu_id'] =
-            $request->user()->posyandu_id;
+        $validated['posyandu_id'] = $request->user()->posyandu_id;
 
-        $dataUmum = DataUmum::create(
-            $validated
-        );
+        $dataUmum = DataUmum::create($validated);
 
         return response()->json([
             'status' => 'sukses',
-            'pesan' => 'Pencatatan Data Umum berhasil disimpan!',
-            'data' => $dataUmum,
             'pesan' => 'Pencatatan Data Umum berhasil disimpan!',
             'data' => $dataUmum,
         ], 201);
@@ -126,14 +120,8 @@ class DataUmumController extends Controller
     {
         $posyanduId = $request->user()->posyandu_id;
 
-        $dataUmum = DataUmum::where(
-            'id',
-            $id
-        )
-            ->where(
-                'posyandu_id',
-                $posyanduId
-            )
+        $dataUmum = DataUmum::where('id', $id)
+            ->where('posyandu_id', $posyanduId)
             ->first();
 
         if (! $dataUmum) {

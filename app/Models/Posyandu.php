@@ -11,13 +11,7 @@ class Posyandu extends Model
 
     protected $table = 'posyandus';
 
-    protected $fillable = [
-        'nama',
-        'alamat',
-        'no_telepon',
-        'latitude',
-        'longitude',
-    ];
+    protected $guarded = ['id'];
 
     public function wargaKeluarga()
     {

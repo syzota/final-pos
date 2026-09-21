@@ -5,7 +5,10 @@ import Button from '../common/Button';
 import {
     InformationCircleIcon,
     Calculator01Icon,
-    FavouriteIcon
+    FavouriteIcon,
+    Add01Icon,
+    Delete02Icon,
+    Search01Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const CALC_CATEGORIES = {
@@ -43,6 +46,12 @@ const ACTIVITY_FACTOR = {
     sedang: { label: 'Sedang (olahraga 3–5 hari/minggu)', factor: 1.55 },
     berat: { label: 'Berat (olahraga 6–7 hari/minggu)', factor: 1.725 },
     sangat_berat: { label: 'Sangat Berat (aktivitas fisik/kerja fisik berat)', factor: 1.9 },
+};
+
+const blockInvalidNumberChars = (e) => {
+    if (['e', 'E', '+', '-'].includes(e.key)) {
+        e.preventDefault();
+    }
 };
 
 export default function WargaKalkulatorView() {
@@ -86,6 +95,7 @@ export default function WargaKalkulatorView() {
     const [kalAktivitas, setKalAktivitas] = useState('sedang');
 
     const [foodDb, setFoodDb] = useState([]); // State untuk menampung data dari Laravel
+    const [foodSearch, setFoodSearch] = useState('');
     const [foodPick, setFoodPick] = useState('');
     const [foodQty, setFoodQty] = useState(1);
     const [foodLog, setFoodLog] = useState([]);
@@ -302,7 +312,7 @@ export default function WargaKalkulatorView() {
                             <div className="form-grid">
                                 <div className="form-field full">
                                     <label>Usia Kehamilan Saat Ini (minggu)</label>
-                                    <input type="number" placeholder="mis. 20" min="1" max="42" value={janinMinggu} onChange={e => setJaninMinggu(e.target.value)} />
+                                    <input type="number" placeholder="Contoh: 20" min="1" max="42" onKeyDown={blockInvalidNumberChars} value={janinMinggu} onChange={e => setJaninMinggu(e.target.value)} />
                                 </div>
                             </div>
                         </div>
@@ -324,10 +334,10 @@ export default function WargaKalkulatorView() {
                         <div className="card">
                             <div className="section-head"><h3>Kenaikan BB Ibu Hamil</h3></div>
                             <div className="form-grid">
-                                <div className="form-field"><label>BB Sebelum Hamil (kg)</label><input type="number" placeholder="55" value={bbhSebelum} onChange={e => setBbhSebelum(e.target.value)} /></div>
-                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" placeholder="156" value={bbhTinggi} onChange={e => setBbhTinggi(e.target.value)} /></div>
-                                <div className="form-field"><label>Usia Kehamilan (minggu)</label><input type="number" placeholder="20" min="1" max="42" value={bbhMinggu} onChange={e => setBbhMinggu(e.target.value)} /></div>
-                                <div className="form-field"><label>BB Saat Ini (kg)</label><input type="number" placeholder="62" value={bbhSekarang} onChange={e => setBbhSekarang(e.target.value)} /></div>
+                                <div className="form-field"><label>BB Sebelum Hamil (kg)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="55" value={bbhSebelum} onChange={e => setBbhSebelum(e.target.value)} /></div>
+                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="156" value={bbhTinggi} onChange={e => setBbhTinggi(e.target.value)} /></div>
+                                <div className="form-field"><label>Usia Kehamilan (minggu)</label><input type="number" placeholder="20" min="1" max="42" onKeyDown={blockInvalidNumberChars} value={bbhMinggu} onChange={e => setBbhMinggu(e.target.value)} /></div>
+                                <div className="form-field"><label>BB Saat Ini (kg)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="62" value={bbhSekarang} onChange={e => setBbhSekarang(e.target.value)} /></div>
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--green-bg)', border: 'none' }}>
@@ -350,10 +360,15 @@ export default function WargaKalkulatorView() {
                     <div className="grid grid-2">
                         <div className="card">
                             <div className="section-head"><h3>IMT &amp; LILA Ibu Hamil</h3></div>
+                            <div style={{ backgroundColor: '#f0fdfa', border: '1px solid #ccfbf1', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#0f766e', marginBottom: '14px', lineHeight: 1.5 }}>
+                                <b>Penjelasan Istilah:</b><br />
+                                • <b>IMT (Indeks Massa Tubuh)</b>: Rasio berat badan terhadap kuadrat tinggi badan untuk memantau status gizi.<br />
+                                • <b>LILA (Lingkar Lengan Atas)</b>: Ukuran pita lengan; LILA &lt; 23,5 cm menandakan risiko <b>KEK (Kekurangan Energi Kronis)</b>.
+                            </div>
                             <div className="form-grid">
-                                <div className="form-field"><label>Berat Badan (kg)</label><input type="number" placeholder="58" value={ihBerat} onChange={e => setIhBerat(e.target.value)} /></div>
-                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" placeholder="156" value={ihTinggi} onChange={e => setIhTinggi(e.target.value)} /></div>
-                                <div className="form-field full"><label>Lingkar Lengan Atas / LILA (cm)</label><input type="number" placeholder="24.5" value={ihLila} onChange={e => setIhLila(e.target.value)} /></div>
+                                <div className="form-field"><label>Berat Badan (kg)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="58" value={ihBerat} onChange={e => setIhBerat(e.target.value)} /></div>
+                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="156" value={ihTinggi} onChange={e => setIhTinggi(e.target.value)} /></div>
+                                <div className="form-field full"><label>Lingkar Lengan Atas / LILA (cm)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="24.5" value={ihLila} onChange={e => setIhLila(e.target.value)} /></div>
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
@@ -379,7 +394,7 @@ export default function WargaKalkulatorView() {
                         <div className="card">
                             <div className="section-head"><h3>Status Gizi — Bayi &amp; Balita</h3></div>
                             <div className="form-grid">
-                                <div className="form-field"><label>Umur (bulan)</label><input type="number" placeholder="18" value={sgUmur} onChange={e => setSgUmur(e.target.value)} /></div>
+                                <div className="form-field"><label>Umur (bulan)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="18" value={sgUmur} onChange={e => setSgUmur(e.target.value)} /></div>
                                 <div className="form-field">
                                     <label>Jenis Kelamin</label>
                                     <select value={sgGender} onChange={e => setSgGender(e.target.value)}>
@@ -387,8 +402,8 @@ export default function WargaKalkulatorView() {
                                         <option>Laki-laki</option>
                                     </select>
                                 </div>
-                                <div className="form-field"><label>Berat Badan (kg)</label><input type="number" placeholder="10.2" value={sgBerat} onChange={e => setSgBerat(e.target.value)} /></div>
-                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" placeholder="78" value={sgTinggi} onChange={e => setSgTinggi(e.target.value)} /></div>
+                                <div className="form-field"><label>Berat Badan (kg)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="10.2" value={sgBerat} onChange={e => setSgBerat(e.target.value)} /></div>
+                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="78" value={sgTinggi} onChange={e => setSgTinggi(e.target.value)} /></div>
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
@@ -410,6 +425,11 @@ export default function WargaKalkulatorView() {
                 {currentTool === 'imt_ideal' && (
                     <div className="grid grid-2">
                         <div className="card">
+                            <div className="section-head"><h3>IMT &amp; Berat Badan Ideal</h3></div>
+                            <div style={{ backgroundColor: '#f0fdfa', border: '1px solid #ccfbf1', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#0f766e', marginBottom: '14px', lineHeight: 1.5 }}>
+                                <b>Penjelasan Istilah:</b><br />
+                                • <b>IMT (Indeks Massa Tubuh)</b>: Standar WHO &amp; Kemenkes untuk mengukur proporsi berat ideal (Kurus &lt; 18.5, Normal 18.5–24.9, Gemuk 25–29.9, Obesitas &ge; 30).
+                            </div>
                             <div className="form-grid">
                                 <div className="form-field">
                                     <label>Jenis Kelamin</label>
@@ -418,9 +438,9 @@ export default function WargaKalkulatorView() {
                                         <option>Laki-laki</option>
                                     </select>
                                 </div>
-                                <div className="form-field"><label>Umur (tahun)</label><input type="number" placeholder="30" value={imiUmur} onChange={e => setImiUmur(e.target.value)} /></div>
-                                <div className="form-field"><label>Berat Badan (kg)</label><input type="number" placeholder="58" value={imiBerat} onChange={e => setImiBerat(e.target.value)} /></div>
-                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" placeholder="156" value={imiTinggi} onChange={e => setImiTinggi(e.target.value)} /></div>
+                                <div className="form-field"><label>Umur (tahun)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="30" value={imiUmur} onChange={e => setImiUmur(e.target.value)} /></div>
+                                <div className="form-field"><label>Berat Badan (kg)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="58" value={imiBerat} onChange={e => setImiBerat(e.target.value)} /></div>
+                                <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="156" value={imiTinggi} onChange={e => setImiTinggi(e.target.value)} /></div>
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
@@ -444,6 +464,11 @@ export default function WargaKalkulatorView() {
                         <div className="grid grid-2">
                             <div className="card">
                                 <div className="section-head"><h3>Kebutuhan Kalori Harian</h3></div>
+                                <div style={{ backgroundColor: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#c2410c', marginBottom: '14px', lineHeight: 1.5 }}>
+                                    <b>Penjelasan Istilah:</b><br />
+                                    • <b>TDEE (Total Daily Energy Expenditure)</b>: Estimasi kalori harian yang dibakar tubuh berdasarkan tingkat aktivitas fisik.<br />
+                                    • <b>BMR (Basal Metabolic Rate)</b>: Energi minimal yang dibutuhkan organ tubuh saat istirahat total.
+                                </div>
                                 <div className="form-grid">
                                     <div className="form-field">
                                         <label>Jenis Kelamin</label>
@@ -452,9 +477,9 @@ export default function WargaKalkulatorView() {
                                             <option>Laki-laki</option>
                                         </select>
                                     </div>
-                                    <div className="form-field"><label>Umur (tahun)</label><input type="number" placeholder="30" value={kalUmur} onChange={e => setKalUmur(e.target.value)} /></div>
-                                    <div className="form-field"><label>Berat Badan (kg)</label><input type="number" placeholder="58" value={kalBerat} onChange={e => setKalBerat(e.target.value)} /></div>
-                                    <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" placeholder="156" value={kalTinggi} onChange={e => setKalTinggi(e.target.value)} /></div>
+                                    <div className="form-field"><label>Umur (tahun)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="30" value={kalUmur} onChange={e => setKalUmur(e.target.value)} /></div>
+                                    <div className="form-field"><label>Berat Badan (kg)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="58" value={kalBerat} onChange={e => setKalBerat(e.target.value)} /></div>
+                                    <div className="form-field"><label>Tinggi Badan (cm)</label><input type="number" min="0" onKeyDown={blockInvalidNumberChars} placeholder="156" value={kalTinggi} onChange={e => setKalTinggi(e.target.value)} /></div>
                                     <div className="form-field full">
                                         <label>Tingkat Aktivitas Fisik</label>
                                         <select value={kalAktivitas} onChange={e => setKalAktivitas(e.target.value)}>
@@ -477,32 +502,91 @@ export default function WargaKalkulatorView() {
                         </div>
 
                         <div className="card" style={{ marginTop: '16px' }}>
-                            <div className="section-head"><h3>Tambah Makanan yang Dikonsumsi Hari Ini</h3></div>
-                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                                <div className="form-field" style={{ flex: '2 1 260px', marginBottom: 0 }}>
-                                    <label>Pilih Makanan</label>
-                                    <select value={foodPick} onChange={e => setFoodPick(e.target.value)}>
-                                        {foodDb.length === 0 ? (
-                                            <option value="">Belum ada daftar makanan (Memuat...)</option>
-                                        ) : (
-                                            foodDb.map(f => (
-                                                <option key={f.id} value={f.id}>{f.nama_makanan} — {f.kalori_per_porsi} kkal</option>
-                                            ))
-                                        )}
-                                    </select>
+                            <div className="section-head"><h3>Pilih & Catat Konsumsi Makanan Hari Ini</h3></div>
+                            
+                            {/* SEARCH BAR MAKANAN (Poin 39) */}
+                            <div style={{ position: 'relative', marginBottom: '12px' }}>
+                                <Search01Icon size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                                <input
+                                    type="text"
+                                    placeholder="Ketik untuk mencari makanan (Contoh: Nasi, Telur, Ayam, Tempe)..."
+                                    value={foodSearch}
+                                    onChange={e => setFoodSearch(e.target.value)}
+                                    style={{ width: '100%', minHeight: '44px', borderRadius: '12px', border: '1.5px solid #cbd5e1', padding: '0 14px 0 42px', fontSize: '13.5px', outline: 'none' }}
+                                />
+                            </div>
+
+                            {/* LIST MAKANAN HASIL CARI (Poin 39) */}
+                            <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '8px', marginBottom: '14px', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                {foodDb.filter(f => (f.nama_makanan || '').toLowerCase().includes(foodSearch.toLowerCase())).length === 0 ? (
+                                    <div style={{ padding: '12px', textAlign: 'center', fontSize: '12.5px', color: '#64748b' }}>
+                                        {foodDb.length === 0 ? 'Memuat daftar makanan...' : `Tidak ditemukan makanan dengan kata kunci "${foodSearch}".`}
+                                    </div>
+                                ) : (
+                                    foodDb.filter(f => (f.nama_makanan || '').toLowerCase().includes(foodSearch.toLowerCase())).map(f => {
+                                        const isSelected = foodPick === f.id.toString();
+                                        return (
+                                            <div
+                                                key={f.id}
+                                                onClick={() => setFoodPick(f.id.toString())}
+                                                style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    padding: '8px 12px',
+                                                    borderRadius: '8px',
+                                                    cursor: 'pointer',
+                                                    backgroundColor: isSelected ? '#f0fdfa' : '#ffffff',
+                                                    border: isSelected ? '1.5px solid #008080' : '1px solid #e2e8f0',
+                                                    transition: 'all 0.15s ease'
+                                                }}
+                                            >
+                                                <span style={{ fontSize: '13px', fontWeight: isSelected ? 800 : 600, color: isSelected ? '#0f766e' : '#1e293b' }}>
+                                                    {f.nama_makanan}
+                                                </span>
+                                                <span style={{ fontSize: '12px', fontWeight: 700, color: isSelected ? '#008080' : '#d97706', padding: '2px 8px', borderRadius: '6px', backgroundColor: isSelected ? '#ccfbf1' : '#fef3c7' }}>
+                                                    {f.kalori_per_porsi} kkal
+                                                </span>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+
+                            {/* INPUT PORSI & TOMBOL TAMBAH */}
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', backgroundColor: '#ffffff', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ flex: 1 }}>
+                                    <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>Makanan Terpilih:</span>
+                                    <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
+                                        {foodDb.find(f => f.id.toString() === foodPick)?.nama_makanan || 'Pilih makanan dari daftar di atas'}
+                                    </span>
                                 </div>
-                                <div className="form-field" style={{ flex: '0 1 110px', marginBottom: 0 }}>
-                                    <label>Porsi</label>
-                                    <input type="number" min="1" value={foodQty} onChange={e => setFoodQty(e.target.value)} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>Porsi:</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        onKeyDown={blockInvalidNumberChars}
+                                        value={foodQty}
+                                        onChange={e => setFoodQty(Math.max(1, parseInt(e.target.value) || 1))}
+                                        style={{ width: '64px', minHeight: '38px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center', fontSize: '13.5px', fontWeight: 700 }}
+                                    />
                                 </div>
-                                <Button variant="primary" onClick={addFoodItem} disabled={foodDb.length === 0}>
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    icon={Add01Icon}
+                                    onClick={addFoodItem}
+                                    disabled={!foodPick || foodDb.length === 0}
+                                    title="Tambah ke Catatan Harian"
+                                >
                                     Tambah
                                 </Button>
                             </div>
 
                             <div className="table-responsive">
                                 <table className="table" style={{ marginTop: '14px' }}>
-                                    <thead><tr><th>Makanan</th><th>Porsi</th><th>Kalori</th><th>Aksi</th></tr></thead>
+                                    <thead><tr><th>Makanan</th><th>Porsi</th><th>Kalori</th><th style={{ textAlign: 'right' }}>Aksi</th></tr></thead>
                                     <tbody>
                                     {foodLog.length === 0 ? (
                                         <tr><td colSpan="4" style={{ color: 'var(--ink-soft)', fontWeight: 600 }}>Belum ada makanan ditambahkan.</td></tr>
@@ -512,7 +596,16 @@ export default function WargaKalkulatorView() {
                                                 <td>{item.nama}</td>
                                                 <td>{item.qty}x</td>
                                                 <td>{item.qty * item.kaloriSatuan} kkal</td>
-                                                <td><Button variant="danger-outline" size="sm" onClick={() => removeFoodItem(i)}>Hapus</Button></td>
+                                                <td style={{ textAlign: 'right' }}>
+                                                    <Button
+                                                        variant="danger-outline"
+                                                        size="sm"
+                                                        icon={Delete02Icon}
+                                                        onClick={() => removeFoodItem(i)}
+                                                    >
+                                                        Hapus
+                                                    </Button>
+                                                </td>
                                             </tr>
                                         ))
                                     )}

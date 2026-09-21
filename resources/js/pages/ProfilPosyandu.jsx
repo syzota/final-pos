@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import Header from '../components/common/Header';
+import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import Button from '../components/common/Button';
 import ProfilHeroBanner from '../components/profil/ProfilHeroBanner';
 import ChairmanCard from '../components/profil/ChairmanCard';
-import BasicContactCard from '../components/profil/BasicContactCard';
 import CoreTasksCard from '../components/profil/CoreTasksCard';
 import StrategicFunctionsCard from '../components/profil/StrategicFunctionsCard';
 import StrukturKepengurusanSection from '../components/profil/StrukturKepengurusanSection';
 import SectionHeader from '../components/common/SectionHeader';
+import useScrollReveal from '../utils/useScrollReveal';
 
 import { 
   InformationCircleIcon, 
@@ -19,7 +19,6 @@ import {
   DeliveryBox01Icon, 
   Location01Icon, 
   Call02Icon, 
-  Directions01Icon, 
   Cancel01Icon 
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 import Skeleton from '../components/common/Skeleton';
@@ -28,6 +27,8 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
   const [profilList, setProfilList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDetailPosyandu, setSelectedDetailPosyandu] = useState(null);
+
+  useScrollReveal([profilList, loading]);
 
   useEffect(() => {
     axios.get('/api/profil-posyandu')
@@ -65,7 +66,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
   if (loading) {
     return (
       <div className="profil-wrapper">
-        <Header activePage="profil" onNavigate={onNavigate} onDarurat={onDarurat} />
+        <Navbar activePage="profil" onNavigate={onNavigate} onDarurat={onDarurat} />
         <main className="profil-container" style={{ padding: '40px 20px', minHeight: '80vh', maxWidth: '1200px', margin: '0 auto' }}>
           <section className="profil-section" style={{ marginBottom: '40px' }}>
             <Skeleton type="box" height="400px" />
@@ -240,30 +241,29 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
 
   return (
     <div className="profil-wrapper">
-      <Header activePage="profil" onNavigate={onNavigate} onDarurat={onDarurat} />
+      <Navbar activePage="profil" onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="profil-container" style={{ padding: '40px 16px', maxWidth: '1200px', margin: '0 auto' }}>
         {/* UNIFIED HERO SECTION UNTUK PROFIL */}
-        <section className="profil-section" style={{ marginBottom: '48px' }}>
+        <section className="profil-section reveal-section" style={{ marginBottom: '48px' }}>
           <ProfilHeroBanner defaultProfil={defaultProfil} onNavigate={onNavigate} />
         </section>
 
-        {/* SECTION 1: SAMBUTAN KETUA & KONTAK SEKRETARIAT */}
-        <section className="profil-section" style={{ marginBottom: '56px' }}>
+        {/* SECTION 1: KEPEMIMPINAN POSYANDU */}
+        <section className="profil-section reveal-section reveal-delay-1" style={{ marginBottom: '56px' }}>
           <SectionHeader
-            eyebrow="STRUKTUR & INFORMASI"
-            title="Kepemimpinan & Kontak Posyandu"
-            description="Informasi mengenai kepemimpinan dan kontak posyandu terpadu di Desa Loa Duri Ulu."
+            eyebrow="STRUKTUR & KEPEMIMPINAN"
+            title="Kepemimpinan Posyandu"
+            description="Kepemimpinan posyandu terpadu dalam mengoordinasikan pelayanan kesehatan warga di Desa Loa Duri Ulu."
             align="left"
           />
-          <div className="grid grid-2-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '24px' }}>
+          <div style={{ maxWidth: '420px' }}>
             <ChairmanCard />
-            <BasicContactCard defaultProfil={defaultProfil} onNavigate={onNavigate} />
           </div>
         </section>
 
         {/* SECTION 2: TUGAS POKOK & FUNGSI STRATEGIS */}
-        <section className="profil-section" style={{ marginBottom: '56px' }}>
+        <section className="profil-section reveal-on-scroll" style={{ marginBottom: '56px' }}>
           <SectionHeader
             eyebrow="PERAN & FUNGSI"
             title="Komitmen Pelayanan Masyarakat"
@@ -277,12 +277,12 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
         </section>
 
         {/* SECTION 3: STRUKTUR KEPENGURUSAN POKJANAL & KADER */}
-        <section className="profil-section" style={{ marginBottom: '56px' }}>
+        <section className="profil-section reveal-on-scroll" style={{ marginBottom: '56px' }}>
           <StrukturKepengurusanSection />
         </section>
 
         {/* SECTION 4: DAFTAR 9 TITIK POSYANDU DESA */}
-        <section id="daftar-posyandu" className="profil-section" style={{ marginBottom: '40px' }}>
+        <section id="daftar-posyandu" className="profil-section reveal-on-scroll" style={{ marginBottom: '40px' }}>
           <SectionHeader
             eyebrow="WILAYAH PELAYANAN"
             title="Daftar 9 Posyandu di Desa Loa Duri Ulu"
@@ -333,7 +333,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
                     <span style={{ lineHeight: '1.4' }}>{posyandu.kontak_darurat || posyandu.no_telp || '0812-5000-100' + ((idx % 9) + 1)}</span>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
+                  <div style={{ marginTop: 'auto' }}>
                     <Button
                       variant="primary"
                       size="md"
@@ -343,16 +343,6 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
                     >
                       Lihat Detail Posyandu
                     </Button>
-
-                    <Button
-                      variant="secondary"
-                      size="md"
-                      fullWidth
-                      icon={Directions01Icon}
-                      onClick={() => window.open(posyandu.link_gmaps || `https://maps.google.com/?q=Loa+Duri+Ulu+Posyandu+${posyandu.nama}`, '_blank')}
-                    >
-                      Buka di Google Maps
-                    </Button>
                   </div>
                 </div>
               </div>
@@ -361,7 +351,7 @@ export default function ProfilPosyandu({ onNavigate, onDarurat }) {
         </section>
       </main>
 
-      <Footer />
+      <Footer onNavigate={onNavigate} />
       {renderDetailModal()}
     </div>
   );

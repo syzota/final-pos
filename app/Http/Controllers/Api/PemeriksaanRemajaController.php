@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PemeriksaanRemaja;
-use App\Models\WargaKeluarga;
 use App\Models\WargaRemaja;
 use Illuminate\Http\Request;
 
@@ -28,9 +27,7 @@ class PemeriksaanRemajaController extends Controller
             'dokumentasi_foto.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $user = $request->user();
-        $posyanduId = $user->posyandu_id;
-
+        $posyanduId = in_array($request->user()->role, ['kader', 'ketua']) ? $request->user()->posyandu_id : null;
         $remajaId = $request->remaja_id;
 
         if (! $remajaId || $remajaId === 'baru' || $remajaId === 'null') {
@@ -41,38 +38,40 @@ class PemeriksaanRemajaController extends Controller
                 'tanggal_lahir' => $tahunLahir.'-01-01',
                 'keluarga_id' => null,
             ]);
-
             $remajaId = $remajaBaru->id;
-        }
-
-        /*
-         * ==========================================
-         * UPLOAD FOTO
-         * ==========================================
-         */
-        $fotoPaths = [];
-
-        if ($request->hasFile('dokumentasi_foto')) {
-            foreach (
-                $request->file('dokumentasi_foto')
-                as $file
-            ) {
-                $fotoPaths[] = $file->store(
-                    'dokumentasi_kegiatan',
-                    'public'
-                );
+        } elseif ($posyanduId) {
+            $remajaValid = WargaRemaja::where('id', $remajaId)
+                ->where(function ($q) use ($posyanduId) {
+                    $q->whereNull('keluarga_id')
+                        ->orWhereHas('keluarga', fn ($k) => $k->where('posyandu_id', $posyanduId));
+                })
+                ->exists();
+            if (! $remajaValid) {
+                return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data remaja bukan dari Posyandu Anda.'], 403);
             }
         }
 
-        /*
-         * ==========================================
-         * SIMPAN / UPDATE PEMERIKSAAN
-         * ==========================================
-         */
+        if ($posyanduId && $request->filled('pemeriksaan_id')) {
+            $pemeriksaanValid = PemeriksaanRemaja::where('id', $request->pemeriksaan_id)
+                ->where(function ($q) use ($posyanduId) {
+                    $q->whereHas('kader', fn ($k) => $k->where('posyandu_id', $posyanduId))
+                        ->orWhereHas('remaja.keluarga', fn ($k) => $k->where('posyandu_id', $posyanduId));
+                })
+                ->exists();
+            if (! $pemeriksaanValid) {
+                return response()->json(['status' => 'gagal', 'pesan' => 'Akses ditolak: Data pemeriksaan tidak ditemukan di Posyandu Anda.'], 403);
+            }
+        }
+
+        $fotoPaths = [];
+        if ($request->hasFile('dokumentasi_foto')) {
+            foreach ($request->file('dokumentasi_foto') as $file) {
+                $fotoPaths[] = $file->store('dokumentasi_kegiatan', 'public');
+            }
+        }
+
         $pemeriksaan = PemeriksaanRemaja::updateOrCreate(
-            [
-                'id' => $request->pemeriksaan_id,
-            ],
+            ['id' => $request->pemeriksaan_id],
             [
                 'remaja_id' => $remajaId,
                 'kader_id' => $request->user()->id,
@@ -94,10 +93,7 @@ class PemeriksaanRemajaController extends Controller
         ], 201);
     }
 
-    // ==========================================
-    // FUNGSI ADMIN
-    // ==========================================
-
+    // --- FUNGSI ADMIN ---
     public function getForAdmin(Request $request)
     {
         $posyanduId = $request->posyandu_id;
@@ -111,10 +107,7 @@ class PemeriksaanRemajaController extends Controller
 
         $data = $query->latest()->get();
 
-        return response()->json([
-            'status' => 'sukses',
-            'data' => $data,
-        ]);
+        return response()->json(['status' => 'sukses', 'data' => $data]);
     }
 
     public function destroyForAdmin($id)

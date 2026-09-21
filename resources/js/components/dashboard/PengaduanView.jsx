@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import NotificationModal from '../common/NotificationModal';
 import Button from '../common/Button';
@@ -13,8 +14,93 @@ import {
   LockIcon,
   Megaphone01Icon,
   ViewIcon,
-  Image01Icon
+  Image01Icon,
+  Cancel01Icon,
+  Upload01Icon,
+  File01Icon,
+  Delete02Icon,
+  CheckmarkCircle01Icon,
+  Activity01Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
+
+// === KONFIGURASI 5 BIDANG SPM SESUAI STANDAR DESA ===
+const SPM_CATEGORIES = [
+  {
+    id: 0,
+    key: 'pendidikan',
+    title: 'Pendidikan',
+    subtitle: 'PAUD, Literasi & Sarana',
+    tag: 'SPM Pendidikan',
+    icon: Book02Icon,
+    theme: {
+      primary: 'var(--cyan-deep, #0E7C93)',
+      accent: 'var(--cyan, #5FC4DB)',
+      lightBg: 'var(--cyan-bg, #E3F7FB)',
+      lightBorder: '#b3e8f3',
+      textColor: 'var(--cyan-deep, #0E7C93)',
+    }
+  },
+  {
+    id: 1,
+    key: 'pekerjaan_umum',
+    title: 'Pekerjaan Umum',
+    subtitle: 'Air, Sanitasi & Jalan',
+    tag: 'SPM PU',
+    icon: DropletIcon,
+    theme: {
+      primary: 'var(--orange-deep, #B5650C)',
+      accent: 'var(--orange, #F2A65A)',
+      lightBg: 'var(--orange-bg, #FFF1DF)',
+      lightBorder: '#fedbb0',
+      textColor: 'var(--orange-deep, #B5650C)',
+    }
+  },
+  {
+    id: 2,
+    key: 'perumahan_rakyat',
+    title: 'Perumahan',
+    subtitle: 'RTLH & Hunian Sehat',
+    tag: 'SPM Perumahan',
+    icon: Home01Icon,
+    theme: {
+      primary: 'var(--magenta-deep, #93348A)',
+      accent: 'var(--magenta, #D98AD1)',
+      lightBg: 'var(--magenta-bg, #FBEAF8)',
+      lightBorder: '#f5cbe7',
+      textColor: 'var(--magenta-deep, #93348A)',
+    }
+  },
+  {
+    id: 3,
+    key: 'trantibumlinmas',
+    title: 'Trantibum',
+    subtitle: 'Ketertiban & Bencana',
+    tag: 'SPM Trantibum',
+    icon: Shield01Icon,
+    theme: {
+      primary: 'var(--violet-deep, #5B21B6)',
+      accent: '#8b5cf6',
+      lightBg: 'var(--violet-bg, #F3E8FF)',
+      lightBorder: '#ddd6fe',
+      textColor: 'var(--violet-deep, #5B21B6)',
+    }
+  },
+  {
+    id: 4,
+    key: 'sosial',
+    title: 'Sosial',
+    subtitle: 'Bansos & Disabilitas',
+    tag: 'SPM Sosial',
+    icon: FavouriteIcon,
+    theme: {
+      primary: 'var(--green-deep, #2E7D46)',
+      accent: 'var(--green, #7FCB93)',
+      lightBg: 'var(--green-bg, #E7F7EC)',
+      lightBorder: '#c3ecd0',
+      textColor: 'var(--green-deep, #2E7D46)',
+    }
+  }
+];
 
 export default function PengaduanView() {
   const [tab, setTab] = useState(0);
@@ -26,19 +112,24 @@ export default function PengaduanView() {
   const [subTab3, setSubTab3] = useState(0);
   const [subTab4, setSubTab4] = useState(0);
 
+  // File input refs
+  const fileInputIdenRef = useRef(null);
+  const fileInputPengaduanRef = useRef(null);
+
   // === STATE UNTUK API ===
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [viewFilter, setViewFilter] = useState('all'); // 'all', 'form', 'aduan'
 
   // State Dinamis untuk Formulir Identifikasi (Kiri)
   const [formIden, setFormIden] = useState({});
-  const [fotoIden, setFotoIden] = useState(null);
+  const [fotoIden, setFotoIden] = useState([]);
 
   // State untuk Pengaduan Masyarakat (Kanan)
   const [formPengaduan, setFormPengaduan] = useState({
     nama_pelapor: '', jenis_kelamin: 'L', nik: '', no_hp: '', alamat: '', isi_keluhan: '', lokasi_masalah: ''
   });
-  const [lampiranPengaduan, setLampiranPengaduan] = useState(null);
+  const [lampiranPengaduan, setLampiranPengaduan] = useState([]);
 
   // === STATE UNTUK REKAP TABEL & MODAL ===
   const [rekapPengaduan, setRekapPengaduan] = useState([]);
@@ -53,8 +144,18 @@ export default function PengaduanView() {
     } else {
       document.body.style.overflow = 'unset';
     }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (selectedForm) setSelectedForm(null);
+        if (selectedPengaduan) setSelectedPengaduan(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedForm, selectedPengaduan]);
 
@@ -77,22 +178,28 @@ export default function PengaduanView() {
   }, []);
 
   // =========================================================================
-  // FUNGSI SAKTI: VALIDASI INPUT & FILE
+  // VALIDASI INPUT & FILE
   // =========================================================================
   const handleIdenChange = (e) => {
-    setFormIden({ ...formIden, [e.target.name]: e.target.value });
+    let { name, value } = e.target;
+    // Paksa Nomor HP / Telp hanya menerima digit
+    if (name.includes('hp') || name.includes('telp') || name.includes('telepon') || name.includes('kontak')) {
+      value = value.replace(/\D/g, '');
+      if (value.length > 15) value = value.substring(0, 15);
+    }
+    setFormIden({ ...formIden, [name]: value });
   };
 
   const handlePengaduanChange = (e) => {
     let { name, value } = e.target;
 
-    // PERBAIKAN: Paksa NIK hanya menerima Angka & Maksimal 16 Digit
+    // Paksa NIK hanya menerima Angka & Maksimal 16 Digit
     if (name === 'nik') {
       value = value.replace(/\D/g, '');
       if (value.length > 16) value = value.substring(0, 16);
     }
-    // PERBAIKAN: Paksa No HP hanya menerima Angka & Maksimal 15 Digit
-    if (name === 'no_hp') {
+    // Paksa No HP hanya menerima Angka & Maksimal 15 Digit
+    if (name === 'no_hp' || name === 'telepon' || name === 'kontak') {
       value = value.replace(/\D/g, '');
       if (value.length > 15) value = value.substring(0, 15);
     }
@@ -100,47 +207,56 @@ export default function PengaduanView() {
     setFormPengaduan({ ...formPengaduan, [name]: value });
   };
 
-  // PERBAIKAN: Satpam Pengecek File (Cegah format aneh & ukuran terlalu besar)
-  const handleFileChange = (e, setFileState) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) {
-      setFileState(null);
-      return;
-    }
+  // Pengecek File & Append (Dukungan pemilihan file bertahap / tombol '+')
+  const handleFileAppend = (e, setFileState) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
 
-    // Daftar tipe file yang diizinkan
-    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    const maxSize = 2 * 1024 * 1024; // 2MB
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const maxSize = 5 * 1024 * 1024; // 5MB per file
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    const validFiles = [];
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
       if (!allowedTypes.includes(file.type)) {
-        setMessage({ type: 'error', text: `Gagal: File "${file.name}" ditolak! Hanya boleh format JPG, PNG, PDF, DOC, atau DOCX.` });
-        e.target.value = ''; // Kosongkan input
-        setFileState(null);
-        return;
+        setMessage({ type: 'error', text: `File "${file.name}" ditolak! Hanya boleh format JPG, PNG, PDF, DOC, atau DOCX.` });
+        continue;
       }
       if (file.size > maxSize) {
-        setMessage({ type: 'error', text: `Gagal: Ukuran file "${file.name}" terlalu besar! Maksimal 2MB.` });
-        e.target.value = ''; // Kosongkan input
-        setFileState(null);
-        return;
+        setMessage({ type: 'error', text: `Ukuran file "${file.name}" terlalu besar! Maksimal 5MB per file.` });
+        continue;
       }
+      validFiles.push(file);
     }
 
-    setMessage({ type: '', text: '' }); // Bersihkan error jika lulus sensor
-    setFileState(files);
+    if (validFiles.length > 0) {
+      setFileState(prev => {
+        const current = Array.isArray(prev) ? prev : [];
+        const existingKeys = new Set(current.map(f => `${f.name}_${f.size}`));
+        const toAdd = validFiles.filter(f => !existingKeys.has(`${f.name}_${f.size}`));
+        return [...current, ...toAdd];
+      });
+      setMessage({ type: '', text: '' });
+    }
+    e.target.value = '';
   };
 
   // Reset form saat ganti sub-tab atau tab
   const resetFormIden = () => {
     setFormIden({});
-    setFotoIden(null);
+    setFotoIden([]);
     setMessage({ type: '', text: '' });
+    if (fileInputIdenRef.current) fileInputIdenRef.current.value = '';
   };
 
   // =========================================================================
-  // HELPER PENCEGAH LAYAR PUTIH DI MODAL (ANTI-BUG)
+  // HELPER DATA & FILE URL
   // =========================================================================
   const getArrayData = (rawData) => {
     if (!rawData) return [];
@@ -169,7 +285,7 @@ export default function PengaduanView() {
 
   const getFileUrl = (path) => {
     if (!path) return '';
-    let cleanPath = path.replace(/\\/g, '/'); // Perbaikan Windows Path
+    let cleanPath = path.replace(/\\/g, '/');
     if (cleanPath.startsWith('http')) return cleanPath;
     cleanPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
     return `/storage/${cleanPath}`;
@@ -189,6 +305,19 @@ export default function PengaduanView() {
 
   // === SUBMIT FORMULIR IDENTIFIKASI ===
   const submitIdentifikasi = async () => {
+    // Validasi apakah form identifikasi masih kosong
+    const filledEntries = Object.entries(formIden || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
+    if (filledEntries.length === 0) {
+      setMessage({ type: 'error', text: 'Formulir masih kosong! Mohon isi data identifikasi lapangan sebelum menyimpan.' });
+      return;
+    }
+
+    const hasIdentifier = formIden.nama_petugas?.trim() || formIden.nama_warga?.trim() || formIden.nama_anak?.trim() || formIden.pemilik?.trim() || formIden.nama_korban?.trim() || formIden.nama_kegiatan?.trim() || formIden.lokasi?.trim() || formIden.lokasi_ruas_jalan?.trim();
+    if (!hasIdentifier) {
+      setMessage({ type: 'error', text: 'Mohon lengkapi nama petugas, nama subjek, atau lokasi peninjauan.' });
+      return;
+    }
+
     setIsLoading(true); setMessage({ type: '', text: '' });
     try {
       const token = localStorage.getItem('auth_token');
@@ -198,7 +327,7 @@ export default function PengaduanView() {
       formData.append('sub_bidang', getSubBidangName());
       formData.append('data_formulir', JSON.stringify(formIden));
 
-      if (fotoIden) {
+      if (fotoIden && fotoIden.length > 0) {
         for (let i = 0; i < fotoIden.length; i++) formData.append(`dokumentasi_foto[${i}]`, fotoIden[i]);
       }
 
@@ -207,10 +336,9 @@ export default function PengaduanView() {
       });
 
       resetFormIden();
-      // Bersihkan input file secara manual
-      document.querySelectorAll('input[type="file"]').forEach(input => input.value = '');
-
-      setMessage({ type: 'success', text: response.data.pesan });
+      setMessage({ type: 'success', text: response.data.pesan || 'Formulir identifikasi berhasil disimpan.' });
+      localStorage.removeItem(`posyandu_draft_iden_${tab}`);
+      setDraftRefreshKey(prev => prev + 1);
       fetchRekap();
 
     } catch (err) {
@@ -223,10 +351,16 @@ export default function PengaduanView() {
 
   // === SUBMIT PENGADUAN MASYARAKAT ===
   const submitPengaduan = async () => {
-    // Validasi Akhir sebelum dikirim ke server
-    if (formPengaduan.nik.length !== 16) {
+    if (!formPengaduan.nama_pelapor?.trim()) {
+      setMessage({ type: 'error', text: 'Gagal: Nama Pelapor wajib diisi.' });
+      return;
+    }
+    if (!formPengaduan.isi_keluhan?.trim()) {
+      setMessage({ type: 'error', text: 'Gagal: Isi Aspirasi / Keluhan wajib diisi.' });
+      return;
+    }
+    if (formPengaduan.nik && formPengaduan.nik.length !== 16) {
       setMessage({ type: 'error', text: 'Gagal: NIK Pelapor harus tepat 16 digit angka!' });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -237,10 +371,12 @@ export default function PengaduanView() {
 
       formData.append('bidang', BIDANG_MAP[tab]);
       Object.keys(formPengaduan).forEach(key => {
-        formData.append(key, formPengaduan[key]);
+        if (formPengaduan[key] !== undefined && formPengaduan[key] !== null) {
+          formData.append(key, formPengaduan[key]);
+        }
       });
 
-      if (lampiranPengaduan) {
+      if (lampiranPengaduan && lampiranPengaduan.length > 0) {
         for (let i = 0; i < lampiranPengaduan.length; i++) formData.append(`lampiran[${i}]`, lampiranPengaduan[i]);
       }
 
@@ -248,12 +384,13 @@ export default function PengaduanView() {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
       });
 
-      setMessage({ type: 'success', text: response.data.pesan });
+      setMessage({ type: 'success', text: response.data.pesan || 'Aspirasi / pengaduan warga berhasil dikirim.' });
       setFormPengaduan({ nama_pelapor: '', jenis_kelamin: 'L', nik: '', no_hp: '', alamat: '', isi_keluhan: '', lokasi_masalah: '' });
-      setLampiranPengaduan(null);
-      // Bersihkan input file secara manual
-      document.querySelectorAll('input[type="file"]').forEach(input => input.value = '');
+      setLampiranPengaduan([]);
+      if (fileInputPengaduanRef.current) fileInputPengaduanRef.current.value = '';
 
+      localStorage.removeItem(`posyandu_draft_aduan_${tab}`);
+      setDraftRefreshKey(prev => prev + 1);
       fetchRekap();
     } catch (err) {
       const pesanAsli = err.response?.data?.pesan || err.response?.data?.message || err.message;
@@ -263,158 +400,648 @@ export default function PengaduanView() {
     }
   };
 
-  return (
-    <>
-      {/* 1. SECTION REKAP DINAMIS TERATAS (MAKSIMAL 3 ITEM DENGAN TOMBOL LIHAT SEMUA) */}
-      {(() => {
-        const bidangSaatIni = BIDANG_MAP[tab];
-        const namaBidang = ['Pendidikan', 'Pekerjaan Umum', 'Perumahan Rakyat', 'Trantibumlinmas', 'Sosial'][tab];
-        const dataPengaduanFilter = rekapPengaduan?.filter(item => item.bidang === bidangSaatIni) || [];
-        const dataFormulirFilter = rekapFormulir?.filter(item => item.bidang === bidangSaatIni) || [];
-        const belumSelesai = dataPengaduanFilter.filter(item => item.status !== 'selesai').length;
+  // === FITUR DRAF LOKAL FORMULIR & PENGADUAN (Poin 1 Page 8) ===
+  const [draftRefreshKey, setDraftRefreshKey] = useState(0);
 
-        const displayFormulir = showAllRekap ? dataFormulirFilter : dataFormulirFilter.slice(0, 3);
-        const displayPengaduan = showAllRekap ? dataPengaduanFilter : dataPengaduanFilter.slice(0, 3);
+  const handleSaveDraftIden = () => {
+    const filledEntries = Object.entries(formIden || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
+    if (filledEntries.length === 0) {
+      setMessage({ type: 'error', text: 'Formulir masih kosong! Belum ada data untuk disimpan sebagai draf.' });
+      return;
+    }
+    localStorage.setItem(`posyandu_draft_iden_${tab}`, JSON.stringify({
+      formIden,
+      subTab: [subTab0, subTab1, subTab2, subTab3, subTab4][tab],
+      updated_at: new Date().toISOString()
+    }));
+    setDraftRefreshKey(prev => prev + 1);
+    setMessage({ type: 'success', text: 'Draf isian formulir identifikasi berhasil disimpan di perangkat ini.' });
+  };
 
-        return (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '12px' }}>
-              {/* --- KIRI: REKAP FORMULIR --- */}
-              <div className="card" style={{ padding: '20px', borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Rekap Formulir {namaBidang}</h3>
-                  <span className="badge badge-cyan" style={{ fontSize: '11px', fontWeight: 700 }}>{dataFormulirFilter.length} Tersimpan</span>
-                </div>
-                <div className="table-responsive">
-                  <table className="table" style={{ fontSize: '13px' }}>
-                    <thead>
-                      <tr><th>Tanggal</th><th>Sub-Bidang</th><th style={{ textAlign: 'right' }}>Aksi</th></tr>
-                    </thead>
-                    <tbody>
-                      {displayFormulir.length > 0 ? (
-                        displayFormulir.map((item, idx) => (
-                          <tr key={idx}>
-                            <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
-                            <td><span style={{ fontWeight: 600, color: '#1e293b' }}>{item.sub_bidang || '-'}</span></td>
-                            <td style={{ textAlign: 'right' }}>
-                              <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => setSelectedForm(item)}
-                              >
-                                <ViewIcon size={13} className="me-1" />Detail
-                              </Button>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr><td colSpan="3" style={{ textAlign: 'center', padding: '16px', color: '#94a3b8' }}>Belum ada formulir tersimpan.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+  const handleLoadDraftIden = () => {
+    try {
+      const raw = localStorage.getItem(`posyandu_draft_iden_${tab}`);
+      if (!raw) {
+        setMessage({ type: 'error', text: 'Tidak ada draf tersimpan untuk formulir bidang ini.' });
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (parsed.formIden) {
+        setFormIden(parsed.formIden);
+        if (parsed.subTab !== undefined) {
+          if (tab === 0) setSubTab0(parsed.subTab);
+          if (tab === 1) setSubTab1(parsed.subTab);
+          if (tab === 2) setSubTab2(parsed.subTab);
+          if (tab === 3) setSubTab3(parsed.subTab);
+          if (tab === 4) setSubTab4(parsed.subTab);
+        }
+        setMessage({ type: 'success', text: 'Draf isian formulir berhasil dimuat kembali!' });
+      }
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Gagal membaca data draf.' });
+    }
+  };
 
-              {/* --- KANAN: REKAP PENGADUAN --- */}
-              <div className="card" style={{ padding: '20px', borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Rekap Pengaduan {namaBidang}</h3>
-                  {belumSelesai > 0 && <span className="badge badge-orange" style={{ fontSize: '11px', fontWeight: 700 }}>{belumSelesai} Baru</span>}
-                </div>
-                <div className="table-responsive">
-                  <table className="table" style={{ fontSize: '13px' }}>
-                    <thead>
-                      <tr><th>Pelapor</th><th>Keluhan</th><th>Status</th><th style={{ textAlign: 'right' }}>Aksi</th></tr>
-                    </thead>
-                    <tbody>
-                      {displayPengaduan.length > 0 ? (
-                        displayPengaduan.map((item, idx) => (
-                          <tr key={idx}>
-                            <td><b>{item.nama_pelapor || 'Warga'}</b></td>
-                            <td>{(item.isi_keluhan || '').substring(0, 24)}{(item.isi_keluhan || '').length > 24 ? '...' : ''}</td>
-                            <td>
-                              <span className={`badge ${item.status === 'menunggu' ? 'badge-rose' : item.status === 'diproses' ? 'badge-orange' : 'badge-green'}`} style={{ fontSize: '11px' }}>
-                                {item.status === 'menunggu' ? 'Baru' : item.status === 'diproses' ? 'Diproses' : 'Selesai'}
-                              </span>
-                            </td>
-                            <td style={{ textAlign: 'right' }}>
-                              <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => setSelectedPengaduan(item)}
-                              >
-                                <ViewIcon size={13} className="me-1" />Detail
-                              </Button>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr><td colSpan="4" style={{ textAlign: 'center', padding: '16px', color: '#94a3b8' }}>Belum ada pengaduan di bidang ini.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+  const handleSaveDraftPengaduan = () => {
+    const filledEntries = Object.entries(formPengaduan || {}).filter(([k, v]) => v !== null && v !== undefined && String(v).trim().length > 0);
+    if (filledEntries.length === 0) {
+      setMessage({ type: 'error', text: 'Formulir pengaduan masih kosong! Belum ada data untuk disimpan sebagai draf.' });
+      return;
+    }
+    localStorage.setItem(`posyandu_draft_aduan_${tab}`, JSON.stringify({
+      formPengaduan,
+      updated_at: new Date().toISOString()
+    }));
+    setDraftRefreshKey(prev => prev + 1);
+    setMessage({ type: 'success', text: 'Draf aspirasi / pengaduan warga berhasil disimpan di perangkat ini.' });
+  };
 
-            {/* Tombol Lihat Semua Rekap */}
-            {(dataFormulirFilter.length > 3 || dataPengaduanFilter.length > 3) && (
-              <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setShowAllRekap(!showAllRekap)}
-                >
-                  {showAllRekap ? 'Tampilkan Lebih Sedikit (3 Teratas)' : `Lihat Semua Rekap (${dataFormulirFilter.length + dataPengaduanFilter.length} Data)`}
-                </Button>
-              </div>
-            )}
-          </div>
-        );
-      })()}
+  const handleLoadDraftPengaduan = () => {
+    try {
+      const raw = localStorage.getItem(`posyandu_draft_aduan_${tab}`);
+      if (!raw) {
+        setMessage({ type: 'error', text: 'Tidak ada draf pengaduan tersimpan untuk bidang ini.' });
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (parsed.formPengaduan) {
+        setFormPengaduan(parsed.formPengaduan);
+        setMessage({ type: 'success', text: 'Draf aspirasi pengaduan berhasil dimuat kembali!' });
+      }
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Gagal membaca data draf.' });
+    }
+  };
 
-      {/* 2. SELECTOR DROPDOWN & TABS 5 BIDANG SPM */}
-      <div className="card" style={{ marginBottom: '20px', padding: '20px', borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '8px' }}>
-          Pilih Bidang Standar Pelayanan Minimal (SPM):
-        </label>
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-          {[
-            { id: 0, label: 'Pendidikan', icon: Book02Icon },
-            { id: 1, label: 'Pekerjaan Umum', icon: DropletIcon },
-            { id: 2, label: 'Perumahan Rakyat', icon: Home01Icon },
-            { id: 3, label: 'Trantibumlinmas', icon: Shield01Icon },
-            { id: 4, label: 'Sosial', icon: FavouriteIcon }
-          ].map(b => {
-            const Icon = b.icon;
-            return (
+  const renderActionButtons = (type = 'iden') => {
+    const draftKey = type === 'iden' ? `posyandu_draft_iden_${tab}` : `posyandu_draft_aduan_${tab}`;
+    const hasLocalDraft = Boolean(localStorage.getItem(draftKey));
+
+    return (
+      <div style={{ marginTop: '20px' }}>
+        {hasLocalDraft && (
+          <div style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderRadius: '10px', padding: '8px 12px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <span style={{ fontSize: '12px', color: '#92400e', fontWeight: 600 }}>
+              Draf tersimpan di perangkat ini
+            </span>
+            <div style={{ display: 'flex', gap: '6px' }}>
               <button
-                key={b.id}
                 type="button"
-                className={`tab-btn ${tab === b.id ? 'active' : ''}`}
-                onClick={() => { setTab(b.id); resetFormIden(); }}
+                onClick={type === 'iden' ? handleLoadDraftIden : handleLoadDraftPengaduan}
+                style={{ backgroundColor: '#f59e0b', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Muat Draf
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem(draftKey);
+                  setDraftRefreshKey(prev => prev + 1);
+                  setMessage({ type: 'success', text: 'Draf tersimpan berhasil dibersihkan.' });
+                }}
+                style={{ backgroundColor: 'transparent', color: '#b45309', border: '1px solid #fcd34d', borderRadius: '6px', padding: '4px 8px', fontSize: '11.5px', cursor: 'pointer' }}
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={type === 'iden' ? handleSaveDraftIden : handleSaveDraftPengaduan}
+            style={{ flex: 1 }}
+          >
+            Simpan Draf
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
+            onClick={type === 'iden' ? submitIdentifikasi : submitPengaduan}
+            disabled={isLoading}
+            loading={isLoading}
+            loadingText={type === 'iden' ? 'Menyimpan...' : 'Mengirim...'}
+            style={{ flex: 1 }}
+          >
+            {type === 'iden' ? 'Simpan Data' : 'Kirim Pengaduan'}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // === RENDER DROPZONE UPLOAD FILE DENGAN TOMBOL TAMBAH DOKUMEN & HAPUS INDIVIDUAL ===
+  const renderUploadBox = (fileState, setFileState, inputRef, label, note, extraReqs = null) => {
+    const files = Array.isArray(fileState) ? fileState : (fileState ? Array.from(fileState) : []);
+    const hasFiles = files.length > 0;
+
+    return (
+      <div className="form-field full" style={{ marginTop: '10px' }}>
+        <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+          {label}
+        </label>
+        <input
+          type="file"
+          ref={inputRef}
+          multiple
+          accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+          onChange={(e) => handleFileAppend(e, setFileState)}
+          style={{ display: 'none' }}
+        />
+
+        {hasFiles && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '10px' }}>
+            {files.map((file, idx) => (
+              <div
+                key={idx}
                 style={{
-                  minHeight: '44px',
-                  padding: '8px 18px',
-                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  fontSize: '13.5px',
-                  fontWeight: 700,
-                  border: '1px solid',
-                  borderColor: tab === b.id ? 'var(--primary-teal, #008080)' : '#cbd5e1',
-                  backgroundColor: tab === b.id ? 'var(--primary-teal, #008080)' : '#ffffff',
-                  color: tab === b.id ? '#ffffff' : '#334155',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: '#f0fdfa',
+                  border: '1px solid #99f6e4',
+                  fontSize: '12.5px'
                 }}
               >
-                <Icon size={16} />
-                {b.label}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                  <File01Icon size={16} color="var(--primary-teal, #008080)" style={{ flexShrink: 0 }} />
+                  <span style={{ fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {file.name}
+                  </span>
+                  <span style={{ color: '#64748b', fontSize: '11px', flexShrink: 0 }}>
+                    ({(file.size / 1024).toFixed(0)} KB)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFileState(files.filter((_, i) => i !== idx));
+                  }}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  title="Hapus file ini"
+                >
+                  <Cancel01Icon size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            style={{
+              flex: 1,
+              border: '2px dashed #cbd5e1',
+              borderRadius: '10px',
+              padding: hasFiles ? '10px 14px' : '16px 14px',
+              textAlign: 'center',
+              backgroundColor: '#f8fafc',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              color: 'var(--primary-teal, #008080)',
+              fontWeight: 700,
+              fontSize: '13px'
+            }}
+          >
+            <Upload01Icon size={18} />
+            <span>{hasFiles ? '+ Tambah File Lainnya' : 'Klik untuk Unggah Berkas / Foto'}</span>
+          </button>
+          {hasFiles && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              icon={Delete02Icon}
+              onClick={() => {
+                setFileState([]);
+                if (inputRef.current) inputRef.current.value = '';
+              }}
+              title="Reset Semua File"
+            >
+              Reset
+            </Button>
+          )}
+        </div>
+
+        <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>
+          {note || 'Format: JPG, PNG, PDF, DOC (Maks. 5MB per file)'}
+        </div>
+
+        {extraReqs && (
+          <div style={{ marginTop: '8px', padding: '10px 12px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '11.5px', color: '#64748b', lineHeight: 1.5 }}>
+            {extraReqs}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const getFormulirSubjek = (item) => {
+    const data = getSafeObject(item.data_formulir);
+    return data.nama_petugas || data.nama_warga || data.nama_anak || data.pemilik || data.nama_korban || data.nama_kegiatan || data.lokasi || data.lokasi_ruas_jalan || data.lokasi_embung || '-';
+  };
+
+  const currentCategory = SPM_CATEGORIES[tab] || SPM_CATEGORIES[0];
+  const CurrentIcon = currentCategory.icon;
+
+  // Data filter rekap untuk bidang saat ini
+  const bidangSaatIni = BIDANG_MAP[tab];
+  const dataPengaduanFilter = rekapPengaduan?.filter(item => item.bidang === bidangSaatIni) || [];
+  const dataFormulirFilter = rekapFormulir?.filter(item => item.bidang === bidangSaatIni) || [];
+  const belumSelesai = dataPengaduanFilter.filter(item => item.status !== 'selesai').length;
+
+  const displayFormulir = showAllRekap ? dataFormulirFilter : dataFormulirFilter.slice(0, 3);
+  const displayPengaduan = showAllRekap ? dataPengaduanFilter : dataPengaduanFilter.slice(0, 3);
+
+  return (
+    <>
+      <style>{`
+        .spm-tab-grid {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 12px;
+          width: 100%;
+        }
+        @media (max-width: 1200px) {
+          .spm-tab-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .spm-tab-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .spm-tab-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+        .spm-tab-btn {
+          min-width: 0;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 14px;
+          border-radius: 12px;
+          border-width: 1.5px;
+          border-style: solid;
+          cursor: pointer;
+          text-align: left;
+          outline: none;
+          min-height: 60px;
+          box-sizing: border-box;
+          transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .spm-tab-btn:hover {
+          transform: translateY(-1px);
+        }
+        /* Fokus Tampilan Formulir Selector */
+        .spm-focus-bar {
+          display: flex;
+          justifyContent: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 14px;
+          margin-bottom: 22px;
+          padding: 16px 20px;
+          background-color: #ffffff;
+          border-radius: 16px;
+          border: 1.5px solid #cbd5e1;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .spm-focus-title {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0f172a;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .spm-focus-buttons {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .spm-focus-btn {
+          border: 1.5px solid #cbd5e1;
+          border-radius: 10px;
+          padding: 10px 18px;
+          font-size: 13.5px;
+          font-weight: 700;
+          cursor: pointer;
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          background-color: #f8fafc;
+          color: #1e293b;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+          box-sizing: border-box;
+          outline: none;
+        }
+        .spm-focus-btn:hover {
+          background-color: #ffffff;
+          border-color: #94a3b8;
+          color: #0f172a;
+          transform: translateY(-1px);
+        }
+        .spm-focus-btn.active-all {
+          background-color: #0f172a;
+          border-color: #0f172a;
+          color: #ffffff;
+          box-shadow: 0 3px 10px rgba(15, 23, 42, 0.25);
+          transform: translateY(-1px);
+        }
+        .spm-focus-btn.active-form {
+          background-color: var(--primary-teal, #008080);
+          border-color: var(--primary-teal, #008080);
+          color: #ffffff;
+          box-shadow: 0 3px 10px rgba(0, 128, 128, 0.28);
+          transform: translateY(-1px);
+        }
+        .spm-focus-btn.active-aduan {
+          background-color: var(--orange-deep, #B5650C);
+          border-color: var(--orange-deep, #B5650C);
+          color: #ffffff;
+          box-shadow: 0 3px 10px rgba(181, 101, 12, 0.28);
+          transform: translateY(-1px);
+        }
+        @media (max-width: 768px) {
+          .spm-focus-bar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 14px;
+            gap: 12px;
+          }
+          .spm-focus-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+            gap: 8px;
+          }
+          .spm-focus-btn {
+            width: 100%;
+            min-height: 48px;
+            font-size: 14px;
+            justify-content: center;
+          }
+        }
+
+        /* Sub-Tabs Pills */
+        .spm-sub-pills {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          background-color: #f8fafc;
+          padding: 8px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 14px;
+          margin-bottom: 22px;
+        }
+        .spm-sub-pill {
+          padding: 10px 18px;
+          border-radius: 10px;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #1e293b;
+          background-color: #ffffff;
+          border: 1.5px solid #cbd5e1;
+          cursor: pointer;
+          transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 44px;
+          box-sizing: border-box;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          line-height: 1.3;
+          outline: none;
+        }
+        .spm-sub-pill:hover {
+          color: #0f172a;
+          border-color: #94a3b8;
+          background-color: #f1f5f9;
+          transform: translateY(-1px);
+        }
+        .spm-sub-pill.active {
+          background-color: var(--primary-teal, #008080);
+          border-color: var(--primary-teal, #008080);
+          color: #ffffff !important;
+          font-weight: 800;
+          box-shadow: 0 3px 10px rgba(0, 128, 128, 0.28);
+          transform: translateY(-1px);
+        }
+        @media (max-width: 640px) {
+          .spm-sub-pills {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            padding: 10px;
+          }
+          .spm-sub-pill {
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            min-height: 48px;
+          }
+        }
+        .spm-form-card {
+          padding: 24px;
+          border-radius: 16px;
+          background-color: #ffffff;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+        .spm-form-card .form-field label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #334155;
+          display: block;
+          margin-bottom: 6px;
+        }
+        .spm-form-card .form-field input,
+        .spm-form-card .form-field select {
+          width: 100%;
+          min-height: 44px;
+          border-radius: 10px;
+          border: 1px solid #cbd5e1;
+          padding: 0 12px;
+          font-size: 14px;
+          background-color: #ffffff;
+          box-sizing: border-box;
+          outline: none;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .spm-form-card .form-field input:focus,
+        .spm-form-card .form-field select:focus {
+          border-color: var(--primary-teal, #008080);
+          box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.12);
+        }
+        .spm-form-card .form-field textarea {
+          width: 100%;
+          min-height: 90px;
+          resize: vertical;
+          border-radius: 10px;
+          border: 1px solid #cbd5e1;
+          padding: 10px 12px;
+          font-size: 14px;
+          background-color: #ffffff;
+          box-sizing: border-box;
+          outline: none;
+          line-height: 1.5;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .spm-form-card .form-field textarea:focus {
+          border-color: var(--primary-teal, #008080);
+          box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.12);
+        }
+        .spm-work-grid.spm-mode-form > div:nth-child(2) {
+          display: none !important;
+        }
+        .spm-work-grid.spm-mode-aduan > div:nth-child(1) {
+          display: none !important;
+        }
+        .spm-work-grid.spm-mode-form > div:nth-child(1),
+        .spm-work-grid.spm-mode-aduan > div:nth-child(2) {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      `}</style>
+
+      {/* 1. TOP CARD: 5-KOLOM TILE GRID SPM */}
+      <div
+        className="card"
+        style={{
+          marginBottom: '24px',
+          padding: '20px 24px',
+          borderRadius: '16px',
+          backgroundColor: '#ffffff',
+          border: '1.5px solid #e2e8f0'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
+                color: 'var(--primary-teal, #008080)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}
+            >
+              <Activity01Icon size={22} />
+            </div>
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                Bidang Standar Pelayanan Minimal (SPM) Desa
+              </div>
+              <div style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 500, marginTop: '2px' }}>
+                Pilih bidang SPM untuk mencatat formulir identifikasi, menghimpun aspirasi warga, & mengelola rekap
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="badge badge-cyan" style={{ fontSize: '11.5px', fontWeight: 700, padding: '6px 12px' }}>
+              {currentCategory.tag} Aktif
+            </span>
+          </div>
+        </div>
+
+        {/* 5 Bidang Interactive Tile Grid */}
+        <div className="spm-tab-grid">
+          {SPM_CATEGORIES.map((cat) => {
+            const isSelected = tab === cat.id;
+            const IconComp = cat.icon;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                className="spm-tab-btn"
+                onClick={() => {
+                  setTab(cat.id);
+                  resetFormIden();
+                }}
+                style={{
+                  borderColor: isSelected ? cat.theme.primary : cat.theme.lightBorder,
+                  backgroundColor: isSelected ? cat.theme.primary : cat.theme.lightBg,
+                  color: isSelected ? '#ffffff' : cat.theme.textColor,
+                  boxShadow: isSelected ? '0 4px 14px rgba(0,0,0,0.08)' : 'none'
+                }}
+              >
+                <div
+                  style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.2)' : '#ffffff',
+                    color: isSelected ? '#ffffff' : cat.theme.primary,
+                    border: isSelected ? 'none' : `1px solid ${cat.theme.lightBorder}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}
+                >
+                  <IconComp size={20} />
+                </div>
+                <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      fontSize: '13.5px',
+                      fontWeight: 800,
+                      lineHeight: 1.25,
+                      color: isSelected ? '#ffffff' : cat.theme.textColor,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {cat.title}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      marginTop: '2px',
+                      color: isSelected ? 'rgba(255, 255, 255, 0.85)' : '#64748b',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {cat.subtitle}
+                  </div>
+                </div>
               </button>
             );
           })}
@@ -428,51 +1055,101 @@ export default function PengaduanView() {
         onClose={() => setMessage({ type: '', text: '' })}
       />
 
-      {/* ===== 0. PENDIDIKAN ===== */}
-      {tab === 0 && (
-        <div id="bidang-0">
-          <div className="grid grid-2" style={{ marginBottom: '16px' }}>
-            <div className="card">
-              <div className="section-head">
-                <h3><Book02Icon className="me-2" />Formulir Identifikasi — Pendidikan</h3>
-              </div>
-              <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
-                <div className={`form-chip ${subTab0 === 0 ? 'active' : ''}`} onClick={() => { setSubTab0(0); resetFormIden(); }}>Anak Usia Dini (0–6 th)</div>
-                <div className={`form-chip ${subTab0 === 1 ? 'active' : ''}`} onClick={() => { setSubTab0(1); resetFormIden(); }}>Perpustakaan / Pojok Baca</div>
-                <div className={`form-chip ${subTab0 === 2 ? 'active' : ''}`} onClick={() => { setSubTab0(2); resetFormIden(); }}>Literasi Digital Ortu</div>
-                <div className={`form-chip ${subTab0 === 3 ? 'active' : ''}`} onClick={() => { setSubTab0(3); resetFormIden(); }}>Inventaris APE</div>
+      {/* 2. MIDDLE WORKING AREA: (IDENTIFIKASI LAPANGAN + ASPIRASI WARGA) */}
+      <div style={{ marginBottom: '28px' }}>
+        {/* Selector Mode Tampilan (Point 8) */}
+        {/* Selector Mode Tampilan */}
+        <div className="spm-focus-bar">
+          <div className="spm-focus-title">
+            <ViewIcon size={18} color="var(--primary-teal, #008080)" />
+            <span>Fokus Tampilan Formulir:</span>
+          </div>
+          <div className="spm-focus-buttons">
+            <button
+              type="button"
+              onClick={() => setViewFilter('all')}
+              className={`spm-focus-btn ${viewFilter === 'all' ? 'active-all' : ''}`}
+            >
+              <span>👁️</span>
+              <span>Semua (Berdampingan)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewFilter('form')}
+              className={`spm-focus-btn ${viewFilter === 'form' ? 'active-form' : ''}`}
+            >
+              <span>📝</span>
+              <span>Formulir Identifikasi Lapangan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewFilter('aduan')}
+              className={`spm-focus-btn ${viewFilter === 'aduan' ? 'active-aduan' : ''}`}
+            >
+              <span>📢</span>
+              <span>Pengaduan &amp; Aspirasi Warga</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ===== 0. PENDIDIKAN ===== */}
+        {tab === 0 && (
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
+            {/* KIRI: FORMULIR IDENTIFIKASI PENDIDIKAN */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Book02Icon size={20} color="var(--cyan-deep, #0E7C93)" />
+                  Formulir Identifikasi — Pendidikan
+                </h3>
               </div>
 
-              {/* LAMPIRAN 1: FORM PENDATAAN ANAK USIA DINI */}
+              {/* Sub-Tabs Pills */}
+              <div className="spm-sub-pills">
+                <button type="button" className={`spm-sub-pill ${subTab0 === 0 ? 'active' : ''}`} onClick={() => { setSubTab0(0); resetFormIden(); }}>
+                  Anak Usia Dini (0–6 th)
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab0 === 1 ? 'active' : ''}`} onClick={() => { setSubTab0(1); resetFormIden(); }}>
+                  Perpustakaan / Pojok Baca
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab0 === 2 ? 'active' : ''}`} onClick={() => { setSubTab0(2); resetFormIden(); }}>
+                  Literasi Digital Ortu
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab0 === 3 ? 'active' : ''}`} onClick={() => { setSubTab0(3); resetFormIden(); }}>
+                  Inventaris APE
+                </button>
+              </div>
+
+              {/* LAMPIRAN 1: ANAK USIA DINI */}
               {subTab0 === 0 && (
                 <div className="form-grid">
-                  <div className="form-field">
-                    <label>Nama Anak</label>
-                    <input name="nama_anak" value={formIden.nama_anak || ''} onChange={handleIdenChange} placeholder="Sesuai KK/Pengakuan" />
+                  <div className="form-field full">
+                    <label>Nama Anak *</label>
+                    <input name="nama_anak" value={formIden.nama_anak || ''} onChange={handleIdenChange} placeholder="Sesuai KK / Pengakuan orang tua" />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', gridColumn: '1 / -1' }}>
                     <div className="form-field">
                       <label>Umur (Tahun)</label>
-                      <input type="number" name="umur_tahun" value={formIden.umur_tahun || ''} onChange={handleIdenChange} placeholder="mis. 3" min="0" max="6" />
+                      <input type="number" name="umur_tahun" value={formIden.umur_tahun || ''} onChange={handleIdenChange} placeholder="Contoh: 3" min="0" max="6" />
                     </div>
                     <div className="form-field">
                       <label>Umur (Bulan)</label>
-                      <input type="number" name="umur_bulan" value={formIden.umur_bulan || ''} onChange={handleIdenChange} placeholder="mis. 4" min="0" max="11" />
+                      <input type="number" name="umur_bulan" value={formIden.umur_bulan || ''} onChange={handleIdenChange} placeholder="Contoh: 4" min="0" max="11" />
                     </div>
                   </div>
 
                   <div className="form-field">
                     <label>Nama Orang Tua</label>
-                    <input name="nama_ortu" value={formIden.nama_ortu || ''} onChange={handleIdenChange} placeholder="Ibu atau Ayah yg hadir" />
+                    <input name="nama_ortu" value={formIden.nama_ortu || ''} onChange={handleIdenChange} placeholder="Ibu atau Ayah yang mendampingi" />
                   </div>
 
                   <div className="form-field">
-                    <label>Alamat (RT/RW/Dusun)</label>
-                    <input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="mis. RT 03" />
+                    <label>Alamat (RT / Dusun)</label>
+                    <input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="Contoh: RT 03 Dusun Harapan" />
                   </div>
 
                   <div className="form-field">
-                    <label>Status PAUD</label>
+                    <label>Status Mengikuti PAUD</label>
                     <select name="status_paud" value={formIden.status_paud || 'Tidak'} onChange={handleIdenChange}>
                       <option value="Tidak">Tidak</option>
                       <option value="Ya">Ya</option>
@@ -480,34 +1157,34 @@ export default function PengaduanView() {
                   </div>
 
                   <div className="form-field">
-                    <label>Nama PAUD</label>
+                    <label>Nama Lembaga PAUD</label>
                     <input
                       name="nama_paud"
                       value={formIden.nama_paud || ''}
                       onChange={handleIdenChange}
-                      placeholder={formIden.status_paud === 'Ya' ? "Tulis nama PAUD" : "Kosongkan (Beri tanda '-')"}
+                      placeholder={formIden.status_paud === 'Ya' ? "Tulis nama PAUD" : "Beri tanda '-' jika tidak"}
                       disabled={formIden.status_paud !== 'Ya'}
-                      style={{ backgroundColor: formIden.status_paud !== 'Ya' ? 'var(--surface-container)' : '#fff' }}
+                      style={{ backgroundColor: formIden.status_paud !== 'Ya' ? '#f1f5f9' : '#fff' }}
                     />
                   </div>
 
                   <div className="form-field full">
-                    <label>Catatan Perkembangan</label>
-                    <textarea rows="2" name="catatan_perkembangan" value={formIden.catatan_perkembangan || ''} onChange={handleIdenChange} placeholder="mis. Sesuai usia, perlu stimulasi bicara, sangat aktif..."></textarea>
+                    <label>Catatan Perkembangan Anak</label>
+                    <textarea rows="2" name="catatan_perkembangan" value={formIden.catatan_perkembangan || ''} onChange={handleIdenChange} placeholder="Contoh: Sesuai usia, perlu stimulasi bicara, sangat aktif..."></textarea>
                   </div>
                 </div>
               )}
 
-              {/* LAMPIRAN 2: IDENTIFIKASI PERPUSTAKAAN / POJOK BACA */}
+              {/* LAMPIRAN 2: PERPUSTAKAAN / POJOK BACA */}
               {subTab0 === 1 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Fasilitas (Perpustakaan/Pojok Baca)</label><input name="nama_fasilitas" value={formIden.nama_fasilitas || ''} onChange={handleIdenChange} placeholder="mis. Perpustakaan Desa Harapan" /></div>
+                  <div className="form-field full"><label>Nama Fasilitas (Perpustakaan/Pojok Baca)</label><input name="nama_fasilitas" value={formIden.nama_fasilitas || ''} onChange={handleIdenChange} placeholder="Contoh: Perpustakaan Desa Harapan" /></div>
                   <div className="form-field"><label>Ketersediaan Fasilitas</label><select name="ketersediaan" value={formIden.ketersediaan || 'Ada'} onChange={handleIdenChange}><option value="Ada">Ada</option><option value="Tidak">Tidak</option></select></div>
-                  <div className="form-field"><label>Jumlah Buku</label><input type="text" name="jumlah_buku" value={formIden.jumlah_buku || ''} onChange={handleIdenChange} placeholder="mis. 120 buku cerita" /></div>
-                  <div className="form-field"><label>Kondisi Buku & Fasilitas</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Cukup">Cukup</option><option value="Kurang">Kurang</option></select></div>
-                  <div className="form-field"><label>Akses Masyarakat</label><select name="akses" value={formIden.akses || 'Mudah'} onChange={handleIdenChange}><option value="Mudah">Mudah</option><option value="Sulit">Sulit</option></select></div>
-                  <div className="form-field full"><label>Petugas Pengelola</label><input name="pengelola" value={formIden.pengelola || ''} onChange={handleIdenChange} placeholder="mis. Kader, PKK Desa, Karang Taruna" /></div>
-                  <div className="form-field full"><label>Catatan / Kebutuhan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Butuh rak baru, perlu update buku cerita anak..."></textarea></div>
+                  <div className="form-field"><label>Jumlah Buku Tersedia</label><input type="text" name="jumlah_buku" value={formIden.jumlah_buku || ''} onChange={handleIdenChange} placeholder="Contoh: 120 buku cerita" /></div>
+                  <div className="form-field"><label>Kondisi Fasilitas</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Cukup">Cukup</option><option value="Kurang">Kurang</option></select></div>
+                  <div className="form-field"><label>Akses Warga</label><select name="akses" value={formIden.akses || 'Mudah'} onChange={handleIdenChange}><option value="Mudah">Mudah</option><option value="Sulit">Sulit</option></select></div>
+                  <div className="form-field full"><label>Petugas Pengelola</label><input name="pengelola" value={formIden.pengelola || ''} onChange={handleIdenChange} placeholder="Contoh: Kader, PKK Desa, Karang Taruna" /></div>
+                  <div className="form-field full"><label>Catatan / Kebutuhan Tambahan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Butuh rak baru, perlu update buku cerita anak..."></textarea></div>
                 </div>
               )}
 
@@ -517,59 +1194,64 @@ export default function PengaduanView() {
                   <div className="form-field"><label>Nama Orang Tua</label><input name="nama_ortu" value={formIden.nama_ortu || ''} onChange={handleIdenChange} placeholder="Ibu/Ayah yg hadir" /></div>
                   <div className="form-field"><label>Nama Anak</label><input name="nama_anak" value={formIden.nama_anak || ''} onChange={handleIdenChange} placeholder="Nama anak usia dini" /></div>
                   <div className="form-field"><label>Tingkat Literasi Digital</label><select name="tingkat_literasi" value={formIden.tingkat_literasi || 'Rendah'} onChange={handleIdenChange}><option value="Rendah">Rendah (Belum terbiasa aplikasi)</option><option value="Sedang">Sedang (Bisa WA & aplikasi dasar)</option><option value="Tinggi">Tinggi (Mahir pakai aplikasi edukasi)</option></select></div>
-                  <div className="form-field"><label>Fasilitas HP/Gawai</label><select name="fasilitas_hp" value={formIden.fasilitas_hp || 'Ya'} onChange={handleIdenChange}><option value="Ya">Ya (Punya & memadai)</option><option value="Tidak">Tidak (Tidak punya/sering error)</option></select></div>
-                  <div className="form-field"><label>Kebutuhan Aplikasi Edukasi</label><input name="kebutuhan_aplikasi" value={formIden.kebutuhan_aplikasi || ''} onChange={handleIdenChange} placeholder="mis. Video edukasi, aplikasi membaca" /></div>
-                  <div className="form-field"><label>Materi Pelatihan Diterima</label><input name="materi_pelatihan" value={formIden.materi_pelatihan || ''} onChange={handleIdenChange} placeholder="mis. Cara mengunduh aplikasi" /></div>
-                  <div className="form-field full"><label>Catatan Tambahan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. HP memori penuh, hambatan sinyal, dll..."></textarea></div>
+                  <div className="form-field"><label>Fasilitas HP / Gawai</label><select name="fasilitas_hp" value={formIden.fasilitas_hp || 'Ya'} onChange={handleIdenChange}><option value="Ya">Ya (Punya & memadai)</option><option value="Tidak">Tidak (Tidak punya/sering error)</option></select></div>
+                  <div className="form-field"><label>Kebutuhan Aplikasi Edukasi</label><input name="kebutuhan_aplikasi" value={formIden.kebutuhan_aplikasi || ''} onChange={handleIdenChange} placeholder="Contoh: Video edukasi, aplikasi membaca" /></div>
+                  <div className="form-field"><label>Materi Pelatihan Diterima</label><input name="materi_pelatihan" value={formIden.materi_pelatihan || ''} onChange={handleIdenChange} placeholder="Contoh: Cara mengunduh aplikasi" /></div>
+                  <div className="form-field full"><label>Catatan Tambahan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: HP memori penuh, hambatan sinyal, dll..."></textarea></div>
                 </div>
               )}
 
               {/* LAMPIRAN 4: INVENTARIS APE */}
               {subTab0 === 3 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Jenis Alat Peraga Edukasi (APE)</label><input name="jenis_ape" value={formIden.jenis_ape || ''} onChange={handleIdenChange} placeholder="mis. Balok susun, Puzzle kayu, Poster" /></div>
-                  <div className="form-field"><label>Jumlah Tersedia</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="mis. 5 set, 12 pcs" /></div>
+                  <div className="form-field full"><label>Jenis Alat Peraga Edukasi (APE)</label><input name="jenis_ape" value={formIden.jenis_ape || ''} onChange={handleIdenChange} placeholder="Contoh: Balok susun, Puzzle kayu, Poster" /></div>
+                  <div className="form-field"><label>Jumlah Tersedia</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="Contoh: 5 set, 12 pcs" /></div>
                   <div className="form-field"><label>Kondisi Saat Ini</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Rusak Ringan">Rusak Ringan</option><option value="Rusak Berat">Rusak Berat</option></select></div>
                   <div className="form-field"><label>Prioritas Kebutuhan</label><select name="prioritas" value={formIden.prioritas || 'Sedang'} onChange={handleIdenChange}><option value="Tinggi">Tinggi (Sangat mendesak)</option><option value="Sedang">Sedang</option><option value="Rendah">Rendah</option></select></div>
-                  <div className="form-field full"><label>Kebutuhan Tambahan</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="mis. Butuh 2 set puzzle baru" /></div>
-                  <div className="form-field full"><label>Catatan Observasi</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. APE jarang digunakan, kader butuh pelatihan cara pakai..."></textarea></div>
+                  <div className="form-field full"><label>Kebutuhan Tambahan</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="Contoh: Butuh 2 set puzzle baru" /></div>
+                  <div className="form-field full"><label>Catatan Observasi</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: APE jarang digunakan, kader butuh pelatihan cara pakai..."></textarea></div>
                 </div>
               )}
 
-              {/* TAMBAHAN: Upload File untuk Identifikasi */}
-              <div className="form-field full" style={{ marginTop: '12px' }}>
-                <label>Unggah Dokumentasi Foto / Bukti (Opsional)</label>
-                <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-              </div>
+              {/* File Upload Dropzone Identifikasi */}
+              {renderUploadBox(
+                fotoIden,
+                setFotoIden,
+                fileInputIdenRef,
+                'Unggah Dokumentasi Foto / Bukti Lapangan (Opsional)',
+                'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
+              )}
 
-              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
+              {renderActionButtons('iden')}
             </div>
 
-            {/* LAMPIRAN 6: ASPIRASI MASYARAKAT BIDANG PENDIDIKAN */}
-            <div className="card">
-              <div className="section-head">
-                <h3><Comment01Icon className="me-2" />Aspirasi Masyarakat — Pendidikan</h3>
+            {/* KANAN: ASPIRASI MASYARAKAT BIDANG PENDIDIKAN */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Comment01Icon size={20} color="var(--primary-teal, #008080)" />
+                  Aspirasi Masyarakat — Pendidikan
+                </h3>
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
+              <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '16px', lineHeight: 1.5 }}>
                 Catat aspirasi, usulan, dan kebutuhan warga terkait pendidikan sesuai format standar desa.
               </p>
 
-            <div className="form-grid">
+              <div className="form-grid">
                 <div className="form-field">
                   <label>Tanggal Penyampaian</label>
                   <input type="date" name="tanggal_penyampaian" value={formPengaduan.tanggal_penyampaian || ''} onChange={handlePengaduanChange} />
                 </div>
                 <div className="form-field">
                   <label>Penerima Aspirasi</label>
-                  <input name="penerima_aspirasi" value={formPengaduan.penerima_aspirasi || ''} onChange={handlePengaduanChange} placeholder="mis. Rina (Kader Pendidikan)" />
+                  <input name="penerima_aspirasi" value={formPengaduan.penerima_aspirasi || ''} onChange={handlePengaduanChange} placeholder="Contoh: Rina (Kader Pendidikan)" />
                 </div>
 
                 <div className="form-field">
-                  <label>Nama Pengusul</label>
-                  <input name="nama_pelapor" value={formPengaduan.nama_pelapor || ''} onChange={handlePengaduanChange} placeholder="mis. Siti Aminah" />
+                  <label>Nama Pengusul / Warga</label>
+                  <input name="nama_pelapor" value={formPengaduan.nama_pelapor || ''} onChange={handlePengaduanChange} placeholder="Contoh: Siti Aminah" />
                 </div>
 
-                {/* --- 3 KOTAK TAMBAHAN YANG SEBELUMNYA HILANG --- */}
                 <div className="form-field">
                   <label>Jenis Kelamin</label>
                   <select name="jenis_kelamin" value={formPengaduan.jenis_kelamin || 'P'} onChange={handlePengaduanChange}>
@@ -577,24 +1259,27 @@ export default function PengaduanView() {
                     <option value="P">Perempuan</option>
                   </select>
                 </div>
+
                 <div className="form-field">
-                  <label>No. KTP (NIK)</label>
-                  <input name="nik" value={formPengaduan.nik || ''} onChange={handlePengaduanChange} placeholder="Wajib 16 digit" />
-                  <span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span>
+                  <label>No. KTP (NIK Warga)</label>
+                  <input name="nik" value={formPengaduan.nik || ''} onChange={handlePengaduanChange} placeholder="Wajib 16 digit angka" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                    <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
+                  </div>
                 </div>
+
                 <div className="form-field">
-                  <label>No. HP (Opsional)</label>
+                  <label>No. HP / WhatsApp (Opsional)</label>
                   <input name="no_hp" value={formPengaduan.no_hp || ''} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" />
                 </div>
-                {/* ----------------------------------------------- */}
 
                 <div className="form-field full">
-                  <label>Alamat Lengkap</label>
-                  <input name="alamat" value={formPengaduan.alamat || ''} onChange={handlePengaduanChange} placeholder="mis. RT 02 / RW 05, Desa Mulawarman" />
+                  <label>Alamat Lengkap Warga</label>
+                  <input name="alamat" value={formPengaduan.alamat || ''} onChange={handlePengaduanChange} placeholder="Contoh: RT 02 / RW 05, Desa Mulawarman" />
                 </div>
 
                 <div className="form-field full">
-                  <label>Jenis Aspirasi</label>
+                  <label>Jenis Aspirasi Pendidikan</label>
                   <select name="jenis_aspirasi" value={formPengaduan.jenis_aspirasi || '1. Sarana Pendidikan'} onChange={handlePengaduanChange} style={{ fontWeight: 'bold' }}>
                     <option value="1. Sarana Pendidikan">1. Sarana Pendidikan</option>
                     <option value="2. Penguatan Literasi">2. Penguatan Literasi</option>
@@ -606,11 +1291,11 @@ export default function PengaduanView() {
                 </div>
 
                 <div className="form-field full">
-                  <label>Uraian Aspirasi / Masukan</label>
-                  <textarea name="isi_keluhan" value={formPengaduan.isi_keluhan || ''} onChange={handlePengaduanChange} rows="3" placeholder="mis. Perlu penambahan buku bacaan PAUD karena jumlah buku di perpustakaan desa sangat terbatas..."></textarea>
+                  <label>Uraian Aspirasi / Masukan Warga</label>
+                  <textarea name="isi_keluhan" value={formPengaduan.isi_keluhan || ''} onChange={handlePengaduanChange} rows="3" placeholder="Contoh: Perlu penambahan buku bacaan PAUD karena jumlah buku di perpustakaan desa sangat terbatas..."></textarea>
                 </div>
 
-                <div className="form-field">
+                <div className="form-field full">
                   <label>Urgensi / Tingkat Prioritas</label>
                   <select name="urgensi" value={formPengaduan.urgensi || 'Sedang'} onChange={handlePengaduanChange}>
                     <option value="Tinggi">Tinggi (Harus segera ditangani)</option>
@@ -620,118 +1305,147 @@ export default function PengaduanView() {
                 </div>
 
                 <div className="form-field full">
-                  <label>Rekomendasi (Kader)</label>
-                  <textarea name="rekomendasi" value={formPengaduan.rekomendasi || ''} onChange={handlePengaduanChange} rows="2" placeholder="mis. Diusulkan masuk dalam rencana pengadaan sarana perpustakaan tahun depan..."></textarea>
+                  <label>Rekomendasi Kader</label>
+                  <textarea name="rekomendasi" value={formPengaduan.rekomendasi || ''} onChange={handlePengaduanChange} rows="2" placeholder="Contoh: Diusulkan masuk dalam rencana pengadaan sarana perpustakaan tahun depan..."></textarea>
                 </div>
 
-                <div className="form-field full">
-                  <label>Unggah Lampiran (Opsional)</label>
-                  <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setLampiranPengaduan)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-                </div>
+                {/* File Upload Dropzone Pengaduan */}
+                {renderUploadBox(
+                  lampiranPengaduan,
+                  setLampiranPengaduan,
+                  fileInputPengaduanRef,
+                  'Unggah Lampiran Pendukung (Opsional)',
+                  'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
+                )}
               </div>
-              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>
-                {isLoading ? 'Mengirim...' : 'Simpan Aspirasi'}
-              </Button>
+
+              {renderActionButtons('aduan')}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ===== 1. PEKERJAAN UMUM ===== */}
-      {tab === 1 && (
-        <div id="bidang-1">
-          <div className="grid grid-2" style={{ marginBottom: '16px' }}>
-            <div className="card">
-              <div className="section-head">
-                <h3><DropletIcon className="me-2" />Formulir Identifikasi — Pekerjaan Umum</h3>
+        {/* ===== 1. PEKERJAAN UMUM ===== */}
+        {tab === 1 && (
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
+            {/* KIRI: FORMULIR IDENTIFIKASI PEKERJAAN UMUM */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <DropletIcon size={20} color="var(--orange-deep, #B5650C)" />
+                  Formulir Identifikasi — Pekerjaan Umum
+                </h3>
               </div>
-              <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
-                <div className={`form-chip ${subTab1 === 0 ? 'active' : ''}`} onClick={() => { setSubTab1(0); resetFormIden(); }}>Edukasi Air &amp; Limbah</div>
-                <div className={`form-chip ${subTab1 === 1 ? 'active' : ''}`} onClick={() => { setSubTab1(1); resetFormIden(); }}>Embung Air Baku</div>
-                <div className={`form-chip ${subTab1 === 2 ? 'active' : ''}`} onClick={() => { setSubTab1(2); resetFormIden(); }}>Jaringan Air Perdesaan</div>
-                <div className={`form-chip ${subTab1 === 3 ? 'active' : ''}`} onClick={() => { setSubTab1(3); resetFormIden(); }}>Sumur Air Tanah</div>
-                <div className={`form-chip ${subTab1 === 4 ? 'active' : ''}`} onClick={() => { setSubTab1(4); resetFormIden(); }}>Pembangunan Jalan Desa</div>
+
+              {/* Sub-Tabs Pills */}
+              <div className="spm-sub-pills">
+                <button type="button" className={`spm-sub-pill ${subTab1 === 0 ? 'active' : ''}`} onClick={() => { setSubTab1(0); resetFormIden(); }}>
+                  Edukasi Air &amp; Limbah
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab1 === 1 ? 'active' : ''}`} onClick={() => { setSubTab1(1); resetFormIden(); }}>
+                  Embung Air Baku
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab1 === 2 ? 'active' : ''}`} onClick={() => { setSubTab1(2); resetFormIden(); }}>
+                  Jaringan Air Perdesaan
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab1 === 3 ? 'active' : ''}`} onClick={() => { setSubTab1(3); resetFormIden(); }}>
+                  Sumur Air Tanah
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab1 === 4 ? 'active' : ''}`} onClick={() => { setSubTab1(4); resetFormIden(); }}>
+                  Pembangunan Jalan Desa
+                </button>
               </div>
 
               {subTab1 === 0 && (
                 <div className="form-grid">
-                  <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
-                  <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Lokasi / RT</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. RT 04 Dusun Harapan" /></div>
-                  <div className="form-field full"><label>Temuan Lapangan – Air Bersih</label><input name="temuan_air" value={formIden.temuan_air || ''} onChange={handleIdenChange} placeholder="mis. Air keruh, sumber (sumur/PDAM), keluhan warga" /></div>
-                  <div className="form-field full"><label>Temuan Lapangan – Limbah Domestik</label><input name="temuan_limbah" value={formIden.temuan_limbah || ''} onChange={handleIdenChange} placeholder="mis. Ada/tidak SPAL, limbah dialirkan kemana" /></div>
-                  <div className="form-field full"><label>Kebutuhan / Permasalahan</label><textarea rows="2" name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="mis. Tidak ada SPAL, air meluap saat hujan"></textarea></div>
-                  <div className="form-field full"><label>Rekomendasi / Langkah Lanjut</label><textarea rows="2" name="rekomendasi" value={formIden.rekomendasi || ''} onChange={handleIdenChange} placeholder="Saran kepada desa atau lintas sektor"></textarea></div>
+                  <div className="form-field"><label>Nama Kader / Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi formulir" /></div>
+                  <div className="form-field"><label>Tanggal Peninjauan</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
+                  <div className="form-field full"><label>Lokasi / RT</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: RT 04 Dusun Harapan" /></div>
+                  <div className="form-field full"><label>Temuan Lapangan – Air Bersih</label><input name="temuan_air" value={formIden.temuan_air || ''} onChange={handleIdenChange} placeholder="Contoh: Air keruh, sumber sumur/PDAM, keluhan warga" /></div>
+                  <div className="form-field full"><label>Temuan Lapangan – Limbah Domestik</label><input name="temuan_limbah" value={formIden.temuan_limbah || ''} onChange={handleIdenChange} placeholder="Contoh: Ada/tidak SPAL, limbah dialirkan ke selokan terbuka" /></div>
+                  <div className="form-field full"><label>Kebutuhan / Permasalahan</label><textarea rows="2" name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="Contoh: Tidak ada SPAL, air meluap saat hujan"></textarea></div>
+                  <div className="form-field full"><label>Rekomendasi / Langkah Lanjut</label><textarea rows="2" name="rekomendasi" value={formIden.rekomendasi || ''} onChange={handleIdenChange} placeholder="Saran kepada desa atau dinas terkait"></textarea></div>
                 </div>
               )}
 
               {subTab1 === 1 && (
                 <div className="form-grid">
-                  <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
-                  <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Lokasi Embung</label><input name="lokasi_embung" value={formIden.lokasi_embung || ''} onChange={handleIdenChange} placeholder="Nama embung atau titik koordinat" /></div>
-                  <div className="form-field full"><label>Kondisi Fisik Embung</label><input name="kondisi_fisik" value={formIden.kondisi_fisik || ''} onChange={handleIdenChange} placeholder="mis. Terawat, rusak, berlumut, pendangkalan, ada sampah" /></div>
-                  <div className="form-field full"><label>Permasalahan</label><textarea rows="2" name="permasalahan" value={formIden.permasalahan || ''} onChange={handleIdenChange} placeholder="mis. Banyak sedimen, dinding retak, debit kecil"></textarea></div>
-                  <div className="form-field full"><label>Tindakan yang Dibutuhkan</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="mis. Pembersihan sedimen, perbaikan dinding, pasang pagar"></textarea></div>
+                  <div className="form-field"><label>Nama Kader / Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi formulir" /></div>
+                  <div className="form-field"><label>Tanggal Peninjauan</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
+                  <div className="form-field full"><label>Lokasi Embung</label><input name="lokasi_embung" value={formIden.lokasi_embung || ''} onChange={handleIdenChange} placeholder="Nama embung atau titik lokasi" /></div>
+                  <div className="form-field full"><label>Kondisi Fisik Embung</label><input name="kondisi_fisik" value={formIden.kondisi_fisik || ''} onChange={handleIdenChange} placeholder="Contoh: Terawat, retak, pendangkalan, ada sampah" /></div>
+                  <div className="form-field full"><label>Permasalahan Utama</label><textarea rows="2" name="permasalahan" value={formIden.permasalahan || ''} onChange={handleIdenChange} placeholder="Contoh: Banyak sedimen, dinding retak, debit air kecil"></textarea></div>
+                  <div className="form-field full"><label>Tindakan yang Dibutuhkan</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Pembersihan sedimen, perbaikan dinding, pasang pagar"></textarea></div>
                 </div>
               )}
 
               {subTab1 === 2 && (
                 <div className="form-grid">
-                  <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
+                  <div className="form-field"><label>Nama Kader / Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi formulir" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Lokasi / Jalur Pipa</label><input name="lokasi_pipa" value={formIden.lokasi_pipa || ''} onChange={handleIdenChange} placeholder="RT/Dusun atau jalur jaringan yang dicek" /></div>
-                  <div className="form-field full"><label>Kerusakan / Permasalahan</label><input name="kerusakan" value={formIden.kerusakan || ''} onChange={handleIdenChange} placeholder="mis. Pipa bocor, pipa pecah, tekanan rendah, tidak mengalir" /></div>
-                  <div className="form-field full"><label>Penyebab (Jika Diketahui)</label><input name="penyebab" value={formIden.penyebab || ''} onChange={handleIdenChange} placeholder="mis. Usia pipa, akar pohon, konstruksi" /></div>
-                  <div className="form-field full"><label>Rekomendasi</label><textarea rows="2" name="rekomendasi" value={formIden.rekomendasi || ''} onChange={handleIdenChange} placeholder="mis. Perbaikan pipa, penggantian, laporan ke PU desa"></textarea></div>
+                  <div className="form-field full"><label>Lokasi / Jalur Pipa</label><input name="lokasi_pipa" value={formIden.lokasi_pipa || ''} onChange={handleIdenChange} placeholder="RT/Dusun atau jalur jaringan yang diperiksa" /></div>
+                  <div className="form-field full"><label>Kerusakan / Permasalahan</label><input name="kerusakan" value={formIden.kerusakan || ''} onChange={handleIdenChange} placeholder="Contoh: Pipa bocor, pipa pecah, tekanan rendah" /></div>
+                  <div className="form-field full"><label>Penyebab Kerusakan</label><input name="penyebab" value={formIden.penyebab || ''} onChange={handleIdenChange} placeholder="Contoh: Usia pipa, akar pohon, longsoran tanah" /></div>
+                  <div className="form-field full"><label>Rekomendasi</label><textarea rows="2" name="rekomendasi" value={formIden.rekomendasi || ''} onChange={handleIdenChange} placeholder="Contoh: Perbaikan pipa, penggantian, laporan ke BUMDes/PU"></textarea></div>
                 </div>
               )}
 
               {subTab1 === 3 && (
                 <div className="form-grid">
-                  <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
+                  <div className="form-field"><label>Nama Kader / Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi formulir" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Pemilik / Bangunan</label><input name="pemilik" value={formIden.pemilik || ''} onChange={handleIdenChange} placeholder="Nama keluarga atau lokasi sumur" /></div>
-                  <div className="form-field full"><label>Kondisi Sumur</label><input name="kondisi_sumur" value={formIden.kondisi_sumur || ''} onChange={handleIdenChange} placeholder="mis. Dalam, kering, keruh, retak, gangan air rendah, dinding roboh" /></div>
-                  <div className="form-field full"><label>Risiko Sanitasi</label><input name="risiko_sanitasi" value={formIden.risiko_sanitasi || ''} onChange={handleIdenChange} placeholder="mis. Dekat kandang, dekat septik tank, lokasi banjir" /></div>
-                  <div className="form-field full"><label>Tindakan Rehabilitasi</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="mis. Pembersihan, pengerukan, perbaikan dinding, peningkatan bibir sumur"></textarea></div>
+                  <div className="form-field full"><label>Pemilik / Bangunan</label><input name="pemilik" value={formIden.pemilik || ''} onChange={handleIdenChange} placeholder="Nama keluarga atau lokasi sumur umum" /></div>
+                  <div className="form-field full"><label>Kondisi Sumur</label><input name="kondisi_sumur" value={formIden.kondisi_sumur || ''} onChange={handleIdenChange} placeholder="Contoh: Kering, keruh, retak, dinding roboh" /></div>
+                  <div className="form-field full"><label>Risiko Sanitasi</label><input name="risiko_sanitasi" value={formIden.risiko_sanitasi || ''} onChange={handleIdenChange} placeholder="Contoh: Dekat kandang ternak, dekat septik tank (<10m)" /></div>
+                  <div className="form-field full"><label>Tindakan Rehabilitasi</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Kuras sumur, peninggian bibir sumur, pasang cincin penahan"></textarea></div>
                 </div>
               )}
 
               {subTab1 === 4 && (
                 <div className="form-grid">
-                  <div className="form-field"><label>Nama Kader/Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi form" /></div>
+                  <div className="form-field"><label>Nama Kader / Petugas</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Pengisi formulir" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Lokasi Ruas Jalan</label><input name="lokasi_jalan" value={formIden.lokasi_jalan || ''} onChange={handleIdenChange} placeholder="RT/Dusun/titik koordinat" /></div>
-                  <div className="form-field full"><label>Kondisi Jalan</label><input name="kondisi_jalan" value={formIden.kondisi_jalan || ''} onChange={handleIdenChange} placeholder="mis. Baik, rusak ringan/sedang/berat, berlubang, tergenang, belum pengerasan" /></div>
-                  <div className="form-field full"><label>Dampak ke Masyarakat</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="mis. Sulit dilalui, menghambat akses sekolah/posyandu, membahayakan" /></div>
-                  <div className="form-field full"><label>Usulan Tindakan</label><textarea rows="2" name="usulan_tindakan" value={formIden.usulan_tindakan || ''} onChange={handleIdenChange} placeholder="mis. Pengaspalan, pengerasan, perbaikan drainase, pengurugan jalan"></textarea></div>
+                  <div className="form-field full"><label>Lokasi Ruas Jalan</label><input name="lokasi_jalan" value={formIden.lokasi_jalan || ''} onChange={handleIdenChange} placeholder="Contoh: Jalan Poros RT 04 menuju Posyandu" /></div>
+                  <div className="form-field full"><label>Kondisi Jalan</label><input name="kondisi_jalan" value={formIden.kondisi_jalan || ''} onChange={handleIdenChange} placeholder="Contoh: Rusak berat, berlubang, tergenang lumpur" /></div>
+                  <div className="form-field full"><label>Dampak ke Masyarakat</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="Contoh: Sulit dilalui ambulans/anak sekolah, rawan kecelakaan" /></div>
+                  <div className="form-field full"><label>Usulan Tindakan</label><textarea rows="2" name="usulan_tindakan" value={formIden.usulan_tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Pengaspalan, perbaikan drainase samping, pengurukan jalan"></textarea></div>
                 </div>
               )}
 
-              {/* TAMBAHAN: Upload File untuk Identifikasi */}
-              <div className="form-field full" style={{ marginTop: '12px' }}>
-                <label>Unggah Dokumentasi Foto / Bukti (Opsional)</label>
-                <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-              </div>
+              {renderUploadBox(
+                fotoIden,
+                setFotoIden,
+                fileInputIdenRef,
+                'Unggah Dokumentasi Foto / Bukti Lapangan (Opsional)',
+                'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
+              )}
 
-              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
+              {renderActionButtons('iden')}
             </div>
 
-            <div className="card">
-              <div className="section-head">
-                <h3><Megaphone01Icon className="me-2" />Pengaduan Masyarakat — Pekerjaan Umum</h3>
+            {/* KANAN: PENGADUAN MASYARAKAT PEKERJAAN UMUM */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Megaphone01Icon size={20} color="var(--orange-deep, #B5650C)" />
+                  Pengaduan Masyarakat — Pekerjaan Umum
+                </h3>
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
-                Gunakan formulir ini untuk menampung keluhan masyarakat terkait infrastruktur desa dan sanitasi.
+              <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '16px', lineHeight: 1.5 }}>
+                Gunakan formulir ini untuk menampung keluhan masyarakat terkait infrastruktur desa, air bersih, dan sanitasi.
               </p>
 
               <div className="form-grid">
-                <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
+                <div className="form-field"><label>Nama Pelapor *</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field">
+                  <label>No. KTP (NIK Warga)</label>
+                  <input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit angka" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                    <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
+                  </div>
+                </div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
-                <div className="form-field full"><label>Alamat Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
+                <div className="form-field full"><label>Alamat Warga Pelapor</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
                   <label>Jenis Pengaduan (Pekerjaan Umum)</label>
@@ -749,48 +1463,64 @@ export default function PengaduanView() {
                 </div>
 
                 <div className="form-field full"><label>Deskripsi Pengaduan / Keluhan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan keluhan/masalah secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. Jalan Utama RT 05" /></div>
+                <div className="form-field full"><label>Lokasi Masalah / Titik Kerusakan</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: Jalan Utama RT 05 dekat jembatan" /></div>
 
-                <div className="form-field full"><label>Persyaratan Kelengkapan Aduan</label>
-                  <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setLampiranPengaduan)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-                  <span className="field-note">Unggah Surat/Permohonan RT atau Foto lokasi titik pembangunan sarana prasarana.</span>
-                </div>
+                {renderUploadBox(
+                  lampiranPengaduan,
+                  setLampiranPengaduan,
+                  fileInputPengaduanRef,
+                  'Unggah Foto Kerusakan / Surat Permohonan RT (Opsional)',
+                  'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
+                )}
               </div>
-              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
+
+              {renderActionButtons('aduan')}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ===== 2. PERUMAHAN RAKYAT ===== */}
-      {tab === 2 && (
-        <div id="bidang-2">
-          <div className="grid grid-2" style={{ marginBottom: '16px' }}>
-            <div className="card">
-              <div className="section-head">
-                <h3><Home01Icon className="me-2" />Formulir Identifikasi — Perumahan Rakyat</h3>
+        {/* ===== 2. PERUMAHAN RAKYAT ===== */}
+        {tab === 2 && (
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
+            {/* KIRI: FORMULIR IDENTIFIKASI PERUMAHAN */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Home01Icon size={20} color="var(--magenta-deep, #93348A)" />
+                  Formulir Identifikasi — Perumahan Rakyat
+                </h3>
               </div>
-              <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
-                <div className={`form-chip ${subTab2 === 0 ? 'active' : ''}`} onClick={() => { setSubTab2(0); resetFormIden(); }}>Rumah Layak Huni (RHLH)</div>
-                <div className={`form-chip ${subTab2 === 1 ? 'active' : ''}`} onClick={() => { setSubTab2(1); resetFormIden(); }}>KIE Lingkungan Bersih</div>
-                <div className={`form-chip ${subTab2 === 2 ? 'active' : ''}`} onClick={() => { setSubTab2(2); resetFormIden(); }}>Pemanfaatan Pekarangan</div>
-                <div className={`form-chip ${subTab2 === 3 ? 'active' : ''}`} onClick={() => { setSubTab2(3); resetFormIden(); }}>Biopori Rumah Tangga</div>
+
+              {/* Sub-Tabs Pills */}
+              <div className="spm-sub-pills">
+                <button type="button" className={`spm-sub-pill ${subTab2 === 0 ? 'active' : ''}`} onClick={() => { setSubTab2(0); resetFormIden(); }}>
+                  Rumah Layak Huni (RTLH)
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab2 === 1 ? 'active' : ''}`} onClick={() => { setSubTab2(1); resetFormIden(); }}>
+                  KIE Lingkungan Bersih
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab2 === 2 ? 'active' : ''}`} onClick={() => { setSubTab2(2); resetFormIden(); }}>
+                  Pemanfaatan Pekarangan
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab2 === 3 ? 'active' : ''}`} onClick={() => { setSubTab2(3); resetFormIden(); }}>
+                  Biopori Rumah Tangga
+                </button>
               </div>
 
               {subTab2 === 0 && (
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Kepala Keluarga</label><input name="nama_kk" value={formIden.nama_kk || ''} onChange={handleIdenChange} placeholder="Tulis nama KK sesuai KTP" /></div>
-                  <div className="form-field full"><label>Alamat</label><input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="Tulis dusun/RT/RW" /></div>
+                  <div className="form-field full"><label>Alamat Rumah</label><input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="Tulis dusun/RT/RW" /></div>
 
                   <div className="form-field"><label>Struktur Atap</label><select name="struktur_atap" value={formIden.struktur_atap || 'Genteng'} onChange={handleIdenChange}><option value="Genteng">Genteng</option><option value="Seng">Seng</option><option value="Atap Bocor">Atap Bocor</option></select></div>
                   <div className="form-field"><label>Struktur Dinding</label><select name="struktur_dinding" value={formIden.struktur_dinding || 'Tembok'} onChange={handleIdenChange}><option value="Papan">Papan</option><option value="Semi Permanen">Semi Permanen</option><option value="Tembok">Tembok</option></select></div>
                   <div className="form-field"><label>Struktur Lantai</label><select name="struktur_lantai" value={formIden.struktur_lantai || 'Keramik'} onChange={handleIdenChange}><option value="Plester/Semen">Plester/Semen</option><option value="Tanah">Tanah</option><option value="Keramik">Keramik</option></select></div>
-                  <div className="form-field"><label>Ventilasi</label><select name="ventilasi" value={formIden.ventilasi || 'Cukup'} onChange={handleIdenChange}><option value="Cukup">Cukup</option><option value="Kurang">Kurang</option></select></div>
+                  <div className="form-field"><label>Ventilasi Udara</label><select name="ventilasi" value={formIden.ventilasi || 'Cukup'} onChange={handleIdenChange}><option value="Cukup">Cukup</option><option value="Kurang">Kurang</option></select></div>
                   <div className="form-field"><label>Pencahayaan</label><select name="pencahayaan" value={formIden.pencahayaan || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Kurang">Kurang</option></select></div>
                   <div className="form-field"><label>Jamban Sehat</label><select name="jamban_sehat" value={formIden.jamban_sehat || 'Ada'} onChange={handleIdenChange}><option value="Ada">Ada</option><option value="Tidak Ada">Tidak Ada</option></select></div>
 
                   <div className="form-field full"><label>Kategori Rumah</label><select name="kategori_rumah" value={formIden.kategori_rumah || 'Layak Huni'} onChange={handleIdenChange} style={{ fontWeight: 'bold' }}><option value="Layak Huni">Layak Huni</option><option value="RTLH">RTLH (Rumah Tidak Layak Huni)</option></select></div>
-                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Masukkan kerusakan khusus..."></textarea></div>
+                  <div className="form-field full"><label>Catatan Khusus / Kerusakan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Masukkan kerusakan khusus atau kebutuhan renovasi..."></textarea></div>
                 </div>
               )}
 
@@ -799,54 +1529,66 @@ export default function PengaduanView() {
                   <div className="form-field full"><label>Nama Warga</label><input name="nama_warga" value={formIden.nama_warga || ''} onChange={handleIdenChange} placeholder="Isi sesuai daftar hadir" /></div>
                   <div className="form-field"><label>Akses Air Bersih</label><select name="akses_air" value={formIden.akses_air || 'Sumur Bor'} onChange={handleIdenChange}><option value="Sumur Bor">Sumur Bor</option><option value="Jaringan Desa">Jaringan Desa</option><option value="Sungai">Sungai</option></select></div>
                   <div className="form-field"><label>Pengelolaan Sampah</label><select name="pengelolaan_sampah" value={formIden.pengelolaan_sampah || 'Dipilah'} onChange={handleIdenChange}><option value="Dipilah">Dipilah</option><option value="Dibakar">Dibakar</option><option value="Ditimbun">Ditimbun</option></select></div>
-                  <div className="form-field full"><label>Kebiasaan Kebersihan</label><input name="kebiasaan_kebersihan" value={formIden.kebiasaan_kebersihan || ''} onChange={handleIdenChange} placeholder="mis. Cuci tangan pakai sabun, dsb." /></div>
-                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Masukkan kendala (misal saluran mampet)..."></textarea></div>
+                  <div className="form-field full"><label>Kebiasaan Kebersihan</label><input name="kebiasaan_kebersihan" value={formIden.kebiasaan_kebersihan || ''} onChange={handleIdenChange} placeholder="Contoh: Cuci tangan pakai sabun, ada tempat sampah tertutup" /></div>
+                  <div className="form-field full"><label>Catatan Evaluasi Lingkungan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Masukkan kendala (misal saluran mampet, genangan air)..."></textarea></div>
                 </div>
               )}
 
               {subTab2 === 2 && (
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Warga</label><input name="nama_warga" value={formIden.nama_warga || ''} onChange={handleIdenChange} placeholder="Isi nama lengkap" /></div>
-                  <div className="form-field full"><label>Jenis Tanaman</label><input name="jenis_tanaman" value={formIden.jenis_tanaman || ''} onChange={handleIdenChange} placeholder="mis. Kangkung, cabai, sereh, dsb." /></div>
-                  <div className="form-field"><label>Teknik</label><select name="teknik" value={formIden.teknik || 'Tanah Langsung'} onChange={handleIdenChange}><option value="Polybag">Polybag</option><option value="Hidroponik">Hidroponik</option><option value="Tanah Langsung">Tanah Langsung</option></select></div>
+                  <div className="form-field full"><label>Jenis Tanaman Pangan</label><input name="jenis_tanaman" value={formIden.jenis_tanaman || ''} onChange={handleIdenChange} placeholder="Contoh: Kangkung, cabai, sereh, terong, toga" /></div>
+                  <div className="form-field"><label>Teknik Budidaya</label><select name="teknik" value={formIden.teknik || 'Tanah Langsung'} onChange={handleIdenChange}><option value="Polybag">Polybag</option><option value="Hidroponik">Hidroponik</option><option value="Tanah Langsung">Tanah Langsung</option></select></div>
                   <div className="form-field"><label>Kondisi Pekarangan</label><select name="kondisi_pekarangan" value={formIden.kondisi_pekarangan || 'Luas'} onChange={handleIdenChange}><option value="Sempit">Sempit</option><option value="Luas">Luas</option></select></div>
-                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Kebutuhan bibit, pupuk, atau pelatihan..."></textarea></div>
+                  <div className="form-field full"><label>Catatan / Kebutuhan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Kebutuhan bibit, pupuk kompos, atau pelatihan hidroponik..."></textarea></div>
                 </div>
               )}
 
               {subTab2 === 3 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Warga</label><input name="nama_warga" value={formIden.nama_warga || ''} onChange={handleIdenChange} placeholder="Nama warga yang membuat biopori" /></div>
-                  <div className="form-field"><label>Jumlah Biopori</label><input type="number" name="jumlah_biopori" value={formIden.jumlah_biopori || ''} onChange={handleIdenChange} placeholder="mis. 1-5 lubang" /></div>
-                  <div className="form-field"><label>Lokasi</label><select name="lokasi" value={formIden.lokasi || 'Pekarangan Depan'} onChange={handleIdenChange}><option value="Pekarangan Depan">Pekarangan Depan</option><option value="Pekarangan Belakang">Pekarangan Belakang</option></select></div>
-                  <div className="form-field full"><label>Manfaat</label><input name="manfaat" value={formIden.manfaat || ''} onChange={handleIdenChange} placeholder="mis. Penyerapan air, kompos, dll." /></div>
-                  <div className="form-field full"><label>Catatan</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Kendala alat, tanah keras, dsb."></textarea></div>
+                  <div className="form-field full"><label>Nama Warga</label><input name="nama_warga" value={formIden.nama_warga || ''} onChange={handleIdenChange} placeholder="Nama warga pembuat biopori" /></div>
+                  <div className="form-field"><label>Jumlah Lubang Biopori</label><input type="number" name="jumlah_biopori" value={formIden.jumlah_biopori || ''} onChange={handleIdenChange} placeholder="Contoh: 3 lubang" /></div>
+                  <div className="form-field"><label>Lokasi Pemasangan</label><select name="lokasi" value={formIden.lokasi || 'Pekarangan Depan'} onChange={handleIdenChange}><option value="Pekarangan Depan">Pekarangan Depan</option><option value="Pekarangan Belakang">Pekarangan Belakang</option></select></div>
+                  <div className="form-field full"><label>Manfaat Utama</label><input name="manfaat" value={formIden.manfaat || ''} onChange={handleIdenChange} placeholder="Contoh: Penyerapan air hujan, pembuatan kompos organik" /></div>
+                  <div className="form-field full"><label>Catatan / Kendala</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Kendala alat bor biopori, tanah keras..."></textarea></div>
                 </div>
               )}
 
-              {/* TAMBAHAN: Upload File untuk Identifikasi */}
-              <div className="form-field full" style={{ marginTop: '12px' }}>
-                <label>Unggah Dokumentasi Foto / Bukti (Opsional)</label>
-                <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-              </div>
+              {renderUploadBox(
+                fotoIden,
+                setFotoIden,
+                fileInputIdenRef,
+                'Unggah Dokumentasi Foto / Bukti Lapangan (Opsional)',
+                'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
+              )}
 
-              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
+              {renderActionButtons('iden')}
             </div>
 
-            <div className="card">
-              <div className="section-head">
-                <h3><Megaphone01Icon className="me-2" />Pengaduan Masyarakat — Perumahan Rakyat</h3>
+            {/* KANAN: PENGADUAN MASYARAKAT PERUMAHAN RAKYAT */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Megaphone01Icon size={20} color="var(--magenta-deep, #93348A)" />
+                  Pengaduan Masyarakat — Perumahan Rakyat
+                </h3>
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
-                Gunakan formulir ini untuk menampung usulan bantuan rumah, bibit pekarangan, dan keluhan perumahan.
+              <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '16px', lineHeight: 1.5 }}>
+                Gunakan formulir ini untuk menampung usulan bantuan rumah layak huni, sanitasi, dan pekarangan.
               </p>
 
               <div className="form-grid">
-                <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
+                <div className="form-field"><label>Nama Pelapor *</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field">
+                  <label>No. KTP (NIK Warga)</label>
+                  <input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit angka" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                    <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
+                  </div>
+                </div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
-                <div className="form-field full"><label>Alamat Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
+                <div className="form-field full"><label>Alamat Lengkap Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
                   <label>Jenis Pengaduan (Perumahan Rakyat)</label>
@@ -860,85 +1602,107 @@ export default function PengaduanView() {
                   </select>
                 </div>
 
-                <div className="form-field full"><label>Deskripsi Pengaduan / Usulan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan keluhan/kebutuhan bantuan secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. RT 03" /></div>
+                <div className="form-field full"><label>Deskripsi Pengaduan / Usulan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan keluhan/kebutuhan bantuan perumahan secara rinci..."></textarea></div>
+                <div className="form-field full"><label>Lokasi Rumah / Usulan</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: RT 03 Dusun Mekar Sari" /></div>
 
-                <div className="form-field full">
-                  <label>Persyaratan Kelengkapan Aduan</label>
-                  <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setLampiranPengaduan)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-                  <div className="field-note" style={{ marginTop: '8px', lineHeight: '1.4' }}>
-                    <b>Mohon lampirkan (Bila Ada):</b><br />
-                    - Foto copy KTP & KK<br />
-                    - Surat Pernyataan Belum Pernah Menerima Bantuan<br />
-                    - Surat Keterangan Penghasilan dari Desa<br />
-                    - Foto copy Surat Tanah<br />
-                    - Foto Kondisi Rumah (3 sisi)
-                  </div>
-                </div>
+                {renderUploadBox(
+                  lampiranPengaduan,
+                  setLampiranPengaduan,
+                  fileInputPengaduanRef,
+                  'Unggah Persyaratan / Foto Rumah (Opsional)',
+                  'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)',
+                  (
+                    <div>
+                      <b>Dokumen Pelengkap Disarankan:</b>
+                      <ul style={{ margin: '4px 0 0', paddingLeft: '16px' }}>
+                        <li>Foto copy KTP &amp; KK</li>
+                        <li>Surat Keterangan Penghasilan / Tidak Mampu dari Desa</li>
+                        <li>Foto Kondisi Fisik Rumah (Tampak Depan, Samping, Dalam)</li>
+                      </ul>
+                    </div>
+                  )
+                )}
               </div>
-              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
+
+              {renderActionButtons('aduan')}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ===== 3. TRANTIBUMLINMAS ===== */}
-      {tab === 3 && (
-        <div id="bidang-3">
-          <div className="grid grid-2" style={{ marginBottom: '16px' }}>
-            <div className="card">
-              <div className="section-head">
-                <h3><Shield01Icon className="me-2" />Form Identifikasi & Laporan — Trantibumlinmas</h3>
+        {/* ===== 3. TRANTIBUMLINMAS ===== */}
+        {tab === 3 && (
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
+            {/* KIRI: FORMULIR IDENTIFIKASI TRANTIBUM */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Shield01Icon size={20} color="var(--violet-deep, #5B21B6)" />
+                  Formulir Identifikasi &amp; Laporan — Trantibumlinmas
+                </h3>
               </div>
-              <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
-                <div className={`form-chip ${subTab3 === 0 ? 'active' : ''}`} onClick={() => { setSubTab3(0); resetFormIden(); }}>Identifikasi Trauma</div>
-                <div className={`form-chip ${subTab3 === 1 ? 'active' : ''}`} onClick={() => { setSubTab3(1); resetFormIden(); }}>Penyuluhan Trauma</div>
-                <div className={`form-chip ${subTab3 === 2 ? 'active' : ''}`} onClick={() => { setSubTab3(2); resetFormIden(); }}>KIE & Simulasi Bencana</div>
-                <div className={`form-chip ${subTab3 === 3 ? 'active' : ''}`} onClick={() => { setSubTab3(3); resetFormIden(); }}>Insiden Kamtibmas</div>
-                <div className={`form-chip ${subTab3 === 4 ? 'active' : ''}`} onClick={() => { setSubTab3(4); resetFormIden(); }}>Sosialisasi Kamtibmas</div>
-                <div className={`form-chip ${subTab3 === 5 ? 'active' : ''}`} onClick={() => { setSubTab3(5); resetFormIden(); }}>Patroli Keamanan</div>
+
+              {/* Sub-Tabs Pills */}
+              <div className="spm-sub-pills">
+                <button type="button" className={`spm-sub-pill ${subTab3 === 0 ? 'active' : ''}`} onClick={() => { setSubTab3(0); resetFormIden(); }}>
+                  Identifikasi Trauma
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab3 === 1 ? 'active' : ''}`} onClick={() => { setSubTab3(1); resetFormIden(); }}>
+                  Penyuluhan Trauma
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab3 === 2 ? 'active' : ''}`} onClick={() => { setSubTab3(2); resetFormIden(); }}>
+                  KIE &amp; Simulasi Bencana
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab3 === 3 ? 'active' : ''}`} onClick={() => { setSubTab3(3); resetFormIden(); }}>
+                  Insiden Kamtibmas
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab3 === 4 ? 'active' : ''}`} onClick={() => { setSubTab3(4); resetFormIden(); }}>
+                  Sosialisasi Kamtibmas
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab3 === 5 ? 'active' : ''}`} onClick={() => { setSubTab3(5); resetFormIden(); }}>
+                  Patroli Keamanan
+                </button>
               </div>
 
               {subTab3 === 0 && (
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Korban</label><input name="nama_korban" value={formIden.nama_korban || ''} onChange={handleIdenChange} placeholder="Tulis nama lengkap korban" /></div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', gridColumn: '1 / -1' }}>
-                    <div className="form-field"><label>Usia (Tahun)</label><input type="number" name="usia" value={formIden.usia || ''} onChange={handleIdenChange} placeholder="mis. 8" /></div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', gridColumn: '1 / -1' }}>
+                    <div className="form-field"><label>Usia (Tahun)</label><input type="number" name="usia" value={formIden.usia || ''} onChange={handleIdenChange} placeholder="Contoh: 8" /></div>
                     <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formIden.jenis_kelamin || 'L'} onChange={handleIdenChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
                   </div>
-                  <div className="form-field full"><label>Alamat / Lokasi Pengungsian</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. Posko SDN 05" /></div>
-                  <div className="form-field full"><label>Jenis Paparan Bencana</label><input name="jenis_bencana" value={formIden.jenis_bencana || ''} onChange={handleIdenChange} placeholder="mis. Banjir bandang, gempa" /></div>
-                  <div className="form-field full"><label>Gejala Trauma yang Tampak</label><input name="gejala_trauma" value={formIden.gejala_trauma || ''} onChange={handleIdenChange} placeholder="mis. Menangis, sulit tidur, linglung" /></div>
-                  <div className="form-field full"><label>Kebutuhan Dukungan Psikososial</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="mis. Pendampingan ibu-anak, konseling" /></div>
-                  <div className="form-field"><label>Kondisi Keluarga</label><input name="kondisi_keluarga" value={formIden.kondisi_keluarga || ''} onChange={handleIdenChange} placeholder="mis. Bersama ibu" /></div>
-                  <div className="form-field"><label>Rencana Tindak Lanjut</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Observasi 1 minggu" /></div>
-                  <div className="form-field full"><label>Petugas Asesmen</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Nama kader/petugas" /></div>
+                  <div className="form-field full"><label>Alamat / Lokasi Pengungsian</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: Posko Balai Desa RT 03" /></div>
+                  <div className="form-field full"><label>Jenis Paparan Bencana</label><input name="jenis_bencana" value={formIden.jenis_bencana || ''} onChange={handleIdenChange} placeholder="Contoh: Banjir luapan sungai, kebakaran pemukiman" /></div>
+                  <div className="form-field full"><label>Gejala Trauma yang Tampak</label><input name="gejala_trauma" value={formIden.gejala_trauma || ''} onChange={handleIdenChange} placeholder="Contoh: Menangis histeris, sulit tidur, linglung, takut suara keras" /></div>
+                  <div className="form-field full"><label>Kebutuhan Dukungan Psikososial</label><input name="kebutuhan" value={formIden.kebutuhan || ''} onChange={handleIdenChange} placeholder="Contoh: Pendampingan ibu-anak, konseling profesional" /></div>
+                  <div className="form-field"><label>Kondisi Keluarga</label><input name="kondisi_keluarga" value={formIden.kondisi_keluarga || ''} onChange={handleIdenChange} placeholder="Contoh: Didampingi ibu &amp; nenek" /></div>
+                  <div className="form-field"><label>Rencana Tindak Lanjut</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Observasi 1 minggu, rujukan psikolog" /></div>
+                  <div className="form-field full"><label>Petugas Asesmen</label><input name="nama_petugas" value={formIden.nama_petugas || ''} onChange={handleIdenChange} placeholder="Nama kader / petugas Linmas" /></div>
                 </div>
               )}
 
               {subTab3 === 1 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Kegiatan Penyuluhan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="mis. Penyuluhan Pemulihan Trauma Anak" /></div>
+                  <div className="form-field full"><label>Nama Kegiatan Penyuluhan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="Contoh: Penyuluhan Pemulihan Trauma Pasca Bencana" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="mis. 09.00–11.00" /></div>
-                  <div className="form-field"><label>Lokasi</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. Balai Desa Mekar Sari" /></div>
-                  <div className="form-field"><label>Sasaran Peserta</label><input name="sasaran" value={formIden.sasaran || ''} onChange={handleIdenChange} placeholder="mis. Ibu & Anak" /></div>
-                  <div className="form-field full"><label>Materi Penyuluhan</label><textarea rows="2" name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="mis. Mengenali gejala trauma, teknik relaksasi"></textarea></div>
-                  <div className="form-field"><label>Petugas / Fasilitator</label><input name="fasilitator" value={formIden.fasilitator || ''} onChange={handleIdenChange} placeholder="mis. Siti (Kader), Psikolog" /></div>
-                  <div className="form-field"><label>Catatan Alat / Logistik</label><input name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="mis. Siapkan tikar & alat gambar" /></div>
+                  <div className="form-field"><label>Waktu Pelaksanaan</label><input type="time" name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} /></div>
+                  <div className="form-field"><label>Lokasi Kegiatan</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: Balai Desa Mekar Sari" /></div>
+                  <div className="form-field"><label>Sasaran Peserta</label><input name="sasaran" value={formIden.sasaran || ''} onChange={handleIdenChange} placeholder="Contoh: Ibu &amp; Anak Korban Bencana" /></div>
+                  <div className="form-field full"><label>Materi Penyuluhan</label><textarea rows="2" name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="Contoh: Mengenali gejala trauma pada anak, teknik relaksasi mandiri"></textarea></div>
+                  <div className="form-field"><label>Petugas / Fasilitator</label><input name="fasilitator" value={formIden.fasilitator || ''} onChange={handleIdenChange} placeholder="Contoh: Siti (Kader), Tim Psikososial PMI" /></div>
+                  <div className="form-field"><label>Catatan Logistik</label><input name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Contoh: Siapkan alat menggambar &amp; konsumsi" /></div>
                 </div>
               )}
 
               {subTab3 === 2 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Kegiatan Kesiapsiagaan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="mis. Simulasi Evakuasi Gempa Bumi" /></div>
-                  <div className="form-field"><label>Jenis Kegiatan</label><select name="jenis_kegiatan" value={formIden.jenis_kegiatan || 'Simulasi'} onChange={handleIdenChange}><option value="KIE">KIE (Edukasi)</option><option value="Simulasi">Simulasi</option><option value="Keduanya">Keduanya</option><option value="Lainnya">Lainnya</option></select></div>
+                  <div className="form-field full"><label>Nama Kegiatan Kesiapsiagaan</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="Contoh: Simulasi Evakuasi Bencana Banjir" /></div>
+                  <div className="form-field"><label>Jenis Kegiatan</label><select name="jenis_kegiatan" value={formIden.jenis_kegiatan || 'Simulasi'} onChange={handleIdenChange}><option value="KIE">KIE (Edukasi)</option><option value="Simulasi">Simulasi Lapangan</option><option value="Keduanya">Keduanya</option><option value="Lainnya">Lainnya</option></select></div>
                   <div className="form-field"><label>Tanggal Pelaksanaan</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Jumlah Peserta</label><input type="number" name="jumlah_peserta" value={formIden.jumlah_peserta || ''} onChange={handleIdenChange} placeholder="48" /></div>
-                  <div className="form-field"><label>Unsur Peserta</label><input name="unsur_peserta" value={formIden.unsur_peserta || ''} onChange={handleIdenChange} placeholder="Masyarakat, Pelajar, Lansia" /></div>
-                  <div className="form-field full"><label>Materi / Metode</label><input name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="mis. Ceramah + Simulasi Lapangan Drop Cover Hold" /></div>
-                  <div className="form-field full"><label>Capaian & Respon Peserta</label><textarea rows="2" name="capaian" value={formIden.capaian || ''} onChange={handleIdenChange} placeholder="mis. Antusias, 85% warga memahami jalur evakuasi..."></textarea></div>
-                  <div className="form-field full"><label>Hambatan & Tindak Lanjut</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Lansia lambat, perlu relawan pendamping khusus..."></textarea></div>
+                  <div className="form-field"><label>Jumlah Peserta</label><input type="number" name="jumlah_peserta" value={formIden.jumlah_peserta || ''} onChange={handleIdenChange} placeholder="Contoh: 48" /></div>
+                  <div className="form-field"><label>Unsur Peserta</label><input name="unsur_peserta" value={formIden.unsur_peserta || ''} onChange={handleIdenChange} placeholder="Masyarakat, Pelajar, Lansia, Relawan" /></div>
+                  <div className="form-field full"><label>Materi / Metode</label><input name="materi" value={formIden.materi || ''} onChange={handleIdenChange} placeholder="Contoh: Pengenalan sirene bahaya, jalur evakuasi aman" /></div>
+                  <div className="form-field full"><label>Capaian &amp; Respon Peserta</label><textarea rows="2" name="capaian" value={formIden.capaian || ''} onChange={handleIdenChange} placeholder="Contoh: Antusias, 90% warga memahami titik kumpul evakuasi..."></textarea></div>
+                  <div className="form-field full"><label>Hambatan &amp; Tindak Lanjut</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Evakuasi lansia butuh tandu khusus &amp; relawan pendamping..."></textarea></div>
                 </div>
               )}
 
@@ -946,64 +1710,76 @@ export default function PengaduanView() {
                 <div className="form-grid">
                   <div className="form-field"><label>Tanggal Kejadian</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
                   <div className="form-field"><label>Waktu Kejadian</label><input type="time" name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field full"><label>Lokasi (RT/RW/Area)</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. RT 02 / RW 01" /></div>
-                  <div className="form-field full"><label>Jenis Insiden</label><input name="jenis_insiden" value={formIden.jenis_insiden || ''} onChange={handleIdenChange} placeholder="mis. Keributan, Pencurian, Pohon Tumbang" /></div>
-                  <div className="form-field full"><label>Kronologi Singkat</label><textarea rows="2" name="kronologi" value={formIden.kronologi || ''} onChange={handleIdenChange} placeholder="Ceritakan urutan kejadian secara objektif..."></textarea></div>
-                  <div className="form-field full"><label>Dampak / Korban</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="mis. Tidak ada korban, kerugian 1 unit motor" /></div>
-                  <div className="form-field full"><label>Tindak Lanjut yang Dilakukan</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Mediasi oleh RT, laporan ke Bhabinkamtibmas..."></textarea></div>
-                  <div className="form-field full"><label>Petugas / Pelapor</label><input name="petugas" value={formIden.petugas || ''} onChange={handleIdenChange} placeholder="Nama kader / Linmas / Satpol PP" /></div>
+                  <div className="form-field full"><label>Lokasi Kejadian (RT/RW/Area)</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: RT 02 / RW 01 Jalan Melati" /></div>
+                  <div className="form-field full"><label>Jenis Insiden</label><input name="jenis_insiden" value={formIden.jenis_insiden || ''} onChange={handleIdenChange} placeholder="Contoh: Keributan warga, Pencurian, Pohon Tumbang" /></div>
+                  <div className="form-field full"><label>Kronologi Singkat Kejadian</label><textarea rows="2" name="kronologi" value={formIden.kronologi || ''} onChange={handleIdenChange} placeholder="Ceritakan urutan kejadian secara objektif..."></textarea></div>
+                  <div className="form-field full"><label>Dampak / Kerugian</label><input name="dampak" value={formIden.dampak || ''} onChange={handleIdenChange} placeholder="Contoh: Tidak ada korban luka, kerugian materil..." /></div>
+                  <div className="form-field full"><label>Tindak Lanjut yang Dilakukan</label><textarea rows="2" name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Mediasi oleh RT &amp; Kadus, koordinasi Bhabinkamtibmas..."></textarea></div>
+                  <div className="form-field full"><label>Petugas / Pelapor</label><input name="petugas" value={formIden.petugas || ''} onChange={handleIdenChange} placeholder="Nama Linmas / Satpol PP / Warga" /></div>
                 </div>
               )}
 
               {subTab3 === 4 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Tema Sosialisasi</label><input name="tema" value={formIden.tema || ''} onChange={handleIdenChange} placeholder="mis. Pencegahan Pencurian Motor & Keamanan Rumah" /></div>
+                  <div className="form-field full"><label>Tema Sosialisasi</label><input name="tema" value={formIden.tema || ''} onChange={handleIdenChange} placeholder="Contoh: Pencegahan Pencurian Kendaraan &amp; Ronda Malam" /></div>
                   <div className="form-field"><label>Tanggal</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="mis. 16.00-17.30" /></div>
-                  <div className="form-field full"><label>Lokasi / Sasaran</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="mis. Balai RW 02, Sasaran: Remaja & Warga" /></div>
-                  <div className="form-field"><label>Metode</label><input name="metode" value={formIden.metode || ''} onChange={handleIdenChange} placeholder="Ceramah / Diskusi" /></div>
-                  <div className="form-field"><label>Jumlah Peserta</label><input type="number" name="jumlah_peserta" value={formIden.jumlah_peserta || ''} onChange={handleIdenChange} placeholder="36" /></div>
-                  <div className="form-field full"><label>Isu Keamanan yang Teridentifikasi</label><textarea rows="2" name="isu_keamanan" value={formIden.isu_keamanan || ''} onChange={handleIdenChange} placeholder="mis. Area gelap di jalan kecil rawan pencurian..."></textarea></div>
-                  <div className="form-field full"><label>Tindak Lanjut Direkomendasikan</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="mis. Pemasangan lampu jalan & patroli malam" /></div>
+                  <div className="form-field"><label>Waktu Pelaksanaan</label><input type="time" name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} /></div>
+                  <div className="form-field full"><label>Lokasi / Sasaran Warga</label><input name="lokasi" value={formIden.lokasi || ''} onChange={handleIdenChange} placeholder="Contoh: Balai Pertemuan RT 03, Sasaran: Kepala Keluarga" /></div>
+                  <div className="form-field"><label>Metode Kegiatan</label><input name="metode" value={formIden.metode || ''} onChange={handleIdenChange} placeholder="Ceramah &amp; Diskusi Terbuka" /></div>
+                  <div className="form-field"><label>Jumlah Peserta</label><input type="number" name="jumlah_peserta" value={formIden.jumlah_peserta || ''} onChange={handleIdenChange} placeholder="Contoh: 36" /></div>
+                  <div className="form-field full"><label>Isu Keamanan yang Teridentifikasi</label><textarea rows="2" name="isu_keamanan" value={formIden.isu_keamanan || ''} onChange={handleIdenChange} placeholder="Contoh: Area gelap di jalan tembus rawan tindak kejahatan..."></textarea></div>
+                  <div className="form-field full"><label>Tindak Lanjut Direkomendasikan</label><input name="tindak_lanjut" value={formIden.tindak_lanjut || ''} onChange={handleIdenChange} placeholder="Contoh: Pasang 2 titik lampu jalan &amp; jadwalkan ronda" /></div>
                 </div>
               )}
 
               {subTab3 === 5 && (
                 <div className="form-grid">
                   <div className="form-field"><label>Tanggal Patroli</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Waktu</label><input name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} placeholder="mis. 19.00–22.00 WITA" /></div>
-                  <div className="form-field full"><label>Area / Wilayah Patroli</label><input name="wilayah" value={formIden.wilayah || ''} onChange={handleIdenChange} placeholder="mis. RT 03, RT 04, Jalan Melati" /></div>
+                  <div className="form-field"><label>Waktu Patroli</label><input type="time" name="waktu" value={formIden.waktu || ''} onChange={handleIdenChange} /></div>
+                  <div className="form-field full"><label>Area / Wilayah Patroli</label><input name="wilayah" value={formIden.wilayah || ''} onChange={handleIdenChange} placeholder="Contoh: Lingkungan RT 01 s/d RT 05 dan fasilitas umum" /></div>
                   <div className="form-field"><label>Metode Patroli</label><select name="metode" value={formIden.metode || 'Jalan Kaki'} onChange={handleIdenChange}><option value="Jalan Kaki">Jalan Kaki</option><option value="Sepeda Motor">Sepeda Motor</option><option value="Mobil">Mobil</option><option value="Gabungan">Gabungan</option></select></div>
-                  <div className="form-field"><label>Petugas Bertugas</label><input name="petugas" value={formIden.petugas || ''} onChange={handleIdenChange} placeholder="mis. Ahmad, Rudi (Linmas)" /></div>
-                  <div className="form-field full"><label>Tujuan Patroli / Operasi</label><input name="tujuan" value={formIden.tujuan || ''} onChange={handleIdenChange} placeholder="mis. Monitoring daerah rawan & antisipasi kerumunan" /></div>
-                  <div className="form-field full"><label>Temuan Selama Patroli</label><textarea rows="2" name="temuan" value={formIden.temuan || ''} onChange={handleIdenChange} placeholder="mis. Ditemukan rumah pintu tidak terkunci, lampu jalan mati..."></textarea></div>
-                  <div className="form-field full"><label>Tindakan & Rekomendasi Lanjut</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="mis. Imbauan kepada pemilik rumah, usul perbaikan lampu..."></textarea></div>
+                  <div className="form-field"><label>Petugas Bertugas</label><input name="petugas" value={formIden.petugas || ''} onChange={handleIdenChange} placeholder="Contoh: Rudi, Slamet (Anggota Linmas)" /></div>
+                  <div className="form-field full"><label>Tujuan Patroli / Sasaran</label><input name="tujuan" value={formIden.tujuan || ''} onChange={handleIdenChange} placeholder="Contoh: Monitoring titik rawan &amp; pos kamling" /></div>
+                  <div className="form-field full"><label>Temuan Selama Patroli</label><textarea rows="2" name="temuan" value={formIden.temuan || ''} onChange={handleIdenChange} placeholder="Contoh: Situasi kondusif, terdapat 1 titik lampu jalan padam..."></textarea></div>
+                  <div className="form-field full"><label>Tindakan &amp; Rekomendasi Lanjut</label><textarea rows="2" name="tindakan" value={formIden.tindakan || ''} onChange={handleIdenChange} placeholder="Contoh: Koordinasi perbaikan lampu jalan ke kantor desa..."></textarea></div>
                 </div>
               )}
 
-              {/* TAMBAHAN: Upload File untuk Identifikasi */}
-              <div className="form-field full" style={{ marginTop: '12px' }}>
-                <label>Unggah Dokumentasi Foto / Bukti (Opsional)</label>
-                <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-              </div>
+              {renderUploadBox(
+                fotoIden,
+                setFotoIden,
+                fileInputIdenRef,
+                'Unggah Dokumentasi Foto / Bukti Lapangan (Opsional)',
+                'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
+              )}
 
-              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan Laporan...' : 'Simpan Laporan'}</Button>
+              {renderActionButtons('iden')}
             </div>
 
-            <div className="card">
-              <div className="section-head">
-                <h3><Comment01Icon className="me-2" />Pengaduan — Trantibumlinmas</h3>
+            {/* KANAN: PENGADUAN MASYARAKAT TRANTIBUMLINMAS */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Comment01Icon size={20} color="var(--violet-deep, #5B21B6)" />
+                  Pengaduan — Trantibumlinmas
+                </h3>
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
+              <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '16px', lineHeight: 1.5 }}>
                 Gunakan form ini untuk mencatat laporan warga terkait gangguan ketertiban umum dan perlindungan masyarakat.
               </p>
 
               <div className="form-grid">
-                <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama pelapor" /></div>
+                <div className="form-field"><label>Nama Pelapor *</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field">
+                  <label>No. KTP (NIK Warga)</label>
+                  <input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit angka" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                    <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
+                  </div>
+                </div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
-                <div className="form-field full"><label>Alamat / RT Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat pelapor" /></div>
+                <div className="form-field full"><label>Alamat Warga Pelapor</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
                   <label>Jenis Pengaduan (Trantibumlinmas)</label>
@@ -1020,111 +1796,138 @@ export default function PengaduanView() {
                   </select>
                 </div>
 
-                <div className="form-field full"><label>Deskripsi Pengaduan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan laporan kejadian / kebutuhan keamanan secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Titik Rawan</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. Perempatan Jalan Melati" /></div>
+                <div className="form-field full"><label>Deskripsi Pengaduan / Gangguan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan laporan kejadian / kebutuhan keamanan secara rinci..."></textarea></div>
+                <div className="form-field full"><label>Lokasi Masalah / Titik Rawan</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: Perempatan Jalan Melati RT 03" /></div>
 
-                <div className="form-field full">
-                  <label>Persyaratan Kelengkapan Aduan</label>
-                  <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setLampiranPengaduan)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-                  <div className="field-note" style={{ marginTop: '8px', lineHeight: '1.4' }}>
-                    <b>Mohon lampirkan:</b><br />
-                    - Foto copy Kartu Tanda Penduduk (KTP)<br />
-                    - Foto copy Kartu Keluarga (KK)<br />
-                    - Foto bukti kejadian / lokasi rawan (Bila ada)
-                  </div>
-                </div>
+                {renderUploadBox(
+                  lampiranPengaduan,
+                  setLampiranPengaduan,
+                  fileInputPengaduanRef,
+                  'Unggah Bukti Lampiran / Foto Kejadian (Opsional)',
+                  'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)',
+                  (
+                    <div>
+                      <b>Dokumen Disarankan:</b> Foto KTP/KK pelapor atau foto kondisi fisik lokasi rawan / insiden.
+                    </div>
+                  )
+                )}
               </div>
-              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
+
+              {renderActionButtons('aduan')}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ===== 4. SOSIAL ===== */}
-      {tab === 4 && (
-        <div id="bidang-4">
-          <div className="grid grid-2" style={{ marginBottom: '16px' }}>
-            <div className="card">
-              <div className="section-head">
-                <h3><FavouriteIcon className="me-2" />Form Identifikasi — Sosial</h3>
+        {/* ===== 4. SOSIAL ===== */}
+        {tab === 4 && (
+          <div className={`grid ${viewFilter === 'all' ? 'grid-2' : ''} spm-work-grid spm-mode-${viewFilter}`} style={{ gap: '24px', alignItems: 'start' }}>
+            {/* KIRI: FORMULIR IDENTIFIKASI SOSIAL */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FavouriteIcon size={20} color="var(--green-deep, #2E7D46)" />
+                  Formulir Identifikasi — Sosial
+                </h3>
               </div>
-              <div className="tabs" style={{ marginBottom: '16px', display: 'flex', gap: '6px', overflowX: 'auto', flexWrap: 'wrap' }}>
-                <div className={`form-chip ${subTab4 === 0 ? 'active' : ''}`} onClick={() => { setSubTab4(0); resetFormIden(); }}>KIE Gender & Inklusi</div>
-                <div className={`form-chip ${subTab4 === 1 ? 'active' : ''}`} onClick={() => { setSubTab4(1); resetFormIden(); }}>Pendataan Fakir Miskin</div>
-                <div className={`form-chip ${subTab4 === 2 ? 'active' : ''}`} onClick={() => { setSubTab4(2); resetFormIden(); }}>Verifikasi Sosial-Ekonomi</div>
-                <div className={`form-chip ${subTab4 === 3 ? 'active' : ''}`} onClick={() => { setSubTab4(3); resetFormIden(); }}>Penyaluran Bantuan Sosial</div>
+
+              {/* Sub-Tabs Pills */}
+              <div className="spm-sub-pills">
+                <button type="button" className={`spm-sub-pill ${subTab4 === 0 ? 'active' : ''}`} onClick={() => { setSubTab4(0); resetFormIden(); }}>
+                  KIE Gender &amp; Inklusi
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab4 === 1 ? 'active' : ''}`} onClick={() => { setSubTab4(1); resetFormIden(); }}>
+                  Pendataan Fakir Miskin
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab4 === 2 ? 'active' : ''}`} onClick={() => { setSubTab4(2); resetFormIden(); }}>
+                  Verifikasi Sosial-Ekonomi
+                </button>
+                <button type="button" className={`spm-sub-pill ${subTab4 === 3 ? 'active' : ''}`} onClick={() => { setSubTab4(3); resetFormIden(); }}>
+                  Penyaluran Bantuan Sosial
+                </button>
               </div>
 
               {subTab4 === 0 && (
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Peserta</label><input name="nama_peserta" value={formIden.nama_peserta || ''} onChange={handleIdenChange} placeholder="Tulis nama lengkap sesuai identitas" /></div>
                   <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formIden.jenis_kelamin || 'P'} onChange={handleIdenChange}><option value="P">Perempuan</option><option value="L">Laki-laki</option></select></div>
-                  <div className="form-field"><label>No HP</label><input name="no_hp" value={formIden.no_hp || ''} onChange={handleIdenChange} placeholder="mis. 0812... (Tulis 'Tidak ada' jika tak punya)" /></div>
-                  <div className="form-field full"><label>Kelompok Rentan</label><input name="kelompok_rentan" value={formIden.kelompok_rentan || ''} onChange={handleIdenChange} placeholder="mis. Lansia, Disabilitas, Ibu Hamil, Anak, dll (Tulis '-' jika tidak ada)" /></div>
+                  <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formIden.no_hp || ''} onChange={handleIdenChange} placeholder="Contoh: 0812... (Tulis '-' jika tak punya)" /></div>
+                  <div className="form-field full"><label>Kelompok Rentan</label><input name="kelompok_rentan" value={formIden.kelompok_rentan || ''} onChange={handleIdenChange} placeholder="Contoh: Lansia, Disabilitas, Ibu Hamil, Anak Yatim" /></div>
                 </div>
               )}
 
               {subTab4 === 1 && (
                 <div className="form-grid">
                   <div className="form-field full"><label>Nama Kepala Keluarga</label><input name="nama_kk" value={formIden.nama_kk || ''} onChange={handleIdenChange} placeholder="Tulis sesuai KTP atau identitas resmi" /></div>
-                  <div className="form-field full"><label>Alamat Lengkap</label><input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="Cantumkan RT/RW, Dusun, Desa/Kelurahan" /></div>
-                  <div className="form-field"><label>Jumlah Anggota Keluarga</label><input type="number" name="jumlah_anggota" value={formIden.jumlah_anggota || ''} onChange={handleIdenChange} placeholder="Total dalam satu rumah" /></div>
-                  <div className="form-field"><label>Status Rumah</label><select name="status_rumah" value={formIden.status_rumah || 'Tidak Layak'} onChange={handleIdenChange}><option value="Layak">Layak</option><option value="Tidak Layak">Tidak Layak</option></select></div>
-                  <div className="form-field full"><label>Penghasilan / Bulan</label><input name="penghasilan" value={formIden.penghasilan || ''} onChange={handleIdenChange} placeholder="mis. Rp 800.000 (Tulis 'Tidak Tetap' jika tak menentu)" /></div>
-                  <div className="form-field full"><label>Disabilitas</label><input name="disabilitas" value={formIden.disabilitas || ''} onChange={handleIdenChange} placeholder="Tulis jenis disabilitas jika ada (mis. fisik, sensorik). Tulis '-' jika tidak." /></div>
-                  <div className="form-field full"><label>Keterangan Tambahan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="mis. Ibu sakit kronis, rumah rawan longsor..."></textarea></div>
+                  <div className="form-field full"><label>Alamat Lengkap</label><input name="alamat" value={formIden.alamat || ''} onChange={handleIdenChange} placeholder="Cantumkan RT/RW, Dusun, Desa" /></div>
+                  <div className="form-field"><label>Jumlah Anggota Keluarga</label><input type="number" name="jumlah_anggota" value={formIden.jumlah_anggota || ''} onChange={handleIdenChange} placeholder="Total orang dlm 1 rumah" /></div>
+                  <div className="form-field"><label>Status Rumah Tinggal</label><select name="status_rumah" value={formIden.status_rumah || 'Tidak Layak'} onChange={handleIdenChange}><option value="Layak">Layak</option><option value="Tidak Layak">Tidak Layak</option></select></div>
+                  <div className="form-field full"><label>Estimasi Penghasilan / Bulan</label><input name="penghasilan" value={formIden.penghasilan || ''} onChange={handleIdenChange} placeholder="Contoh: Rp 800.000 (Tulis 'Tidak Tetap' jika tak tentu)" /></div>
+                  <div className="form-field full"><label>Anggota Disabilitas</label><input name="disabilitas" value={formIden.disabilitas || ''} onChange={handleIdenChange} placeholder="Tulis jenis disabilitas jika ada. Tulis '-' jika tidak ada." /></div>
+                  <div className="form-field full"><label>Keterangan Tambahan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="Contoh: Lansia sebatang kara, sakit menahun..."></textarea></div>
                 </div>
               )}
 
               {subTab4 === 2 && (
                 <div className="form-grid">
                   <div className="form-field"><label>Kondisi Fisik Rumah</label><select name="kondisi_rumah" value={formIden.kondisi_rumah || 'Tidak Layak'} onChange={handleIdenChange}><option value="Layak">Layak</option><option value="Tidak Layak">Tidak Layak</option></select></div>
-                  <div className="form-field"><label>Penghasilan</label><select name="penghasilan" value={formIden.penghasilan || 'Tidak Tetap'} onChange={handleIdenChange}><option value="Tetap">Tetap</option><option value="Tidak Tetap">Tidak Tetap</option><option value="Tidak Ada">Tidak Ada</option></select></div>
+                  <div className="form-field"><label>Kepemilikan Penghasilan</label><select name="penghasilan" value={formIden.penghasilan || 'Tidak Tetap'} onChange={handleIdenChange}><option value="Tetap">Tetap</option><option value="Tidak Tetap">Tidak Tetap</option><option value="Tidak Ada">Tidak Ada</option></select></div>
                   <div className="form-field"><label>Aset Produktif</label><select name="aset_produktif" value={formIden.aset_produktif || 'Tidak Ada'} onChange={handleIdenChange}><option value="Ada">Ada</option><option value="Tidak Ada">Tidak Ada</option></select></div>
-                  <div className="form-field"><label>Beban Tanggungan</label><select name="beban_tanggungan" value={formIden.beban_tanggungan || 'Tinggi'} onChange={handleIdenChange}><option value="Rendah">Rendah</option><option value="Sedang">Sedang</option><option value="Tinggi">Tinggi</option></select></div>
+                  <div className="form-field"><label>Beban Tanggungan Keluarga</label><select name="beban_tanggungan" value={formIden.beban_tanggungan || 'Tinggi'} onChange={handleIdenChange}><option value="Rendah">Rendah</option><option value="Sedang">Sedang</option><option value="Tinggi">Tinggi</option></select></div>
                   <div className="form-field"><label>Risiko Khusus</label><select name="risiko_khusus" value={formIden.risiko_khusus || 'Tidak Ada'} onChange={handleIdenChange}><option value="Lansia">Lansia</option><option value="Disabilitas">Disabilitas</option><option value="Penyakit Kronis">Penyakit Kronis</option><option value="Tidak Ada">Tidak Ada</option></select></div>
                   <div className="form-field"><label>Skor Kerentanan (1–5)</label><select name="skor" value={formIden.skor || '3'} onChange={handleIdenChange} style={{ fontWeight: 'bold' }}><option value="1">1 - Sangat Baik</option><option value="2">2 - Cukup Baik</option><option value="3">3 - Rentan Sedang</option><option value="4">4 - Rentan Tinggi</option><option value="5">5 - Sangat Rentan</option></select></div>
-                  <div className="form-field full"><label>Catatan Detail</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Penjelasan rinci keadaan rumah, aset, disabilitas..."></textarea></div>
+                  <div className="form-field full"><label>Catatan Detail Verifikasi</label><textarea rows="2" name="catatan" value={formIden.catatan || ''} onChange={handleIdenChange} placeholder="Penjelasan rinci keadaan rumah, aset, dan kondisi khusus..."></textarea></div>
                 </div>
               )}
 
               {subTab4 === 3 && (
                 <div className="form-grid">
-                  <div className="form-field full"><label>Nama Kegiatan & Lokasi</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="mis. Penyaluran BLT di Balai Desa" /></div>
+                  <div className="form-field full"><label>Nama Kegiatan Penyaluran</label><input name="nama_kegiatan" value={formIden.nama_kegiatan || ''} onChange={handleIdenChange} placeholder="Contoh: Penyaluran Bantuan Sembako BLT Desa" /></div>
                   <div className="form-field"><label>Tanggal Penyaluran</label><input type="date" name="tanggal" value={formIden.tanggal || ''} onChange={handleIdenChange} /></div>
-                  <div className="form-field"><label>Jenis Bantuan</label><input name="jenis_bantuan" value={formIden.jenis_bantuan || ''} onChange={handleIdenChange} placeholder="mis. Sembako, BLT" /></div>
-                  <div className="form-field full"><label>Nama Penerima</label><input name="nama_penerima" value={formIden.nama_penerima || ''} onChange={handleIdenChange} placeholder="Sesuai KTP/KK" /></div>
-                  <div className="form-field"><label>NIK Penerima</label><input name="nik_penerima" value={formIden.nik_penerima || ''} onChange={handleIdenChange} placeholder="16 digit" /></div>
-                  <div className="form-field"><label>Jumlah / Volume</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="mis. 10 kg beras, Rp300.000" /></div>
+                  <div className="form-field"><label>Jenis Bantuan</label><input name="jenis_bantuan" value={formIden.jenis_bantuan || ''} onChange={handleIdenChange} placeholder="Contoh: Sembako, BLT-Dana Desa, PKH" /></div>
+                  <div className="form-field full"><label>Nama Penerima Manfaat</label><input name="nama_penerima" value={formIden.nama_penerima || ''} onChange={handleIdenChange} placeholder="Sesuai identitas KTP/KK" /></div>
+                  <div className="form-field"><label>NIK Penerima</label><input name="nik_penerima" value={formIden.nik_penerima || ''} onChange={handleIdenChange} placeholder="16 digit angka" /></div>
+                  <div className="form-field"><label>Jumlah / Volume Bantuan</label><input name="jumlah" value={formIden.jumlah || ''} onChange={handleIdenChange} placeholder="Contoh: 10 kg beras, Rp300.000" /></div>
                   <div className="form-field"><label>Metode Penyaluran</label><select name="metode" value={formIden.metode || 'Langsung'} onChange={handleIdenChange}><option value="Langsung">Langsung</option><option value="Diwakili">Diwakili</option><option value="Titipan">Titipan</option><option value="Pindah Alamat">Pindah Alamat</option></select></div>
-                  <div className="form-field"><label>Kondisi Barang</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Rusak">Rusak</option><option value="Kurang Lengkap">Kurang Lengkap</option><option value="Tidak Layak">Tidak Layak</option></select></div>
-                  <div className="form-field full"><label>Alamat & Keterangan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="mis. RT 02. Catatan: penerima tidak hadir..."></textarea></div>
+                  <div className="form-field"><label>Kondisi Barang Bantuan</label><select name="kondisi" value={formIden.kondisi || 'Baik'} onChange={handleIdenChange}><option value="Baik">Baik</option><option value="Rusak">Rusak</option><option value="Kurang Lengkap">Kurang Lengkap</option><option value="Tidak Layak">Tidak Layak</option></select></div>
+                  <div className="form-field full"><label>Alamat &amp; Keterangan Tambahan</label><textarea rows="2" name="keterangan" value={formIden.keterangan || ''} onChange={handleIdenChange} placeholder="Contoh: RT 02. Penerima sakit sehingga diwakili anak kandung..."></textarea></div>
                 </div>
               )}
 
-              {/* TAMBAHAN: Upload File untuk Identifikasi */}
-              <div className="form-field full" style={{ marginTop: '12px' }}>
-                <label>Unggah Dokumentasi Foto / Bukti (Opsional)</label>
-                <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setFotoIden)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-              </div>
+              {renderUploadBox(
+                fotoIden,
+                setFotoIden,
+                fileInputIdenRef,
+                'Unggah Dokumentasi Foto / Bukti Lapangan (Opsional)',
+                'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)'
+              )}
 
-              <Button variant="primary" onClick={submitIdentifikasi} disabled={isLoading} style={{ marginTop: '16px' }}>{isLoading ? 'Menyimpan...' : 'Simpan Formulir'}</Button>
+              {renderActionButtons('iden')}
             </div>
 
-            <div className="card">
-              <div className="section-head">
-                <h3><Comment01Icon className="me-2" />Pengaduan Masyarakat — Sosial</h3>
+            {/* KANAN: PENGADUAN MASYARAKAT SOSIAL */}
+            <div className="spm-form-card">
+              <div className="section-head" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Comment01Icon size={20} color="var(--green-deep, #2E7D46)" />
+                  Pengaduan Masyarakat — Sosial
+                </h3>
               </div>
-              <p style={{ fontSize: '12px', color: 'var(--ink-soft)', marginBottom: '16px', fontWeight: 500 }}>
-                Gunakan form ini untuk mencatat laporan kebutuhan bansos, inklusi, maupun identifikasi fakir miskin.
+              <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '16px', lineHeight: 1.5 }}>
+                Gunakan form ini untuk mencatat laporan kebutuhan bansos, inklusi sosial, maupun pendataan warga rentan.
               </p>
 
               <div className="form-grid">
-                <div className="form-field"><label>Nama Pelapor</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama pelapor" /></div>
+                <div className="form-field"><label>Nama Pelapor *</label><input name="nama_pelapor" value={formPengaduan.nama_pelapor} onChange={handlePengaduanChange} placeholder="Nama warga pelapor" /></div>
                 <div className="form-field"><label>Jenis Kelamin</label><select name="jenis_kelamin" value={formPengaduan.jenis_kelamin} onChange={handlePengaduanChange}><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                <div className="form-field"><label>No. KTP</label><input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit" /><span className="field-note"><LockIcon size={12} className="me-1" />Hanya terlihat Kader</span></div>
+                <div className="form-field">
+                  <label>No. KTP (NIK Warga)</label>
+                  <input name="nik" value={formPengaduan.nik} onChange={handlePengaduanChange} placeholder="16 digit angka" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                    <LockIcon size={12} /> Hanya terlihat oleh Kader/Admin
+                  </div>
+                </div>
                 <div className="form-field"><label>No. HP (Opsional)</label><input name="no_hp" value={formPengaduan.no_hp} onChange={handlePengaduanChange} placeholder="08xx-xxxx-xxxx" /></div>
-                <div className="form-field full"><label>Alamat / RT Warga</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat pelapor" /></div>
+                <div className="form-field full"><label>Alamat Warga Pelapor</label><input name="alamat" value={formPengaduan.alamat} onChange={handlePengaduanChange} placeholder="Alamat lengkap pelapor" /></div>
 
                 <div className="form-field full">
                   <label>Jenis Pengaduan (Sosial)</label>
@@ -1139,66 +1942,242 @@ export default function PengaduanView() {
                   </select>
                 </div>
 
-                <div className="form-field full"><label>Deskripsi Pengaduan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan laporan/kebutuhan secara rinci..."></textarea></div>
-                <div className="form-field full"><label>Lokasi Masalah/Usulan (Opsional)</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="mis. RT 04" /></div>
+                <div className="form-field full"><label>Deskripsi Pengaduan / Usulan Bantuan</label><textarea name="isi_keluhan" value={formPengaduan.isi_keluhan} onChange={handlePengaduanChange} rows="3" placeholder="Uraikan laporan/kebutuhan bansos secara rinci..."></textarea></div>
+                <div className="form-field full"><label>Lokasi Masalah / Wilayah</label><input name="lokasi_masalah" value={formPengaduan.lokasi_masalah} onChange={handlePengaduanChange} placeholder="Contoh: RT 04 Dusun Mekar Harapan" /></div>
 
-                <div className="form-field full">
-                  <label>Persyaratan Kelengkapan Aduan</label>
-                  <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onChange={(e) => handleFileChange(e, setLampiranPengaduan)} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '6px', width: '100%' }} />
-                  <div className="field-note" style={{ marginTop: '8px', lineHeight: '1.4' }}>
-                    <b>Mohon lampirkan:</b><br />
-                    - Foto copy Kartu Tanda Penduduk (KTP)<br />
-                    - Surat Pernyataan dari Pemerintah Desa/Kelurahan Untuk Tindak Lanjut
-                  </div>
-                </div>
+                {renderUploadBox(
+                  lampiranPengaduan,
+                  setLampiranPengaduan,
+                  fileInputPengaduanRef,
+                  'Unggah Dokumen Pelengkap / Foto (Opsional)',
+                  'Format: JPG, PNG, PDF, DOC (Maks. 2MB per file)',
+                  (
+                    <div>
+                      <b>Dokumen Pelengkap:</b> Foto copy KTP/KK atau Surat Keterangan dari Pemerintah Desa / RT setempat.
+                    </div>
+                  )
+                )}
               </div>
-              <Button variant="primary" onClick={submitPengaduan} disabled={isLoading} style={{ marginTop: '16px', width: '100%' }}>{isLoading ? 'Mengirim...' : 'Simpan Pengaduan'}</Button>
+
+              {renderActionButtons('aduan')}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 3. BOTTOM SECTION: REKAPITULASI TERPADU BIDANG SPM TERPILIH */}
+      <div
+        className="card"
+        style={{
+          padding: '24px',
+          borderRadius: '16px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e2e8f0',
+          marginBottom: '32px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CurrentIcon size={20} color={currentCategory.theme.primary} />
+              <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                Rekapitulasi Data — {currentCategory.title}
+              </h3>
+            </div>
+            <p style={{ margin: '3px 0 0', fontSize: '12.5px', color: '#64748b' }}>
+              Riwayat data formulir identifikasi &amp; aspirasi/pengaduan masyarakat bidang {currentCategory.title}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <span className="badge badge-cyan" style={{ fontSize: '11.5px', fontWeight: 700 }}>
+              {dataFormulirFilter.length} Formulir
+            </span>
+            <span className="badge badge-orange" style={{ fontSize: '11.5px', fontWeight: 700 }}>
+              {dataPengaduanFilter.length} Pengaduan ({belumSelesai} Baru)
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '16px' }}>
+          {/* --- KIRI: REKAP FORMULIR --- */}
+          <div style={{ border: '1px solid #f1f5f9', borderRadius: '12px', padding: '16px', backgroundColor: '#fafbfc' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 800, color: '#1e293b' }}>
+                Formulir Identifikasi Lapangan
+              </span>
+              <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
+                {dataFormulirFilter.length} Tersimpan
+              </span>
+            </div>
+
+            <div className="table-responsive">
+              <table className="table" style={{ fontSize: '13px' }}>
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Sub-Bidang</th>
+                    <th>Petugas / Subjek</th>
+                    <th style={{ textAlign: 'right' }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayFormulir.length > 0 ? (
+                    displayFormulir.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{new Date(item.created_at).toLocaleDateString('id-ID')}</td>
+                        <td><span style={{ fontWeight: 600, color: '#1e293b' }}>{item.sub_bidang || '-'}</span></td>
+                        <td><span style={{ color: '#475569', fontWeight: 600 }}>{getFormulirSubjek(item)}</span></td>
+                        <td style={{ textAlign: 'right' }}>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            icon={ViewIcon}
+                            onClick={() => setSelectedForm(item)}
+                          >
+                            Detail
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '24px 16px', color: '#94a3b8' }}>
+                        <File01Icon size={24} style={{ margin: '0 auto 6px', display: 'block', color: '#cbd5e1' }} />
+                        Belum ada formulir identifikasi di bidang ini.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* --- KANAN: REKAP PENGADUAN --- */}
+          <div style={{ border: '1px solid #f1f5f9', borderRadius: '12px', padding: '16px', backgroundColor: '#fafbfc' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 800, color: '#1e293b' }}>
+                Pengaduan &amp; Aspirasi Warga
+              </span>
+              <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
+                {dataPengaduanFilter.length} Laporan
+              </span>
+            </div>
+
+            <div className="table-responsive">
+              <table className="table" style={{ fontSize: '13px' }}>
+                <thead>
+                  <tr>
+                    <th>Pelapor</th>
+                    <th>Keluhan</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayPengaduan.length > 0 ? (
+                    displayPengaduan.map((item, idx) => (
+                      <tr key={idx}>
+                        <td><b>{item.nama_pelapor || 'Warga'}</b></td>
+                        <td>{(item.isi_keluhan || '').substring(0, 24)}{(item.isi_keluhan || '').length > 24 ? '...' : ''}</td>
+                        <td>
+                          <span className={`badge ${item.status === 'menunggu' ? 'badge-rose' : item.status === 'diproses' ? 'badge-orange' : 'badge-green'}`} style={{ fontSize: '11px' }}>
+                            {item.status === 'menunggu' ? 'Baru' : item.status === 'diproses' ? 'Diproses' : 'Selesai'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            icon={ViewIcon}
+                            onClick={() => setSelectedPengaduan(item)}
+                          >
+                            Detail
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '24px 16px', color: '#94a3b8' }}>
+                        <Comment01Icon size={24} style={{ margin: '0 auto 6px', display: 'block', color: '#cbd5e1' }} />
+                        Belum ada pengaduan di bidang ini.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Tombol Lihat Semua Rekap */}
+        {(dataFormulirFilter.length > 3 || dataPengaduanFilter.length > 3) && (
+          <div style={{ textAlign: 'center', marginTop: '12px' }}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowAllRekap(!showAllRekap)}
+            >
+              {showAllRekap ? 'Tampilkan Lebih Ringkas (3 Teratas)' : `Tampilkan Semua Data (${dataFormulirFilter.length + dataPengaduanFilter.length} Data)`}
+            </Button>
+          </div>
+        )}
+      </div>
 
       {/* =========================================
-          MODAL POP-UP DETAIL FORMULIR
+          MODAL DETAIL FORMULIR
           ========================================= */}
-      {selectedForm && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', zIndex: 9999,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
-        }}>
-          <div className="card" style={{
-            width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
-            position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
-          }}>
+      {selectedForm && createPortal(
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)', zIndex: 99999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+          }}
+          onClick={() => setSelectedForm(null)}
+          onTouchMove={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
+              position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               onClick={() => setSelectedForm(null)}
               style={{
                 position: 'absolute', top: '16px', right: '16px',
                 background: '#f1f5f9', border: 'none', borderRadius: '50%',
-                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                width: '34px', height: '34px', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', cursor: 'pointer', color: '#64748b', zIndex: 10
               }}
               aria-label="Tutup"
             >
-              &times;
+              <Cancel01Icon size={16} />
             </button>
 
             <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--violet-deep)' }}>Detail Formulir</h3>
-              <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>{selectedForm.sub_bidang || '-'}</p>
+              <h3 style={{ color: 'var(--primary-teal, #008080)', margin: '0 0 4px', fontSize: '18px', fontWeight: 800 }}>Detail Formulir Identifikasi</h3>
+              <p style={{ margin: 0, color: '#64748b', fontSize: '13.5px', fontWeight: 600 }}>{selectedForm.sub_bidang || '-'}</p>
             </div>
 
             <table className="table">
               <tbody>
                 <tr>
-                  <td style={{ width: '40%', color: '#666', fontSize: '13px' }}>Tanggal Kirim</td>
+                  <td style={{ width: '40%', color: '#64748b', fontSize: '13px' }}>Tanggal Kirim</td>
                   <td><b>{new Date(selectedForm.created_at).toLocaleString('id-ID')}</b></td>
                 </tr>
                 {Object.entries(getSafeObject(selectedForm.data_formulir)).map(([key, value], idx) => (
                   <tr key={idx}>
-                    <td style={{ color: '#666', textTransform: 'capitalize', fontSize: '13px' }}>
+                    <td style={{ color: '#64748b', textTransform: 'capitalize', fontSize: '13px' }}>
                       {key.replace(/_/g, ' ')}
                     </td>
                     <td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><b>{value || '-'}</b></td>
@@ -1212,13 +2191,23 @@ export default function PengaduanView() {
               const fotoArr = getArrayData(selectedForm.dokumentasi_foto);
               if (fotoArr.length > 0) {
                 return (
-                  <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-                    <div style={{ color: '#666', fontSize: '13px', marginBottom: '8px' }}><b>Bukti Dokumentasi:</b></div>
+                  <div style={{ marginTop: '16px', padding: '14px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ color: '#334155', fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}>Dokumentasi Lapangan:</div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {fotoArr.map((file_path, idx) => (
-                        <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                          <Image01Icon size={16} className="me-1" />Lihat File {idx + 1}
-                        </a>
+                        <Button
+                          key={idx}
+                          as="a"
+                          href={getFileUrl(file_path)}
+                          target="_blank"
+                          rel="noreferrer"
+                          variant="secondary"
+                          size="sm"
+                          icon={Image01Icon}
+                          style={{ textDecoration: 'none' }}
+                        >
+                          Lihat Berkas {idx + 1}
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -1227,58 +2216,70 @@ export default function PengaduanView() {
             })()}
 
             <div style={{ marginTop: '24px', textAlign: 'right' }}>
-              <Button variant="primary" onClick={() => setSelectedForm(null)}>Tutup Rincian</Button>
+              <Button variant="primary" size="md" onClick={() => setSelectedForm(null)}>Tutup Rincian</Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* =========================================
-          MODAL POP-UP DETAIL PENGADUAN
+          MODAL DETAIL PENGADUAN
           ========================================= */}
-      {selectedPengaduan && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', zIndex: 9999,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
-        }}>
-          <div className="card" style={{
-            width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
-            position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
-          }}>
+      {selectedPengaduan && createPortal(
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)', zIndex: 99999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+          }}
+          onClick={() => setSelectedPengaduan(null)}
+          onTouchMove={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+        >
+          <div
+            className="card"
+            style={{
+              width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto',
+              position: 'relative', backgroundColor: '#fff', borderRadius: '16px', padding: '28px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               onClick={() => setSelectedPengaduan(null)}
               style={{
                 position: 'absolute', top: '16px', right: '16px',
                 background: '#f1f5f9', border: 'none', borderRadius: '50%',
-                width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+                width: '34px', height: '34px', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', cursor: 'pointer', color: '#64748b', zIndex: 10
               }}
               aria-label="Tutup"
             >
-              &times;
+              <Cancel01Icon size={16} />
             </button>
 
             <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
-              <h3 style={{ color: 'var(--magenta-deep)' }}>Detail Pengaduan</h3>
-              <p style={{ margin: 0, color: '#666', fontSize: '14px', textTransform: 'capitalize' }}>Bidang: {(selectedPengaduan.bidang || '').replace(/_/g, ' ')}</p>
+              <h3 style={{ color: 'var(--primary-teal, #008080)', margin: '0 0 4px', fontSize: '18px', fontWeight: 800 }}>Detail Pengaduan &amp; Aspirasi</h3>
+              <p style={{ margin: 0, color: '#64748b', fontSize: '13.5px', textTransform: 'capitalize', fontWeight: 600 }}>
+                Bidang: {(selectedPengaduan.bidang || '').replace(/_/g, ' ')}
+              </p>
             </div>
 
             <table className="table">
               <tbody>
                 <tr>
-                  <td style={{ width: '35%', color: '#666', fontSize: '13px' }}>Tanggal Lapor</td>
+                  <td style={{ width: '35%', color: '#64748b', fontSize: '13px' }}>Tanggal Lapor</td>
                   <td><b>{new Date(selectedPengaduan.created_at).toLocaleString('id-ID')}</b></td>
                 </tr>
-                <tr><td style={{ color: '#666', fontSize: '13px' }}>Nama Pelapor</td><td><b>{selectedPengaduan.nama_pelapor} ({selectedPengaduan.jenis_kelamin})</b></td></tr>
-                <tr><td style={{ color: '#666', fontSize: '13px' }}>NIK</td><td><b>{selectedPengaduan.nik}</b></td></tr>
-                <tr><td style={{ color: '#666', fontSize: '13px' }}>No. HP</td><td><b>{selectedPengaduan.no_hp || '-'}</b></td></tr>
-                <tr><td style={{ color: '#666', fontSize: '13px' }}>Alamat</td><td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><b>{selectedPengaduan.alamat || '-'}</b></td></tr>
-                <tr><td style={{ color: '#666', fontSize: '13px' }}>Lokasi Masalah</td><td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><b>{selectedPengaduan.lokasi_masalah || '-'}</b></td></tr>
-                <tr><td style={{ color: '#666', fontSize: '13px' }}>Isi Keluhan</td><td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><b>{selectedPengaduan.isi_keluhan}</b></td></tr>
+                <tr><td style={{ color: '#64748b', fontSize: '13px' }}>Nama Pelapor</td><td><b>{selectedPengaduan.nama_pelapor} ({selectedPengaduan.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'})</b></td></tr>
+                <tr><td style={{ color: '#64748b', fontSize: '13px' }}>NIK</td><td><b>{selectedPengaduan.nik || '-'}</b></td></tr>
+                <tr><td style={{ color: '#64748b', fontSize: '13px' }}>No. HP</td><td><b>{selectedPengaduan.no_hp || '-'}</b></td></tr>
+                <tr><td style={{ color: '#64748b', fontSize: '13px' }}>Alamat Warga</td><td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><b>{selectedPengaduan.alamat || '-'}</b></td></tr>
+                <tr><td style={{ color: '#64748b', fontSize: '13px' }}>Lokasi Masalah</td><td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><b>{selectedPengaduan.lokasi_masalah || '-'}</b></td></tr>
+                <tr><td style={{ color: '#64748b', fontSize: '13px' }}>Isi Aspirasi / Keluhan</td><td style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><b>{selectedPengaduan.isi_keluhan}</b></td></tr>
                 <tr>
-                  <td style={{ color: '#666', fontSize: '13px' }}>Status Saat Ini</td>
+                  <td style={{ color: '#64748b', fontSize: '13px' }}>Status Tindak Lanjut</td>
                   <td>
                     <span className={`badge ${selectedPengaduan.status === 'menunggu' ? 'badge-rose' : selectedPengaduan.status === 'diproses' ? 'badge-orange' : 'badge-green'}`}>
                       {selectedPengaduan.status === 'menunggu' ? 'Baru (Menunggu)' : selectedPengaduan.status === 'diproses' ? 'Sedang Diproses' : 'Selesai Ditindak'}
@@ -1293,13 +2294,23 @@ export default function PengaduanView() {
               const lampiranArr = getArrayData(selectedPengaduan.lampiran);
               if (lampiranArr.length > 0) {
                 return (
-                  <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-                    <div style={{ color: '#666', fontSize: '13px', marginBottom: '8px' }}><b>Bukti Lampiran:</b></div>
+                  <div style={{ marginTop: '16px', padding: '14px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ color: '#334155', fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}>Bukti Lampiran Pengaduan:</div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {lampiranArr.map((file_path, idx) => (
-                        <a key={idx} href={getFileUrl(file_path)} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                          <Image01Icon size={16} className="me-1" />Lihat File {idx + 1}
-                        </a>
+                        <Button
+                          key={idx}
+                          as="a"
+                          href={getFileUrl(file_path)}
+                          target="_blank"
+                          rel="noreferrer"
+                          variant="secondary"
+                          size="sm"
+                          icon={Image01Icon}
+                          style={{ textDecoration: 'none' }}
+                        >
+                          Lihat Berkas {idx + 1}
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -1308,10 +2319,11 @@ export default function PengaduanView() {
             })()}
 
             <div style={{ marginTop: '24px', textAlign: 'right' }}>
-              <Button variant="primary" onClick={() => setSelectedPengaduan(null)}>Tutup Rincian</Button>
+              <Button variant="primary" size="md" onClick={() => setSelectedPengaduan(null)}>Tutup Rincian</Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

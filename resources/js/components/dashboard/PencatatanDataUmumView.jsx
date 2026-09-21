@@ -11,9 +11,28 @@ import {
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function PencatatanDataUmumView() {
+    // Ambil info posyandu dari user session
+    const getInitialPosyanduInfo = () => {
+        try {
+            const raw = localStorage.getItem('auth_user');
+            if (raw) {
+                const user = JSON.parse(raw);
+                const posName = user.posyandu?.nama || (typeof user.posyandu === 'string' ? user.posyandu : '');
+                return {
+                    nama_posyandu: posName ? `Posyandu ${posName.replace(/^Posyandu\s+/i, '')}` : '',
+                    desa: 'Loa Duri Ulu',
+                    kecamatan: 'Kutai Kartanegara'
+                };
+            }
+        } catch {}
+        return { nama_posyandu: '', desa: 'Loa Duri Ulu', kecamatan: 'Kutai Kartanegara' };
+    };
+
+    const initialInfo = getInitialPosyanduInfo();
+
     // === STATE DATA SESUAI KERTAS ===
     const [formData, setFormData] = useState({
-        nama_posyandu: '', rukun_warga: '', desa: '', kecamatan: '',
+        nama_posyandu: initialInfo.nama_posyandu, rukun_warga: '', desa: initialInfo.desa, kecamatan: initialInfo.kecamatan,
         tahun: new Date().getFullYear().toString(), bulan: '',
         pengunjung_bayi: '', pengunjung_baduta: '', pengunjung_balita: '', pengunjung_wus: '', pengunjung_pus: '', pengunjung_ibu_hamil: '', pengunjung_ibu_menyusui: '',
         bayi_lahir: '', bayi_meninggal: '',
@@ -29,7 +48,14 @@ export default function PencatatanDataUmumView() {
     const [isPrinting, setIsPrinting] = useState(false);
     const [printData, setPrintData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState({ type: '', text: '' });
+    const [message, setMessage] = useState({ type: '', text: '', title: '', details: null });
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        confirmVariant: 'danger'
+    });
 
     // === STATE UNTUK RIWAYAT DARI DATABASE ===
     const [riwayat, setRiwayat] = useState([]);
@@ -70,14 +96,34 @@ export default function PencatatanDataUmumView() {
 
     // === FUNGSI SIMPAN ASLI KE LARAVEL ===
     const handleSave = async () => {
+        const missing = [];
+        if (!formData.nama_posyandu?.trim()) missing.push('Nama Posyandu belum diisi');
+        if (!formData.desa?.trim()) missing.push('Desa / Kelurahan belum diisi');
+        if (!formData.kecamatan?.trim()) missing.push('Kecamatan belum diisi');
+        if (!formData.bulan?.trim()) missing.push('Bulan pendataan belum ditentukan');
+
+        if (missing.length > 0) {
+            setMessage({
+                type: 'error',
+                title: 'Data Umum Belum Lengkap',
+                text: 'Mohon lengkapi bagian identitas posyandu & waktu pendataan berikut:',
+                details: missing
+            });
+            return;
+        }
+
         setIsLoading(true);
-        setMessage({ type: '', text: '' });
+        setMessage({ type: '', text: '', title: '', details: null });
         try {
             const token = localStorage.getItem('auth_token');
             const response = await axios.post('/api/data-umum', formData, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setMessage({ type: 'success', text: response.data.pesan });
+            setMessage({
+                type: 'success',
+                title: 'Data Umum Berhasil Disimpan',
+                text: response.data.pesan || 'Data umum posyandu berhasil disimpan ke sistem.'
+            });
 
             // Kosongkan form angka setelah sukses
             setFormData({
@@ -93,26 +139,46 @@ export default function PencatatanDataUmumView() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             fetchRiwayat(); // Refresh tabel riwayat
         } catch (error) {
-            const errMsg = error.response?.data?.pesan || error.message;
-            setMessage({ type: 'error', text: `Gagal menyimpan: ${errMsg}` });
+            const errMsg = error.response?.data?.pesan || error.response?.data?.message || 'Gagal menyimpan data umum posyandu.';
+            setMessage({
+                type: 'error',
+                title: 'Gagal Menyimpan Data Umum',
+                text: errMsg
+            });
         } finally {
             setIsLoading(false);
         }
     };
 
     // === FUNGSI HAPUS DATA ===
-    const handleDelete = async (id) => {
-        if (!window.confirm("Yakin ingin menghapus data umum bulan ini?")) return;
-        try {
-            const token = localStorage.getItem('auth_token');
-            await axios.delete(`/api/data-umum/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            setMessage({ type: 'success', text: 'Data berhasil dihapus!' });
-            fetchRiwayat();
-        } catch (error) {
-            setMessage({ type: 'error', text: 'Gagal menghapus data.' });
-        }
+    const handleDelete = (id, bulan, tahun) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Konfirmasi Hapus Data Umum',
+            message: `Apakah Anda yakin ingin menghapus data umum ${bulan ? `periode "${bulan} ${tahun || ''}"` : ''} secara permanen? Data yang telah dihapus tidak dapat dipulihkan.`,
+            confirmVariant: 'danger',
+            onConfirm: async () => {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    await axios.delete(`/api/data-umum/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    setMessage({
+                        type: 'success',
+                        title: 'Data Dihapus',
+                        text: 'Data umum posyandu berhasil dihapus.'
+                    });
+                    fetchRiwayat();
+                } catch (error) {
+                    const errMsg = error.response?.data?.pesan || error.response?.data?.message || 'Gagal menghapus data umum.';
+                    setMessage({
+                        type: 'error',
+                        title: 'Gagal Menghapus Data',
+                        text: errMsg
+                    });
+                }
+            }
+        });
     };
 
     // === FUNGSI CETAK PDF ===
@@ -186,48 +252,60 @@ export default function PencatatanDataUmumView() {
           TAMPILAN MONITOR (INPUT UNTUK KADER/KETUA)
           ========================================================= */}
             <div className="no-print">
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                    <Button
-                        variant="secondary"
-                        size="md"
-                        icon={PrinterIcon}
-                        onClick={() => handlePrint(null)}
-                    >
-                        Ekspor PDF Kertas
-                    </Button>
-                    <Button
-                        variant="primary"
-                        size="md"
-                        icon={FloppyDiskIcon}
-                        onClick={handleSave}
-                        loading={isLoading}
-                        loadingText="Menyimpan..."
-                    >
-                        Simpan Data Baru
-                    </Button>
-                </div>
+                <NotificationModal
+                    isOpen={Boolean(message.text || message.title)}
+                    type={message.type || 'success'}
+                    title={message.title}
+                    message={message.text}
+                    details={message.details}
+                    onClose={() => setMessage({ type: '', text: '', title: '', details: null })}
+                />
 
                 <NotificationModal
-                    isOpen={Boolean(message.text)}
-                    type={message.type || 'success'}
-                    message={message.text}
-                    onClose={() => setMessage({ type: '', text: '' })}
+                    isOpen={confirmModal.isOpen}
+                    type="confirm"
+                    title={confirmModal.title}
+                    message={confirmModal.message}
+                    confirmVariant={confirmModal.confirmVariant || 'danger'}
+                    isConfirm
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                    onConfirm={() => {
+                        if (confirmModal.onConfirm) confirmModal.onConfirm();
+                        setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' });
+                    }}
+                    onClose={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: null, confirmVariant: 'danger' })}
                 />
 
                 <div className="grid grid-2" style={{ marginBottom: '16px' }}>
-                    {/* KIRI */}
+                    {/* KIRI: Identitas & Poin 1 s/d 4 */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div className="card">
                             <div className="section-head"><h3>Identitas & Poin 1 - 2</h3></div>
                             <div className="form-grid">
                                 <div className="form-field full"><label>Posyandu</label><input name="nama_posyandu" value={formData.nama_posyandu} onChange={handleChange} placeholder="Nama Posyandu" /></div>
-                                <div className="form-field full"><label>Rukun Warga (RW)</label><input name="rukun_warga" value={formData.rukun_warga} onChange={handleChange} placeholder="mis. 05" /></div>
+                                <div className="form-field full"><label>Wilayah RT yang Dilayani</label><input name="rukun_warga" value={formData.rukun_warga} onChange={handleChange} placeholder="Contoh: RT 01, RT 02 (Bisa lebih dari 1 RT)" /></div>
                                 <div className="form-field"><label>Desa/Kelurahan</label><input name="desa" value={formData.desa} onChange={handleChange} /></div>
                                 <div className="form-field"><label>Kecamatan</label><input name="kecamatan" value={formData.kecamatan} onChange={handleChange} /></div>
 
                                 <div className="form-field full" style={{ borderBottom: '1px solid #eee', paddingBottom: '4px', marginTop: '8px' }}><b>Waktu Pendataan</b></div>
-                                <div className="form-field"><label>1. Tahun</label><input type="number" name="tahun" value={formData.tahun} onChange={handleChange} placeholder="mis. 2026" /></div>
-                                <div className="form-field"><label>2. Bulan</label><input name="bulan" value={formData.bulan} onChange={handleChange} placeholder="mis. Agustus" /></div>
+                                <div className="form-field">
+                                    <label>1. Tahun</label>
+                                    <select name="tahun" value={formData.tahun} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff' }}>
+                                        {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map(y => (
+                                            <option key={y} value={y.toString()}>{y}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-field">
+                                    <label>2. Bulan</label>
+                                    <select name="bulan" value={formData.bulan} onChange={handleChange} style={{ width: '100%', minHeight: '44px', borderRadius: '10px', border: '1px solid #cbd5e1', padding: '0 12px', backgroundColor: '#fff' }}>
+                                        <option value="">-- Pilih Bulan --</option>
+                                        {['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'].map(m => (
+                                            <option key={m} value={m}>{m}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -253,17 +331,9 @@ export default function PencatatanDataUmumView() {
                                 <div className="form-field"><label>Bayi Meninggal</label><input name="bayi_meninggal" value={formData.bayi_meninggal} onChange={handleChange} placeholder="0" /></div>
                             </div>
                         </div>
-
-                        <div className="card">
-                            <div className="section-head"><h3>9. Jumlah Pengunjung (Berdasarkan Gender)</h3></div>
-                            <div className="form-grid">
-                                <div className="form-field"><label>Laki-laki</label><input name="pengunjung_l" value={formData.pengunjung_l} onChange={handleChange} placeholder="0" /></div>
-                                <div className="form-field"><label>Perempuan</label><input name="pengunjung_p" value={formData.pengunjung_p} onChange={handleChange} placeholder="0" /></div>
-                            </div>
-                        </div>
                     </div>
 
-                    {/* KANAN */}
+                    {/* KANAN: Poin 5 s/d 12 */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div className="card">
                             <div className="section-head"><h3>Kematian Ibu & Petugas Hadir (Poin 5 & 6)</h3></div>
@@ -291,6 +361,14 @@ export default function PencatatanDataUmumView() {
                         </div>
 
                         <div className="card">
+                            <div className="section-head"><h3>9. Jumlah Pengunjung (Berdasarkan Gender)</h3></div>
+                            <div className="form-grid">
+                                <div className="form-field"><label>Laki-laki</label><input name="pengunjung_l" value={formData.pengunjung_l} onChange={handleChange} placeholder="0" /></div>
+                                <div className="form-field"><label>Perempuan</label><input name="pengunjung_p" value={formData.pengunjung_p} onChange={handleChange} placeholder="0" /></div>
+                            </div>
+                        </div>
+
+                        <div className="card">
                             <div className="section-head"><h3>Keluarga & Kematian Ibu (Poin 10 - 12)</h3></div>
                             <div className="form-grid">
                                 <div className="form-field full"><label>10. Jumlah Kepala Keluarga (KK)</label><input name="jml_kk" value={formData.jml_kk} onChange={handleChange} placeholder="0" /></div>
@@ -303,6 +381,40 @@ export default function PencatatanDataUmumView() {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* --- TOMBOL AKSI FORMULIR (DI BAWAH FORMULIR) --- */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', marginTop: '20px', marginBottom: '12px', width: '100%' }}>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        icon={FloppyDiskIcon}
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        loading={isLoading}
+                        loadingText="Menyimpan..."
+                        fullWidth
+                        style={{
+                            fontWeight: 800,
+                            minHeight: '44px',
+                            boxShadow: '0 3px 10px rgba(0, 128, 128, 0.25)'
+                        }}
+                    >
+                        Simpan Data
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        icon={PrinterIcon}
+                        onClick={() => handlePrint(null)}
+                        fullWidth
+                        style={{
+                            fontWeight: 700,
+                            minHeight: '44px'
+                        }}
+                    >
+                        Ekspor PDF Kertas
+                    </Button>
                 </div>
 
                 {/* --- TABEL RIWAYAT DARI DATABASE --- */}
@@ -332,7 +444,7 @@ export default function PencatatanDataUmumView() {
                                         <td style={{ textAlign: 'center' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                                 <Button
-                                                    variant="secondary"
+                                                    variant="primary"
                                                     size="sm"
                                                     icon={PrinterIcon}
                                                     onClick={() => handlePrint(item)}
@@ -343,7 +455,7 @@ export default function PencatatanDataUmumView() {
                                                     variant="danger-outline"
                                                     size="sm"
                                                     icon={Delete02Icon}
-                                                    onClick={() => handleDelete(item.id)}
+                                                    onClick={() => handleDelete(item.id, item.bulan, item.tahun)}
                                                 >
                                                     Hapus
                                                 </Button>
@@ -370,7 +482,7 @@ export default function PencatatanDataUmumView() {
                 <div id="dokumen-cetak-data-umum">
                     <div className="header-posyandu">
                         <div><span>Posyandu</span>: {dataToPrint.nama_posyandu}</div>
-                        <div><span>Rukun Warga</span>: {dataToPrint.rukun_warga}</div>
+                        <div><span>Wilayah RT</span>: {dataToPrint.rukun_warga || '-'}</div>
                         <div><span>Desa/Kelurahan</span>: {dataToPrint.desa}</div>
                         <div><span>Kecamatan</span>: {dataToPrint.kecamatan}</div>
                     </div>

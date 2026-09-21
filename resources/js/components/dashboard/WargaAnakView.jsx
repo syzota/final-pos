@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import NotificationModal from '../common/NotificationModal';
 import Button from '../common/Button';
@@ -8,7 +9,8 @@ import {
   Alert02Icon,
   CheckmarkCircle01Icon,
   Add01Icon,
-  UserIcon
+  UserIcon,
+  Cancel01Icon
 } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function WargaAnakView() {
@@ -60,9 +62,39 @@ export default function WargaAnakView() {
     fetchRaporKeluarga();
   }, []);
 
+  // Lock scroll and handle Escape key for showAddModal
+  useEffect(() => {
+    if (showAddModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showAddModal && !isSubmitting) {
+        setShowAddModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showAddModal, isSubmitting]);
+
   // === FUNGSI SUBMIT ANAK BARU ===
   const handleAddAnak = async (e) => {
     e.preventDefault();
+    if (!newAnak.nama_anak?.trim()) {
+      setErrorMsg('Nama lengkap anak wajib diisi.');
+      return;
+    }
+    if (!newAnak.tanggal_lahir) {
+      setErrorMsg('Tanggal lahir anak wajib diisi.');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMsg('');
     setSuccessMsg('');
@@ -73,7 +105,7 @@ export default function WargaAnakView() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      setSuccessMsg(response.data.pesan);
+      setSuccessMsg(response.data.pesan || 'Data anak berhasil ditambahkan.');
       setShowAddModal(false);
       setNewAnak({ nama_anak: '', tanggal_lahir: '', jenis_kelamin: 'L' }); // Reset form
 
@@ -82,7 +114,6 @@ export default function WargaAnakView() {
     } catch (error) {
       const pesanAsli = error.response?.data?.message || error.message;
       setErrorMsg(`Gagal menambah data anak: ${pesanAsli}`);
-      setShowAddModal(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,7 +131,7 @@ export default function WargaAnakView() {
       {/* NOTIFIKASI INFO / ERROR */}
       <div className="callout" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <InformationCircleIcon size={18} />
-        <span>Data Rapor Kesehatan bersifat read-only. Data ini direkap langsung oleh Kader Posyandu Anda.</span>
+        <span>Data Rapor Kesehatan dicatat langsung oleh Kader Posyandu saat jadwal penimbangan.</span>
       </div>
 
       <NotificationModal
@@ -119,8 +150,15 @@ export default function WargaAnakView() {
         <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="section-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ margin: 0 }}>Rapor Bayi & Balita</h3>
-            <Button variant="secondary" size="sm" onClick={() => setShowAddModal(true)}>
-              <Add01Icon size={14} className="me-1" /> Tambah Anak
+            <Button
+              variant="primary"
+              size="sm"
+              icon={Add01Icon}
+              onClick={() => setShowAddModal(true)}
+              title="Tambah Data Anak"
+              aria-label="Tambah Data Anak"
+            >
+              + Tambah Anak
             </Button>
           </div>
 
@@ -149,7 +187,7 @@ export default function WargaAnakView() {
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '20px', color: '#64748b', fontSize: '13px', border: '1px dashed #cbd5e1', borderRadius: '8px' }}>
-              Belum ada data bayi/balita.<br/>Silakan klik tombol <b>Tambah Anak</b> di atas.
+              Belum ada data bayi/balita.<br/>Silakan klik tombol <b>+ Tambah Anak</b> di atas.
             </div>
           )}
         </div>
@@ -158,7 +196,7 @@ export default function WargaAnakView() {
         <div className="card">
           <div className="section-head">
             <h3>Riwayat Pemeriksaan — {currentAnak ? currentAnak.nama : 'Pilih Anak'}</h3>
-            <span className="badge badge-cyan" style={{ background: 'var(--cyan-bg)', color: 'var(--cyan-deep)' }}>Read-only</span>
+            <span className="badge badge-cyan" style={{ background: 'var(--cyan-bg)', color: 'var(--cyan-deep)' }}>Dicatat Kader</span>
           </div>
 
           {currentAnak ? (
@@ -207,7 +245,7 @@ export default function WargaAnakView() {
       <div className="card" style={{ marginTop: '16px' }}>
         <div className="section-head">
           <h3>Rapor Kesehatan Orang Tua & Ibu Hamil</h3>
-          <span className="badge badge-cyan" style={{ background: 'var(--cyan-bg)', color: 'var(--cyan-deep)' }}>Read-only</span>
+          <span className="badge badge-cyan" style={{ background: 'var(--cyan-bg)', color: 'var(--cyan-deep)' }}>Dicatat Kader</span>
         </div>
 
         {lansiaBumilList.length > 0 ? (
@@ -263,10 +301,45 @@ export default function WargaAnakView() {
       {/* =========================================
           MODAL TAMBAH ANAK BARU
           ========================================= */}
-      {showAddModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '450px', backgroundColor: '#fff', borderRadius: '12px', padding: '24px', position: 'relative' }}>
-            <button onClick={() => setShowAddModal(false)} disabled={isSubmitting} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#666' }}>&times;</button>
+      {showAddModal && createPortal(
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)', zIndex: 99999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+          }}
+          onClick={() => { if (!isSubmitting) setShowAddModal(false); }}
+          onTouchMove={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+        >
+          <div
+            className="card"
+            style={{ width: '100%', maxWidth: '450px', backgroundColor: '#fff', borderRadius: '16px', padding: '24px', position: 'relative' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowAddModal(false)}
+              disabled={isSubmitting}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: '#f1f5f9',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#64748b'
+              }}
+              aria-label="Tutup"
+            >
+              <Cancel01Icon size={16} />
+            </button>
 
             <div className="section-head" style={{ borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '16px' }}>
               <h3 style={{ color: 'var(--cyan-deep)', margin: 0 }}>Tambah Data Anak</h3>
@@ -307,13 +380,14 @@ export default function WargaAnakView() {
 
               <div className="form-field full" style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
                 <Button type="button" variant="secondary" onClick={() => setShowAddModal(false)} disabled={isSubmitting} style={{ flex: 1 }}>Batal</Button>
-                <Button type="submit" variant="primary" disabled={isSubmitting} style={{ flex: 1 }}>
-                  {isSubmitting ? 'Menyimpan...' : 'Simpan Anak'}
+                <Button type="submit" variant="primary" disabled={isSubmitting} loading={isSubmitting} loadingText="Menyimpan..." style={{ flex: 1 }}>
+                  Simpan Data
                 </Button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

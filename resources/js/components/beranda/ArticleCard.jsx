@@ -110,10 +110,15 @@ export default function ArticleCard({ onNavigate }) {
           </div>
 
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-            {/* Meta Tanggal */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', fontSize: '12.5px', color: 'var(--neutral-500)', fontWeight: 500 }}>
-              <Clock01Icon size={14} />
-              <span>{formatDate(artikel.published_at)}</span>
+            {/* Meta Tanggal & Posyandu */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '10px', fontSize: '12px', color: 'var(--neutral-500)', fontWeight: 500 }}>
+              <span style={{ color: 'var(--primary-teal, #008080)', fontWeight: 700 }}>
+                {artikel.posyandu?.nama ? `Posyandu ${artikel.posyandu.nama}` : 'Desa Loa Duri Ulu'}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock01Icon size={14} />
+                <span>{formatDate(artikel.published_at || artikel.created_at)}</span>
+              </div>
             </div>
 
             {/* Judul Artikel */}

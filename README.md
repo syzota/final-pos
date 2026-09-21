@@ -29,7 +29,7 @@ Revisi/
 ├── final-pos/                  # Source code aplikasi web utama
 │   ├── app/                    # Controller, Models, Middleware API
 │   ├── docker/                 # Konfigurasi Nginx, PHP, dan entrypoint Docker
-│   ├── docs/                   # 9 Berkas Dokumentasi & Spesifikasi Teknis
+│   ├── .agents/docs/           # 9 Berkas Dokumentasi & Spesifikasi Teknis
 │   ├── public/                 # Asset publik dan bundle frontend
 │   ├── resources/              # Kode sumber React SPA (Pages, Components, Styles)
 │   ├── routes/                 # Rute Laravel (api.php & web.php)
@@ -196,17 +196,17 @@ Gunakan akun-akun berikut untuk menguji 5 tingkatan hak akses pada halaman **Mas
 
 ## Dokumentasi Lengkap Proyek
 
-Seluruh spesifikasi teknis dan panduan arsitektur sistem tersusun rapi di folder [`final-pos/docs/`](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/README.md):
+Seluruh spesifikasi teknis dan panduan arsitektur sistem tersusun rapi di folder [`final-pos/.agents/docs/`](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/README.md):
 
-- 📐 [Arsitektur Sistem (`architecture.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/architecture.md)
-- 🔌 [Spesifikasi API Endpoint (`api.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/api.md)
-- 🗄️ [Struktur Basis Data & Relasi (`database.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/database.md)
-- 📋 [Kebutuhan Fungsional & Non-Fungsional (`requirements.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/requirements.md)
-- 🧩 [Struktur Komponen Frontend (`component.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/component.md)
-- 🎨 [Design System & UI Guidelines (`design.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/design.md)
-- 🗺️ [Peta Situs Navigasi (`sitemap.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/sitemap.md)
-- 🧪 [Rencana Pengujian (`testing.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/testing.md)
-- ✍️ [Standarisasi Teks UX (`ux-copy.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/docs/ux-copy.md)
+- 📐 [Arsitektur Sistem (`architecture.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/architecture.md)
+- 🔌 [Spesifikasi API Endpoint (`api.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/api.md)
+- 🗄️ [Struktur Basis Data & Relasi (`database.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/database.md)
+- 📋 [Kebutuhan Fungsional & Non-Fungsional (`requirements.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/requirements.md)
+- 🧩 [Struktur Komponen Frontend (`component.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/component.md)
+- 🎨 [Design System & UI Guidelines (`design.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/design.md)
+- 🗺️ [Peta Situs Navigasi (`sitemap.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/sitemap.md)
+- 🧪 [Rencana Pengujian (`testing.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/testing.md)
+- ✍️ [Standarisasi Teks UX (`ux-copy.md`)](file:///f:/Pengabdian%20Masyarakat%202026/Web/Revisi/final-pos/.agents/docs/ux-copy.md)
 
 ---
 

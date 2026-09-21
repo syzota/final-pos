@@ -12,4 +12,14 @@ class WargaRemaja extends Model
     protected $table = 'warga_remaja';
 
     protected $fillable = ['keluarga_id', 'nama_remaja', 'tanggal_lahir', 'jenis_kelamin'];
+
+    public function keluarga()
+    {
+        return $this->belongsTo(WargaKeluarga::class, 'keluarga_id');
+    }
+
+    public function pemeriksaan()
+    {
+        return $this->hasMany(PemeriksaanRemaja::class, 'remaja_id');
+    }
 }

@@ -32,4 +32,12 @@ class Artikel extends Model
     {
         return $this->belongsTo(User::class, 'penulis_id'); // Hubungkan dengan penulis_id
     }
+
+    /**
+     * Relasi ke Posyandu
+     */
+    public function posyandu()
+    {
+        return $this->belongsTo(Posyandu::class, 'posyandu_id');
+    }
 }
