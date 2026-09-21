@@ -17,12 +17,12 @@ class FormulirIdentifikasi extends Model
         'bidang',
         'sub_bidang',
         'data_formulir',
-        'dokumentasi_foto'
+        'dokumentasi_foto',
     ];
 
     // Otomatis convert JSON ke Array saat ditarik dari database
     protected $casts = [
-        'data_formulir'    => 'array',
+        'data_formulir' => 'array',
         'dokumentasi_foto' => 'array',
     ];
 }

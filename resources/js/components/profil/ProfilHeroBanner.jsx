@@ -1,24 +1,21 @@
 import React from 'react';
+import PageHero from '../common/PageHero';
 import heroBgPattern from '../../assets/images/profil/hero-bg-pattern.jpg';
+import { FavouriteIcon, UserGroupIcon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function ProfilHeroBanner() {
   return (
-    <div className="profil-hero-card">
-      <div className="hero-bg-wrapper">
-        <img src={heroBgPattern} alt="Decoration Pattern" className="hero-bg-img" />
-      </div>
-      <div className="hero-content">
-        <div className="hero-title-row">
-          <span className="hero-title-main">Profil </span>
-          <span className="hero-badge">Posyandu Loa Duri Ulu</span>
-        </div>
-        <p className="hero-quote">
-          "Selamat datang di halaman resmi Posyandu Loa Duri Ulu. Kami berkomitmen memberikan pelayanan kesehatan primer yang berkualitas, proaktif, dan berkelanjutan bagi ibu hamil, bayi, balita, serta seluruh anggota keluarga untuk mewujudkan generasi sehat dan berkualitas."
-        </p>
-        <p className="hero-desc">
-          Garda terdepan pelayanan kesehatan masyarakat desa, menerapkan transformasi pelayanan kesehatan primer melalui 6 SPM agar setiap warga mendapatkan hak dasarnya secara merata.
-        </p>
-      </div>
-    </div>
+    <PageHero
+      badgeIcon={UserGroupIcon}
+      badgeText="Profil Posyandu"
+      title="Melayani dengan Hati untuk Keluarga Sehat"
+      titleHighlight="Desa Loa Duri Ulu"
+      description="Garda terdepan pendampingan kesehatan keluarga dan balita Desa Loa Duri Ulu."
+      stats={[
+        { icon: FavouriteIcon, label: '9 Posyandu Aktif' },
+        { icon: UserGroupIcon, label: 'Kader & Tenaga Medis Siaga' },
+      ]}
+      bgImage={heroBgPattern}
+    />
   );
 }

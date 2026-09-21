@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../../styles/gantiPassword.css';
+import Button from '../common/Button';
+import NotificationModal from '../common/NotificationModal';
+import {
+  InformationCircleIcon,
+  CheckmarkCircle01Icon,
+  AlertCircleIcon,
+  Key01Icon,
+  ViewOffSlashIcon,
+  ViewIcon,
+  UserCheck01Icon,
+  Building01Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const ROLE_LABELS = {
-  warga: 'Warga',
+  warga: 'Warga Desa',
   kader: 'Kader Posyandu',
   ketua: 'Ketua Posyandu',
   puskesmas: 'Petugas Puskesmas',
@@ -36,20 +47,17 @@ export default function GantiPasswordView() {
     const fetchAccount = async () => {
       try {
         const token = localStorage.getItem('auth_token');
-
         const response = await axios.get('/api/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
         setAccount(response.data.data || null);
       } catch (error) {
         console.error('Gagal memuat akun:', error);
-
         setMessage({
           type: 'error',
-          text: 'Data akun gagal dimuat.',
+          text: 'Data akun pengguna gagal dimuat.',
         });
       } finally {
         setIsLoadingAccount(false);
@@ -61,12 +69,7 @@ export default function GantiPasswordView() {
 
   const handlePinChange = (event) => {
     const { name, value } = event.target;
-
-    // Semua PIN pada fitur baru harus angka dan maksimal 6 digit.
-    const onlyNumbers = value
-      .replace(/\D/g, '')
-      .slice(0, 6);
-
+    const onlyNumbers = value.replace(/\D/g, '').slice(0, 6);
     setFormData((prev) => ({
       ...prev,
       [name]: onlyNumbers,
@@ -87,7 +90,7 @@ export default function GantiPasswordView() {
     if (formData.current_password.length !== 6) {
       setMessage({
         type: 'error',
-        text: 'PIN saat ini harus 6 digit.',
+        text: 'PIN saat ini harus tepat 6 digit angka.',
       });
       return;
     }
@@ -95,15 +98,12 @@ export default function GantiPasswordView() {
     if (formData.new_password.length !== 6) {
       setMessage({
         type: 'error',
-        text: 'PIN baru harus tepat 6 digit.',
+        text: 'PIN baru harus tepat 6 digit angka.',
       });
       return;
     }
 
-    if (
-      formData.new_password !==
-      formData.new_password_confirmation
-    ) {
+    if (formData.new_password !== formData.new_password_confirmation) {
       setMessage({
         type: 'error',
         text: 'Konfirmasi PIN baru tidak cocok.',
@@ -111,10 +111,7 @@ export default function GantiPasswordView() {
       return;
     }
 
-    if (
-      formData.current_password ===
-      formData.new_password
-    ) {
+    if (formData.current_password === formData.new_password) {
       setMessage({
         type: 'error',
         text: 'PIN baru harus berbeda dari PIN saat ini.',
@@ -124,7 +121,6 @@ export default function GantiPasswordView() {
 
     try {
       setIsSaving(true);
-
       const token = localStorage.getItem('auth_token');
 
       const response = await axios.put(
@@ -139,9 +135,7 @@ export default function GantiPasswordView() {
 
       setMessage({
         type: 'success',
-        text:
-          response.data.pesan ||
-          'PIN berhasil diperbarui.',
+        text: response.data.pesan || 'PIN akun Anda berhasil diperbarui!',
       });
 
       setFormData({
@@ -157,10 +151,7 @@ export default function GantiPasswordView() {
       });
     } catch (error) {
       console.error('Gagal mengganti PIN:', error);
-
-      const validationErrors =
-        error.response?.data?.errors;
-
+      const validationErrors = error.response?.data?.errors;
       const firstValidationError = validationErrors
         ? Object.values(validationErrors)?.[0]?.[0]
         : null;
@@ -171,325 +162,382 @@ export default function GantiPasswordView() {
           firstValidationError ||
           error.response?.data?.message ||
           error.response?.data?.pesan ||
-          'PIN gagal diperbarui.',
+          'PIN gagal diperbarui. Pastikan PIN saat ini benar.',
       });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const roleLabel =
-    ROLE_LABELS[account?.role] ||
-    account?.role ||
-    '-';
-
-  const posyanduName =
-    account?.posyandu?.nama || null;
+  const roleLabel = ROLE_LABELS[account?.role] || account?.role || 'Pengguna';
+  const posyanduName = account?.posyandu?.nama || null;
 
   return (
-    <div className="account-pin-page">
+    <>
+      <style>{`
+        .pin-grid-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
+          gap: 24px;
+          align-items: start;
+          width: 100%;
+        }
+        @media (max-width: 900px) {
+          .pin-grid-layout {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
 
-      <section className="account-pin-hero">
-        <div>
-          <span className="account-pin-eyebrow">
-            KEAMANAN AKUN
-          </span>
+      <div style={{ animation: 'fadein 0.3s ease' }}>
+        <NotificationModal
+          isOpen={Boolean(message.text)}
+          type={message.type || 'success'}
+          message={message.text}
+          onClose={() => setMessage({ type: '', text: '' })}
+        />
 
-          <h2>Ganti PIN Akun</h2>
+        <div className="pin-grid-layout">
+          {/* KOLOM KIRI: INFO AKUN & KEAMANAN */}
+          <div
+            className="card"
+            style={{
+              padding: '28px 24px',
+              borderRadius: '16px',
+              backgroundColor: 'var(--surface, #ffffff)',
+              border: '1.5px solid var(--line, #e2e8f0)',
+              textAlign: 'center'
+            }}
+          >
+            <div
+              style={{
+                width: '72px',
+                height: '72px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
+                color: 'var(--primary-teal, #008080)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                fontWeight: 900,
+                margin: '0 auto 14px',
+                border: '2px solid #99f6e4'
+              }}
+            >
+              {account?.name?.charAt(0)?.toUpperCase() || account?.username?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
 
-          <p>
-            Gunakan PIN 6 digit yang mudah Anda ingat,
-            tetapi tidak mudah ditebak orang lain.
-          </p>
-        </div>
+            {isLoadingAccount ? (
+              <p style={{ color: '#64748b', fontSize: '13px' }}>Memuat profil akun...</p>
+            ) : (
+              <>
+                <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                  {account?.name || account?.username || 'Nama Pengguna'}
+                </h3>
 
-        <div className="account-pin-hero-icon">
-          <i className="bi bi-shield-lock-fill"></i>
-        </div>
-      </section>
-
-
-      {message.text && (
-        <div
-          className={`account-pin-alert account-pin-alert--${message.type}`}
-        >
-          <i
-            className={
-              message.type === 'success'
-                ? 'bi bi-check-circle-fill'
-                : 'bi bi-exclamation-circle-fill'
-            }
-          ></i>
-
-          <span>{message.text}</span>
-        </div>
-      )}
-
-
-      <div className="account-pin-layout">
-
-        <aside className="account-pin-profile-card">
-          <div className="account-pin-avatar">
-            {account?.name?.charAt(0)?.toUpperCase() ||
-              account?.username?.charAt(0)?.toUpperCase() ||
-              'U'}
-          </div>
-
-          {isLoadingAccount ? (
-            <p className="account-pin-loading">
-              Memuat akun...
-            </p>
-          ) : (
-            <>
-              <h3>
-                {account?.name ||
-                  account?.username ||
-                  'Pengguna'}
-              </h3>
-
-              <span className="account-pin-role">
-                {roleLabel}
-              </span>
-
-              <div className="account-pin-account-info">
-                <div>
-                  <span>Username</span>
-                  <strong>
-                    {account?.username || '-'}
-                  </strong>
+                <div style={{ display: 'inline-block', marginBottom: '16px' }}>
+                  <span
+                    style={{
+                      fontSize: '11.5px',
+                      fontWeight: 800,
+                      padding: '4px 12px',
+                      borderRadius: '20px',
+                      backgroundColor: 'var(--cyan-bg, #E3F7FB)',
+                      color: 'var(--cyan-deep, #0E7C93)',
+                      border: '1px solid #b3e8f3'
+                    }}
+                  >
+                    {roleLabel}
+                  </span>
                 </div>
 
-                {posyanduName && (
-                  <div>
-                    <span>Posyandu</span>
-                    <strong>{posyanduName}</strong>
+                <div style={{ textAlign: 'left', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '18px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '12.5px', color: '#64748b' }}>Username / ID:</span>
+                    <strong style={{ fontSize: '12.5px', color: '#0f172a' }}>{account?.username || '-'}</strong>
                   </div>
-                )}
-              </div>
-            </>
-          )}
+                  {posyanduName && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
+                      <span style={{ fontSize: '12.5px', color: '#64748b' }}>Posyandu:</span>
+                      <strong style={{ fontSize: '12.5px', color: 'var(--primary-teal, #008080)' }}>{posyanduName}</strong>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
-          <div className="account-pin-security-note">
-            <i className="bi bi-info-circle-fill"></i>
-
-            <p>
-              PIN baru akan disimpan sebagai hash di
-              database. PIN asli tidak disimpan dalam
-              bentuk teks biasa.
-            </p>
-          </div>
-        </aside>
-
-
-        <section className="account-pin-form-card">
-
-          <div className="account-pin-form-head">
-            <div>
-              <span className="account-pin-section-label">
-                PERBARUI PIN
-              </span>
-
-              <h3>Buat PIN Baru</h3>
-
-              <p>
-                Masukkan PIN lama untuk memastikan bahwa
-                perubahan dilakukan oleh pemilik akun.
-              </p>
-            </div>
-
-            <span className="account-pin-six-badge">
-              6 DIGIT
-            </span>
-          </div>
-
-
-          <form onSubmit={handleSubmit}>
-
-            <div className="account-pin-field">
-              <label htmlFor="current_password">
-                PIN Saat Ini
-                <span>*</span>
-              </label>
-
-              <div className="account-pin-input-wrap">
-                <input
-                  id="current_password"
-                  type={
-                    showPin.current
-                      ? 'text'
-                      : 'password'
-                  }
-                  inputMode="numeric"
-                  autoComplete="current-password"
-                  name="current_password"
-                  maxLength="6"
-                  value={formData.current_password}
-                  onChange={handlePinChange}
-                  placeholder="Masukkan 6 digit PIN saat ini"
-                  required
-                />
-
-                <button
-                  type="button"
-                  className="account-pin-eye"
-                  onClick={() =>
-                    togglePin('current')
-                  }
-                  aria-label={
-                    showPin.current
-                      ? 'Sembunyikan PIN'
-                      : 'Tampilkan PIN'
-                  }
-                >
-                  <i
-                    className={
-                      showPin.current
-                        ? 'bi bi-eye-slash-fill'
-                        : 'bi bi-eye-fill'
-                    }
-                  ></i>
-                </button>
-              </div>
-            </div>
-
-
-            <div className="account-pin-divider"></div>
-
-
-            <div className="account-pin-field">
-              <label htmlFor="new_password">
-                PIN Baru
-                <span>*</span>
-              </label>
-
-              <div className="account-pin-input-wrap">
-                <input
-                  id="new_password"
-                  type={
-                    showPin.new
-                      ? 'text'
-                      : 'password'
-                  }
-                  inputMode="numeric"
-                  autoComplete="new-password"
-                  name="new_password"
-                  maxLength="6"
-                  value={formData.new_password}
-                  onChange={handlePinChange}
-                  placeholder="Buat 6 digit PIN baru"
-                  required
-                />
-
-                <button
-                  type="button"
-                  className="account-pin-eye"
-                  onClick={() =>
-                    togglePin('new')
-                  }
-                  aria-label={
-                    showPin.new
-                      ? 'Sembunyikan PIN'
-                      : 'Tampilkan PIN'
-                  }
-                >
-                  <i
-                    className={
-                      showPin.new
-                        ? 'bi bi-eye-slash-fill'
-                        : 'bi bi-eye-fill'
-                    }
-                  ></i>
-                </button>
-              </div>
-            </div>
-
-
-            <div className="account-pin-field">
-              <label htmlFor="new_password_confirmation">
-                Konfirmasi PIN Baru
-                <span>*</span>
-              </label>
-
-              <div className="account-pin-input-wrap">
-                <input
-                  id="new_password_confirmation"
-                  type={
-                    showPin.confirmation
-                      ? 'text'
-                      : 'password'
-                  }
-                  inputMode="numeric"
-                  autoComplete="new-password"
-                  name="new_password_confirmation"
-                  maxLength="6"
-                  value={
-                    formData.new_password_confirmation
-                  }
-                  onChange={handlePinChange}
-                  placeholder="Ulangi 6 digit PIN baru"
-                  required
-                />
-
-                <button
-                  type="button"
-                  className="account-pin-eye"
-                  onClick={() =>
-                    togglePin('confirmation')
-                  }
-                  aria-label={
-                    showPin.confirmation
-                      ? 'Sembunyikan PIN'
-                      : 'Tampilkan PIN'
-                  }
-                >
-                  <i
-                    className={
-                      showPin.confirmation
-                        ? 'bi bi-eye-slash-fill'
-                        : 'bi bi-eye-fill'
-                    }
-                  ></i>
-                </button>
-              </div>
-            </div>
-
-
-            <div className="account-pin-rules">
-              <div>
-                <i className="bi bi-check2-circle"></i>
-                Tepat 6 digit angka
-              </div>
-
-              <div>
-                <i className="bi bi-check2-circle"></i>
-                Berbeda dari PIN lama
-              </div>
-
-              <div>
-                <i className="bi bi-check2-circle"></i>
-                Konfirmasi harus sama
-              </div>
-            </div>
-
-
-            <button
-              type="submit"
-              className="account-pin-submit"
-              disabled={isSaving}
+            <div
+              style={{
+                display: 'flex',
+                gap: '10px',
+                textAlign: 'left',
+                padding: '14px',
+                borderRadius: '12px',
+                backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
+                color: 'var(--primary-teal, #008080)',
+                fontSize: '12px',
+                lineHeight: 1.5,
+                border: '1px solid #ccfbf1'
+              }}
             >
-              <i className="bi bi-key-fill"></i>
+              <InformationCircleIcon size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                PIN baru disimpan dengan enkripsi hash aman. Gunakan kombinasi 6 digit angka yang mudah Anda ingat namun sulit ditebak.
+              </div>
+            </div>
+          </div>
 
-              {isSaving
-                ? 'Memperbarui PIN...'
-                : 'Simpan PIN Baru'}
-            </button>
+          {/* KOLOM KANAN: FORM GANTI PIN */}
+          <div
+            className="card"
+            style={{
+              padding: '28px 24px',
+              borderRadius: '16px',
+              backgroundColor: 'var(--surface, #ffffff)',
+              border: '1.5px solid var(--line, #e2e8f0)'
+            }}
+          >
+            <div style={{ marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--primary-teal, #008080)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Keamanan Akun
+                </span>
+                <h3 style={{ margin: '2px 0 0', fontSize: '17px', fontWeight: 800, color: 'var(--ink, #0f172a)' }}>
+                  Perbarui PIN Akses (6 Digit)
+                </h3>
+              </div>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#475569'
+                }}
+              >
+                PIN NUMERIK
+              </span>
+            </div>
 
-          </form>
+            <form onSubmit={handleSubmit}>
+              {/* PIN SAAT INI */}
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  PIN Saat Ini *
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPin.current ? 'text' : 'password'}
+                    inputMode="numeric"
+                    autoComplete="current-password"
+                    name="current_password"
+                    maxLength={6}
+                    value={formData.current_password}
+                    onChange={handlePinChange}
+                    placeholder="Masukkan 6 digit PIN saat ini"
+                    required
+                    style={{
+                      width: '100%',
+                      minHeight: '46px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #cbd5e1',
+                      padding: '0 44px 0 14px',
+                      fontSize: '15px',
+                      letterSpacing: showPin.current ? 'normal' : '0.2em',
+                      backgroundColor: '#ffffff'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePin('current')}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {showPin.current ? <ViewOffSlashIcon size={18} /> : <ViewIcon size={18} />}
+                  </button>
+                </div>
+              </div>
 
-        </section>
+              <div style={{ height: '1px', backgroundColor: '#f1f5f9', margin: '20px 0' }}></div>
 
+              {/* PIN BARU */}
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  PIN Baru *
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPin.new ? 'text' : 'password'}
+                    inputMode="numeric"
+                    autoComplete="new-password"
+                    name="new_password"
+                    maxLength={6}
+                    value={formData.new_password}
+                    onChange={handlePinChange}
+                    placeholder="Masukkan 6 digit PIN baru"
+                    required
+                    style={{
+                      width: '100%',
+                      minHeight: '46px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #cbd5e1',
+                      padding: '0 44px 0 14px',
+                      fontSize: '15px',
+                      letterSpacing: showPin.new ? 'normal' : '0.2em',
+                      backgroundColor: '#ffffff'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePin('new')}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {showPin.new ? <ViewOffSlashIcon size={18} /> : <ViewIcon size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* KONFIRMASI PIN BARU */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  Konfirmasi PIN Baru *
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPin.confirmation ? 'text' : 'password'}
+                    inputMode="numeric"
+                    autoComplete="new-password"
+                    name="new_password_confirmation"
+                    maxLength={6}
+                    value={formData.new_password_confirmation}
+                    onChange={handlePinChange}
+                    placeholder="Ulangi 6 digit PIN baru"
+                    required
+                    style={{
+                      width: '100%',
+                      minHeight: '46px',
+                      borderRadius: '10px',
+                      border: '1.5px solid #cbd5e1',
+                      padding: '0 44px 0 14px',
+                      fontSize: '15px',
+                      letterSpacing: showPin.confirmation ? 'normal' : '0.2em',
+                      backgroundColor: '#ffffff'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePin('confirmation')}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {showPin.confirmation ? <ViewOffSlashIcon size={18} /> : <ViewIcon size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* ATURAN VALIDASI PIN */}
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '22px' }}>
+                <span
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '4px 10px',
+                    borderRadius: '8px',
+                    backgroundColor: formData.new_password.length === 6 ? '#f0fdf4' : '#f8fafc',
+                    color: formData.new_password.length === 6 ? '#16a34a' : '#64748b',
+                    border: `1px solid ${formData.new_password.length === 6 ? '#bbf7d0' : '#e2e8f0'}`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <CheckmarkCircle01Icon size={13} /> Tepat 6 Angka
+                </span>
+                <span
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '4px 10px',
+                    borderRadius: '8px',
+                    backgroundColor: (formData.new_password && formData.new_password !== formData.current_password) ? '#f0fdf4' : '#f8fafc',
+                    color: (formData.new_password && formData.new_password !== formData.current_password) ? '#16a34a' : '#64748b',
+                    border: `1px solid ${(formData.new_password && formData.new_password !== formData.current_password) ? '#bbf7d0' : '#e2e8f0'}`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <CheckmarkCircle01Icon size={13} /> Berbeda dari PIN Lama
+                </span>
+                <span
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '4px 10px',
+                    borderRadius: '8px',
+                    backgroundColor: (formData.new_password && formData.new_password === formData.new_password_confirmation) ? '#f0fdf4' : '#f8fafc',
+                    color: (formData.new_password && formData.new_password === formData.new_password_confirmation) ? '#16a34a' : '#64748b',
+                    border: `1px solid ${(formData.new_password && formData.new_password === formData.new_password_confirmation) ? '#bbf7d0' : '#e2e8f0'}`,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <CheckmarkCircle01Icon size={13} /> Konfirmasi Cocok
+                </span>
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                icon={Key01Icon}
+                loading={isSaving}
+                loadingText="Menyimpan PIN Baru..."
+                fullWidth
+              >
+                Perbarui PIN Akun Sekarang
+              </Button>
+            </form>
+          </div>
+        </div>
       </div>
-
-    </div>
+    </>
   );
 }

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\DataUmum;
+use Illuminate\Http\Request;
 
 class DataUmumController extends Controller
 {
@@ -22,6 +22,7 @@ class DataUmumController extends Controller
 
         return response()->json([
             'status' => 'sukses',
+            'data' => $riwayat,
             'data' => $riwayat,
         ], 200);
     }
@@ -113,6 +114,8 @@ class DataUmumController extends Controller
 
         return response()->json([
             'status' => 'sukses',
+            'pesan' => 'Pencatatan Data Umum berhasil disimpan!',
+            'data' => $dataUmum,
             'pesan' => 'Pencatatan Data Umum berhasil disimpan!',
             'data' => $dataUmum,
         ], 201);

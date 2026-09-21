@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Button from '../common/Button';
+
+import {
+    InformationCircleIcon,
+    Calculator01Icon,
+    FavouriteIcon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 const CALC_CATEGORIES = {
     hamil: { label: 'Ibu Hamil', tools: ['usia_hpl', 'janin', 'bb_hamil', 'imt_hamil'] },
@@ -223,7 +230,7 @@ export default function WargaKalkulatorView() {
     return (
         <>
             <div className="callout" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <i className="bi bi-info-circle-fill" style={{ fontSize: '16px' }}></i>
+                <InformationCircleIcon size={18} />
                 <span>Kalkulator mandiri, lebih lengkap dari kalkulator publik — hasil hanya membantu interpretasi awal, bukan pengganti penilaian ahli gizi/tenaga medis/bidan. Input tidak disimpan ke server.</span>
             </div>
 
@@ -270,7 +277,7 @@ export default function WargaKalkulatorView() {
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
-                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><i className="bi bi-calculator me-1"></i>Hasil</h3></div>
+                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><Calculator01Icon size={16} className="me-1" />Hasil</h3></div>
                             <div className="result-box">
                                 <div>
                                     <div className="r-num">{getHplResult().usia}</div>
@@ -300,7 +307,7 @@ export default function WargaKalkulatorView() {
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--magenta-bg)', border: 'none' }}>
-                            <div className="section-head"><h3 style={{ color: 'var(--magenta-deep)' }}><i className="bi bi-heart-fill me-1"></i>Perkiraan Perkembangan</h3></div>
+                            <div className="section-head"><h3 style={{ color: 'var(--magenta-deep)' }}><FavouriteIcon size={16} className="me-1" />Perkiraan Perkembangan</h3></div>
                             <div className="result-box">
                                 <div>
                                     <div className="r-num">{getJaninResult().ukuran}</div>
@@ -324,7 +331,7 @@ export default function WargaKalkulatorView() {
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--green-bg)', border: 'none' }}>
-                            <div className="section-head"><h3 style={{ color: 'var(--green-deep)' }}><i className="bi bi-calculator me-1"></i>Hasil</h3></div>
+                            <div className="section-head"><h3 style={{ color: 'var(--green-deep)' }}><Calculator01Icon size={16} className="me-1" />Hasil</h3></div>
                             <div className="result-box">
                                 <div>
                                     <div className="r-num">{getBBHamilResult().result}</div>
@@ -350,7 +357,7 @@ export default function WargaKalkulatorView() {
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
-                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><i className="bi bi-calculator me-1"></i>Hasil IMT</h3></div>
+                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><Calculator01Icon size={16} className="me-1" />Hasil IMT</h3></div>
                             <div className="result-box">
                                 <div>
                                     <div className="r-num">{getImtHamilResult().result}</div>
@@ -385,7 +392,7 @@ export default function WargaKalkulatorView() {
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
-                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><i className="bi bi-calculator me-1"></i>Hasil Status Gizi</h3></div>
+                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><Calculator01Icon size={16} className="me-1" />Hasil Status Gizi</h3></div>
                             <div className="result-box">
                                 <div>
                                     <div className="r-num">{getStatusGiziResult().result}</div>
@@ -417,7 +424,7 @@ export default function WargaKalkulatorView() {
                             </div>
                         </div>
                         <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
-                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><i className="bi bi-calculator me-1"></i>Hasil IMT</h3></div>
+                            <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><Calculator01Icon size={16} className="me-1" />Hasil IMT</h3></div>
                             <div className="result-box">
                                 <div>
                                     <div className="r-num">{getImtIdealResult().result}</div>
@@ -459,7 +466,7 @@ export default function WargaKalkulatorView() {
                                 </div>
                             </div>
                             <div className="card" style={{ background: 'var(--cyan-bg)', border: 'none' }}>
-                                <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><i className="bi bi-calculator me-1"></i>Kebutuhan Kalori (TDEE)</h3></div>
+                                <div className="section-head"><h3 style={{ color: 'var(--cyan-deep)' }}><Calculator01Icon size={16} className="me-1" />Kebutuhan Kalori (TDEE)</h3></div>
                                 <div className="result-box">
                                     <div>
                                         <div className="r-num">{getTDEE() ? `${getTDEE()} kkal/hari` : '— kkal'}</div>
@@ -488,7 +495,9 @@ export default function WargaKalkulatorView() {
                                     <label>Porsi</label>
                                     <input type="number" min="1" value={foodQty} onChange={e => setFoodQty(e.target.value)} />
                                 </div>
-                                <button className="btn btn-violet" style={{ height: '38px' }} onClick={addFoodItem} disabled={foodDb.length === 0}>Tambah</button>
+                                <Button variant="primary" onClick={addFoodItem} disabled={foodDb.length === 0}>
+                                    Tambah
+                                </Button>
                             </div>
 
                             <div className="table-responsive">
@@ -503,7 +512,7 @@ export default function WargaKalkulatorView() {
                                                 <td>{item.nama}</td>
                                                 <td>{item.qty}x</td>
                                                 <td>{item.qty * item.kaloriSatuan} kkal</td>
-                                                <td><button className="btn btn-sm btn-outline" onClick={() => removeFoodItem(i)}>Hapus</button></td>
+                                                <td><Button variant="danger-outline" size="sm" onClick={() => removeFoodItem(i)}>Hapus</Button></td>
                                             </tr>
                                         ))
                                     )}

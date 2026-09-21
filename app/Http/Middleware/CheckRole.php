@@ -14,11 +14,12 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // Cek apakah role user saat ini ada di dalam daftar role yang diizinkan
-        if (!in_array($request->user()->role, $roles)) {
+        // Cek apakah user login dan memiliki role yang diizinkan
+        $user = $request->user();
+        if (! $user || ! in_array($user->role, $roles)) {
             return response()->json([
                 'status' => 'gagal',
-                'pesan' => 'Akses ditolak (403 Forbidden). Anda tidak memiliki izin untuk tindakan ini.'
+                'pesan' => 'Akses ditolak (403 Forbidden). Anda tidak memiliki izin untuk tindakan ini.',
             ], 403);
         }
 

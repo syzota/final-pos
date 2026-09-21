@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import NotificationModal from '../common/NotificationModal';
+import Button from '../common/Button';
+
+import {
+  InformationCircleIcon,
+  Alert02Icon,
+  CheckmarkCircle01Icon,
+  Add01Icon,
+  UserIcon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function WargaAnakView() {
   const [currentAnakIdx, setCurrentAnakIdx] = useState(0);
@@ -89,31 +99,29 @@ export default function WargaAnakView() {
 
       {/* NOTIFIKASI INFO / ERROR */}
       <div className="callout" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <i className="bi bi-info-circle-fill" style={{ fontSize: '16px' }}></i>
+        <InformationCircleIcon size={18} />
         <span>Data Rapor Kesehatan bersifat read-only. Data ini direkap langsung oleh Kader Posyandu Anda.</span>
       </div>
 
-      {errorMsg && (
-        <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: '#fde8e8', color: '#c81e1e', fontSize: '14px', fontWeight: '500' }}>
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>{errorMsg}
-        </div>
-      )}
+      <NotificationModal
+        isOpen={Boolean(errorMsg || successMsg)}
+        type={errorMsg ? 'error' : 'success'}
+        message={errorMsg || successMsg}
+        onClose={() => {
+          setErrorMsg('');
+          setSuccessMsg('');
+        }}
+      />
 
-      {successMsg && (
-        <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: '#e1fce8', color: '#036c2a', fontSize: '14px', fontWeight: '500' }}>
-          <i className="bi bi-check-circle-fill me-2"></i>{successMsg}
-        </div>
-      )}
-
-      <div className="grid grid-2" style={{ gridTemplateColumns: '.9fr 1.3fr' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px' }}>
 
         {/* === MENU ANAK === */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="section-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h3 style={{ margin: 0 }}>Rapor Bayi & Balita</h3>
-            <button className="btn btn-sm btn-outline" style={{ color: 'var(--cyan-deep)', borderColor: 'var(--cyan-deep)' }} onClick={() => setShowAddModal(true)}>
-              <i className="bi bi-plus-lg"></i> Tambah Anak
-            </button>
+            <Button variant="secondary" size="sm" onClick={() => setShowAddModal(true)}>
+              <Add01Icon size={14} className="me-1" /> Tambah Anak
+            </Button>
           </div>
 
           {anakList.length > 0 ? (
@@ -129,7 +137,7 @@ export default function WargaAnakView() {
                     onClick={() => setCurrentAnakIdx(i)}
                   >
                     <div className="bidang-icon-tile" style={{ background: c[0], color: c[1] }}>
-                      <i className="bi bi-person-fill" style={{ fontSize: '18px' }}></i>
+                      <UserIcon size={18} />
                     </div>
                     <div>
                       <p style={{ fontWeight: 700, fontSize: '13px', margin: 0, color: '#334155' }}>{a.nama}</p>
@@ -298,10 +306,10 @@ export default function WargaAnakView() {
               </div>
 
               <div className="form-field full" style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                <button type="button" onClick={() => setShowAddModal(false)} disabled={isSubmitting} className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }}>Batal</button>
-                <button type="submit" disabled={isSubmitting} className="btn btn-violet" style={{ flex: 1, justifyContent: 'center', background: 'var(--cyan-deep)' }}>
+                <Button type="button" variant="secondary" onClick={() => setShowAddModal(false)} disabled={isSubmitting} style={{ flex: 1 }}>Batal</Button>
+                <Button type="submit" variant="primary" disabled={isSubmitting} style={{ flex: 1 }}>
                   {isSubmitting ? 'Menyimpan...' : 'Simpan Anak'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

@@ -14,14 +14,14 @@ class PemeriksaanBalita extends Model
     protected $fillable = [
         'anak_id', 'kader_id', 'tanggal_periksa', 'umur_bulan',
         'berat_badan', 'tinggi_badan', 'lingkar_kepala', 'lingkar_lengan',
-        'catatan_perkembangan', 'status_gizi', 'imunisasi', 'dokumentasi_foto', 'status_form'
+        'catatan_perkembangan', 'status_gizi', 'imunisasi', 'dokumentasi_foto', 'status_form',
     ];
 
     // Karena menggunakan tipe JSON di database, kita ubah jadi Array saat ditarik ke Laravel
     protected $casts = [
         'imunisasi' => 'array',
         'dokumentasi_foto' => 'array',
-        'tanggal_periksa' => 'date'
+        'tanggal_periksa' => 'date',
     ];
 
     public function anak()

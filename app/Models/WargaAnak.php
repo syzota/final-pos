@@ -10,11 +10,12 @@ class WargaAnak extends Model
     use HasFactory;
 
     protected $table = 'warga_anak';
+
     protected $fillable = [
         'keluarga_id',
         'nama_anak',
         'tanggal_lahir',
-        'jenis_kelamin'
+        'jenis_kelamin',
     ];
 
     public function keluarga()

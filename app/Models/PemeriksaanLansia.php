@@ -14,12 +14,12 @@ class PemeriksaanLansia extends Model
     protected $fillable = [
         'lansia_id', 'kader_id', 'tanggal_periksa', 'berat_badan',
         'tinggi_badan', 'lingkar_pinggang', 'tekanan_darah', 'tensi',
-        'gula_darah', 'nadi', 'status_imt', 'dokumentasi_foto', 'status_form'
+        'gula_darah', 'nadi', 'status_imt', 'dokumentasi_foto', 'status_form',
     ];
 
     protected $casts = [
         'dokumentasi_foto' => 'array',
-        'tanggal_periksa' => 'date'
+        'tanggal_periksa' => 'date',
     ];
 
     public function kader()
@@ -27,7 +27,9 @@ class PemeriksaanLansia extends Model
         // Mengarahkan 'kader_id' di tabel pemeriksaan ke tabel 'users'
         return $this->belongsTo(User::class, 'kader_id');
     }
-    public function lansia() {
+
+    public function lansia()
+    {
         return $this->belongsTo(WargaDewasa::class, 'lansia_id');
     }
 }

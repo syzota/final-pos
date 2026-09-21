@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PencatatanKegiatan;
+use Illuminate\Http\Request;
 
 class PencatatanKegiatanController extends Controller
 {
@@ -92,21 +92,10 @@ class PencatatanKegiatanController extends Controller
             'kematian_balita' => ['nullable', 'integer'],
         ]);
 
-        /*
-         * Pertahankan perilaku lama:
-         * input angka kosong/null diubah menjadi 0.
-         */
-        $textFields = [
-            'nama_posyandu',
-            'ketua_pelaksana',
-            'signature_data',
-        ];
-
-        foreach ($validated as $key => $value) {
-            if (! in_array($key, $textFields, true)) {
-                $validated[$key] = $value === null || $value === ''
-                    ? 0
-                    : (int) $value;
+        // Ubah string kosong jadi 0 untuk input angka
+        foreach ($data as $key => $value) {
+            if (! in_array($key, $textFields) && $key !== 'posyandu_id') {
+                $data[$key] = empty($value) ? 0 : (int) $value;
             }
         }
 
@@ -143,16 +132,11 @@ class PencatatanKegiatanController extends Controller
             ->first();
 
         if (! $pencatatan) {
-            return response()->json([
-                'pesan' => 'Data tidak ditemukan.',
-            ], 404);
+            return response()->json(['pesan' => 'Data tidak ditemukan.'], 404);
         }
 
         $pencatatan->delete();
 
-        return response()->json([
-            'status' => 'sukses',
-            'pesan' => 'Data berhasil dihapus.',
-        ], 200);
+        return response()->json(['status' => 'sukses', 'pesan' => 'Data berhasil dihapus.'], 200);
     }
 }

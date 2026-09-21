@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Jadwal;
 use App\Models\Posyandu; // PENTING: Gunakan Model agar bisa pakai relasi jadwal
-use App\Models\Jadwal;   // PENTING: Import model Jadwal
+use Illuminate\Http\Request;   // PENTING: Import model Jadwal
 
 class PosyanduController extends Controller
 {
@@ -20,14 +20,14 @@ class PosyanduController extends Controller
         if ($posyandus->isEmpty()) {
             return response()->json([
                 'status' => 'error',
-                'pesan' => 'Data Posyandu tidak ditemukan'
+                'pesan' => 'Data Posyandu tidak ditemukan',
             ], 404);
         }
 
         return response()->json([
             'status' => 'sukses',
             'pesan' => 'Data Profil 9 Posyandu berhasil diambil',
-            'data' => $posyandus
+            'data' => $posyandus,
         ]);
     }
 
@@ -43,7 +43,7 @@ class PosyanduController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'data' => $posyandu
+            'data' => $posyandu,
         ]);
     }
 
@@ -77,7 +77,7 @@ class PosyanduController extends Controller
                 Jadwal::updateOrCreate(
                     ['posyandu_id' => $posyanduId],
                     [
-                        'keterangan_waktu' => trim($request->keterangan_waktu)
+                        'keterangan_waktu' => trim($request->keterangan_waktu),
                     ]
                 );
 
@@ -94,7 +94,7 @@ class PosyanduController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'pesan' => 'Profil Posyandu dan Jadwal berhasil diperbarui!'
+            'pesan' => 'Profil Posyandu dan Jadwal berhasil diperbarui!',
         ]);
     }
 }

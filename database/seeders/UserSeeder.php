@@ -2,96 +2,120 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Posyandu;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Daftar 9 Posyandu Tetap
-        $daftarPosyandu = [
-            'Melati',
-            'Rukun Lestari',
-            'Mawar',
-            'Bina Putra',
-            'Nusa Indah',
-            'Cempaka',
-            'Tunas Mulya',
-            'Surya',
-            'Terkini'
+        // Kredensial Resmi Sesuai File Excel (KREDENSIAL) Password Akun Posyandu Loa Duri Ulu.xlsx
+        $kredensial = [
+            'Melati' => [
+                'ketua' => ['username' => 'ketua.melati', 'pin' => '528369'],
+                'kader' => ['username' => 'kader.melati', 'pin' => '466136'],
+            ],
+            'Rukun Lestari' => [
+                'ketua' => ['username' => 'ketua.rukunlestari', 'pin' => '801608'],
+                'kader' => ['username' => 'kader.rukunlestari', 'pin' => '484106'],
+            ],
+            'Mawar' => [
+                'ketua' => ['username' => 'ketua.mawar', 'pin' => '309093'],
+                'kader' => ['username' => 'kader.mawar', 'pin' => '123456'],
+            ],
+            'Bina Putra' => [
+                'ketua' => ['username' => 'ketua.binaputra', 'pin' => '869853'],
+                'kader' => ['username' => 'kader.binaputra', 'pin' => '480300'],
+            ],
+            'Nusa Indah' => [
+                'ketua' => ['username' => 'ketua.nusaindah', 'pin' => '523637'],
+                'kader' => ['username' => 'kader.nusaindah', 'pin' => '745041'],
+            ],
+            'Cempaka' => [
+                'ketua' => ['username' => 'ketua.cempaka', 'pin' => '541143'],
+                'kader' => ['username' => 'kader.cempaka', 'pin' => '686417'],
+            ],
+            'Tunas Mulya' => [
+                'ketua' => ['username' => 'ketua.tunasmulya', 'pin' => '185530'],
+                'kader' => ['username' => 'kader.tunasmulya', 'pin' => '864263'],
+            ],
+            'Surya' => [
+                'ketua' => ['username' => 'ketua.surya', 'pin' => '633891'],
+                'kader' => ['username' => 'kader.surya', 'pin' => '578135'],
+            ],
+            'Terkini' => [
+                'ketua' => ['username' => 'ketua.terkini', 'pin' => '356014'],
+                'kader' => ['username' => 'kader.terkini', 'pin' => '314554'],
+            ],
         ];
 
         $posyanduData = [];
 
-        // Looping untuk membuat Posyandu dan Akun Pengelolanya secara otomatis
-        foreach ($daftarPosyandu as $nama) {
-            // Buat Posyandu
+        // 1. Loop 9 Posyandu
+        foreach ($kredensial as $nama => $roles) {
             $posyandu = Posyandu::updateOrCreate(
                 ['nama' => $nama],
-                ['alamat' => 'Desa Loa Duri Ulu'] // Alamat bawaan
+                ['alamat' => 'Desa Loa Duri Ulu']
             );
-            $posyanduData[$nama] = $posyandu->id; // Simpan ID untuk referensi
+            $posyanduData[$nama] = $posyandu->id;
 
-            // Format username (menghapus spasi dan mengubah jadi huruf kecil)
-            // Contoh: 'Rukun Lestari' menjadi 'rukunlestari'
-            $usernameSuffix = strtolower(str_replace(' ', '', $nama));
-
-            // Buat Akun Ketua otomatis
+            // Akun Ketua (User model otomatis mem-bcrypt password via casts ['password' => 'hashed'])
             User::updateOrCreate(
-                ['username'  => 'ketua.' . $usernameSuffix],
+                ['username' => $roles['ketua']['username']],
                 [
-                    'name'        => 'Ketua ' . $nama,
-                    'role'        => 'ketua',
+                    'name' => 'Ketua '.$nama,
+                    'role' => 'ketua',
                     'posyandu_id' => $posyandu->id,
-                    'password'    => 'password123',
+                    'password' => $roles['ketua']['pin'],
                 ]
             );
 
-            // Buat Akun Kader otomatis
+            // Akun Kader
             User::updateOrCreate(
-                ['username'  => 'kader.' . $usernameSuffix],
+                ['username' => $roles['kader']['username']],
                 [
-                    'name'        => 'Kader ' . $nama,
-                    'role'        => 'kader',
+                    'name' => 'Kader '.$nama,
+                    'role' => 'kader',
                     'posyandu_id' => $posyandu->id,
-                    'password'    => 'password123',
+                    'password' => $roles['kader']['pin'],
                 ]
             );
         }
 
         // 2. Akun Superadmin (Perangkat Desa)
         User::updateOrCreate(
-            ['username'  => 'admin.desa'],
+            ['username' => 'admin.desa'],
             [
-                'name'        => 'Admin Desa Loa Duri Ulu',
-                'role'        => 'superadmin',
+                'name' => 'Admin Desa Loa Duri Ulu',
+                'role' => 'superadmin',
                 'posyandu_id' => null,
-                'password'    => 'password123',
+                'password' => '887201',
             ]
         );
 
         // 3. Akun Petugas Puskesmas
         User::updateOrCreate(
-            ['username'  => 'petugas.puskesmas'],
+            ['username' => 'petugas.puskesmas'],
             [
-                'name'        => 'Bidan Fitri',
-                'role'        => 'puskesmas',
+                'name' => 'Bidan Fitri',
+                'role' => 'puskesmas',
                 'posyandu_id' => null,
-                'password'    => 'password123',
+                'password' => '889148',
             ]
         );
 
         // 4. Akun Warga Contoh (Terdaftar di Posyandu Melati)
-        User::updateOrCreate(
-            ['username'  => 'warga.budi'],
-            [
-                'name'        => 'Budi Santoso',
-                'role'        => 'warga',
-                'posyandu_id' => $posyanduData['Melati'], // Mengambil ID Melati dari array
-                'password'    => '000000',
-            ]
-        );
+        if (isset($posyanduData['Melati'])) {
+            User::updateOrCreate(
+                ['username' => 'warga.budi'],
+                [
+                    'name' => 'Budi Santoso',
+                    'role' => 'warga',
+                    'posyandu_id' => $posyanduData['Melati'],
+                    'password' => '123456',
+                ]
+            );
+        }
     }
 }

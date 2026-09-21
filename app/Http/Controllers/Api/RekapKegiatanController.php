@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\RekapKegiatan;
+use Illuminate\Http\Request;
 
 class RekapKegiatanController extends Controller
 {
@@ -22,6 +22,7 @@ class RekapKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
+            'data' => $riwayat,
             'data' => $riwayat,
         ], 200);
     }
@@ -122,6 +123,8 @@ class RekapKegiatanController extends Controller
             'status' => 'sukses',
             'pesan' => 'Data Hasil Kegiatan Posyandu berhasil disimpan!',
             'data' => $rekap,
+            'pesan' => 'Data Hasil Kegiatan Posyandu berhasil disimpan!',
+            'data' => $rekap,
         ], 201);
     }
 
@@ -151,6 +154,7 @@ class RekapKegiatanController extends Controller
 
         return response()->json([
             'status' => 'sukses',
+            'pesan' => 'Data rekap berhasil dihapus.',
             'pesan' => 'Data rekap berhasil dihapus.',
         ], 200);
     }

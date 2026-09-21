@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PemeriksaanBalita;
 use App\Models\WargaAnak;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +14,14 @@ class PemeriksaanBalitaController extends Controller
         // 1. Validasi input dari React
         $request->validate([
             'pemeriksaan_id' => 'nullable|integer',
+            'anak_id' => 'required|exists:warga_anak,id',
+            'tanggal_periksa' => 'required|date',
+            'umur_bulan' => 'required|integer|min:0',
+            'berat_badan' => 'required|numeric',
+            'tinggi_badan' => 'required|numeric',
+            'lingkar_kepala' => 'nullable|numeric',
+            'lingkar_lengan' => 'nullable|numeric',
+            'status_gizi' => 'nullable|string',
             'anak_id' => 'required|exists:warga_anak,id',
             'tanggal_periksa' => 'required|date',
             'umur_bulan' => 'required|integer|min:0',
@@ -176,6 +183,7 @@ class PemeriksaanBalitaController extends Controller
             'data' => $pemeriksaan
         ], 201);
     }
+
 
     public function getForAdmin(Request $request)
     {

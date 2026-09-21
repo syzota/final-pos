@@ -13,22 +13,22 @@ class PemeriksaanLansiaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pemeriksaan_id'     => 'nullable|integer',
-            'lansia_id'          => 'required|string',
-            'nama_lansia_baru'   => 'required_if:lansia_id,baru|string',
+            'pemeriksaan_id' => 'nullable|integer',
+            'lansia_id' => 'required|string',
+            'nama_lansia_baru' => 'required_if:lansia_id,baru|string',
             'jenis_kelamin_baru' => 'required_if:lansia_id,baru|in:L,P',
-            'tanggal_periksa'    => 'required|date',
-            'berat_badan'        => 'required|numeric',
-            'tinggi_badan'       => 'required|numeric',
-            'lingkar_pinggang'   => 'nullable|numeric',
-            'tekanan_darah'      => 'nullable|string',
-            'tensi'              => 'nullable|in:Rendah,Normal,Tinggi',
-            'gula_darah'         => 'nullable|integer',
-            'nadi'               => 'nullable|integer',
-            'status_imt'         => 'nullable|string',
-            'status_form'        => 'required|in:draft,final',
-            'dokumentasi_foto'   => 'nullable|array|max:5',
-            'dokumentasi_foto.*' => 'image|mimes:jpeg,png,jpg|max:2048'
+            'tanggal_periksa' => 'required|date',
+            'berat_badan' => 'required|numeric',
+            'tinggi_badan' => 'required|numeric',
+            'lingkar_pinggang' => 'nullable|numeric',
+            'tekanan_darah' => 'nullable|string',
+            'tensi' => 'nullable|in:Rendah,Normal,Tinggi',
+            'gula_darah' => 'nullable|integer',
+            'nadi' => 'nullable|integer',
+            'status_imt' => 'nullable|string',
+            'status_form' => 'required|in:draft,final',
+            'dokumentasi_foto' => 'nullable|array|max:5',
+            'dokumentasi_foto.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $user = $request->user();
@@ -173,8 +173,11 @@ class PemeriksaanLansiaController extends Controller
 
             $lansiaBaru = WargaDewasa::create([
                 'nama_lengkap' => $request->nama_lansia_baru,
+            $lansiaBaru = WargaDewasa::create([
+                'nama_lengkap' => $request->nama_lansia_baru,
                 'jenis_kelamin' => $request->jenis_kelamin_baru,
                 'tanggal_lahir' => $tanggalLahirPerkiraan,
+                'keluarga_id' => null,
                 'keluarga_id' => null,
             ]);
 

@@ -4,6 +4,9 @@ import Footer from '../components/common/Footer';
 import WelcomeBanner from '../components/beranda/WelcomeBanner';
 import FeatureCards from '../components/beranda/FeatureCards';
 import ArticleCard from '../components/beranda/ArticleCard';
+import SectionHeader from '../components/common/SectionHeader';
+import Button from '../components/common/Button';
+import { ArrowRight01Icon } from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function Beranda({ activePage = 'beranda', onNavigate, onDarurat }) {
   return (
@@ -16,22 +19,33 @@ export default function Beranda({ activePage = 'beranda', onNavigate, onDarurat 
           <WelcomeBanner onNavigate={onNavigate} />
         </section>
 
-        {/* Fitur Kami */}
-        <section className="indicators-section">
+        {/* Fitur Akses Cepat */}
+        <section className="indicators-section" style={{ marginTop: '24px' }}>
           <FeatureCards onNavigate={onNavigate} onDarurat={onDarurat} />
         </section>
 
         {/* Artikel Kesehatan Terbaru */}
-        <section className="content-grid" style={{ marginTop: '40px', marginBottom: '60px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '24px', color: 'var(--ink)', margin: 0 }}>Artikel Kesehatan Terbaru</h2>
-            <button className="btn btn-outline" onClick={() => onNavigate && onNavigate('artikel')}>
-              Lihat Semua Artikel
-            </button>
-          </div>
+        <section className="content-grid" style={{ marginTop: '48px', marginBottom: '64px' }}>
+          <SectionHeader
+            eyebrow="Edukasi & Informasi Terkini"
+            title="Artikel Kesehatan Terbaru"
+            description="Informasi terpercaya seputar tumbuh kembang balita, pola gizi keluarga, dan tips kesehatan dari kader Posyandu terpercaya."
+          />
 
-          {/* Meneruskan onNavigate agar kartu artikel bisa diklik */}
+          {/* Grid Kartu Artikel */}
           <ArticleCard onNavigate={onNavigate} />
+
+          {/* Tombol Lihat Semua Artikel */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+            <Button
+              variant="primary"
+              size="lg"
+              iconRight={ArrowRight01Icon}
+              onClick={() => onNavigate && onNavigate('artikel')}
+            >
+              Lihat Semua Artikel Kesehatan
+            </Button>
+          </div>
         </section>
       </main>
 

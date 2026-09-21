@@ -1,277 +1,901 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Button from "../common/Button";
+import NotificationModal from "../common/NotificationModal";
+import {
+    InformationCircleIcon,
+    Search01Icon,
+    Add01Icon,
+    Edit02Icon,
+    Delete02Icon,
+    KitchenUtensilsIcon,
+    CheckmarkCircle01Icon,
+    AlertCircleIcon,
+    Cancel01Icon,
+    FloppyDiskIcon,
+    RefreshIcon,
+} from "@theexperiencecompany/gaia-icons/solid-rounded";
 
-// === DATABASE PINTAR (MINI API MAKANAN INDONESIA) ===
-// Bertindak sebagai "API Luar" agar Kader tidak perlu menebak kalori
 const EXTERNAL_API_MOCK = [
-  { nama_makanan: 'Nasi Putih (1 centong/100g)', kalori_per_porsi: 130 },
-  { nama_makanan: 'Nasi Goreng (1 porsi)', kalori_per_porsi: 267 },
-  { nama_makanan: 'Mie Ayam (1 mangkuk)', kalori_per_porsi: 330 },
-  { nama_makanan: 'Bakso Sapi (1 mangkuk)', kalori_per_porsi: 326 },
-  { nama_makanan: 'Sate Ayam (10 tusuk)', kalori_per_porsi: 340 },
-  { nama_makanan: 'Soto Ayam (1 mangkuk)', kalori_per_porsi: 220 },
-  { nama_makanan: 'Rendang Sapi (1 potong)', kalori_per_porsi: 195 },
-  { nama_makanan: 'Gado-Gado (1 porsi)', kalori_per_porsi: 318 },
-  { nama_makanan: 'Tempe Goreng (1 potong)', kalori_per_porsi: 34 },
-  { nama_makanan: 'Tahu Goreng (1 potong)', kalori_per_porsi: 35 },
-  { nama_makanan: 'Ayam Goreng (1 potong)', kalori_per_porsi: 260 },
-  { nama_makanan: 'Ikan Bakar (1 potong)', kalori_per_porsi: 150 },
-  { nama_makanan: 'Es Teh Manis (1 gelas)', kalori_per_porsi: 90 },
-  { nama_makanan: 'Kopi Manis (1 cangkir)', kalori_per_porsi: 70 },
-  { nama_makanan: 'Pisang Goreng (1 potong)', kalori_per_porsi: 140 },
-  { nama_makanan: 'Telur Mata Sapi (1 butir)', kalori_per_porsi: 92 },
-  { nama_makanan: 'Telur Rebus (1 butir)', kalori_per_porsi: 77 },
-  { nama_makanan: 'Susu Sapi (1 gelas)', kalori_per_porsi: 146 },
-  { nama_makanan: 'Roti Tawar (1 lembar)', kalori_per_porsi: 75 },
-  { nama_makanan: 'Mie Instan Goreng (1 bungkus)', kalori_per_porsi: 380 },
-  { nama_makanan: 'Mie Instan Kuah (1 bungkus)', kalori_per_porsi: 330 },
-  { nama_makanan: 'Bubur Ayam (1 mangkuk)', kalori_per_porsi: 372 },
-  { nama_makanan: 'Nasi Padang (1 porsi komplit)', kalori_per_porsi: 680 },
-  { nama_makanan: 'Pempek (1 porsi)', kalori_per_porsi: 390 },
-  { nama_makanan: 'Sayur Sop (1 mangkuk)', kalori_per_porsi: 70 },
+    {
+        nama_makanan: "Nasi Putih (1 centong / 100g)",
+        kalori_per_porsi: 130,
+        kategori: "Pokok",
+    },
+    {
+        nama_makanan: "Nasi Goreng (1 porsi)",
+        kalori_per_porsi: 267,
+        kategori: "Pokok",
+    },
+    {
+        nama_makanan: "Mie Ayam (1 mangkuk)",
+        kalori_per_porsi: 330,
+        kategori: "Olahan",
+    },
+    {
+        nama_makanan: "Bakso Sapi (1 mangkuk)",
+        kalori_per_porsi: 326,
+        kategori: "Olahan",
+    },
+    {
+        nama_makanan: "Sate Ayam (10 tusuk)",
+        kalori_per_porsi: 340,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Soto Ayam (1 mangkuk)",
+        kalori_per_porsi: 220,
+        kategori: "Olahan",
+    },
+    {
+        nama_makanan: "Rendang Sapi (1 potong)",
+        kalori_per_porsi: 195,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Gado-Gado (1 porsi)",
+        kalori_per_porsi: 318,
+        kategori: "Sayur",
+    },
+    {
+        nama_makanan: "Tempe Goreng (1 potong)",
+        kalori_per_porsi: 34,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Tahu Goreng (1 potong)",
+        kalori_per_porsi: 35,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Ayam Goreng (1 potong)",
+        kalori_per_porsi: 260,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Ikan Bakar (1 potong)",
+        kalori_per_porsi: 150,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Es Teh Manis (1 gelas)",
+        kalori_per_porsi: 90,
+        kategori: "Minuman",
+    },
+    {
+        nama_makanan: "Kopi Manis (1 cangkir)",
+        kalori_per_porsi: 70,
+        kategori: "Minuman",
+    },
+    {
+        nama_makanan: "Pisang Goreng (1 potong)",
+        kalori_per_porsi: 140,
+        kategori: "Camilan",
+    },
+    {
+        nama_makanan: "Telur Mata Sapi (1 butir)",
+        kalori_per_porsi: 92,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Telur Rebus (1 butir)",
+        kalori_per_porsi: 77,
+        kategori: "Lauk",
+    },
+    {
+        nama_makanan: "Susu Sapi (1 gelas)",
+        kalori_per_porsi: 146,
+        kategori: "Minuman",
+    },
+    {
+        nama_makanan: "Roti Tawar (1 lembar)",
+        kalori_per_porsi: 75,
+        kategori: "Pokok",
+    },
+    {
+        nama_makanan: "Mie Instan Goreng (1 bungkus)",
+        kalori_per_porsi: 380,
+        kategori: "Olahan",
+    },
+    {
+        nama_makanan: "Sayur Sop (1 mangkuk)",
+        kalori_per_porsi: 70,
+        kategori: "Sayur",
+    },
 ];
 
 export default function KelolaMakananView() {
-  const [foods, setFoods] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ nama_makanan: '', kalori_per_porsi: '' });
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+    const [foods, setFoods] = useState([]);
+    const [editingId, setEditingId] = useState(null);
+    const [formData, setFormData] = useState({
+        nama_makanan: "",
+        kalori_per_porsi: "",
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState({ type: "", text: "" });
+    const [searchMockQuery, setSearchMockQuery] = useState("");
+    const [searchDbQuery, setSearchDbQuery] = useState("");
 
-  // State untuk Fitur Pencarian Cerdas
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-
-  useEffect(() => {
-    fetchFoods();
-  }, []);
+    useEffect(() => {
+        fetchFoods();
+    }, []);
 
     const fetchFoods = async () => {
         try {
-            const token = localStorage.getItem('auth_token');
-
-            const response = await axios.get('/api/makanan/manage', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            setFoods(response.data.data);
+            const response = await axios.get("/api/makanan");
+            setFoods(response.data.data || []);
         } catch (err) {
-            console.error('Gagal memuat data makanan', err);
+            console.error("Gagal memuat data makanan", err);
+        }
+    };
 
-            if (err.response?.status === 403) {
+    const filteredMock = EXTERNAL_API_MOCK.filter((food) =>
+        food.nama_makanan.toLowerCase().includes(searchMockQuery.toLowerCase()),
+    );
+
+    const filteredDb = foods.filter((food) =>
+        (food.nama_makanan || "")
+            .toLowerCase()
+            .includes(searchDbQuery.toLowerCase()),
+    );
+
+    const handleSaveFromApi = async (food) => {
+        setIsLoading(true);
+        setMessage({ type: "", text: "" });
+        const token = localStorage.getItem("auth_token");
+
+        try {
+            await axios.post(
+                "/api/makanan",
+                {
+                    nama_makanan: food.nama_makanan,
+                    kalori_per_porsi: food.kalori_per_porsi,
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                },
+            );
+            setMessage({
+                type: "success",
+                text: `"${food.nama_makanan}" berhasil ditambahkan ke basis data posyandu!`,
+            });
+            fetchFoods();
+        } catch (err) {
+            setMessage({
+                type: "error",
+                text: "Gagal menyimpan makanan dari referensi.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const showForm = (id) => {
+        setMessage({ type: "", text: "" });
+        if (id) {
+            const food = foods.find((f) => f.id === id);
+            setEditingId(id);
+            setFormData({
+                nama_makanan: food.nama_makanan,
+                kalori_per_porsi: food.kalori_per_porsi,
+            });
+        } else {
+            setEditingId("new");
+            setFormData({ nama_makanan: "", kalori_per_porsi: "" });
+        }
+    };
+
+    const hideForm = () => {
+        setEditingId(null);
+        setFormData({ nama_makanan: "", kalori_per_porsi: "" });
+    };
+
+    const handleSave = async (e) => {
+        if (e) e.preventDefault();
+        if (!formData.nama_makanan || !formData.kalori_per_porsi) {
+            setMessage({
+                type: "error",
+                text: "Nama makanan dan kalori per porsi wajib diisi.",
+            });
+            return;
+        }
+
+        setIsLoading(true);
+        setMessage({ type: "", text: "" });
+        const token = localStorage.getItem("auth_token");
+
+        try {
+            if (editingId && editingId !== "new") {
+                await axios.put(`/api/makanan/${editingId}`, formData, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
                 setMessage({
-                    type: 'error',
-                    text: 'Kamu tidak memiliki akses untuk mengelola data makanan.'
+                    type: "success",
+                    text: "Menu makanan berhasil diperbarui.",
+                });
+            } else {
+                await axios.post("/api/makanan", formData, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setMessage({
+                    type: "success",
+                    text: "Menu makanan baru berhasil ditambahkan.",
+                });
+            }
+            hideForm();
+            fetchFoods();
+        } catch (err) {
+            setMessage({
+                type: "error",
+                text: "Gagal menyimpan data makanan.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDelete = async (id, nama) => {
+        if (
+            window.confirm(
+                `Hapus "${nama}" dari daftar referensi kalori posyandu?`,
+            )
+        ) {
+            try {
+                const token = localStorage.getItem("auth_token");
+                await axios.delete(`/api/makanan/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setFoods(foods.filter((f) => f.id !== id));
+                setMessage({
+                    type: "success",
+                    text: `"${nama}" berhasil dihapus.`,
+                });
+            } catch (err) {
+                setMessage({
+                    type: "error",
+                    text: "Gagal menghapus data makanan.",
                 });
             }
         }
     };
 
-  // Handler Pencarian Database Pintar
-  const handleSearch = (e) => {
-    const q = e.target.value;
-    setSearchQuery(q);
-    if (q.length > 1) {
-      const results = EXTERNAL_API_MOCK.filter(food =>
-        food.nama_makanan.toLowerCase().includes(q.toLowerCase())
-      );
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
-    }
-  };
+    return (
+        <>
+            <style>{`
+        .makanan-grid-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.35fr);
+          gap: 24px;
+          align-items: start;
+          width: 100%;
+        }
+        @media (max-width: 1024px) {
+          .makanan-grid-layout {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
 
-  // Menyimpan langsung dari Database Pintar ke Laravel
-  const handleSaveFromApi = async (food) => {
-    setIsLoading(true);
-    setMessage({ type: '', text: '' });
-    const token = localStorage.getItem('auth_token');
-
-    try {
-      await axios.post('/api/makanan', {
-        nama_makanan: food.nama_makanan,
-        kalori_per_porsi: food.kalori_per_porsi
-      }, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setMessage({ type: 'success', text: `✨ ${food.nama_makanan} berhasil ditambahkan ke Posyandu!` });
-      setSearchQuery('');
-      setSearchResults([]);
-      fetchFoods(); // Segarkan tabel
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Gagal menyimpan makanan dari database pintar.' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showForm = (id) => {
-    setMessage({ type: '', text: '' });
-    if (id) {
-      const food = foods.find(f => f.id === id);
-      setEditingId(id);
-      setFormData({ nama_makanan: food.nama_makanan, kalori_per_porsi: food.kalori_per_porsi });
-    } else {
-      setEditingId('new');
-      setFormData({ nama_makanan: '', kalori_per_porsi: '' });
-    }
-  };
-
-  const hideForm = () => setEditingId(null);
-
-  const handleSave = async () => {
-    if (!formData.nama_makanan || !formData.kalori_per_porsi) {
-      return alert('Nama makanan dan kalori wajib diisi.');
-    }
-
-    setIsLoading(true);
-    setMessage({ type: '', text: '' });
-    const token = localStorage.getItem('auth_token');
-
-    try {
-      if (editingId && editingId !== 'new') {
-        await axios.put(`/api/makanan/${editingId}`, formData, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setMessage({ type: 'success', text: 'Makanan berhasil diperbarui.' });
-      } else {
-        await axios.post('/api/makanan', formData, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setMessage({ type: 'success', text: 'Makanan baru berhasil ditambahkan.' });
-      }
-      hideForm();
-      fetchFoods();
-    } catch (err) {
-      setMessage({ type: 'error', text: 'Gagal menyimpan data makanan.' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Hapus makanan ini dari daftar Kalkulator Kalori?')) {
-      try {
-        const token = localStorage.getItem('auth_token');
-        await axios.delete(`/api/makanan/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        setFoods(foods.filter(f => f.id !== id));
-        setMessage({ type: 'success', text: 'Data makanan dihapus.' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-      } catch (err) {
-        setMessage({ type: 'error', text: 'Gagal menghapus data makanan.' });
-      }
-    }
-  };
-
-  return (
-    <div style={{ animation: 'fadein 0.4s ease' }}>
-      <div className="callout" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <i className="bi bi-info-circle-fill" style={{ fontSize: '16px' }}></i>
-        <span>Pilih makanan dari Database Pintar atau ketik manual. Makanan yang ditambahkan di sini akan muncul di Kalkulator Warga.</span>
-      </div>
-
-      {message.text && (
-        <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', fontSize: '14px', fontWeight: '500', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-          {message.text}
-        </div>
-      )}
-
-      <div className="grid grid-2" style={{ gap: '24px', alignItems: 'start' }}>
-
-        {/* KIRI: PENCARIAN CERDAS (API MOCK) */}
-        <div className="card" style={{ background: 'linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%)', border: 'none' }}>
-          <div className="section-head" style={{ marginBottom: '16px' }}>
-            <h3 style={{ color: 'var(--cyan-deep)', margin: 0 }}><i className="bi bi-search me-2"></i>Cari dari Database Pintar</h3>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#0369a1' }}>Ketik nama makanan (misal: Nasi, Soto, Ayam), kalorinya sudah otomatis tersedia!</p>
-          </div>
-
-          <input
-            type="text"
-            className="form-field full"
-            placeholder="Cari makanan di sini..."
-            value={searchQuery}
-            onChange={handleSearch}
-            style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #bae6fd', width: '100%', marginBottom: '12px' }}
-          />
-
-          {searchResults.length > 0 && (
-            <div style={{ background: '#fff', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-              {searchResults.map((food, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#fff', borderBottom: '1px solid #f1f5f9' }}>
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#334155' }}>{food.nama_makanan}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--orange-deep)', fontWeight: '600' }}>{food.kalori_per_porsi} kkal</div>
-                  </div>
-                  <button className="btn btn-sm btn-outline" style={{ color: 'var(--cyan-deep)', borderColor: 'var(--cyan-deep)' }} onClick={() => handleSaveFromApi(food)} disabled={isLoading}>
-                    <i className="bi bi-plus-lg"></i> Tambah
-                  </button>
+            <div style={{ animation: "fadein 0.3s ease" }}>
+                {/* Banner Panduan */}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "14px 18px",
+                        borderRadius: "12px",
+                        backgroundColor: "var(--primary-teal-light, #e6f3f3)",
+                        border: "1px solid #99f6e4",
+                        color: "var(--primary-teal, #008080)",
+                        fontSize: "13.5px",
+                        fontWeight: 600,
+                        marginBottom: "20px",
+                    }}
+                >
+                    <InformationCircleIcon
+                        size={20}
+                        style={{ flexShrink: 0 }}
+                    />
+                    <span>
+                        Menu makanan yang dikelola di sini akan otomatis
+                        tersedia pada Kalkulator Gizi & Kalori Mandiri untuk
+                        Warga.
+                    </span>
                 </div>
-              ))}
-            </div>
-          )}
-          {searchQuery.length > 1 && searchResults.length === 0 && (
-             <div style={{ textAlign: 'center', padding: '16px', color: '#64748b', fontSize: '13px' }}>Makanan tidak ditemukan di Database Pintar. Silakan tambah manual.</div>
-          )}
-        </div>
 
-        {/* KANAN: TAMBAH MANUAL & DAFTAR MAKANAN */}
-        <div className="card">
-          <div className="section-head" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0 }}>Daftar Menu Posyandu</h3>
-            <button className="btn btn-violet btn-sm" onClick={() => showForm()}><i className="bi bi-pencil-square me-1"></i>Input Manual</button>
-          </div>
+                <NotificationModal
+                    isOpen={Boolean(message.text)}
+                    type={message.type || "success"}
+                    message={message.text}
+                    onClose={() => setMessage({ type: "", text: "" })}
+                />
 
-          {editingId && (
-            <div className="card pad-sm" style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', marginBottom: '16px' }}>
-              <div className="form-grid">
-                <div className="form-field full">
-                  <label>Nama Makanan (+ takaran porsi)</label>
-                  <input type="text" value={formData.nama_makanan} onChange={(e) => setFormData({ ...formData, nama_makanan: e.target.value })} placeholder="mis. Jus Alpukat (1 gelas)" />
-                </div>
-                <div className="form-field full">
-                  <label>Kalori per Porsi (kkal)</label>
-                  <input type="number" value={formData.kalori_per_porsi} onChange={(e) => setFormData({ ...formData, kalori_per_porsi: e.target.value })} placeholder="mis. 220" />
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
-                <button className="btn btn-violet" style={{ flex: 1, justifyContent: 'center' }} onClick={handleSave} disabled={isLoading}>
-                  {isLoading ? 'Menyimpan...' : (editingId === 'new' ? 'Simpan Manual' : 'Simpan Perubahan')}
-                </button>
-                <button className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={hideForm}>Batal</button>
-              </div>
-            </div>
-          )}
-
-          <div className="table-responsive">
-            <table className="table">
-              <thead><tr><th>Menu Makanan</th><th>Kalori</th><th style={{ textAlign: 'right' }}>Aksi</th></tr></thead>
-              <tbody>
-                {foods.length === 0 ? (
-                  <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>Belum ada data makanan yang ditambahkan.</td></tr>
-                ) : (
-                  foods.map(f => (
-                    <tr key={f.id}>
-                      <td><b style={{ color: '#334155' }}>{f.nama_makanan}</b></td>
-                      <td style={{ color: 'var(--orange-deep)', fontWeight: 'bold' }}>{f.kalori_per_porsi} kkal</td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                          <button className="btn btn-sm btn-outline" onClick={() => showForm(f.id)}><i className="bi bi-pencil"></i></button>
-                          <button className="btn btn-sm btn-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }} onClick={() => handleDelete(f.id)}><i className="bi bi-trash"></i></button>
+                <div className="makanan-grid-layout">
+                    {/* KIRI: CARI DARI DATABASE REFERENSI STANDAR KEMENKES */}
+                    <div
+                        className="card"
+                        style={{
+                            minWidth: 0,
+                            padding: "24px",
+                            borderRadius: "16px",
+                            backgroundColor: "var(--surface, #ffffff)",
+                            border: "1.5px solid var(--line, #e2e8f0)",
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                marginBottom: "8px",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: "38px",
+                                    height: "38px",
+                                    borderRadius: "10px",
+                                    backgroundColor:
+                                        "var(--orange-bg, #FFF1DF)",
+                                    color: "var(--orange-deep, #B5650C)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <KitchenUtensilsIcon size={20} />
+                            </div>
+                            <div>
+                                <h3
+                                    style={{
+                                        fontSize: "16px",
+                                        fontWeight: 800,
+                                        color: "var(--ink, #0f172a)",
+                                        margin: 0,
+                                    }}
+                                >
+                                    Referensi Kalori Standar
+                                </h3>
+                                <span
+                                    style={{
+                                        fontSize: "12px",
+                                        color: "var(--ink-soft, #64748b)",
+                                    }}
+                                >
+                                    Pilih cepat dari standar gizi lokal
+                                </span>
+                            </div>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
-      </div>
-    </div>
-  );
+                        <p
+                            style={{
+                                fontSize: "12.5px",
+                                color: "#64748b",
+                                margin: "8px 0 16px 0",
+                                lineHeight: 1.5,
+                            }}
+                        >
+                            Ketik nama makanan untuk mencari referensi porsi dan
+                            kalori baku, lalu tambahkan ke database dengan 1
+                            klik.
+                        </p>
+
+                        <div
+                            style={{
+                                position: "relative",
+                                marginBottom: "16px",
+                            }}
+                        >
+                            <Search01Icon
+                                size={18}
+                                style={{
+                                    position: "absolute",
+                                    left: "14px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    color: "#64748b",
+                                }}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Cari makanan (mis. Nasi, Soto, Tempe)..."
+                                value={searchMockQuery}
+                                onChange={(e) =>
+                                    setSearchMockQuery(e.target.value)
+                                }
+                                style={{
+                                    width: "100%",
+                                    minHeight: "44px",
+                                    borderRadius: "12px",
+                                    border: "1.5px solid #cbd5e1",
+                                    padding: "0 14px 0 42px",
+                                    fontSize: "13.5px",
+                                    backgroundColor: "#ffffff",
+                                    outline: "none",
+                                }}
+                            />
+                        </div>
+
+                        <div
+                            style={{
+                                maxHeight: "480px",
+                                overflowY: "auto",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                            }}
+                        >
+                            {filteredMock.map((food, idx) => {
+                                const isAlreadyAdded = foods.some(
+                                    (f) =>
+                                        f.nama_makanan?.toLowerCase() ===
+                                        food.nama_makanan?.toLowerCase(),
+                                );
+                                return (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            padding: "12px 14px",
+                                            backgroundColor: isAlreadyAdded
+                                                ? "#f8fafc"
+                                                : "#ffffff",
+                                            borderRadius: "12px",
+                                            border: "1px solid #e2e8f0",
+                                            gap: "10px",
+                                        }}
+                                    >
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div
+                                                style={{
+                                                    fontWeight: 700,
+                                                    fontSize: "13.5px",
+                                                    color: "#0f172a",
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                }}
+                                            >
+                                                {food.nama_makanan}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "6px",
+                                                    marginTop: "2px",
+                                                }}
+                                            >
+                                                <span
+                                                    style={{
+                                                        fontSize: "12px",
+                                                        color: "var(--orange-deep, #B5650C)",
+                                                        fontWeight: 800,
+                                                    }}
+                                                >
+                                                    {food.kalori_per_porsi} kkal
+                                                </span>
+                                                <span
+                                                    style={{
+                                                        fontSize: "11px",
+                                                        color: "#94a3b8",
+                                                    }}
+                                                >
+                                                    • {food.kategori}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <Button
+                                            variant={
+                                                isAlreadyAdded
+                                                    ? "secondary"
+                                                    : "teal"
+                                            }
+                                            size="sm"
+                                            icon={
+                                                isAlreadyAdded
+                                                    ? CheckmarkCircle01Icon
+                                                    : Add01Icon
+                                            }
+                                            onClick={() =>
+                                                handleSaveFromApi(food)
+                                            }
+                                            disabled={
+                                                isLoading || isAlreadyAdded
+                                            }
+                                        >
+                                            {isAlreadyAdded
+                                                ? "Tersedia"
+                                                : "+ Tambah"}
+                                        </Button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* KANAN: BASIS DATA POSYANDU & EDITOR */}
+                    <div
+                        className="card"
+                        style={{
+                            minWidth: 0,
+                            padding: "24px",
+                            borderRadius: "16px",
+                            backgroundColor: "var(--surface, #ffffff)",
+                            border: "1.5px solid var(--line, #e2e8f0)",
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginBottom: "16px",
+                            }}
+                        >
+                            <div>
+                                <h3
+                                    style={{
+                                        fontSize: "16px",
+                                        fontWeight: 800,
+                                        color: "var(--ink, #0f172a)",
+                                        margin: 0,
+                                    }}
+                                >
+                                    Basis Data Makanan Posyandu
+                                </h3>
+                                <span
+                                    style={{
+                                        fontSize: "12px",
+                                        color: "var(--ink-soft, #64748b)",
+                                    }}
+                                >
+                                    Total {foods.length} makanan terdaftar
+                                </span>
+                            </div>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                icon={Add01Icon}
+                                onClick={() => showForm(null)}
+                            >
+                                + Menu Kustom
+                            </Button>
+                        </div>
+
+                        {/* FORM INLINE TAMBAH / EDIT MAKANAN */}
+                        {editingId && (
+                            <div
+                                style={{
+                                    padding: "16px",
+                                    borderRadius: "12px",
+                                    backgroundColor: "#f0fdfa",
+                                    border: "1.5px solid #99f6e4",
+                                    marginBottom: "18px",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        marginBottom: "12px",
+                                    }}
+                                >
+                                    <h4
+                                        style={{
+                                            margin: 0,
+                                            fontSize: "14px",
+                                            fontWeight: 800,
+                                            color: "#0f766e",
+                                        }}
+                                    >
+                                        {editingId === "new"
+                                            ? "+ Tambah Menu Kustom Baru"
+                                            : "Edit Data Makanan"}
+                                    </h4>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        iconOnly
+                                        icon={Cancel01Icon}
+                                        onClick={hideForm}
+                                        title="Tutup"
+                                    />
+                                </div>
+
+                                <form onSubmit={handleSave}>
+                                    <div
+                                        style={{
+                                            display: "grid",
+                                            gridTemplateColumns: "1.4fr 1fr",
+                                            gap: "12px",
+                                            marginBottom: "12px",
+                                        }}
+                                    >
+                                        <div>
+                                            <label
+                                                style={{
+                                                    fontSize: "12.5px",
+                                                    fontWeight: 600,
+                                                    color: "#334155",
+                                                    display: "block",
+                                                    marginBottom: "4px",
+                                                }}
+                                            >
+                                                Nama Makanan *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="mis. Bubur Manado (1 porsi)"
+                                                value={formData.nama_makanan}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        nama_makanan:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                required
+                                                style={{
+                                                    width: "100%",
+                                                    minHeight: "40px",
+                                                    borderRadius: "8px",
+                                                    border: "1px solid #cbd5e1",
+                                                    padding: "0 10px",
+                                                    fontSize: "13px",
+                                                    backgroundColor: "#fff",
+                                                }}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                style={{
+                                                    fontSize: "12.5px",
+                                                    fontWeight: 600,
+                                                    color: "#334155",
+                                                    display: "block",
+                                                    marginBottom: "4px",
+                                                }}
+                                            >
+                                                Kalori (kkal) *
+                                            </label>
+                                            <input
+                                                type="number"
+                                                inputMode="numeric"
+                                                min="0"
+                                                max="5000"
+                                                placeholder="mis. 180"
+                                                value={
+                                                    formData.kalori_per_porsi
+                                                }
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        kalori_per_porsi:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                required
+                                                style={{
+                                                    width: "100%",
+                                                    minHeight: "40px",
+                                                    borderRadius: "8px",
+                                                    border: "1px solid #cbd5e1",
+                                                    padding: "0 10px",
+                                                    fontSize: "13px",
+                                                    backgroundColor: "#fff",
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                            gap: "8px",
+                                        }}
+                                    >
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={hideForm}
+                                        >
+                                            Batal
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            size="sm"
+                                            loading={isLoading}
+                                            loadingText="Menyimpan..."
+                                        >
+                                            Simpan Menu
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* FILTER SEARCH DATABASE */}
+                        <div
+                            style={{
+                                position: "relative",
+                                marginBottom: "14px",
+                            }}
+                        >
+                            <Search01Icon
+                                size={16}
+                                style={{
+                                    position: "absolute",
+                                    left: "12px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    color: "#64748b",
+                                }}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Filter menu terdaftar..."
+                                value={searchDbQuery}
+                                onChange={(e) =>
+                                    setSearchDbQuery(e.target.value)
+                                }
+                                style={{
+                                    width: "100%",
+                                    minHeight: "40px",
+                                    borderRadius: "10px",
+                                    border: "1px solid #cbd5e1",
+                                    padding: "0 12px 0 36px",
+                                    fontSize: "13px",
+                                    backgroundColor: "#ffffff",
+                                    outline: "none",
+                                }}
+                            />
+                        </div>
+
+                        <div
+                            style={{
+                                maxHeight: "480px",
+                                overflowY: "auto",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                            }}
+                        >
+                            {filteredDb.length === 0 ? (
+                                <div
+                                    style={{
+                                        textAlign: "center",
+                                        padding: "32px 16px",
+                                        color: "#64748b",
+                                        backgroundColor: "#f8fafc",
+                                        borderRadius: "12px",
+                                        border: "1px dashed #cbd5e1",
+                                    }}
+                                >
+                                    <KitchenUtensilsIcon
+                                        size={32}
+                                        style={{
+                                            margin: "0 auto 6px",
+                                            color: "#94a3b8",
+                                        }}
+                                    />
+                                    <p
+                                        style={{
+                                            fontWeight: 700,
+                                            fontSize: "13.5px",
+                                            color: "#334155",
+                                            margin: 0,
+                                        }}
+                                    >
+                                        Belum Ada Data
+                                    </p>
+                                </div>
+                            ) : (
+                                filteredDb.map((food) => (
+                                    <div
+                                        key={food.id}
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            padding: "12px 14px",
+                                            borderRadius: "10px",
+                                            border: "1px solid #e2e8f0",
+                                            backgroundColor: "#ffffff",
+                                            gap: "10px",
+                                        }}
+                                    >
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <h4
+                                                style={{
+                                                    margin: 0,
+                                                    fontSize: "13.5px",
+                                                    fontWeight: 800,
+                                                    color: "#0f172a",
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                }}
+                                            >
+                                                {food.nama_makanan}
+                                            </h4>
+                                            <span
+                                                style={{
+                                                    fontSize: "12px",
+                                                    fontWeight: 700,
+                                                    color: "var(--orange-deep, #B5650C)",
+                                                }}
+                                            >
+                                                {food.kalori_per_porsi} kkal /
+                                                porsi
+                                            </span>
+                                        </div>
+
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                gap: "6px",
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                icon={Edit02Icon}
+                                                onClick={() =>
+                                                    showForm(food.id)
+                                                }
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                variant="danger-outline"
+                                                size="sm"
+                                                icon={Delete02Icon}
+                                                onClick={() =>
+                                                    handleDelete(
+                                                        food.id,
+                                                        food.nama_makanan,
+                                                    )
+                                                }
+                                            >
+                                                Hapus
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
 }

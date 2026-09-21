@@ -16,7 +16,7 @@ return new class extends Migration
                 'ibu_hamil',
                 'nifas',
                 'kematian_nifas',
-                'diare'
+                'diare',
             ]);
 
             // Data umum orang

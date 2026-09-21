@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
+import NotificationModal from '../common/NotificationModal';
+import Button from '../common/Button';
+
+import {
+    PrinterIcon,
+    FloppyDiskIcon,
+    Delete02Icon
+} from '@theexperiencecompany/gaia-icons/solid-rounded';
 
 export default function RekapKegiatanView() {
     const [formData, setFormData] = useState({
@@ -168,26 +176,21 @@ export default function RekapKegiatanView() {
           TAMPILAN MONITOR (INPUT UNTUK KADER/KETUA)
           ========================================================= */}
             <div className="no-print">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <div>
-                        <h2 style={{ color: 'var(--violet-deep)', margin: '0 0 8px 0' }}>Rekap Kegiatan Bulanan Posyandu</h2>
-                        <p style={{ color: '#666', margin: 0, fontSize: '14px' }}>Isi data hasil kegiatan secara berkala. Form ini sesuai dengan format Register Standar (46 Kolom).</p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <button className="btn btn-outline" onClick={() => handlePrint(null)} style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}>
-                            <i className="bi bi-printer me-2"></i> Ekspor Kertas PDF
-                        </button>
-                        <button className="btn btn-violet" onClick={handleSave} disabled={isLoading}>
-                            <i className="bi bi-save me-2"></i> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
-                        </button>
-                    </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                    <Button variant="secondary" onClick={() => handlePrint(null)}>
+                        <PrinterIcon size={16} className="me-2" /> Ekspor Kertas PDF
+                    </Button>
+                    <Button variant="primary" onClick={handleSave} disabled={isLoading}>
+                        <FloppyDiskIcon size={16} className="me-2" /> {isLoading ? 'Menyimpan...' : 'Simpan Data Baru'}
+                    </Button>
                 </div>
 
-                {message.text && (
-                    <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '6px', backgroundColor: message.type === 'error' ? '#fde8e8' : '#e1fce8', color: message.type === 'error' ? '#c81e1e' : '#036c2a' }}>
-                        <b>Info Sistem:</b> {message.text}
-                    </div>
-                )}
+                <NotificationModal
+                    isOpen={Boolean(message.text)}
+                    type={message.type || 'success'}
+                    message={message.text}
+                    onClose={() => setMessage({ type: '', text: '' })}
+                />
 
                 {/* --- KELOMPOK 1 & 2 --- */}
                 <div className="grid grid-2" style={{ marginBottom: '16px' }}>
@@ -332,20 +335,20 @@ export default function RekapKegiatanView() {
                                             <td style={{ textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                                     {/* TOMBOL CETAK RIWAYAT */}
-                                                    <button
-                                                        className="btn btn-sm btn-outline"
-                                                        style={{ color: 'var(--violet-deep)', borderColor: 'var(--violet-deep)' }}
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
                                                         onClick={() => handlePrint(item)}
                                                     >
-                                                        <i className="bi bi-printer"></i> Cetak
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-outline"
-                                                        style={{ color: '#dc3545', borderColor: '#dc3545' }}
+                                                        <PrinterIcon size={14} className="me-1" /> Cetak
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger-outline"
+                                                        size="sm"
                                                         onClick={() => handleDelete(item.id)}
                                                     >
-                                                        <i className="bi bi-trash"></i> Hapus
-                                                    </button>
+                                                        <Delete02Icon size={14} className="me-1" /> Hapus
+                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>

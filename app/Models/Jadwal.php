@@ -10,6 +10,7 @@ class Jadwal extends Model
     use HasFactory;
 
     protected $table = 'jadwal'; // Sesuai dengan nama tabel migration-mu
+
     protected $fillable = ['posyandu_id', 'keterangan_waktu', 'catatan'];
 
     public function posyandu()

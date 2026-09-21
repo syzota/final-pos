@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import Button from '../components/common/Button';
 import '../styles/detail-artikel.css';
+import { ArrowLeft01Icon } from '@theexperiencecompany/gaia-icons/solid-rounded';
+import Skeleton from '../components/common/Skeleton';
 
 export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
   const [artikel, setArtikel] = useState(null);
@@ -13,50 +16,50 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchArtikelData = async (targetId) => {
+    const articleId = targetId || localStorage.getItem('active_article_id');
+
+    if (!articleId) {
+      setError('Artikel tidak ditemukan atau ID tidak valid.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError('');
+      // 1. Tembak API untuk ambil detail artikel yang sedang dibaca
+      const detailResponse = await axios.get(`/api/artikels/${articleId}`);
+      setArtikel(detailResponse.data.data);
+
+      // 2. Tembak API untuk ambil SEMUA artikel (buat sidebar)
+      const allArticlesResponse = await axios.get('/api/artikels');
+      const semuaArtikel = allArticlesResponse.data.data || [];
+
+      // 3. Filter: Buang artikel yang sedang dibaca, lalu ambil maksimal 3 buah
+      const filteredLainnya = semuaArtikel
+        .filter(item => item.id !== parseInt(articleId))
+        .slice(0, 3);
+
+      setArtikelLainnya(filteredLainnya);
+
+    } catch (err) {
+      console.error('Gagal mengambil data artikel:', err);
+      setError('Gagal memuat isi artikel dari server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchArtikelData = async () => {
-      const articleId = localStorage.getItem('active_article_id');
-
-      if (!articleId) {
-        setError('Artikel tidak ditemukan atau ID tidak valid.');
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        // 1. Tembak API untuk ambil detail artikel yang sedang dibaca
-        const detailResponse = await axios.get(`/api/artikels/${articleId}`);
-        setArtikel(detailResponse.data.data);
-
-        // 2. Tembak API untuk ambil SEMUA artikel (buat sidebar)
-        const allArticlesResponse = await axios.get('/api/artikels');
-        const semuaArtikel = allArticlesResponse.data.data;
-
-        // 3. Filter: Buang artikel yang sedang dibaca, lalu ambil maksimal 3 buah
-        const filteredLainnya = semuaArtikel
-          .filter(item => item.id !== parseInt(articleId))
-          .slice(0, 3);
-
-        setArtikelLainnya(filteredLainnya);
-
-      } catch (err) {
-        console.error('Gagal mengambil data artikel:', err);
-        setError('Gagal memuat isi artikel dari server.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchArtikelData();
   }, []);
 
-  // FUNGSI BARU: Untuk melompat ke artikel lain dari sidebar tanpa reload penuh
+  // Untuk melompat ke artikel lain dari sidebar secara halus (SPA) tanpa reload penuh
   const handleBacaArtikelLain = (id) => {
     localStorage.setItem('active_article_id', id);
-    // Refresh window/halaman ke atas agar useEffect narik ulang data baru
-    window.location.reload();
-    window.scrollTo(0, 0);
+    fetchArtikelData(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const formatDate = (dateString) => {
@@ -66,7 +69,8 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
   };
 
   const getImageUrl = (path) => {
-    if (!path) return 'https://via.placeholder.com/300x200?text=Artikel+Kesehatan';
+    if (!path) return 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+    if (path.startsWith('http')) return path;
     return `/storage/${path}`;
   };
 
@@ -80,17 +84,34 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
       <Header activePage={activePage} onNavigate={onNavigate} onDarurat={onDarurat} />
 
       <main className="detail-artikel-main">
-        <button type="button" className="back-link" onClick={() => onNavigate && onNavigate('artikel')}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M3.825 9H16V7H3.825L9.425 1.4 8 0 0 8 8 16 9.425 14.6 3.825 9V9" fill="currentColor" />
-          </svg>
-          Kembali ke Artikel
-        </button>
+        <div style={{ marginBottom: '20px' }}>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={ArrowLeft01Icon}
+            onClick={() => onNavigate && onNavigate('artikel')}
+          >
+            Kembali ke Artikel
+          </Button>
+        </div>
 
         <div className="detail-artikel-layout">
           {/* Main Column */}
           <article className="detail-artikel-body">
-            {isLoading && <div style={{ padding: '40px 0' }}>Memuat isi artikel... ⏳</div>}
+            {isLoading && (
+              <div style={{ paddingTop: '16px' }}>
+                <Skeleton type="title" width="80%" height="40px" style={{ marginBottom: '32px' }} />
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', alignItems: 'center' }}>
+                   <Skeleton type="circle" width="48px" height="48px" />
+                   <div>
+                     <Skeleton type="text" width="120px" style={{ marginBottom: '8px' }} />
+                     <Skeleton type="text" width="80px" />
+                   </div>
+                </div>
+                <Skeleton type="text" rows={6} />
+                <Skeleton type="box" height="350px" style={{ marginTop: '40px' }} />
+              </div>
+            )}
             {error && <div style={{ padding: '40px 0', color: 'red' }}>{error}</div>}
 
             {!isLoading && !error && artikel && (
@@ -121,7 +142,14 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
 
                 {artikel.path_foto && (
                   <div className="detail-artikel-closing-img" style={{ marginTop: '32px' }}>
-                    <img src={getImageUrl(artikel.path_foto)} alt={artikel.judul} />
+                    <img
+                      src={getImageUrl(artikel.path_foto)}
+                      alt={artikel.judul}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&auto=format&fit=crop&q=80';
+                      }}
+                    />
                     <span className="closing-img-tag">{artikel.kategori}</span>
                   </div>
                 )}
@@ -146,7 +174,14 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
                     }}
                   >
                     <div className="related-article-img">
-                      <img src={getImageUrl(item.path_foto)} alt={item.judul} />
+                      <img
+                        src={getImageUrl(item.path_foto)}
+                        alt={item.judul}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=600&auto=format&fit=crop&q=80';
+                        }}
+                      />
                     </div>
                     <div className="related-article-info">
                       <p className="related-article-title" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -159,21 +194,6 @@ export default function DetailArtikel({ activePage, onNavigate, onDarurat }) {
               ) : (
                 <p style={{ color: '#888', fontSize: '13px', fontStyle: 'italic' }}>Tidak ada artikel lain yang diterbitkan saat ini.</p>
               )}
-            </div>
-
-            <div className="progress-cta-card">
-              <h3 className="progress-cta-title">Pantau Progres</h3>
-              <p className="progress-cta-desc">
-                Gunakan kalkulator pertumbuhan kami untuk melacak status nutrisi anak Anda secara
-                rutin.
-              </p>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => onNavigate && onNavigate('kalkulator')}
-              >
-                Buka Kalkulator
-              </button>
             </div>
           </aside>
         </div>

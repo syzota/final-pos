@@ -16,13 +16,14 @@ class Posyandu extends Model
         'alamat',
         'no_telepon',
         'latitude',
-        'longitude'
+        'longitude',
     ];
 
     public function wargaKeluarga()
     {
         return $this->hasMany(WargaKeluarga::class, 'posyandu_id');
     }
+
     // Tambahkan ini di dalam class Posyandu
     public function jadwal()
     {

@@ -17,10 +17,10 @@ class AdminLaporanController extends Controller
         return response()->json([
             'status' => 'sukses',
             'data' => [
-                'rekap46'  => $rekap46,
-                'rekap13'  => $rekap13,
-                'dataUmum' => $dataUmum
-            ]
+                'rekap46' => $rekap46,
+                'rekap13' => $rekap13,
+                'dataUmum' => $dataUmum,
+            ],
         ], 200);
     }
 }

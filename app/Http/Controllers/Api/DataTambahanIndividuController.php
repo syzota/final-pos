@@ -22,7 +22,10 @@ class DataTambahanIndividuController extends Controller
         if ($request->filled('bulan')) {
             // format: YYYY-MM
             $bulan = $request->bulan;
-            $query->whereRaw("DATE_FORMAT(tanggal, '%Y-%m') = ?", [$bulan]);
+            $parts = explode('-', $bulan);
+            if (count($parts) === 2) {
+                $query->whereYear('tanggal', $parts[0])->whereMonth('tanggal', $parts[1]);
+            }
         }
 
         $data = $query
@@ -45,8 +48,8 @@ class DataTambahanIndividuController extends Controller
                     'ibu_hamil',
                     'nifas',
                     'kematian_nifas',
-                    'diare'
-                ])
+                    'diare',
+                ]),
             ],
 
             'nama' => ['required', 'string', 'max:150'],
@@ -74,7 +77,7 @@ class DataTambahanIndividuController extends Controller
             ->where('posyandu_id', $request->user()->posyandu_id)
             ->first();
 
-        if (!$data) {
+        if (! $data) {
             return response()->json([
                 'status' => 'gagal',
                 'pesan' => 'Data tidak ditemukan.',

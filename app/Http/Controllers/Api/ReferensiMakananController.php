@@ -39,7 +39,7 @@ class ReferensiMakananController extends Controller
 
         return response()->json([
             'status' => 'sukses',
-            'data' => $makanan
+            'data' => $makanan,
         ]);
     }
 
@@ -48,7 +48,7 @@ class ReferensiMakananController extends Controller
     {
         $request->validate([
             'nama_makanan' => 'required|string',
-            'kalori_per_porsi' => 'required|numeric'
+            'kalori_per_porsi' => 'required|numeric',
         ]);
 
         $posyanduId = $request->user()->posyandu_id;
@@ -69,7 +69,7 @@ class ReferensiMakananController extends Controller
     {
         $request->validate([
             'nama_makanan' => 'required|string',
-            'kalori_per_porsi' => 'required|numeric'
+            'kalori_per_porsi' => 'required|numeric',
         ]);
 
         $user = $request->user();

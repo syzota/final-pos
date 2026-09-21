@@ -109,7 +109,7 @@ class ArtikelController extends Controller
         return response()->json([
             'status' => 'sukses',
             'pesan' => 'Artikel berhasil disimpan',
-            'data' => $artikel
+            'data' => $artikel,
         ], 201);
     }
 
@@ -186,7 +186,7 @@ class ArtikelController extends Controller
         return response()->json([
             'status' => 'sukses',
             'pesan' => 'Artikel berhasil diperbarui',
-            'data' => $artikel
+            'data' => $artikel,
         ]);
     }
 

@@ -1,14 +1,32 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\PosyanduController;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AdminAnalitikController;
+use App\Http\Controllers\Api\AdminLaporanController;
 use App\Http\Controllers\Api\ArtikelController;
-use App\Http\Middleware\CheckRole; // Import Middleware baru kita
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\DataTambahanIndividuController;
+use App\Http\Controllers\Api\DataUmumController;
+use App\Http\Controllers\Api\DraftController;
+use App\Http\Controllers\Api\FormulirIdentifikasiController;
+use App\Http\Controllers\Api\PemeriksaanBalitaController;
+use App\Http\Controllers\Api\PemeriksaanHamilController;
+use App\Http\Controllers\Api\PemeriksaanLansiaController;
+use App\Http\Controllers\Api\PemeriksaanRemajaController;
+use App\Http\Controllers\Api\PencatatanKegiatanController;
+use App\Http\Controllers\Api\PengaduanMasyarakatController;
+use App\Http\Controllers\Api\PosyanduController;
+use App\Http\Controllers\Api\ReferensiMakananController;
+use App\Http\Controllers\Api\RekapKegiatanController;
+use App\Http\Controllers\Api\WargaController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /**
  * @title API Posyandu LDU
+ *
  * @version 1.0.0
+ *
  * @description Dokumentasi resmi API untuk Web Posyandu
  */
 
@@ -497,5 +515,4 @@ Route::middleware('auth:sanctum')->group(function () {
             [\App\Http\Controllers\Api\PemeriksaanLansiaController::class, 'getForAdmin']
         );
     });
-
 });
