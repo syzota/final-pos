@@ -6,23 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\Artikel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str; // Tambahkan ini untuk membuat slug otomatis
+use Illuminate\Support\Str;
 
 class ArtikelController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Artikel::with('penulis:id,name,role');
-
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        } else {
-            $query->where('status', 'dipublikasikan');
-        }
+        $artikels = Artikel::with('penulis:id,name,role')
+            ->where('status', 'dipublikasikan')
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => 'sukses',
-            'data' => $query->latest()->get()
+            'data' => $artikels
         ]);
     }
 
@@ -31,41 +28,82 @@ class ArtikelController extends Controller
         $artikel = Artikel::with('penulis:id,name,role')->find($id);
 
         if (!$artikel) {
-            return response()->json(['status' => 'gagal', 'pesan' => 'Artikel tidak ditemukan'], 404);
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Artikel tidak ditemukan'
+            ], 404);
         }
 
-        return response()->json(['status' => 'sukses', 'data' => $artikel]);
+        return response()->json([
+            'status' => 'sukses',
+            'data' => $artikel
+        ]);
+    }
+
+    public function manage(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->posyandu_id) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Akun Anda tidak terikat pada Posyandu.'
+            ], 403);
+        }
+
+        $artikels = Artikel::with('penulis:id,name,role')
+            ->where('posyandu_id', $user->posyandu_id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => 'sukses',
+            'data' => $artikels
+        ]);
     }
 
     public function store(Request $request)
     {
-        // Sesuaikan validasi dengan nama kolom di Bruno
         $request->validate([
             'judul' => 'required|string|max:255',
             'kategori' => 'required|string',
-            'isi_artikel' => 'required|string', // Sesuai migrasi
-            'status' => 'required|in:draf,dipublikasikan', // Sesuai enum
+            'isi_artikel' => 'required|string',
+            'status' => 'required|in:draf,dipublikasikan',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('images/artikel', 'public');
+        $user = $request->user();
+
+        if (!$user->posyandu_id) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Akun Anda tidak terikat pada Posyandu.'
+            ], 403);
         }
 
-        // Buat URL ramah SEO (Slug) dari Judul, tambah angka acak agar unik
+        $fotoPath = null;
+
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request
+                ->file('foto')
+                ->store('images/artikel', 'public');
+        }
+
         $slug = Str::slug($request->judul) . '-' . time();
 
         $artikel = Artikel::create([
-            'penulis_id' => $request->user()->id,
-            // 'posyandu_id' => $request->user()->posyandu_id, // Buka komen ini jika user sudah punya relasi ke posyandu
+            'penulis_id' => $user->id,
+            'posyandu_id' => $user->posyandu_id,
             'judul' => $request->judul,
             'kategori' => $request->kategori,
             'slug' => $slug,
             'isi_artikel' => $request->isi_artikel,
             'status' => $request->status,
             'path_foto' => $fotoPath,
-            'published_at' => $request->status === 'dipublikasikan' ? now() : null,
+            'published_at' =>
+                $request->status === 'dipublikasikan'
+                    ? now()
+                    : null,
         ]);
 
         return response()->json([
@@ -78,8 +116,20 @@ class ArtikelController extends Controller
     public function update(Request $request, $id)
     {
         $artikel = Artikel::find($id);
+
         if (!$artikel) {
-            return response()->json(['status' => 'gagal', 'pesan' => 'Artikel tidak ditemukan'], 404);
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Artikel tidak ditemukan'
+            ], 404);
+        }
+
+        // Cek apakah artikel milik Posyandu user
+        if (!$this->canManageArtikel($request, $artikel)) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Anda tidak memiliki akses untuk mengubah artikel ini.'
+            ], 403);
         }
 
         $request->validate([
@@ -92,24 +142,46 @@ class ArtikelController extends Controller
 
         // Jika ada foto baru
         if ($request->hasFile('foto')) {
-            if ($artikel->path_foto && Storage::disk('public')->exists($artikel->path_foto)) {
+            if (
+                $artikel->path_foto &&
+                Storage::disk('public')->exists($artikel->path_foto)
+            ) {
                 Storage::disk('public')->delete($artikel->path_foto);
             }
-            $artikel->path_foto = $request->file('foto')->store('images/artikel', 'public');
+
+            $artikel->path_foto = $request
+                ->file('foto')
+                ->store('images/artikel', 'public');
         }
 
-        // Jika judul berubah, ubah juga slug-nya
-        if ($request->has('judul') && $request->judul !== $artikel->judul) {
-            $artikel->slug = Str::slug($request->judul) . '-' . time();
+        // Jika judul berubah, slug ikut berubah
+        if (
+            $request->has('judul') &&
+            $request->judul !== $artikel->judul
+        ) {
+            $artikel->slug =
+                Str::slug($request->judul) . '-' . time();
         }
 
-        // Update waktu publish jika status berubah jadi dipublikasikan
-        if ($request->has('status') && $request->status === 'dipublikasikan' && $artikel->status !== 'dipublikasikan') {
+        // Jika berubah menjadi dipublikasikan
+        if (
+            $request->has('status') &&
+            $request->status === 'dipublikasikan' &&
+            $artikel->status !== 'dipublikasikan'
+        ) {
             $artikel->published_at = now();
         }
 
-        $artikel->update($request->only(['judul', 'kategori', 'isi_artikel', 'status']));
-        $artikel->save(); // Simpan perubahan tambahan seperti path_foto, slug, published_at
+        $artikel->update(
+            $request->only([
+                'judul',
+                'kategori',
+                'isi_artikel',
+                'status'
+            ])
+        );
+
+        $artikel->save();
 
         return response()->json([
             'status' => 'sukses',
@@ -118,18 +190,64 @@ class ArtikelController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $artikel = Artikel::find($id);
+
         if (!$artikel) {
-            return response()->json(['status' => 'gagal', 'pesan' => 'Artikel tidak ditemukan'], 404);
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Artikel tidak ditemukan'
+            ], 404);
         }
 
-        if ($artikel->path_foto && Storage::disk('public')->exists($artikel->path_foto)) {
+        // Cek apakah artikel milik Posyandu user
+        if (!$this->canManageArtikel($request, $artikel)) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan' => 'Anda tidak memiliki akses untuk menghapus artikel ini.'
+            ], 403);
+        }
+
+        if (
+            $artikel->path_foto &&
+            Storage::disk('public')->exists($artikel->path_foto)
+        ) {
             Storage::disk('public')->delete($artikel->path_foto);
         }
 
         $artikel->delete();
-        return response()->json(['status' => 'sukses', 'pesan' => 'Artikel berhasil dihapus']);
+
+        return response()->json([
+            'status' => 'sukses',
+            'pesan' => 'Artikel berhasil dihapus'
+        ]);
+    }
+
+    private function canManageArtikel(
+        Request $request,
+        Artikel $artikel
+    ): bool {
+        $user = $request->user();
+
+        if (!$user || !$user->posyandu_id) {
+            return false;
+        }
+
+        /*
+         * Artikel baru menggunakan posyandu_id langsung.
+         *
+         * Artikel lama mungkin posyandu_id masih null,
+         * jadi sementara fallback ke Posyandu penulis.
+         */
+        $artikelPosyanduId = $artikel->posyandu_id;
+
+        if (!$artikelPosyanduId) {
+            $artikelPosyanduId =
+                $artikel->penulis?->posyandu_id;
+        }
+
+        return (int) $artikelPosyanduId ===
+            (int) $user->posyandu_id;
     }
 }

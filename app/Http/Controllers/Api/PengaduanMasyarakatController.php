@@ -25,6 +25,21 @@ class PengaduanMasyarakatController extends Controller
 
         $posyanduId = $request->user()->posyandu_id;
 
+        if (!$posyanduId && $request->user()->role === 'warga') {
+            $keluarga = \App\Models\WargaKeluarga::where('user_id', $request->user()->id)->first();
+            if ($keluarga) {
+                $posyanduId = $keluarga->posyandu_id;
+                $request->user()->forceFill(['posyandu_id' => $posyanduId])->save();
+            }
+        }
+
+        if (!$posyanduId) {
+            return response()->json([
+                'status' => 'gagal',
+                'pesan'  => 'Akun Anda tidak terikat pada Posyandu manapun.'
+            ], 403);
+        }
+
         $lampiranPaths = [];
         // PERBAIKAN: Tangkap file lampiran langsung
         if ($request->file('lampiran')) {
@@ -57,10 +72,30 @@ class PengaduanMasyarakatController extends Controller
     }
     public function index(Request $request)
     {
-        $posyanduId = $request->user()->posyandu_id;
+        $user = $request->user();
+        $posyanduId = $user->posyandu_id;
+
+        if (!$posyanduId && $user->role === 'warga') {
+            $keluarga = \App\Models\WargaKeluarga::where('user_id', $user->id)->first();
+            if ($keluarga) {
+                $posyanduId = $keluarga->posyandu_id;
+                $user->forceFill(['posyandu_id' => $posyanduId])->save();
+            }
+        }
+
+        $query = PengaduanMasyarakat::where('posyandu_id', $posyanduId);
+
+        // OPSI 1: Warga hanya boleh melihat pengaduan miliknya sendiri (proteksi privasi NIK)
+        if ($user->role === 'warga') {
+            $niks = array_filter([
+                $user->username,
+                \App\Models\WargaKeluarga::where('user_id', $user->id)->value('nik_kepala_keluarga')
+            ]);
+            $query->whereIn('nik', $niks);
+        }
 
         // Ambil data pengaduan khusus posyandu ini, urutkan dari yang terbaru
-        $pengaduan = PengaduanMasyarakat::where('posyandu_id', $posyanduId)->latest()->get();
+        $pengaduan = $query->latest()->get();
 
         return response()->json([
             'status' => 'sukses',

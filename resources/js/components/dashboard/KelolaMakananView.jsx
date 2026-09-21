@@ -46,14 +46,28 @@ export default function KelolaMakananView() {
     fetchFoods();
   }, []);
 
-  const fetchFoods = async () => {
-    try {
-      const response = await axios.get('/api/makanan');
-      setFoods(response.data.data);
-    } catch (err) {
-      console.error("Gagal memuat data makanan", err);
-    }
-  };
+    const fetchFoods = async () => {
+        try {
+            const token = localStorage.getItem('auth_token');
+
+            const response = await axios.get('/api/makanan/manage', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setFoods(response.data.data);
+        } catch (err) {
+            console.error('Gagal memuat data makanan', err);
+
+            if (err.response?.status === 403) {
+                setMessage({
+                    type: 'error',
+                    text: 'Kamu tidak memiliki akses untuk mengelola data makanan.'
+                });
+            }
+        }
+    };
 
   // Handler Pencarian Database Pintar
   const handleSearch = (e) => {
