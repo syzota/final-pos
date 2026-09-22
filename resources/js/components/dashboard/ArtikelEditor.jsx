@@ -841,20 +841,23 @@ export default function ArtikelEditor({
       {/* STICKY TOP ACTION NAVIGATION */}
       <nav className="editor-top-nav" aria-label="Aksi Editor Artikel">
         {/* Left: Back & Mode Indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="editor-top-nav-left">
           <Button
             variant="secondary"
             size="sm"
             icon={ArrowLeft01Icon}
             onClick={handleCancelSafe}
             disabled={isSaving}
+            className="editor-back-btn"
             style={{ fontWeight: 700 }}
           >
-            Kembali ke Katalog
+            <span className="editor-back-text">Kembali ke Katalog</span>
+            <span className="editor-back-text-mobile">Kembali</span>
           </Button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="editor-status-badge-wrap">
             <span
+              className="editor-mode-badge"
               style={{
                 fontSize: '12px',
                 fontWeight: 800,
@@ -868,10 +871,10 @@ export default function ArtikelEditor({
                 gap: '5px'
               }}
             >
-              {editingArticle ? `✏️ Edit Artikel #${editingArticle.id}` : '📝 Menulis Artikel Baru'}
+              {editingArticle ? `✏️ Edit #${editingArticle.id}` : '📝 Menulis Baru'}
             </span>
 
-            <span style={{ fontSize: '11.5px', color: isDirty ? '#d97706' : '#64748b', fontWeight: 600 }}>
+            <span className="editor-autosave-indicator" style={{ fontSize: '11.5px', color: isDirty ? '#d97706' : '#64748b', fontWeight: 600 }}>
               {isDirty ? '● Ada perubahan' : `✓ ${autosaveText}`}
             </span>
           </div>
@@ -906,7 +909,7 @@ export default function ArtikelEditor({
         </div>
 
         {/* Right: Quick Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="editor-top-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Button
             variant="secondary"
             size="sm"
@@ -943,7 +946,7 @@ export default function ArtikelEditor({
             <article className="editor-canvas-card">
               {/* Title Section */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <div className="editor-title-label-row">
                   <label
                     htmlFor="article-title-input"
                     style={{
@@ -956,8 +959,8 @@ export default function ArtikelEditor({
                   >
                     Judul Artikel / Informasi Edukasi
                   </label>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: isJudulValid ? '#16a34a' : '#94a3b8' }}>
-                    {formData.judul?.length || 0} karakter {isJudulValid ? '✓' : '(Min. 5 karakter)'}
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: isJudulValid ? '#16a34a' : '#94a3b8', whiteSpace: 'nowrap' }}>
+                    {formData.judul?.length || 0} karakter {isJudulValid ? '✓' : '(Min. 5)'}
                   </span>
                 </div>
                 <input
@@ -965,81 +968,70 @@ export default function ArtikelEditor({
                   ref={judulInputRef}
                   type="text"
                   className="editor-title-input"
-                  placeholder="Tuliskan Judul Edukasi Kesehatan yang Menarik..."
+                  placeholder="Tuliskan judul edukasi kesehatan..."
                   value={formData.judul}
                   onChange={(e) => setFormData({ ...formData, judul: e.target.value })}
                 />
               </div>
 
               {/* Editorial Meta Bar (Matching DetailArtikel style) */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '12px',
-                  paddingBottom: '16px',
-                  borderBottom: '1px solid #f1f5f9'
-                }}
-              >
-                {/* Author Avatar */}
-                <div
-                  style={{
-                    width: '38px',
-                    height: '38px',
-                    borderRadius: '50%',
-                    backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
-                    color: 'var(--primary-teal, #008080)',
-                    fontWeight: 800,
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}
-                >
-                  {(currentUser?.name || 'Kader')[0].toUpperCase()}
+              <div className="editor-meta-bar">
+                {/* Author Avatar & Name */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--primary-teal-light, #e6f3f3)',
+                      color: 'var(--primary-teal, #008080)',
+                      fontWeight: 800,
+                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}
+                  >
+                    {(currentUser?.name || 'Kader')[0].toUpperCase()}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>
+                      {currentUser?.name || 'Kader Posyandu'}
+                    </span>
+                    <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                      {activePosyanduName}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Author Info */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-                    {currentUser?.name || 'Kader Posyandu'}
+                {/* Date & Category */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#64748b' }}>
+                    <Calendar01Icon size={14} />
+                    <span>{todayFormatted}</span>
+                  </div>
+
+                  <span
+                    style={{
+                      fontSize: '10.5px',
+                      fontWeight: 800,
+                      padding: '3px 8px',
+                      borderRadius: '8px',
+                      backgroundColor: selectedCategoryMeta.bg,
+                      color: selectedCategoryMeta.color,
+                      border: `1px solid ${selectedCategoryMeta.border}`,
+                      textTransform: 'uppercase',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <CatIcon size={12} />
+                    {selectedCategoryMeta.label}
                   </span>
-                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                    {activePosyanduName}
-                  </span>
                 </div>
-
-                <span style={{ color: '#cbd5e1' }}>•</span>
-
-                {/* Date */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12.5px', color: '#64748b' }}>
-                  <Calendar01Icon size={14} />
-                  <span>{todayFormatted}</span>
-                </div>
-
-                <span style={{ color: '#cbd5e1' }}>•</span>
-
-                {/* Active Category Pill */}
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    padding: '4px 10px',
-                    borderRadius: '8px',
-                    backgroundColor: selectedCategoryMeta.bg,
-                    color: selectedCategoryMeta.color,
-                    border: `1px solid ${selectedCategoryMeta.border}`,
-                    textTransform: 'uppercase',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  <CatIcon size={13} />
-                  {selectedCategoryMeta.label}
-                </span>
               </div>
 
               {/* Featured Image / Sampul Section (Drag & Drop) */}
